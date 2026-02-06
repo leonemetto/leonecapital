@@ -7,9 +7,9 @@ const Journal = () => {
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Trade Journal</h1>
-        <p className="text-sm text-muted-foreground">Review, filter, and manage your trade history</p>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold">Journal</h1>
+        <p className="text-xs text-muted-foreground">Trade history</p>
       </div>
       <TradeTable trades={trades} onUpdate={updateTrade} onDelete={deleteTrade} />
     </AppLayout>

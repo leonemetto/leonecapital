@@ -7,42 +7,39 @@ interface StatsCardProps {
   value: string | number;
   icon: LucideIcon;
   trend?: 'up' | 'down' | 'neutral';
-  subtitle?: string;
   className?: string;
   delay?: number;
 }
 
-export function StatsCard({ title, value, icon: Icon, trend, subtitle, className, delay = 0 }: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, trend, className, delay = 0 }: StatsCardProps) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12 }}
+      initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, delay: delay * 0.05 }}
+      transition={{ duration: 0.25, delay: delay * 0.04 }}
       className={cn(
-        'glass-card p-5 transition-all duration-200 hover:border-primary/20',
+        'glass-card p-4 transition-all duration-150 hover:border-primary/20 group',
         className
       )}
     >
-      <div className="flex items-center justify-between mb-3">
-        <span className="text-[11px] font-medium uppercase tracking-widest text-muted-foreground">
+      <div className="flex items-center justify-between mb-2">
+        <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
           {title}
         </span>
-        <div className="p-1.5 rounded-md bg-secondary">
-          <Icon className="h-3.5 w-3.5 text-muted-foreground" />
-        </div>
+        <Icon className={cn(
+          'h-3.5 w-3.5',
+          trend === 'up' ? 'text-profit' : trend === 'down' ? 'text-loss' : 'text-muted-foreground'
+        )} />
       </div>
       <div
         className={cn(
-          'text-2xl font-bold font-mono tracking-tight',
+          'text-xl font-bold font-mono tracking-tight',
           trend === 'up' && 'text-profit',
           trend === 'down' && 'text-loss',
         )}
       >
         {value}
       </div>
-      {subtitle && (
-        <p className="text-[11px] text-muted-foreground mt-1.5">{subtitle}</p>
-      )}
     </motion.div>
   );
 }

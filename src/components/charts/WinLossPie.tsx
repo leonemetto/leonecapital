@@ -7,7 +7,7 @@ interface WinLossPieProps {
   breakevens: number;
 }
 
-const COLORS = ['hsl(142, 70%, 45%)', 'hsl(0, 72%, 51%)', 'hsl(215, 15%, 50%)'];
+const COLORS = ['hsl(142, 70%, 45%)', 'hsl(0, 72%, 51%)', 'hsl(0, 0%, 35%)'];
 
 export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   const data = [
@@ -18,9 +18,9 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
 
   if (data.length === 0) {
     return (
-      <div className="glass-card p-6">
-        <h3 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
-        <div className="h-[280px] flex items-center justify-center text-muted-foreground text-sm">
+      <div className="glass-card p-5">
+        <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
+        <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
           No trades yet
         </div>
       </div>
@@ -31,13 +31,13 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.15 }}
-      className="glass-card p-6"
+      transition={{ duration: 0.3, delay: 0.15 }}
+      className="glass-card p-5"
     >
-      <h3 className="text-sm font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
-      <div className="h-[280px] flex items-center">
+      <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
+      <div className="h-[220px] flex items-center">
         <div className="w-1/2 h-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -45,46 +45,46 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
                 data={data}
                 cx="50%"
                 cy="50%"
-                innerRadius={55}
-                outerRadius={85}
+                innerRadius={45}
+                outerRadius={70}
                 paddingAngle={3}
                 dataKey="value"
                 strokeWidth={0}
               >
-                {data.map((_, i) => (
-                  <Cell key={i} fill={COLORS[i]} />
+                {data.map((entry, i) => (
+                  <Cell key={i} fill={COLORS[entry.name === 'Wins' ? 0 : entry.name === 'Losses' ? 1 : 2]} />
                 ))}
               </Pie>
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(222, 25%, 10%)',
-                  border: '1px solid hsl(220, 18%, 14%)',
-                  borderRadius: '8px',
-                  color: 'hsl(210, 20%, 93%)',
-                  fontSize: 12,
+                  backgroundColor: 'hsl(0, 0%, 8%)',
+                  border: '1px solid hsl(0, 0%, 14%)',
+                  borderRadius: '6px',
+                  color: 'hsl(0, 0%, 92%)',
+                  fontSize: 11,
                 }}
               />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="w-1/2 space-y-3">
+        <div className="w-1/2 space-y-2.5">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-profit" />
-            <span className="text-sm text-muted-foreground">Wins</span>
-            <span className="ml-auto font-mono text-sm font-semibold">{wins}</span>
-            <span className="text-xs text-muted-foreground">({total > 0 ? ((wins / total) * 100).toFixed(0) : 0}%)</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-profit" />
+            <span className="text-xs text-muted-foreground">Wins</span>
+            <span className="ml-auto font-mono text-xs font-semibold">{wins}</span>
+            <span className="text-[10px] text-muted-foreground">({total > 0 ? ((wins / total) * 100).toFixed(0) : 0}%)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-loss" />
-            <span className="text-sm text-muted-foreground">Losses</span>
-            <span className="ml-auto font-mono text-sm font-semibold">{losses}</span>
-            <span className="text-xs text-muted-foreground">({total > 0 ? ((losses / total) * 100).toFixed(0) : 0}%)</span>
+            <div className="w-2.5 h-2.5 rounded-full bg-loss" />
+            <span className="text-xs text-muted-foreground">Losses</span>
+            <span className="ml-auto font-mono text-xs font-semibold">{losses}</span>
+            <span className="text-[10px] text-muted-foreground">({total > 0 ? ((losses / total) * 100).toFixed(0) : 0}%)</span>
           </div>
           {breakevens > 0 && (
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full" style={{ background: COLORS[2] }} />
-              <span className="text-sm text-muted-foreground">BE</span>
-              <span className="ml-auto font-mono text-sm font-semibold">{breakevens}</span>
+              <div className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[2] }} />
+              <span className="text-xs text-muted-foreground">BE</span>
+              <span className="ml-auto font-mono text-xs font-semibold">{breakevens}</span>
             </div>
           )}
         </div>

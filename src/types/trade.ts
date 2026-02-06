@@ -3,25 +3,16 @@ export interface Trade {
   date: string;
   instrument: string;
   direction: 'long' | 'short';
-  entryPrice: number;
-  stopLoss: number;
-  takeProfit: number;
-  exitPrice: number;
-  lotSize: number;
-  riskAmount: number;
-  pnl: number;
-  rrRatio: number;
-  rMultiple: number;
   strategy: string;
-  setupType: string;
-  emotionBefore: string;
-  emotionAfter: string;
-  notes: string;
+  session: string;
   outcome: 'win' | 'loss' | 'breakeven';
+  pnl: number;
+  rMultiple?: number;
+  notes: string;
   createdAt: string;
 }
 
-export type TradeFormData = Omit<Trade, 'id' | 'createdAt' | 'outcome' | 'rrRatio' | 'rMultiple'>;
+export type TradeFormData = Omit<Trade, 'id' | 'createdAt'>;
 
 export const INSTRUMENTS = [
   'XAUUSD', 'NAS100', 'US30', 'SPX500', 'EUR/USD', 'GBP/USD', 'USD/JPY',
@@ -33,13 +24,6 @@ export const STRATEGIES = [
   'Reversal', 'Range', 'News', 'Mean Reversion',
 ] as const;
 
-export const SETUP_TYPES = [
-  'Support/Resistance', 'Trendline Break', 'MA Cross', 'Fibonacci',
-  'Supply/Demand', 'Order Block', 'Fair Value Gap', 'Chart Pattern',
-  'Liquidity Sweep', 'Break of Structure',
-] as const;
-
-export const EMOTIONS = [
-  'Confident', 'Calm', 'Focused', 'Neutral', 'Anxious',
-  'FOMO', 'Revenge', 'Greedy', 'Fearful', 'Frustrated',
+export const SESSIONS = [
+  'London', 'New York', 'Asian', 'London/NY Overlap', 'Off-hours',
 ] as const;
