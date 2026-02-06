@@ -43,40 +43,34 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.25 }}
     >
-      <div className="glass-card p-6">
+      <div className="glass-card p-4">
         {/* Month navigation */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div>
-            <h3 className="text-lg font-semibold">{format(currentMonth, 'MMMM yyyy')}</h3>
+            <h3 className="text-sm font-bold">{format(currentMonth, 'MMMM yyyy')}</h3>
             <span className={cn(
-              'text-sm font-mono',
+              'text-xs font-mono',
               monthPnl > 0 ? 'text-profit' : monthPnl < 0 ? 'text-loss' : 'text-muted-foreground'
             )}>
-              {monthPnl >= 0 ? '+' : ''}${monthPnl.toFixed(2)} this month
+              {monthPnl >= 0 ? '+' : ''}${monthPnl.toFixed(2)}
             </span>
           </div>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setCurrentMonth(prev => subMonths(prev, 1))}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
-            >
-              <ChevronLeft className="h-4 w-4" />
+          <div className="flex gap-0.5">
+            <button onClick={() => setCurrentMonth(prev => subMonths(prev, 1))}
+              className="p-1.5 rounded hover:bg-secondary transition-colors">
+              <ChevronLeft className="h-3.5 w-3.5" />
             </button>
-            <button
-              onClick={() => setCurrentMonth(new Date())}
-              className="px-3 py-2 rounded-lg hover:bg-secondary transition-colors text-xs font-medium text-muted-foreground"
-            >
+            <button onClick={() => setCurrentMonth(new Date())}
+              className="px-2 py-1.5 rounded hover:bg-secondary transition-colors text-[10px] font-medium text-muted-foreground">
               Today
             </button>
-            <button
-              onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
-              className="p-2 rounded-lg hover:bg-secondary transition-colors"
-            >
-              <ChevronRight className="h-4 w-4" />
+            <button onClick={() => setCurrentMonth(prev => addMonths(prev, 1))}
+              className="p-1.5 rounded hover:bg-secondary transition-colors">
+              <ChevronRight className="h-3.5 w-3.5" />
             </button>
           </div>
         </div>
@@ -84,7 +78,7 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
         {/* Weekday headers */}
         <div className="grid grid-cols-7 gap-1 mb-1">
           {WEEKDAYS.map(d => (
-            <div key={d} className="text-center text-[11px] font-medium text-muted-foreground py-2 uppercase tracking-wider">
+            <div key={d} className="text-center text-[9px] font-medium text-muted-foreground py-1 uppercase tracking-wider">
               {d}
             </div>
           ))}
@@ -105,17 +99,17 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
                 key={dateStr}
                 onClick={() => setSelectedDate(selectedDate === dateStr ? null : dateStr)}
                 className={cn(
-                  'aspect-square rounded-lg flex flex-col items-center justify-center text-sm transition-all relative',
+                  'aspect-square rounded-md flex flex-col items-center justify-center text-xs transition-all relative',
                   data && data.pnl > 0 && 'bg-profit/10 hover:bg-profit/20',
                   data && data.pnl < 0 && 'bg-loss/10 hover:bg-loss/20',
                   data && data.pnl === 0 && 'bg-secondary/50 hover:bg-secondary',
-                  !data && 'text-muted-foreground/50 hover:bg-secondary/30',
+                  !data && 'text-muted-foreground/40 hover:bg-secondary/20',
                   today && 'ring-1 ring-primary/50',
                   selectedDate === dateStr && 'ring-2 ring-primary',
                 )}
               >
                 <span className={cn(
-                  'text-xs font-medium',
+                  'text-[11px] font-medium',
                   data && data.pnl > 0 && 'text-profit',
                   data && data.pnl < 0 && 'text-loss',
                 )}>
@@ -123,24 +117,11 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
                 </span>
                 {data && (
                   <span className={cn(
-                    'text-[9px] font-mono font-semibold mt-0.5',
+                    'text-[8px] font-mono font-bold mt-0.5',
                     data.pnl > 0 ? 'text-profit' : data.pnl < 0 ? 'text-loss' : 'text-muted-foreground',
                   )}>
                     {data.pnl >= 0 ? '+' : ''}{data.pnl.toFixed(0)}
                   </span>
-                )}
-                {data && data.trades > 0 && (
-                  <div className="absolute top-1 right-1 flex">
-                    {Array(Math.min(data.trades, 3)).fill(0).map((_, i) => (
-                      <div
-                        key={i}
-                        className={cn(
-                          'w-1 h-1 rounded-full -ml-0.5 first:ml-0',
-                          data.pnl > 0 ? 'bg-profit' : data.pnl < 0 ? 'bg-loss' : 'bg-muted-foreground',
-                        )}
-                      />
-                    ))}
-                  </div>
                 )}
               </button>
             );
@@ -153,17 +134,17 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
         <motion.div
           initial={{ opacity: 0, height: 0 }}
           animate={{ opacity: 1, height: 'auto' }}
-          className="glass-card p-5 mt-4"
+          className="glass-card p-4 mt-3"
         >
-          <h4 className="text-sm font-semibold mb-3">
-            Trades on {format(new Date(selectedDate), 'MMM d, yyyy')}
+          <h4 className="text-xs font-semibold mb-2">
+            {format(new Date(selectedDate), 'MMM d, yyyy')}
           </h4>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             {selectedTrades.map(t => (
-              <div key={t.id} className="flex items-center gap-3 py-2 px-3 rounded-lg bg-secondary/50 text-sm">
+              <div key={t.id} className="flex items-center gap-2 py-1.5 px-2.5 rounded bg-secondary/50 text-xs">
                 <span className="font-semibold">{t.instrument}</span>
                 <span className={cn(
-                  'text-xs font-semibold px-1.5 py-0.5 rounded',
+                  'text-[9px] font-bold px-1 py-0.5 rounded',
                   t.direction === 'long' ? 'bg-profit/15 text-profit' : 'bg-loss/15 text-loss'
                 )}>
                   {t.direction === 'long' ? 'L' : 'S'}
@@ -182,7 +163,7 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
       )}
 
       {selectedDate && selectedTrades.length === 0 && (
-        <div className="glass-card p-5 mt-4 text-center text-sm text-muted-foreground">
+        <div className="glass-card p-4 mt-3 text-center text-xs text-muted-foreground">
           No trades on {format(new Date(selectedDate), 'MMM d, yyyy')}
         </div>
       )}

@@ -7,11 +7,11 @@ const AddTrade = () => {
 
   return (
     <AppLayout>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">Log Trade</h1>
-        <p className="text-sm text-muted-foreground">Record your trade details and psychology</p>
+      <div className="mb-4">
+        <h1 className="text-xl font-bold">Log Trade</h1>
+        <p className="text-xs text-muted-foreground">Quick entry — under 5 seconds</p>
       </div>
-      <div className="max-w-4xl">
+      <div className="max-w-3xl">
         <TradeForm onSubmit={addTrade} />
       </div>
     </AppLayout>
