@@ -7,7 +7,7 @@ interface WinLossPieProps {
   breakevens: number;
 }
 
-const COLORS = ['hsl(142, 70%, 45%)', 'hsl(0, 72%, 51%)', 'hsl(0, 0%, 35%)'];
+const COLORS = ['#22C55E', '#EF4444', 'hsl(0, 0%, 35%)'];
 
 export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   const data = [
@@ -20,9 +20,7 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
     return (
       <div className="glass-card p-5">
         <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
-        <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">
-          No trades yet
-        </div>
+        <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">No trades yet</div>
       </div>
     );
   }
@@ -30,40 +28,19 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   const total = wins + losses + breakevens;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.15 }}
-      className="glass-card p-5"
-    >
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}
+      className="glass-card p-5">
       <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
       <div className="h-[220px] flex items-center">
         <div className="w-1/2 h-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
-              <Pie
-                data={data}
-                cx="50%"
-                cy="50%"
-                innerRadius={45}
-                outerRadius={70}
-                paddingAngle={3}
-                dataKey="value"
-                strokeWidth={0}
-              >
+              <Pie data={data} cx="50%" cy="50%" innerRadius={45} outerRadius={70} paddingAngle={3} dataKey="value" strokeWidth={0}>
                 {data.map((entry, i) => (
                   <Cell key={i} fill={COLORS[entry.name === 'Wins' ? 0 : entry.name === 'Losses' ? 1 : 2]} />
                 ))}
               </Pie>
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: 'hsl(0, 0%, 8%)',
-                  border: '1px solid hsl(0, 0%, 14%)',
-                  borderRadius: '6px',
-                  color: 'hsl(0, 0%, 92%)',
-                  fontSize: 11,
-                }}
-              />
+              <Tooltip contentStyle={{ backgroundColor: '#161616', border: '1px solid hsl(0, 0%, 16%)', borderRadius: '8px', color: '#eee', fontSize: 11 }} />
             </PieChart>
           </ResponsiveContainer>
         </div>

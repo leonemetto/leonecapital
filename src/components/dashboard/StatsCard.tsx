@@ -18,22 +18,22 @@ export function StatsCard({ title, value, icon: Icon, trend, className, delay = 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: delay * 0.04 }}
       className={cn(
-        'glass-card p-4 transition-all duration-150 hover:border-primary/20 group',
+        'glass-card p-5 transition-all duration-150 hover:border-primary/20 group',
         className
       )}
     >
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-xs font-semibold text-muted-foreground">
           {title}
         </span>
         <Icon className={cn(
-          'h-3.5 w-3.5',
+          'h-4 w-4',
           trend === 'up' ? 'text-profit' : trend === 'down' ? 'text-loss' : 'text-muted-foreground'
         )} />
       </div>
       <div
         className={cn(
-          'text-xl font-bold font-mono tracking-tight',
+          'text-2xl font-bold font-mono tracking-tight',
           trend === 'up' && 'text-profit',
           trend === 'down' && 'text-loss',
         )}

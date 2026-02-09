@@ -10,7 +10,7 @@ import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useTrades } from '@/hooks/useTrades';
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
-  Target, DollarSign, BarChart3, TrendingUp, PlusCircle,
+  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -47,14 +47,14 @@ const Dashboard = () => {
       {/* Row 1: Quick Actions + KPI Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
         <QuickActions />
-        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
           <StatsCard title="Total P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
             trend={stats.netPnl >= 0 ? 'up' : 'down'} delay={1} />
-          <StatsCard title="Returns" value={`${stats.totalTrades}`} icon={TrendingUp}
+          <StatsCard title="Returns" value={`${stats.totalTrades} trades`} icon={TrendingUp}
             delay={2} />
-          <StatsCard title="Profit Factor" value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)} icon={BarChart3}
+          <StatsCard title="Profit Factor" value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)} icon={ArrowUpDown}
             trend={stats.profitFactor >= 1 ? 'up' : 'down'} delay={3} />
         </div>
       </div>
