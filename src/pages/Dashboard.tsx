@@ -1,15 +1,16 @@
 import { useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatsCard } from '@/components/dashboard/StatsCard';
+import { QuickActions } from '@/components/dashboard/QuickActions';
 import { EquityCurve } from '@/components/charts/EquityCurve';
 import { WinLossPie } from '@/components/charts/WinLossPie';
 import { StrategyChart } from '@/components/charts/StrategyChart';
+import { PerformanceRadar } from '@/components/charts/PerformanceRadar';
 import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useTrades } from '@/hooks/useTrades';
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
-  Target, DollarSign, BarChart3, TrendingUp, TrendingDown,
-  Zap, ArrowDownRight, Flame, PlusCircle,
+  Target, DollarSign, BarChart3, TrendingUp, PlusCircle,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -43,38 +44,34 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-4">
-        <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
-          trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
-        <StatsCard title="Net P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
-          trend={stats.netPnl >= 0 ? 'up' : 'down'} delay={1} />
-        <StatsCard title="Profit Factor" value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)} icon={BarChart3}
-          trend={stats.profitFactor >= 1 ? 'up' : 'down'} delay={2} />
-        <StatsCard title="Avg Win" value={`$${stats.avgWin.toFixed(2)}`} icon={TrendingUp}
-          trend="up" delay={3} />
-        <StatsCard title="Avg Loss" value={`$${Math.abs(stats.avgLoss).toFixed(2)}`} icon={TrendingDown}
-          trend="down" delay={4} />
-        <StatsCard title="Expectancy" value={`$${stats.expectancy.toFixed(2)}`} icon={Zap}
-          trend={stats.expectancy >= 0 ? 'up' : 'down'} delay={5} />
-        <StatsCard title="Max DD" value={`$${stats.maxDrawdown.toFixed(2)}`} icon={ArrowDownRight}
-          trend="down" delay={6} />
-        <StatsCard title="Trades" value={stats.totalTrades} icon={BarChart3} delay={7} />
-        <StatsCard title="Streak" icon={Flame} delay={8}
-          value={stats.currentStreak.count > 0 ? `${stats.currentStreak.count} ${stats.currentStreak.type}` : '—'}
-          trend={stats.currentStreak.type === 'win' ? 'up' : stats.currentStreak.type === 'loss' ? 'down' : 'neutral'} />
+      {/* Row 1: Quick Actions + KPI Cards */}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
+        <QuickActions />
+        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-2">
+          <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
+            trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
+          <StatsCard title="Total P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
+            trend={stats.netPnl >= 0 ? 'up' : 'down'} delay={1} />
+          <StatsCard title="Returns" value={`${stats.totalTrades}`} icon={TrendingUp}
+            delay={2} />
+          <StatsCard title="Profit Factor" value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)} icon={BarChart3}
+            trend={stats.profitFactor >= 1 ? 'up' : 'down'} delay={3} />
+        </div>
       </div>
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
+      {/* Row 2: Performance Radar + Calendar */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-4">
+        <PerformanceRadar stats={stats} />
+        <div className="lg:col-span-3">
+          <TradingCalendar trades={trades} />
+        </div>
+      </div>
+
+      {/* Row 3: Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <EquityCurve data={equityData} />
         <WinLossPie wins={stats.wins} losses={stats.losses} breakevens={stats.breakevens} />
-      </div>
-
-      {/* Strategy + Calendar */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         <StrategyChart data={strategyData} />
-        <TradingCalendar trades={trades} />
       </div>
     </AppLayout>
   );
