@@ -1,5 +1,5 @@
 import {
-  RadarChart, PolarGrid, PolarAngleAxis, Radar, ResponsiveContainer,
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer,
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { Analytics } from '@/lib/analytics';
@@ -9,7 +9,6 @@ interface PerformanceRadarProps {
 }
 
 export function PerformanceRadar({ stats }: PerformanceRadarProps) {
-  // Normalize metrics to 0-100 scale
   const winRate = Math.min(stats.winRate, 100);
   const profitFactor = Math.min((stats.profitFactor / 5) * 100, 100);
   const consistency = stats.totalTrades > 0
@@ -18,7 +17,6 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
   const recovery = stats.maxDrawdown > 0
     ? Math.min((stats.netPnl / stats.maxDrawdown) * 50, 100)
     : stats.netPnl > 0 ? 80 : 0;
-  // Plan adherence approximation based on breakeven ratio (lower = better discipline)
   const planAdherence = stats.totalTrades > 0
     ? Math.max(100 - (stats.breakevens / stats.totalTrades) * 200, 20)
     : 50;
@@ -27,8 +25,8 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
     { metric: 'Win Rate', value: winRate },
     { metric: 'Recovery Factor', value: recovery },
     { metric: 'Profit Factor', value: profitFactor },
-    { metric: 'Consistency\nScore', value: consistency },
-    { metric: 'Plan\nAdherence', value: planAdherence },
+    { metric: 'Consistency Score', value: consistency },
+    { metric: 'Plan Adherence', value: planAdherence },
   ];
 
   return (
@@ -36,27 +34,33 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25, delay: 0.1 }}
-      className="glass-card p-4 h-full"
+      className="glass-card p-5 h-full"
     >
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
         Performance Profile
       </h3>
-      <div className="h-[240px]">
+      <div className="h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={data} cx="50%" cy="50%" outerRadius="70%">
-            <PolarGrid stroke="hsl(0, 0%, 18%)" />
+          <RadarChart data={data} cx="50%" cy="50%" outerRadius="65%">
+            <PolarGrid stroke="hsl(0, 0%, 20%)" strokeDasharray="3 3" />
             <PolarAngleAxis
               dataKey="metric"
-              tick={{ fill: 'hsl(0, 0%, 45%)', fontSize: 10 }}
+              tick={{ fill: 'hsl(0, 0%, 50%)', fontSize: 10, fontWeight: 500 }}
+            />
+            <PolarRadiusAxis
+              angle={90}
+              domain={[0, 100]}
+              tick={{ fill: 'hsl(0, 0%, 30%)', fontSize: 8 }}
+              axisLine={false}
             />
             <Radar
               name="Performance"
               dataKey="value"
-              stroke="hsl(142, 70%, 45%)"
-              fill="hsl(142, 70%, 45%)"
-              fillOpacity={0.15}
+              stroke="#22C55E"
+              fill="#22C55E"
+              fillOpacity={0.12}
               strokeWidth={2}
-              dot={{ r: 3, fill: 'hsl(142, 70%, 45%)' }}
+              dot={{ r: 4, fill: '#22C55E', strokeWidth: 0 }}
             />
           </RadarChart>
         </ResponsiveContainer>
