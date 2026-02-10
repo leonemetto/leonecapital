@@ -7,10 +7,7 @@ import {
 
 const tabs = [
   { title: 'ANALYTICS', path: '/', icon: BarChart3 },
-  { title: 'REVIEW', path: '/journal', icon: ClipboardCheck },
   { title: 'TRADES DB', path: '/journal', icon: BookOpen },
-  { title: 'MISSED TRADES DB', path: '/journal', icon: Target },
-  { title: 'MILESTONES', path: '/journal', icon: Trophy },
   { title: 'ACCOUNTS', path: '/accounts', icon: Wallet },
 ];
 
