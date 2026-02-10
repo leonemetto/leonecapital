@@ -30,16 +30,20 @@ const Accounts = () => {
 
   const update = (key: string, value: string | number) => setForm(prev => ({ ...prev, [key]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.name.trim()) {
       toast.error('Account name is required');
       return;
     }
-    addAccount(form);
-    toast.success('Account created!');
-    setForm({ name: '', type: 'live', startingBalance: 5000, currentBalance: 5000, currency: 'USD' });
-    setOpen(false);
+    try {
+      await addAccount(form);
+      toast.success('Account created!');
+      setForm({ name: '', type: 'live', startingBalance: 5000, currentBalance: 5000, currency: 'USD' });
+      setOpen(false);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to create account');
+    }
   };
 
   const getAccountBalance = (accountId: string, currentBalance: number) => {

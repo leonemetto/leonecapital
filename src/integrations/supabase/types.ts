@@ -14,7 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accounts: {
+        Row: {
+          created_at: string
+          currency: string
+          current_balance: number
+          id: string
+          name: string
+          starting_balance: number
+          type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          current_balance?: number
+          id?: string
+          name: string
+          starting_balance?: number
+          type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          current_balance?: number
+          id?: string
+          name?: string
+          starting_balance?: number
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trades: {
+        Row: {
+          account_id: string | null
+          created_at: string
+          date: string
+          direction: string
+          id: string
+          instrument: string
+          notes: string
+          outcome: string
+          pnl: number
+          session: string
+          strategy: string
+          user_id: string
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string
+          date: string
+          direction: string
+          id?: string
+          instrument: string
+          notes?: string
+          outcome: string
+          pnl?: number
+          session?: string
+          strategy?: string
+          user_id: string
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string
+          date?: string
+          direction?: string
+          id?: string
+          instrument?: string
+          notes?: string
+          outcome?: string
+          pnl?: number
+          session?: string
+          strategy?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trades_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
