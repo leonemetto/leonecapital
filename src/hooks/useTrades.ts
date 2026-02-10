@@ -1,71 +1,84 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Trade, TradeFormData } from '@/types/trade';
-import { generateDemoTrades } from '@/lib/seedTrades';
 
-const STORAGE_KEY = 'edgejournal_trades';
-
-function loadTrades(): Trade[] {
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (!stored) return [];
-    const parsed = JSON.parse(stored) as any[];
-    // Migrate old trades: strip removed fields, ensure new fields exist
-    return parsed.map(t => ({
-      id: t.id,
-      date: t.date,
-      instrument: t.instrument,
-      direction: t.direction,
-      strategy: t.strategy || '',
-      session: t.session || '',
-      outcome: t.outcome,
-      pnl: t.pnl,
-      rMultiple: t.rMultiple,
-      notes: t.notes || '',
-      accountId: t.accountId,
-      createdAt: t.createdAt,
-    }));
-  } catch {
-    return [];
-  }
+function rowToTrade(r: any): Trade {
+  return {
+    id: r.id,
+    date: r.date,
+    instrument: r.instrument,
+    direction: r.direction,
+    strategy: r.strategy || '',
+    session: r.session || '',
+    outcome: r.outcome,
+    pnl: Number(r.pnl),
+    notes: r.notes || '',
+    accountId: r.account_id ?? undefined,
+    createdAt: r.created_at,
+  };
 }
 
 export function useTrades() {
-  const [trades, setTrades] = useState<Trade[]>(loadTrades);
+  const qc = useQueryClient();
+  const key = ['trades'];
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(trades));
-  }, [trades]);
+  const { data: trades = [], isLoading } = useQuery({
+    queryKey: key,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('trades')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map(rowToTrade);
+    },
+  });
 
-  const addTrade = useCallback((data: TradeFormData) => {
-    const newTrade: Trade = {
-      ...data,
-      id: crypto.randomUUID(),
-      createdAt: new Date().toISOString(),
-    };
-    setTrades(prev => [newTrade, ...prev]);
-    return newTrade;
-  }, []);
+  const addTrade = useCallback(async (form: TradeFormData) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
 
-  const updateTrade = useCallback((id: string, data: Partial<TradeFormData>) => {
-    setTrades(prev =>
-      prev.map(t => {
-        if (t.id !== id) return t;
-        return { ...t, ...data };
-      })
-    );
-  }, []);
+    const { data, error } = await supabase.from('trades').insert({
+      user_id: user.id,
+      date: form.date,
+      instrument: form.instrument,
+      direction: form.direction,
+      strategy: form.strategy,
+      session: form.session,
+      outcome: form.outcome,
+      pnl: form.pnl,
+      notes: form.notes,
+      account_id: form.accountId || null,
+    }).select().single();
 
-  const deleteTrade = useCallback((id: string) => {
-    setTrades(prev => prev.filter(t => t.id !== id));
-  }, []);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+    return rowToTrade(data);
+  }, [qc]);
 
-  const seedTrades = useCallback((newTrades: Trade[]) => {
-    setTrades(prev => [...newTrades, ...prev]);
-  }, []);
+  const updateTrade = useCallback(async (id: string, form: Partial<TradeFormData>) => {
+    const updates: any = {};
+    if (form.date !== undefined) updates.date = form.date;
+    if (form.instrument !== undefined) updates.instrument = form.instrument;
+    if (form.direction !== undefined) updates.direction = form.direction;
+    if (form.strategy !== undefined) updates.strategy = form.strategy;
+    if (form.session !== undefined) updates.session = form.session;
+    if (form.outcome !== undefined) updates.outcome = form.outcome;
+    if (form.pnl !== undefined) updates.pnl = form.pnl;
+    if (form.notes !== undefined) updates.notes = form.notes;
+    if (form.accountId !== undefined) updates.account_id = form.accountId || null;
 
-  const clearTrades = useCallback(() => {
-    setTrades([]);
-  }, []);
+    const { error } = await supabase.from('trades').update(updates).eq('id', id);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+  }, [qc]);
 
-  return { trades, addTrade, updateTrade, deleteTrade, seedTrades, clearTrades };
+  const deleteTrade = useCallback(async (id: string) => {
+    const { error } = await supabase.from('trades').delete().eq('id', id);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+  }, [qc]);
+
+  return { trades, addTrade, updateTrade, deleteTrade, isLoading };
 }

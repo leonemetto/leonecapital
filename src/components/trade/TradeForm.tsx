@@ -14,7 +14,7 @@ import { motion } from 'framer-motion';
 
 interface TradeFormProps {
   initialData?: Trade;
-  onSubmit: (data: TradeFormData) => void;
+  onSubmit: (data: TradeFormData) => void | Promise<any>;
   submitLabel?: string;
   onCancel?: () => void;
 }
@@ -55,7 +55,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const pnl = parseFloat(form.pnl);
 
@@ -64,25 +64,28 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       return;
     }
 
-    onSubmit({
-      date: form.date,
-      instrument: form.instrument,
-      direction: form.direction as 'long' | 'short',
-      strategy: form.strategy,
-      session: form.session,
-      outcome: form.outcome as 'win' | 'loss' | 'breakeven',
-      pnl,
-      rMultiple: form.rMultiple ? parseFloat(form.rMultiple) : undefined,
-      notes: form.notes,
-      accountId: form.accountId || undefined,
-    });
+    try {
+      await onSubmit({
+        date: form.date,
+        instrument: form.instrument,
+        direction: form.direction as 'long' | 'short',
+        strategy: form.strategy,
+        session: form.session,
+        outcome: form.outcome as 'win' | 'loss' | 'breakeven',
+        pnl,
+        notes: form.notes,
+        accountId: form.accountId || undefined,
+      });
 
-    toast.success(initialData ? 'Trade updated!' : 'Trade logged!');
-    if (!initialData) {
-      setForm(defaults);
-      navigate('/');
+      toast.success(initialData ? 'Trade updated!' : 'Trade logged!');
+      if (!initialData) {
+        setForm(defaults);
+        navigate('/');
+      }
+      if (onCancel) onCancel();
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save trade');
     }
-    if (onCancel) onCancel();
   };
 
   return (

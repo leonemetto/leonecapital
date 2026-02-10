@@ -1,9 +1,8 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import {
-  BarChart3, BookOpen, PlusCircle, Activity,
-  ClipboardCheck, Trophy, Target, Wallet,
-} from 'lucide-react';
+import { BarChart3, BookOpen, Wallet, Activity, LogOut } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Button } from '@/components/ui/button';
 
 const tabs = [
   { title: 'ANALYTICS', path: '/', icon: BarChart3 },
@@ -12,13 +11,21 @@ const tabs = [
 ];
 
 export function TopNav() {
+  const { signOut } = useAuth();
+
   return (
     <header className="w-full border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
       <div className="max-w-[1600px] mx-auto px-4 md:px-6">
         {/* Brand */}
-        <div className="flex items-center gap-3 pt-4 pb-3">
-          <Activity className="h-5 w-5 text-profit" />
-          <h1 className="text-xl font-black tracking-tight">TRADE JOURNAL+ANALYTICS</h1>
+        <div className="flex items-center justify-between pt-4 pb-3">
+          <div className="flex items-center gap-3">
+            <Activity className="h-5 w-5 text-profit" />
+            <h1 className="text-xl font-black tracking-tight">TRADE JOURNAL+ANALYTICS</h1>
+          </div>
+          <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5 text-muted-foreground hover:text-foreground">
+            <LogOut className="h-3.5 w-3.5" />
+            <span className="hidden sm:inline text-xs">Sign Out</span>
+          </Button>
         </div>
 
         {/* Tab nav */}
