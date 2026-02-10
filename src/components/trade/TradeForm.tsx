@@ -164,7 +164,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       {/* Row 2: Strategy, Session, Result */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Strategy</Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Entry Confirmation</Label>
           <Select value={form.strategy} onValueChange={v => update('strategy', v)}>
             <SelectTrigger className="mt-1 bg-secondary border-border h-9">
               <SelectValue placeholder="Select" />
@@ -215,11 +215,6 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">P&L ($)</Label>
           <Input type="number" step="any" value={form.pnl} onChange={e => update('pnl', e.target.value)}
             placeholder="0.00" className="mt-1 bg-secondary border-border font-mono h-9" />
-        </div>
-        <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">R Multiple (optional)</Label>
-          <Input type="number" step="any" value={form.rMultiple} onChange={e => update('rMultiple', e.target.value)}
-            placeholder="1.5" className="mt-1 bg-secondary border-border font-mono h-9" />
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Notes (optional)</Label>

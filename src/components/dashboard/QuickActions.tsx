@@ -1,12 +1,8 @@
 import { Link } from 'react-router-dom';
-import { PlusCircle, FileText, Database } from 'lucide-react';
+import { PlusCircle, FileText } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-interface QuickActionsProps {
-  onLoadDemo?: () => void;
-}
-
-export function QuickActions({ onLoadDemo }: QuickActionsProps) {
+export function QuickActions() {
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
@@ -29,15 +25,6 @@ export function QuickActions({ onLoadDemo }: QuickActionsProps) {
           <FileText className="h-4 w-4 text-primary" />
           DAILY REVIEW
         </button>
-        {onLoadDemo && (
-          <button
-            onClick={onLoadDemo}
-            className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg border border-dashed border-border hover:border-primary/50 hover:bg-primary/5 transition-all text-sm font-semibold w-full text-left text-muted-foreground hover:text-foreground"
-          >
-            <Database className="h-4 w-4" />
-            LOAD DEMO DATA
-          </button>
-        )}
       </div>
     </motion.div>
   );
