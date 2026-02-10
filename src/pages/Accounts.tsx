@@ -24,6 +24,7 @@ const Accounts = () => {
     name: '',
     type: 'live',
     startingBalance: 5000,
+    currentBalance: 5000,
     currency: 'USD',
   });
 
@@ -37,14 +38,14 @@ const Accounts = () => {
     }
     addAccount(form);
     toast.success('Account created!');
-    setForm({ name: '', type: 'live', startingBalance: 5000, currency: 'USD' });
+    setForm({ name: '', type: 'live', startingBalance: 5000, currentBalance: 5000, currency: 'USD' });
     setOpen(false);
   };
 
-  const getAccountBalance = (accountId: string, startingBalance: number) => {
+  const getAccountBalance = (accountId: string, currentBalance: number) => {
     const accountTrades = trades.filter(t => t.accountId === accountId);
     const totalPnl = accountTrades.reduce((sum, t) => sum + t.pnl, 0);
-    return startingBalance + totalPnl;
+    return currentBalance + totalPnl;
   };
 
   const getAccountTradeCount = (accountId: string) => {
@@ -106,6 +107,12 @@ const Accounts = () => {
                   onChange={e => update('startingBalance', parseFloat(e.target.value) || 0)}
                   className="mt-1 bg-secondary border-border font-mono h-9" />
               </div>
+              <div>
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Current Balance</Label>
+                <Input type="number" step="any" value={form.currentBalance}
+                  onChange={e => update('currentBalance', parseFloat(e.target.value) || 0)}
+                  className="mt-1 bg-secondary border-border font-mono h-9" />
+              </div>
               <Button type="submit" size="sm" className="w-full gap-1.5">
                 <Wallet className="h-3.5 w-3.5" /> Create Account
               </Button>
@@ -128,7 +135,7 @@ const Accounts = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {accounts.map((account, i) => {
-            const currentBalance = getAccountBalance(account.id, account.startingBalance);
+            const currentBalance = getAccountBalance(account.id, account.currentBalance);
             const pnl = currentBalance - account.startingBalance;
             const pnlPercent = account.startingBalance > 0 ? (pnl / account.startingBalance) * 100 : 0;
             const tradeCount = getAccountTradeCount(account.id);
