@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatsCard } from '@/components/dashboard/StatsCard';
 import { QuickActions } from '@/components/dashboard/QuickActions';
@@ -12,18 +12,26 @@ import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { generateDemoTrades } from '@/lib/seedTrades';
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
-  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet,
+  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet, Filter,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
   const { trades, seedTrades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
-  const stats = useMemo(() => calculateAnalytics(trades), [trades]);
-  const equityData = useMemo(() => getEquityCurve(trades), [trades]);
-  const strategyData = useMemo(() => getStrategyPerformance(trades), [trades]);
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
+
+  const filteredTrades = useMemo(
+    () => selectedAccountId === 'all' ? trades : trades.filter(t => t.accountId === selectedAccountId),
+    [trades, selectedAccountId]
+  );
+
+  const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
+  const equityData = useMemo(() => getEquityCurve(filteredTrades), [filteredTrades]);
+  const strategyData = useMemo(() => getStrategyPerformance(filteredTrades), [filteredTrades]);
 
   if (trades.length === 0) {
     return (
@@ -51,6 +59,22 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
+      {/* Account Filter */}
+      <div className="flex items-center gap-2 mb-4">
+        <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+        <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+          <SelectTrigger className="w-[200px] h-8 text-xs">
+            <SelectValue placeholder="All Accounts" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Accounts</SelectItem>
+            {accounts.map(a => (
+              <SelectItem key={a.id} value={a.id}>{a.name} ({a.type})</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
       {/* Row 1: Quick Actions + KPI Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
         <QuickActions onLoadDemo={() => seedTrades(generateDemoTrades())} />
@@ -59,7 +83,7 @@ const Dashboard = () => {
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
           <StatsCard title="Total P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
             trend={stats.netPnl >= 0 ? 'up' : 'down'} delay={1} />
-          <StatsCard title="Returns" value={`${stats.totalTrades} trades`} icon={TrendingUp}
+          <StatsCard title="Returns" value={`${filteredTrades.length} trades`} icon={TrendingUp}
             delay={2} />
           <StatsCard title="Profit Factor" value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)} icon={ArrowUpDown}
             trend={stats.profitFactor >= 1 ? 'up' : 'down'} delay={3} />
@@ -95,7 +119,7 @@ const Dashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-4">
         <PerformanceRadar stats={stats} />
         <div className="lg:col-span-3">
-          <TradingCalendar trades={trades} />
+          <TradingCalendar trades={filteredTrades} />
         </div>
       </div>
 
