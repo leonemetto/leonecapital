@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Trade, TradeFormData } from '@/types/trade';
+import { generateDemoTrades } from '@/lib/seedTrades';
 
 const STORAGE_KEY = 'edgejournal_trades';
 
@@ -57,5 +58,13 @@ export function useTrades() {
     setTrades(prev => prev.filter(t => t.id !== id));
   }, []);
 
-  return { trades, addTrade, updateTrade, deleteTrade };
+  const seedTrades = useCallback((newTrades: Trade[]) => {
+    setTrades(prev => [...newTrades, ...prev]);
+  }, []);
+
+  const clearTrades = useCallback(() => {
+    setTrades([]);
+  }, []);
+
+  return { trades, addTrade, updateTrade, deleteTrade, seedTrades, clearTrades };
 }

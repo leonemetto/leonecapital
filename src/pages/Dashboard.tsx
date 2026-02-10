@@ -8,6 +8,7 @@ import { StrategyChart } from '@/components/charts/StrategyChart';
 import { PerformanceRadar } from '@/components/charts/PerformanceRadar';
 import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useTrades } from '@/hooks/useTrades';
+import { generateDemoTrades } from '@/lib/seedTrades';
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
   Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown,
@@ -16,7 +17,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
-  const { trades } = useTrades();
+  const { trades, seedTrades } = useTrades();
   const stats = useMemo(() => calculateAnalytics(trades), [trades]);
   const equityData = useMemo(() => getEquityCurve(trades), [trades]);
   const strategyData = useMemo(() => getStrategyPerformance(trades), [trades]);
@@ -37,6 +38,9 @@ const Dashboard = () => {
               <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
             </Button>
           </Link>
+          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => seedTrades(generateDemoTrades())}>
+            Load Demo Data
+          </Button>
         </div>
       </AppLayout>
     );
@@ -46,7 +50,7 @@ const Dashboard = () => {
     <AppLayout>
       {/* Row 1: Quick Actions + KPI Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
-        <QuickActions />
+        <QuickActions onLoadDemo={() => seedTrades(generateDemoTrades())} />
         <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
