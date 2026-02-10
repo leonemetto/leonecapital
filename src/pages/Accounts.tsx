@@ -9,14 +9,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { PlusCircle, Wallet, Trash2 } from 'lucide-react';
+import { PlusCircle, Wallet, Trash2, Pencil, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 
+type EditingState = { id: string; balance: string } | null;
+
 const Accounts = () => {
-  const { accounts, addAccount, deleteAccount } = useSharedAccounts();
+  const { accounts, addAccount, updateAccount, deleteAccount } = useSharedAccounts();
   const { trades } = useSharedTrades();
   const [open, setOpen] = useState(false);
+  const [editing, setEditing] = useState<EditingState>(null);
   const [form, setForm] = useState<AccountFormData>({
     name: '',
     type: 'live',
@@ -177,8 +180,45 @@ const Accounts = () => {
                     </span>
                     <span className="text-muted-foreground">{tradeCount} trades</span>
                   </div>
-                  <div className="text-[10px] text-muted-foreground">
-                    Starting: {account.currency} {account.startingBalance.toLocaleString()}
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <span>Starting: {account.currency}</span>
+                    {editing?.id === account.id ? (
+                      <span className="flex items-center gap-1">
+                        <Input
+                          type="number"
+                          step="any"
+                          value={editing.balance}
+                          onChange={e => setEditing({ ...editing, balance: e.target.value })}
+                          className="h-6 w-24 text-[10px] font-mono bg-secondary border-border px-1.5"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => {
+                            const val = parseFloat(editing.balance);
+                            if (isNaN(val)) { toast.error('Invalid balance'); return; }
+                            updateAccount(account.id, { startingBalance: val });
+                            setEditing(null);
+                            toast.success('Balance updated');
+                          }}
+                          className="p-0.5 rounded hover:bg-profit/15 text-profit"
+                        >
+                          <Check className="h-3 w-3" />
+                        </button>
+                        <button onClick={() => setEditing(null)} className="p-0.5 rounded hover:bg-destructive/15 text-muted-foreground">
+                          <X className="h-3 w-3" />
+                        </button>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1">
+                        {account.startingBalance.toLocaleString()}
+                        <button
+                          onClick={() => setEditing({ id: account.id, balance: String(account.startingBalance) })}
+                          className="p-0.5 rounded hover:bg-primary/15 text-muted-foreground hover:text-primary transition-all"
+                        >
+                          <Pencil className="h-2.5 w-2.5" />
+                        </button>
+                      </span>
+                    )}
                   </div>
                 </div>
               </motion.div>
