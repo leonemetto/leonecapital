@@ -21,6 +21,7 @@ function loadTrades(): Trade[] {
       pnl: t.pnl,
       rMultiple: t.rMultiple,
       notes: t.notes || '',
+      accountId: t.accountId,
       createdAt: t.createdAt,
     }));
   } catch {
