@@ -21,8 +21,7 @@ export const INSTRUMENTS = [
 ] as const;
 
 export const STRATEGIES = [
-  'Scalp', 'Day Trade', 'Swing', 'Breakout', 'Trend Following',
-  'Reversal', 'Range', 'News', 'Mean Reversion',
+  'CISD', 'IFVG', 'Both',
 ] as const;
 
 export const SESSIONS = [

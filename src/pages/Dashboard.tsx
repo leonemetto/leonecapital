@@ -9,7 +9,7 @@ import { PerformanceRadar } from '@/components/charts/PerformanceRadar';
 import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
-import { generateDemoTrades } from '@/lib/seedTrades';
+
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
   Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet, Filter,
@@ -20,7 +20,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
-  const { trades, seedTrades } = useSharedTrades();
+  const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
 
@@ -49,9 +49,6 @@ const Dashboard = () => {
               <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
             </Button>
           </Link>
-          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => seedTrades(generateDemoTrades())}>
-            Load Demo Data
-          </Button>
         </div>
       </AppLayout>
     );
@@ -77,7 +74,7 @@ const Dashboard = () => {
 
       {/* Row 1: Quick Actions + KPI Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
-        <QuickActions onLoadDemo={() => seedTrades(generateDemoTrades())} />
+        <QuickActions />
         <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-3">
           <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
