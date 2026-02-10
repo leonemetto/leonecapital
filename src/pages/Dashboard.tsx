@@ -92,8 +92,8 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
           {accounts.map(account => {
             const accountPnl = trades.filter(t => t.accountId === account.id).reduce((s, t) => s + t.pnl, 0);
-            const balance = account.startingBalance + accountPnl;
-            const pctChange = account.startingBalance > 0 ? (accountPnl / account.startingBalance) * 100 : 0;
+            const balance = account.currentBalance + accountPnl;
+            const pctChange = account.startingBalance > 0 ? ((balance - account.startingBalance) / account.startingBalance) * 100 : 0;
             return (
               <div key={account.id} className="glass-card p-4 flex items-center gap-3">
                 <div className="p-2 rounded-lg bg-primary/10">

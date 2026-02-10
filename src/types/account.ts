@@ -3,6 +3,7 @@ export interface TradingAccount {
   name: string;
   type: 'live' | 'demo' | 'prop';
   startingBalance: number;
+  currentBalance: number;
   currency: string;
   createdAt: string;
 }

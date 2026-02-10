@@ -7,7 +7,11 @@ function loadAccounts(): TradingAccount[] {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (!stored) return [];
-    return JSON.parse(stored) as TradingAccount[];
+    const parsed = JSON.parse(stored) as any[];
+    return parsed.map(a => ({
+      ...a,
+      currentBalance: a.currentBalance ?? a.startingBalance,
+    }));
   } catch {
     return [];
   }
