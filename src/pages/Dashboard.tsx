@@ -22,11 +22,14 @@ import { cn } from '@/lib/utils';
 const Dashboard = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+
+  // Auto-select first account when accounts load
+  const effectiveAccountId = selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
 
   const filteredTrades = useMemo(
-    () => selectedAccountId === 'all' ? trades : trades.filter(t => t.accountId === selectedAccountId),
-    [trades, selectedAccountId]
+    () => effectiveAccountId ? trades.filter(t => t.accountId === effectiveAccountId) : trades,
+    [trades, effectiveAccountId]
   );
 
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
@@ -59,12 +62,11 @@ const Dashboard = () => {
       {/* Account Filter */}
       <div className="flex items-center gap-2 mb-4">
         <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-        <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+        <Select value={effectiveAccountId} onValueChange={setSelectedAccountId}>
           <SelectTrigger className="w-[200px] h-8 text-xs">
-            <SelectValue placeholder="All Accounts" />
+            <SelectValue placeholder="Select Account" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Accounts</SelectItem>
             {accounts.map(a => (
               <SelectItem key={a.id} value={a.id}>{a.name} ({a.type})</SelectItem>
             ))}
