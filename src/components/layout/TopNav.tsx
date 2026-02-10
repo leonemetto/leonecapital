@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   BarChart3, BookOpen, PlusCircle, Activity,
-  ClipboardCheck, Trophy, Target,
+  ClipboardCheck, Trophy, Target, Wallet,
 } from 'lucide-react';
 
 const tabs = [
@@ -11,6 +11,7 @@ const tabs = [
   { title: 'TRADES DB', path: '/journal', icon: BookOpen },
   { title: 'MISSED TRADES DB', path: '/journal', icon: Target },
   { title: 'MILESTONES', path: '/journal', icon: Trophy },
+  { title: 'ACCOUNTS', path: '/accounts', icon: Wallet },
 ];
 
 export function TopNav() {
@@ -32,7 +33,7 @@ export function TopNav() {
               end={tab.path === '/'}
               className={({ isActive }) => cn(
                 'flex items-center gap-2 px-5 py-2.5 text-[11px] font-bold tracking-wider border-b-2 transition-colors whitespace-nowrap',
-                i === 0 && isActive
+                isActive
                   ? 'border-primary text-primary'
                   : 'border-transparent text-muted-foreground hover:text-foreground hover:border-muted'
               )}
