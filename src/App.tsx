@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { TradesProvider } from "@/contexts/TradesContext";
 import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
@@ -16,12 +17,14 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/add-trade" element={<AddTrade />} />
-          <Route path="/journal" element={<Journal />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <TradesProvider>
+          <Routes>
+            <Route path="/" element={<Dashboard />} />
+            <Route path="/add-trade" element={<AddTrade />} />
+            <Route path="/journal" element={<Journal />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </TradesProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

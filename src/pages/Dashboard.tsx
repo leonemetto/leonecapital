@@ -7,7 +7,7 @@ import { WinLossPie } from '@/components/charts/WinLossPie';
 import { StrategyChart } from '@/components/charts/StrategyChart';
 import { PerformanceRadar } from '@/components/charts/PerformanceRadar';
 import { TradingCalendar } from '@/components/calendar/TradingCalendar';
-import { useTrades } from '@/hooks/useTrades';
+import { useSharedTrades } from '@/contexts/TradesContext';
 import { generateDemoTrades } from '@/lib/seedTrades';
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
@@ -17,7 +17,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
 const Dashboard = () => {
-  const { trades, seedTrades } = useTrades();
+  const { trades, seedTrades } = useSharedTrades();
   const stats = useMemo(() => calculateAnalytics(trades), [trades]);
   const equityData = useMemo(() => getEquityCurve(trades), [trades]);
   const strategyData = useMemo(() => getStrategyPerformance(trades), [trades]);

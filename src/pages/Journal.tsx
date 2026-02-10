@@ -1,9 +1,9 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TradeTable } from '@/components/trade/TradeTable';
-import { useTrades } from '@/hooks/useTrades';
+import { useSharedTrades } from '@/contexts/TradesContext';
 
 const Journal = () => {
-  const { trades, updateTrade, deleteTrade } = useTrades();
+  const { trades, updateTrade, deleteTrade } = useSharedTrades();
 
   return (
     <AppLayout>

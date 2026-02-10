@@ -1,9 +1,9 @@
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TradeForm } from '@/components/trade/TradeForm';
-import { useTrades } from '@/hooks/useTrades';
+import { useSharedTrades } from '@/contexts/TradesContext';
 
 const AddTrade = () => {
-  const { addTrade } = useTrades();
+  const { addTrade } = useSharedTrades();
 
   return (
     <AppLayout>
