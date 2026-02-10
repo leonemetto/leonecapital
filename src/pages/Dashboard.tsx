@@ -8,16 +8,19 @@ import { StrategyChart } from '@/components/charts/StrategyChart';
 import { PerformanceRadar } from '@/components/charts/PerformanceRadar';
 import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useSharedTrades } from '@/contexts/TradesContext';
+import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { generateDemoTrades } from '@/lib/seedTrades';
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
-  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown,
+  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
   const { trades, seedTrades } = useSharedTrades();
+  const { accounts } = useSharedAccounts();
   const stats = useMemo(() => calculateAnalytics(trades), [trades]);
   const equityData = useMemo(() => getEquityCurve(trades), [trades]);
   const strategyData = useMemo(() => getStrategyPerformance(trades), [trades]);
@@ -62,6 +65,31 @@ const Dashboard = () => {
             trend={stats.profitFactor >= 1 ? 'up' : 'down'} delay={3} />
         </div>
       </div>
+
+      {/* Account Balances */}
+      {accounts.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+          {accounts.map(account => {
+            const accountPnl = trades.filter(t => t.accountId === account.id).reduce((s, t) => s + t.pnl, 0);
+            const balance = account.startingBalance + accountPnl;
+            const pctChange = account.startingBalance > 0 ? (accountPnl / account.startingBalance) * 100 : 0;
+            return (
+              <div key={account.id} className="glass-card p-4 flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Wallet className="h-4 w-4 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-muted-foreground truncate">{account.name} ({account.type})</p>
+                  <p className="text-lg font-bold font-mono">${balance.toFixed(2)}</p>
+                </div>
+                <span className={cn('text-xs font-mono font-semibold', accountPnl >= 0 ? 'text-profit' : 'text-loss')}>
+                  {accountPnl >= 0 ? '+' : ''}{pctChange.toFixed(1)}%
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Row 2: Performance Radar + Calendar */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-4">

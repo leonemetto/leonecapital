@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Trade, TradeFormData, INSTRUMENTS, STRATEGIES, SESSIONS } from '@/types/trade';
+import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -28,10 +29,12 @@ const defaults = {
   pnl: '',
   rMultiple: '',
   notes: '',
+  accountId: '',
 };
 
 export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', onCancel }: TradeFormProps) {
   const navigate = useNavigate();
+  const { accounts } = useSharedAccounts();
   const [form, setForm] = useState(() => {
     if (initialData) {
       return {
@@ -44,9 +47,10 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         pnl: String(initialData.pnl),
         rMultiple: initialData.rMultiple !== undefined ? String(initialData.rMultiple) : '',
         notes: initialData.notes,
+        accountId: initialData.accountId || '',
       };
     }
-    return defaults;
+    return { ...defaults, accountId: accounts.length === 1 ? accounts[0].id : '' };
   });
 
   const update = (key: string, value: string) => setForm(prev => ({ ...prev, [key]: value }));
@@ -70,6 +74,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       pnl,
       rMultiple: form.rMultiple ? parseFloat(form.rMultiple) : undefined,
       notes: form.notes,
+      accountId: form.accountId || undefined,
     });
 
     toast.success(initialData ? 'Trade updated!' : 'Trade logged!');
@@ -88,6 +93,25 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       transition={{ duration: 0.2 }}
       className="glass-card p-5 space-y-4"
     >
+      {/* Account selector */}
+      {accounts.length > 0 && (
+        <div className="max-w-xs">
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Account</Label>
+          <Select value={form.accountId} onValueChange={v => update('accountId', v)}>
+            <SelectTrigger className="mt-1 bg-secondary border-border h-9">
+              <SelectValue placeholder="Select account" />
+            </SelectTrigger>
+            <SelectContent>
+              {accounts.map(a => (
+                <SelectItem key={a.id} value={a.id}>
+                  {a.name} ({a.type}) — {a.currency}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* Row 1: Date, Instrument, Direction */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>

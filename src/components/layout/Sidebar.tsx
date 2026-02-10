@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
-  LayoutDashboard, PlusCircle, BookOpen,
+  LayoutDashboard, PlusCircle, BookOpen, Wallet,
   ChevronLeft, ChevronRight, Menu, X, Activity,
 } from 'lucide-react';
 
@@ -10,6 +10,7 @@ const navItems = [
   { title: 'Dashboard', path: '/', icon: LayoutDashboard },
   { title: 'Add Trade', path: '/add-trade', icon: PlusCircle },
   { title: 'Journal', path: '/journal', icon: BookOpen },
+  { title: 'Accounts', path: '/accounts', icon: Wallet },
 ];
 
 export function Sidebar() {
