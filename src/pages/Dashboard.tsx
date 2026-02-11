@@ -45,6 +45,27 @@ const Dashboard = () => {
   const equityData = useMemo(() => getEquityCurve(filteredTrades), [filteredTrades]);
   const strategyData = useMemo(() => getStrategyPerformance(filteredTrades), [filteredTrades]);
 
+  if (accounts.length === 0) {
+    return (
+      <AppLayout>
+        <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
+          <div className="p-3 rounded-xl bg-primary/10 mb-5">
+            <Wallet className="h-8 w-8 text-primary" />
+          </div>
+          <h1 className="text-2xl font-bold mb-1.5">{getGreeting()}, {profile?.nickname || 'Trader'}!</h1>
+          <p className="text-sm text-muted-foreground mb-5 max-w-sm">
+            First, add a trading account to get started.
+          </p>
+          <Link to="/accounts">
+            <Button size="sm" className="gap-1.5">
+              <Wallet className="h-3.5 w-3.5" /> Add Account
+            </Button>
+          </Link>
+        </div>
+      </AppLayout>
+    );
+  }
+
   if (trades.length === 0) {
     return (
       <AppLayout>
@@ -54,7 +75,7 @@ const Dashboard = () => {
           </div>
           <h1 className="text-2xl font-bold mb-1.5">{getGreeting()}, {profile?.nickname || 'Trader'}!</h1>
           <p className="text-sm text-muted-foreground mb-5 max-w-sm">
-            Start logging trades to unlock your analytics dashboard.
+            Great, you have an account! Now log your first trade to unlock analytics.
           </p>
           <Link to="/add-trade">
             <Button size="sm" className="gap-1.5">
