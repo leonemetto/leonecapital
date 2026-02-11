@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,10 +8,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import { Camera, KeyRound, Shield, User, Sun, Moon } from 'lucide-react';
+import { Camera, KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldOff, Loader2 } from 'lucide-react';
 
 export default function ProfileSettings() {
   const { profile, setNickname, updateAvatarUrl } = useProfile();
@@ -27,6 +26,97 @@ export default function ProfileSettings() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
+
+  // 2FA state
+  const [mfaFactors, setMfaFactors] = useState<any[]>([]);
+  const [mfaLoading, setMfaLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
+  const [qrCode, setQrCode] = useState<string | null>(null);
+  const [totpSecret, setTotpSecret] = useState<string | null>(null);
+  const [factorId, setFactorId] = useState<string | null>(null);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [unenrolling, setUnenrolling] = useState(false);
+
+  // Load MFA factors
+  useEffect(() => {
+    const loadFactors = async () => {
+      setMfaLoading(true);
+      try {
+        const { data, error } = await supabase.auth.mfa.listFactors();
+        if (error) throw error;
+        setMfaFactors(data?.totp || []);
+      } catch {
+        // MFA not available or error
+        setMfaFactors([]);
+      } finally {
+        setMfaLoading(false);
+      }
+    };
+    loadFactors();
+  }, []);
+
+  const verifiedFactors = mfaFactors.filter((f: any) => f.status === 'verified');
+  const hasMfa = verifiedFactors.length > 0;
+
+  const handleEnrollMfa = async () => {
+    setEnrolling(true);
+    try {
+      const { data, error } = await supabase.auth.mfa.enroll({ factorType: 'totp' });
+      if (error) throw error;
+      setQrCode(data.totp.qr_code);
+      setTotpSecret(data.totp.secret);
+      setFactorId(data.id);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to start 2FA enrollment');
+    } finally {
+      setEnrolling(false);
+    }
+  };
+
+  const handleVerifyMfa = async () => {
+    if (!factorId || verifyCode.length !== 6) return;
+    setVerifying(true);
+    try {
+      const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId });
+      if (challengeError) throw challengeError;
+
+      const { error: verifyError } = await supabase.auth.mfa.verify({
+        factorId,
+        challengeId: challenge.id,
+        code: verifyCode,
+      });
+      if (verifyError) throw verifyError;
+
+      toast.success('2FA enabled successfully!');
+      setQrCode(null);
+      setTotpSecret(null);
+      setFactorId(null);
+      setVerifyCode('');
+      // Refresh factors
+      const { data } = await supabase.auth.mfa.listFactors();
+      setMfaFactors(data?.totp || []);
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid verification code');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const handleUnenrollMfa = async (id: string) => {
+    setUnenrolling(true);
+    try {
+      const { error } = await supabase.auth.mfa.unenroll({ factorId: id });
+      if (error) throw error;
+      toast.success('2FA disabled');
+      const { data } = await supabase.auth.mfa.listFactors();
+      setMfaFactors(data?.totp || []);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to disable 2FA');
+    } finally {
+      setUnenrolling(false);
+    }
+  };
 
   const handleNicknameSave = async () => {
     if (!nickname.trim()) return;
@@ -156,15 +246,73 @@ export default function ProfileSettings() {
           </Button>
         </div>
 
-        {/* 2FA Info */}
+        {/* 2FA */}
         <div className="glass-card p-6 space-y-3">
           <div className="flex items-center gap-2 mb-1">
             <Shield className="h-4 w-4 text-muted-foreground" />
             <h2 className="text-sm font-semibold">Two-Factor Authentication</h2>
+            {hasMfa && <ShieldCheck className="h-4 w-4 text-profit" />}
           </div>
-          <p className="text-xs text-muted-foreground">
-            2FA adds an extra layer of security. This feature is coming soon.
-          </p>
+
+          {mfaLoading ? (
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Loader2 className="h-3 w-3 animate-spin" /> Loading...
+            </div>
+          ) : hasMfa ? (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <ShieldCheck className="h-3.5 w-3.5 text-profit" />
+                2FA is enabled. Your account is protected with TOTP.
+              </p>
+              <Button variant="destructive" size="sm" onClick={() => handleUnenrollMfa(verifiedFactors[0].id)} disabled={unenrolling}>
+                <ShieldOff className="h-3.5 w-3.5 mr-1" />
+                {unenrolling ? 'Disabling...' : 'Disable 2FA'}
+              </Button>
+            </div>
+          ) : qrCode ? (
+            <div className="space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.):
+              </p>
+              <div className="flex justify-center p-4 bg-secondary rounded-lg">
+                <img src={qrCode} alt="TOTP QR Code" className="w-48 h-48" />
+              </div>
+              {totpSecret && (
+                <div>
+                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Manual Entry Key</Label>
+                  <code className="block mt-1 text-xs bg-secondary p-2 rounded font-mono break-all select-all">{totpSecret}</code>
+                </div>
+              )}
+              <div>
+                <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Verification Code</Label>
+                <Input
+                  value={verifyCode}
+                  onChange={e => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                  placeholder="Enter 6-digit code"
+                  maxLength={6}
+                  className="mt-1 bg-secondary border-border h-9 font-mono tracking-widest"
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={handleVerifyMfa} disabled={verifying || verifyCode.length !== 6}>
+                  {verifying ? 'Verifying...' : 'Verify & Enable'}
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => { setQrCode(null); setTotpSecret(null); setFactorId(null); setVerifyCode(''); }}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-muted-foreground">
+                Add an extra layer of security by enabling TOTP-based two-factor authentication.
+              </p>
+              <Button size="sm" onClick={handleEnrollMfa} disabled={enrolling}>
+                <Shield className="h-3.5 w-3.5 mr-1" />
+                {enrolling ? 'Setting up...' : 'Enable 2FA'}
+              </Button>
+            </div>
+          )}
         </div>
 
         {/* Theme */}
