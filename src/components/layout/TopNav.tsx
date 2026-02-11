@@ -1,8 +1,10 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, BookOpen, Wallet, Activity, LogOut, Sparkles } from 'lucide-react';
+import { BarChart3, BookOpen, Wallet, Activity, LogOut, Sparkles, Settings, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
+import { useProfile } from '@/hooks/useProfile';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
 const tabs = [
   { title: 'ANALYTICS', path: '/', icon: BarChart3 },
@@ -13,6 +15,9 @@ const tabs = [
 
 export function TopNav() {
   const { signOut } = useAuth();
+  const { profile } = useProfile();
+  const navigate = useNavigate();
+  const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
 
   return (
     <header className="w-full border-b border-border bg-card/90 backdrop-blur-md sticky top-0 z-50">
@@ -23,10 +28,31 @@ export function TopNav() {
             <Activity className="h-5 w-5 text-profit" />
             <h1 className="text-xl font-black tracking-tight">TRADE JOURNAL</h1>
           </div>
-          <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5 text-muted-foreground hover:text-foreground">
-            <LogOut className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline text-xs">Sign Out</span>
-          </Button>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="rounded-full ring-2 ring-border hover:ring-primary transition-all">
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={profile?.avatarUrl || undefined} />
+                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">{initials}</AvatarFallback>
+                </Avatar>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              <div className="px-2 py-1.5">
+                <p className="text-sm font-medium">{profile?.nickname || 'User'}</p>
+                <p className="text-xs text-muted-foreground truncate">{profile?.userId ? '' : ''}</p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => navigate('/profile')} className="gap-2 cursor-pointer">
+                <Settings className="h-3.5 w-3.5" /> Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={() => signOut()} className="gap-2 cursor-pointer text-destructive">
+                <LogOut className="h-3.5 w-3.5" /> Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
 
         {/* Tab nav */}
