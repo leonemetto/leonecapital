@@ -23,8 +23,8 @@ const Accounts = () => {
   const [form, setForm] = useState<AccountFormData>({
     name: '',
     type: 'live',
-    startingBalance: 5000,
-    currentBalance: 5000,
+    startingBalance: 0,
+    currentBalance: 0,
     currency: 'USD',
   });
 
@@ -39,7 +39,7 @@ const Accounts = () => {
     try {
       await addAccount(form);
       toast.success('Account created!');
-      setForm({ name: '', type: 'live', startingBalance: 5000, currentBalance: 5000, currency: 'USD' });
+      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD' });
       setOpen(false);
     } catch (err: any) {
       toast.error(err.message || 'Failed to create account');
@@ -107,14 +107,16 @@ const Accounts = () => {
               </div>
               <div>
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Starting Balance</Label>
-                <Input type="number" step="any" value={form.startingBalance}
+                <Input type="number" step="any" value={form.startingBalance || ''}
                   onChange={e => update('startingBalance', parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
                   className="mt-1 bg-secondary border-border font-mono h-9" />
               </div>
               <div>
                 <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Current Balance</Label>
-                <Input type="number" step="any" value={form.currentBalance}
+                <Input type="number" step="any" value={form.currentBalance || ''}
                   onChange={e => update('currentBalance', parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
                   className="mt-1 bg-secondary border-border font-mono h-9" />
               </div>
               <Button type="submit" size="sm" className="w-full gap-1.5">
