@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useAuth } from '@/hooks/useAuth';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -73,6 +74,7 @@ const SUGGESTIONS = [
 export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
+  const { session } = useAuth();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -101,7 +103,7 @@ export default function AIAdvisor() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
           messages: allMessages.map(m => ({ role: m.role, content: m.content })),
