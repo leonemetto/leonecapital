@@ -117,8 +117,18 @@ const Dashboard = () => {
             trend={stats.netPnl >= 0 ? 'up' : 'down'} delay={1} />
           <StatsCard title="Returns" value={`${filteredTrades.length} trades`} icon={TrendingUp}
             delay={2} />
-          <StatsCard title="Profit Factor" value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)} icon={ArrowUpDown}
-            trend={stats.profitFactor >= 1 ? 'up' : 'down'} delay={3} />
+          <StatsCard
+            title="Profit Factor"
+            value={stats.profitFactor >= 999 ? (
+              <div className="flex flex-col">
+                <span className="text-foreground">∞</span>
+                <span className="text-[10px] text-muted-foreground font-normal tracking-normal lowercase">Infinite</span>
+              </div>
+            ) : stats.profitFactor.toFixed(2)}
+            icon={ArrowUpDown}
+            trend={stats.profitFactor >= 999 ? undefined : stats.profitFactor >= 1 ? 'up' : 'down'}
+            delay={3}
+          />
         </div>
       </div>
 
