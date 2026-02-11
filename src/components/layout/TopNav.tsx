@@ -21,7 +21,7 @@ export function TopNav() {
         <div className="flex items-center justify-between pt-4 pb-3">
           <div className="flex items-center gap-3">
             <Activity className="h-5 w-5 text-profit" />
-            <h1 className="text-xl font-black tracking-tight">TRADE JOURNAL+ANALYTICS</h1>
+            <h1 className="text-xl font-black tracking-tight">TRADE JOURNAL</h1>
           </div>
           <Button variant="ghost" size="sm" onClick={() => signOut()} className="gap-1.5 text-muted-foreground hover:text-foreground">
             <LogOut className="h-3.5 w-3.5" />
