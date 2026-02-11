@@ -6,11 +6,44 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+function validateRequest(body: unknown): { messages: { role: string; content: string }[]; tradesSummary: string } {
+  if (!body || typeof body !== "object") throw new Error("Invalid request body");
+
+  const { messages, tradesSummary } = body as Record<string, unknown>;
+
+  // Validate tradesSummary
+  if (typeof tradesSummary !== "string" || tradesSummary.length > 50000) {
+    throw new Error("Invalid or too long tradesSummary");
+  }
+
+  // Validate messages array
+  if (!Array.isArray(messages) || messages.length === 0 || messages.length > 100) {
+    throw new Error("Messages must be an array with 1-100 items");
+  }
+
+  const validRoles = new Set(["user", "assistant"]);
+  const validated = messages.map((m: unknown, i: number) => {
+    if (!m || typeof m !== "object") throw new Error(`Invalid message at index ${i}`);
+    const msg = m as Record<string, unknown>;
+    if (typeof msg.role !== "string" || !validRoles.has(msg.role)) {
+      throw new Error(`Invalid role at index ${i}`);
+    }
+    if (typeof msg.content !== "string" || msg.content.length === 0 || msg.content.length > 10000) {
+      throw new Error(`Invalid or too long content at index ${i}`);
+    }
+    return { role: msg.role, content: msg.content };
+  });
+
+  return { messages: validated, tradesSummary };
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { messages, tradesSummary } = await req.json();
+    const rawBody = await req.json();
+    const { messages, tradesSummary } = validateRequest(rawBody);
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -65,7 +98,7 @@ If they ask a general trading question unrelated to their data, answer it but tr
   } catch (e) {
     console.error("trade-advisor error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
-      status: 500,
+      status: 400,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
