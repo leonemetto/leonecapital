@@ -9,6 +9,7 @@ import { PerformanceRadar } from '@/components/charts/PerformanceRadar';
 import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { useProfile } from '@/hooks/useProfile';
 
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
@@ -19,9 +20,17 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+}
+
 const Dashboard = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
+  const { profile } = useProfile();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
 
   // Auto-select first account when accounts load
@@ -43,7 +52,7 @@ const Dashboard = () => {
           <div className="p-3 rounded-xl bg-primary/10 mb-5">
             <BarChart3 className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold mb-1.5">Welcome to EdgeJournal</h1>
+          <h1 className="text-2xl font-bold mb-1.5">{getGreeting()}, {profile?.nickname || 'Trader'}!</h1>
           <p className="text-sm text-muted-foreground mb-5 max-w-sm">
             Start logging trades to unlock your analytics dashboard.
           </p>
@@ -59,6 +68,9 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
+      {/* Greeting */}
+      <h1 className="text-xl font-bold mb-4">{getGreeting()}, {profile?.nickname || 'Trader'} 👋</h1>
+
       {/* Account Filter */}
       <div className="flex items-center gap-2 mb-4">
         <Filter className="h-3.5 w-3.5 text-muted-foreground" />

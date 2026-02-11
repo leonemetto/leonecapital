@@ -4,8 +4,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useProfile } from "@/hooks/useProfile";
 import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
+import { NicknamePrompt } from "@/components/NicknamePrompt";
 import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
@@ -31,6 +33,24 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function ProfileGate({ children }: { children: React.ReactNode }) {
+  const { isLoading, needsNickname, setNickname } = useProfile();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-muted-foreground text-sm">Loading...</div>
+      </div>
+    );
+  }
+
+  if (needsNickname) {
+    return <NicknamePrompt onSubmit={setNickname} />;
+  }
+
+  return <>{children}</>;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -38,17 +58,19 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthGate>
-          <AccountsProvider>
-            <TradesProvider>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/add-trade" element={<AddTrade />} />
-                <Route path="/journal" element={<Journal />} />
-                <Route path="/accounts" element={<Accounts />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </TradesProvider>
-          </AccountsProvider>
+          <ProfileGate>
+            <AccountsProvider>
+              <TradesProvider>
+                <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/add-trade" element={<AddTrade />} />
+                  <Route path="/journal" element={<Journal />} />
+                  <Route path="/accounts" element={<Accounts />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </TradesProvider>
+            </AccountsProvider>
+          </ProfileGate>
         </AuthGate>
       </BrowserRouter>
     </TooltipProvider>
