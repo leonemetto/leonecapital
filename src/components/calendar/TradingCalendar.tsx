@@ -111,12 +111,12 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
           </div>
           <div className="flex items-center gap-5 text-xs">
             <span className="text-muted-foreground">
-              P/L: <span className={cn('font-mono font-bold text-sm', monthPnl > 0 ? 'text-profit' : monthPnl < 0 ? 'text-loss' : '')}>
+              P/L: <span className={cn('font-mono font-bold text-sm tabular-nums', monthPnl > 0 ? 'text-profit' : monthPnl < 0 ? 'text-loss' : '')}>
                 {fmtPnl(monthPnl)}
               </span>
             </span>
             <span className="text-muted-foreground">
-              Trades: <span className="font-mono font-bold text-sm text-foreground">{monthTrades}</span>
+              Trades: <span className="font-mono font-bold text-sm text-foreground tabular-nums">{monthTrades}</span>
             </span>
           </div>
         </div>
@@ -149,22 +149,20 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
                     key={di}
                     onClick={() => setSelectedDate(isSel ? null : dateStr)}
                     className={cn(
-                      'min-h-[76px] p-2.5 text-left transition-all relative',
-                      data && data.pnl > 0 && 'bg-[hsl(142,71%,45%,0.08)] hover:bg-[hsl(142,71%,45%,0.14)]',
-                      data && data.pnl < 0 && 'bg-[hsl(0,84%,60%,0.08)] hover:bg-[hsl(0,84%,60%,0.14)]',
-                      (!data || data.pnl === 0) && 'bg-background hover:bg-secondary/30',
-                      isSel && 'ring-1 ring-primary ring-inset',
+                      'min-h-[76px] p-2.5 text-left transition-all relative bg-background hover:bg-secondary/20',
+                      isSel && 'shadow-[inset_0_0_12px_rgba(48,209,88,0.15)] border-l-2 border-l-primary',
                     )}
                   >
-                    <span className="text-xs text-muted-foreground font-medium">{format(day, 'd')}</span>
+                    <span className="text-xs text-muted-foreground font-medium tabular-nums">{format(day, 'd')}</span>
                     {data && (
                       <div className="mt-1.5 text-center">
-                        <div className={cn('text-sm font-bold', data.pnl > 0 ? 'text-profit' : 'text-loss')}>
+                        <div className={cn('text-sm font-bold tabular-nums', data.pnl > 0 ? 'text-profit' : 'text-loss')}>
                           {data.trades}
                         </div>
-                        <div className={cn('text-xs font-mono font-bold', data.pnl > 0 ? 'text-profit' : 'text-loss')}>
+                        <div className={cn('text-xs font-mono font-bold tabular-nums', data.pnl > 0 ? 'text-profit' : 'text-loss')}>
                           {fmtPnl(data.pnl)}
                         </div>
+                        <div className={cn('w-1 h-1 rounded-full mx-auto mt-1', data.pnl > 0 ? 'bg-profit' : 'bg-loss')} />
                       </div>
                     )}
                   </button>

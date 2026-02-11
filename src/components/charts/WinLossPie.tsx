@@ -7,7 +7,7 @@ interface WinLossPieProps {
   breakevens: number;
 }
 
-const COLORS = ['#22C55E', '#EF4444', 'hsl(0, 0%, 35%)'];
+const COLORS = ['#30D158', '#EF4444', 'hsl(0, 0%, 35%)'];
 
 export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   const data = [
@@ -19,7 +19,7 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   if (data.length === 0) {
     return (
       <div className="glass-card p-5">
-        <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
+        <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-widest opacity-50">Win / Loss</h3>
         <div className="h-[220px] flex items-center justify-center text-muted-foreground text-sm">No trades yet</div>
       </div>
     );
@@ -30,7 +30,7 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: 0.15 }}
       className="glass-card p-5">
-      <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-wider">Win / Loss</h3>
+      <h3 className="text-xs font-semibold mb-4 text-muted-foreground uppercase tracking-widest opacity-50">Win / Loss</h3>
       <div className="h-[220px] flex items-center">
         <div className="w-1/2 h-full">
           <ResponsiveContainer width="100%" height="100%">
@@ -40,7 +40,7 @@ export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
                   <Cell key={i} fill={COLORS[entry.name === 'Wins' ? 0 : entry.name === 'Losses' ? 1 : 2]} />
                 ))}
               </Pie>
-              <Tooltip contentStyle={{ backgroundColor: '#161616', border: '1px solid hsl(0, 0%, 16%)', borderRadius: '8px', color: '#eee', fontSize: 11 }} />
+              <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #1C1C1E', borderRadius: '8px', color: '#eee', fontSize: 11 }} />
             </PieChart>
           </ResponsiveContainer>
         </div>

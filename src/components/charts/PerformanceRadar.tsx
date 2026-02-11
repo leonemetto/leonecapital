@@ -36,16 +36,16 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
       transition={{ duration: 0.25, delay: 0.1 }}
       className="glass-card p-5 h-full"
     >
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest opacity-50 mb-1">
         Performance Profile
       </h3>
       <div className="h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} cx="50%" cy="50%" outerRadius="65%">
-            <PolarGrid stroke="hsl(0, 0%, 20%)" strokeDasharray="3 3" />
+            <PolarGrid stroke="hsl(0, 0%, 16%)" strokeWidth={0.5} />
             <PolarAngleAxis
               dataKey="metric"
-              tick={{ fill: 'hsl(0, 0%, 50%)', fontSize: 10, fontWeight: 500 }}
+              tick={{ fill: 'hsl(0, 0%, 56%)', fontSize: 10, fontWeight: 500 }}
             />
             <PolarRadiusAxis
               angle={90}
@@ -56,11 +56,11 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
             <Radar
               name="Performance"
               dataKey="value"
-              stroke="#22C55E"
-              fill="#22C55E"
-              fillOpacity={0.12}
-              strokeWidth={2}
-              dot={{ r: 4, fill: '#22C55E', strokeWidth: 0 }}
+              stroke="#30D158"
+              fill="#30D158"
+              fillOpacity={0.08}
+              strokeWidth={1}
+              dot={{ r: 2, fill: '#30D158', strokeWidth: 0 }}
             />
           </RadarChart>
         </ResponsiveContainer>

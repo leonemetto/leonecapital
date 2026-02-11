@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 
 interface StatsCardProps {
   title: string;
-  value: string | number;
+  value: React.ReactNode;
   icon: LucideIcon;
   trend?: 'up' | 'down' | 'neutral';
   className?: string;
@@ -23,7 +23,7 @@ export function StatsCard({ title, value, icon: Icon, trend, className, delay = 
       )}
     >
       <div className="flex items-center justify-between mb-3">
-        <span className="text-xs font-semibold text-muted-foreground">
+        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest opacity-50">
           {title}
         </span>
         <Icon className={cn(
@@ -33,9 +33,10 @@ export function StatsCard({ title, value, icon: Icon, trend, className, delay = 
       </div>
       <div
         className={cn(
-          'text-2xl font-bold font-mono tracking-tight',
+          'text-2xl font-bold font-mono tracking-tight tabular-nums',
           trend === 'up' && 'text-profit',
           trend === 'down' && 'text-loss',
+          !trend && 'text-foreground',
         )}
       >
         {value}
