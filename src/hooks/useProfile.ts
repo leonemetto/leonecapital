@@ -6,6 +6,7 @@ export interface Profile {
   id: string;
   userId: string;
   nickname: string;
+  avatarUrl: string;
   createdAt: string;
 }
 
@@ -32,6 +33,7 @@ export function useProfile() {
         id: data.id,
         userId: data.user_id,
         nickname: data.nickname,
+        avatarUrl: (data as any).avatar_url || '',
         createdAt: data.created_at,
       } as Profile;
     },
@@ -49,7 +51,20 @@ export function useProfile() {
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);
 
+  const updateAvatarUrl = useCallback(async (avatarUrl: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+
+    const { error } = await supabase
+      .from('profiles')
+      .update({ avatar_url: avatarUrl } as any)
+      .eq('user_id', user.id);
+
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+  }, [qc]);
+
   const needsNickname = !isLoading && profile === null;
 
-  return { profile, isLoading, needsNickname, setNickname };
+  return { profile, isLoading, needsNickname, setNickname, updateAvatarUrl };
 }

@@ -8,11 +8,13 @@ import { useProfile } from "@/hooks/useProfile";
 import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
 import { NicknamePrompt } from "@/components/NicknamePrompt";
+import { ThemeProvider } from "@/components/ThemeProvider";
 import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
 import Accounts from "./pages/Accounts";
 import AIAdvisor from "./pages/AIAdvisor";
+import ProfileSettings from "./pages/ProfileSettings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -54,28 +56,31 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <AuthGate>
-          <ProfileGate>
-            <AccountsProvider>
-              <TradesProvider>
-                <Routes>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route path="/add-trade" element={<AddTrade />} />
-                  <Route path="/journal" element={<Journal />} />
-                  <Route path="/accounts" element={<Accounts />} />
-                  <Route path="/ai" element={<AIAdvisor />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </TradesProvider>
-            </AccountsProvider>
-          </ProfileGate>
-        </AuthGate>
-      </BrowserRouter>
-    </TooltipProvider>
+    <ThemeProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <AuthGate>
+            <ProfileGate>
+              <AccountsProvider>
+                <TradesProvider>
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/add-trade" element={<AddTrade />} />
+                    <Route path="/journal" element={<Journal />} />
+                    <Route path="/accounts" element={<Accounts />} />
+                    <Route path="/ai" element={<AIAdvisor />} />
+                    <Route path="/profile" element={<ProfileSettings />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </TradesProvider>
+              </AccountsProvider>
+            </ProfileGate>
+          </AuthGate>
+        </BrowserRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

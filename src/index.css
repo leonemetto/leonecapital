@@ -6,53 +6,41 @@
 
 @layer base {
   :root {
-    --background: 0 0% 5.5%;
-    --foreground: 0 0% 92%;
-
-    --card: 0 0% 8.7%;
-    --card-foreground: 0 0% 92%;
-
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 92%;
-
-    --primary: 142 69% 50%;
-    --primary-foreground: 0 0% 2%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 80%;
-
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 56%;
-
-    --accent: 142 50% 35%;
-    --accent-foreground: 0 0% 92%;
-
+    --background: 0 0% 97%;
+    --foreground: 0 0% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 142 69% 42%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 93%;
+    --secondary-foreground: 0 0% 30%;
+    --muted: 0 0% 93%;
+    --muted-foreground: 0 0% 45%;
+    --accent: 142 50% 90%;
+    --accent-foreground: 142 50% 25%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 11%;
-    --input: 0 0% 11%;
-    --ring: 142 69% 50%;
-
+    --border: 0 0% 88%;
+    --input: 0 0% 88%;
+    --ring: 142 69% 42%;
     --radius: 0.75rem;
-
-    --profit: 142 69% 50%;
-    --loss: 0 84% 60%;
-
-    --chart-1: 142 69% 50%;
-    --chart-2: 0 84% 60%;
-    --chart-3: 45 90% 50%;
-    --chart-4: 200 70% 50%;
-    --chart-5: 280 60% 55%;
-
-    --sidebar-background: 0 0% 5%;
-    --sidebar-foreground: 0 0% 70%;
-    --sidebar-primary: 142 69% 50%;
-    --sidebar-primary-foreground: 0 0% 2%;
-    --sidebar-accent: 0 0% 10%;
-    --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 0 0% 11%;
-    --sidebar-ring: 142 69% 50%;
+    --profit: 142 69% 42%;
+    --loss: 0 84% 55%;
+    --chart-1: 142 69% 42%;
+    --chart-2: 0 84% 55%;
+    --chart-3: 45 90% 45%;
+    --chart-4: 200 70% 45%;
+    --chart-5: 280 60% 50%;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 0 0% 40%;
+    --sidebar-primary: 142 69% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 94%;
+    --sidebar-accent-foreground: 0 0% 20%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 142 69% 42%;
   }
 
   .dark {
@@ -75,6 +63,13 @@
     --border: 0 0% 11%;
     --input: 0 0% 11%;
     --ring: 142 69% 50%;
+    --profit: 142 69% 50%;
+    --loss: 0 84% 60%;
+    --chart-1: 142 69% 50%;
+    --chart-2: 0 84% 60%;
+    --chart-3: 45 90% 50%;
+    --chart-4: 200 70% 50%;
+    --chart-5: 280 60% 55%;
     --sidebar-background: 0 0% 5%;
     --sidebar-foreground: 0 0% 70%;
     --sidebar-primary: 142 69% 50%;
