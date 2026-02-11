@@ -106,6 +106,28 @@ export default function ProfileSettings() {
   const handleUnenrollMfa = async (id: string) => {
     setUnenrolling(true);
     try {
+      // First, upgrade session to AAL2 by doing a challenge+verify
+      const aal = JSON.parse(atob((await supabase.auth.getSession()).data.session!.access_token.split('.')[1]))?.aal;
+      if (aal !== 'aal2') {
+        // Need to prompt user for TOTP code first
+        const code = prompt('Enter your 2FA code to confirm disabling:');
+        if (!code || code.length !== 6) {
+          toast.error('Valid 6-digit code required to disable 2FA');
+          setUnenrolling(false);
+          return;
+        }
+        const { data: challenge, error: challengeError } = await supabase.auth.mfa.challenge({ factorId: id });
+        if (challengeError) throw challengeError;
+        const { error: verifyError } = await supabase.auth.mfa.verify({
+          factorId: id,
+          challengeId: challenge.id,
+          code,
+        });
+        if (verifyError) throw verifyError;
+        // Now session is AAL2, refresh it
+        await supabase.auth.refreshSession();
+      }
+
       const { error } = await supabase.auth.mfa.unenroll({ factorId: id });
       if (error) throw error;
       toast.success('2FA disabled');
