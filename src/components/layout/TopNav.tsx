@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, BookOpen, Wallet, Activity, LogOut } from 'lucide-react';
+import { BarChart3, BookOpen, Wallet, Activity, LogOut, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 
@@ -8,6 +8,7 @@ const tabs = [
   { title: 'ANALYTICS', path: '/', icon: BarChart3 },
   { title: 'TRADES DB', path: '/journal', icon: BookOpen },
   { title: 'ACCOUNTS', path: '/accounts', icon: Wallet },
+  { title: 'AI', path: '/ai', icon: Sparkles },
 ];
 
 export function TopNav() {
