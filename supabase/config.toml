@@ -1,1 +1,4 @@
 project_id = "utooegbakhgwdfvjtaxc"
+
+[functions.trade-advisor]
+verify_jwt = false

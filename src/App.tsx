@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
 import Accounts from "./pages/Accounts";
+import AIAdvisor from "./pages/AIAdvisor";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -66,6 +67,7 @@ const App = () => (
                   <Route path="/add-trade" element={<AddTrade />} />
                   <Route path="/journal" element={<Journal />} />
                   <Route path="/accounts" element={<Accounts />} />
+                  <Route path="/ai" element={<AIAdvisor />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </TradesProvider>
