@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, BookOpen, Wallet, Activity, LogOut, Sparkles, Settings, User } from 'lucide-react';
+import { BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings, User } from 'lucide-react';
+import logoImg from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -25,7 +26,7 @@ export function TopNav() {
         {/* Brand */}
         <div className="flex items-center justify-between pt-4 pb-3">
           <div className="flex items-center gap-3">
-            <Activity className="h-5 w-5 text-profit" />
+            <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg" />
             <h1 className="text-xl font-black tracking-tight">TRADE JOURNAL</h1>
           </div>
 
