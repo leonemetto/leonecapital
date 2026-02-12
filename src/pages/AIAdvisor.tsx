@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useAccounts } from '@/hooks/useAccounts';
@@ -6,10 +7,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Sparkles, CalendarCheck } from 'lucide-react';
+import { Send, Bot, User, Sparkles } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
-import { format } from 'date-fns';
+
 
 type Msg = { role: 'user' | 'assistant'; content: string; id: string };
 
@@ -64,39 +65,6 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
   return lines.join('\n');
 }
 
-function buildDailySummary(trades: any[]) {
-  const today = format(new Date(), 'yyyy-MM-dd');
-  const todayTrades = trades.filter(t => t.date === today);
-
-  if (todayTrades.length === 0) return null;
-
-  const wins = todayTrades.filter(t => t.outcome === 'win').length;
-  const losses = todayTrades.filter(t => t.outcome === 'loss').length;
-  const be = todayTrades.filter(t => t.outcome === 'be').length;
-  const totalPnl = todayTrades.reduce((sum, t) => sum + t.pnl, 0);
-
-  const instruments = [...new Set(todayTrades.map(t => t.instrument))];
-  const sessions = [...new Set(todayTrades.map(t => t.session).filter(Boolean))];
-  const strategies = [...new Set(todayTrades.map(t => t.strategy).filter(Boolean))];
-
-  const lines = [
-    `TODAY'S TRADES (${today}):`,
-    `Total: ${todayTrades.length} | Wins: ${wins} | Losses: ${losses} | BE: ${be}`,
-    `P&L: $${totalPnl.toFixed(2)}`,
-    `Win Rate: ${todayTrades.length > 0 ? ((wins / todayTrades.length) * 100).toFixed(1) : 0}%`,
-    `Instruments: ${instruments.join(', ')}`,
-    sessions.length ? `Sessions: ${sessions.join(', ')}` : '',
-    strategies.length ? `Strategies: ${strategies.join(', ')}` : '',
-    '',
-    'Individual trades:',
-    ...todayTrades.map(t =>
-      `  ${t.instrument} ${t.direction} — ${t.outcome.toUpperCase()} — $${t.pnl.toFixed(2)}${t.session ? ` (${t.session})` : ''}${t.strategy ? ` [${t.strategy}]` : ''}`
-    ),
-  ].filter(Boolean);
-
-  return lines.join('\n');
-}
-
 const SUGGESTIONS = [
   "What are my biggest weaknesses?",
   "Which session should I avoid?",
@@ -111,17 +79,30 @@ export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
   const { session } = useAuth();
+  const location = useLocation();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const streamingIdRef = useRef<string | null>(null);
+  const hasHandledNavState = useRef(false);
 
   const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Handle navigation state from Daily Review button
+  useEffect(() => {
+    const state = location.state as { prompt?: string; extraContext?: string } | null;
+    if (state?.prompt && !hasHandledNavState.current) {
+      hasHandledNavState.current = true;
+      // Clear the state so refreshing doesn't re-trigger
+      window.history.replaceState({}, '');
+      send(state.prompt, state.extraContext);
+    }
+  }, [location.state]);
 
   const send = async (text: string, extraContext?: string) => {
     const trimmed = text.trim();
@@ -214,13 +195,7 @@ export default function AIAdvisor() {
     setIsLoading(false);
   };
 
-  const handleDailyReview = () => {
-    const dailySummary = buildDailySummary(trades);
-    const prompt = dailySummary
-      ? "Give me a daily review of my trading today. Summarize my performance, highlight what went well and what didn't, and suggest improvements for tomorrow."
-      : "I haven't logged any trades today yet. What should I focus on based on my overall performance?";
-    send(prompt, dailySummary || undefined);
-  };
+
 
   return (
     <AppLayout>
@@ -246,10 +221,6 @@ export default function AIAdvisor() {
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2 justify-center mt-2">
-                  <Button variant="outline" size="sm" className="text-xs gap-1.5 border-primary/30 text-primary hover:bg-primary/10" onClick={handleDailyReview}>
-                    <CalendarCheck className="h-3.5 w-3.5" />
-                    Daily Review
-                  </Button>
                   {SUGGESTIONS.map(s => (
                     <Button key={s} variant="outline" size="sm" className="text-xs" onClick={() => send(s)}>
                       {s}
