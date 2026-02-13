@@ -15,6 +15,9 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [awaitingOtp, setAwaitingOtp] = useState(false);
+  const [otpCode, setOtpCode] = useState('');
+  const [otpVerifying, setOtpVerifying] = useState(false);
 
   // MFA challenge state
   const [mfaRequired, setMfaRequired] = useState(false);
@@ -69,7 +72,8 @@ export default function Auth() {
       if (error) {
         toast.error(error.message);
       } else {
-        toast.success('Check your email to verify your account!');
+        toast.success('Check your email for a 6-digit verification code!');
+        setAwaitingOtp(true);
       }
     }
     setLoading(false);
@@ -97,6 +101,78 @@ export default function Auth() {
       setVerifying(false);
     }
   };
+
+  const handleOtpVerify = async () => {
+    if (otpCode.length !== 6) return;
+    setOtpVerifying(true);
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: otpCode,
+        type: 'signup',
+      });
+      if (error) throw error;
+      toast.success('Email verified! You are signed in.');
+    } catch (err: any) {
+      toast.error(err.message || 'Invalid verification code');
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
+
+  // Email OTP verification screen after signup
+  if (awaitingOtp) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm"
+        >
+          <div className="flex items-center gap-3 justify-center mb-8">
+            <Activity className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-black tracking-tight">EDGEJOURNAL</h1>
+          </div>
+
+          <div className="glass-card p-6 space-y-5">
+            <div className="text-center">
+              <ShieldCheck className="h-8 w-8 text-primary mx-auto mb-2" />
+              <h2 className="text-lg font-bold">Verify Your Email</h2>
+              <p className="text-xs text-muted-foreground mt-1">
+                Enter the 6-digit code sent to <span className="font-medium text-foreground">{email}</span>
+              </p>
+            </div>
+
+            <div>
+              <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Verification Code</Label>
+              <Input
+                value={otpCode}
+                onChange={e => setOtpCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                placeholder="000000"
+                maxLength={6}
+                className="mt-1 bg-secondary border-border h-9 font-mono tracking-widest text-center text-lg"
+                autoFocus
+                onKeyDown={e => { if (e.key === 'Enter' && otpCode.length === 6) handleOtpVerify(); }}
+              />
+            </div>
+
+            <Button className="w-full gap-2" onClick={handleOtpVerify} disabled={otpVerifying || otpCode.length !== 6}>
+              <ShieldCheck className="h-4 w-4" />
+              {otpVerifying ? 'Verifying...' : 'Verify Email'}
+            </Button>
+
+            <button
+              type="button"
+              onClick={() => { setAwaitingOtp(false); setOtpCode(''); }}
+              className="text-xs text-muted-foreground hover:underline w-full text-center"
+            >
+              Back to sign up
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   // MFA verification screen
   if (mfaRequired) {
