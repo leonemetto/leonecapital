@@ -98,6 +98,7 @@ If they ask a general trading question unrelated to their data, answer it but tr
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        model: "openai/gpt-5-mini",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
