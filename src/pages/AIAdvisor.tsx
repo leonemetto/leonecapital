@@ -25,6 +25,10 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
 
   const instrumentMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   const directionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
+  const accountMap = new Map<string, { name: string; wins: number; losses: number; breakeven: number; pnl: number; total: number }>();
+
+  // Build account lookup
+  const accountLookup = new Map(accounts.map((a: any) => [a.id, a.name]));
 
   for (const t of trades) {
     const ik = t.instrument;
@@ -36,6 +40,17 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     const dc = directionMap.get(dk) || { wins: 0, losses: 0, pnl: 0, total: 0 };
     dc.total++; if (t.outcome === 'win') dc.wins++; else if (t.outcome === 'loss') dc.losses++;
     dc.pnl += t.pnl; directionMap.set(dk, dc);
+
+    // Per-account stats
+    const acctId = t.accountId || 'unassigned';
+    const acctName = t.accountId ? (accountLookup.get(t.accountId) || 'Unknown') : 'Unassigned';
+    const ac = accountMap.get(acctId) || { name: acctName, wins: 0, losses: 0, breakeven: 0, pnl: 0, total: 0 };
+    ac.total++;
+    if (t.outcome === 'win') ac.wins++;
+    else if (t.outcome === 'loss') ac.losses++;
+    else ac.breakeven++;
+    ac.pnl += t.pnl;
+    accountMap.set(acctId, ac);
   }
 
   const lines = [
@@ -60,6 +75,10 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     'BY DIRECTION:',
     ...Array.from(directionMap.entries()).map(([k, v]) =>
       `  ${k}: ${v.total} trades, ${v.total > 0 ? ((v.wins / v.total) * 100).toFixed(1) : 0}% WR, $${v.pnl.toFixed(2)} P&L`),
+    '',
+    'BY ACCOUNT:',
+    ...Array.from(accountMap.values()).map(a =>
+      `  ${a.name}: ${a.total} trades, ${a.wins}W/${a.losses}L/${a.breakeven}BE, ${a.total > 0 ? ((a.wins / a.total) * 100).toFixed(1) : 0}% WR, $${a.pnl.toFixed(2)} P&L`),
   ];
 
   return lines.join('\n');
