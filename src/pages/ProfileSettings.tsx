@@ -2,19 +2,22 @@ import { useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useProfile } from '@/hooks/useProfile';
 import { useAuth } from '@/hooks/useAuth';
+import { useTraderProfile } from '@/hooks/useTraderProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import { Camera, KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldOff, Loader2 } from 'lucide-react';
+import { Camera, KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldOff, Loader2, Brain } from 'lucide-react';
 
 export default function ProfileSettings() {
   const { profile, setNickname, updateAvatarUrl } = useProfile();
   const { user } = useAuth();
+  const { traderProfile, saveProfile: saveTraderProfile } = useTraderProfile();
   const { theme, setTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,6 +40,31 @@ export default function ProfileSettings() {
   const [verifyCode, setVerifyCode] = useState('');
   const [verifying, setVerifying] = useState(false);
   const [unenrolling, setUnenrolling] = useState(false);
+
+  // Trader profile state
+  const [tpStyle, setTpStyle] = useState('');
+  const [tpInstruments, setTpInstruments] = useState('');
+  const [tpSessions, setTpSessions] = useState('');
+  const [tpGoals, setTpGoals] = useState('');
+  const [tpMistakes, setTpMistakes] = useState('');
+  const [tpRules, setTpRules] = useState('');
+  const [tpRisk, setTpRisk] = useState('');
+  const [tpNotes, setTpNotes] = useState('');
+  const [savingTp, setSavingTp] = useState(false);
+
+  // Load trader profile into local state
+  useEffect(() => {
+    if (traderProfile) {
+      setTpStyle(traderProfile.tradingStyle);
+      setTpInstruments(traderProfile.favoriteInstruments);
+      setTpSessions(traderProfile.favoriteSessions);
+      setTpGoals(traderProfile.accountGoals);
+      setTpMistakes(traderProfile.commonMistakes);
+      setTpRules(traderProfile.tradingRules);
+      setTpRisk(traderProfile.riskPerTrade);
+      setTpNotes(traderProfile.notes);
+    }
+  }, [traderProfile]);
 
   // Load MFA factors
   useEffect(() => {
@@ -206,6 +234,27 @@ export default function ProfileSettings() {
     }
   };
 
+  const handleSaveTraderProfile = async () => {
+    setSavingTp(true);
+    try {
+      await saveTraderProfile({
+        tradingStyle: tpStyle,
+        favoriteInstruments: tpInstruments,
+        favoriteSessions: tpSessions,
+        accountGoals: tpGoals,
+        commonMistakes: tpMistakes,
+        tradingRules: tpRules,
+        riskPerTrade: tpRisk,
+        notes: tpNotes,
+      });
+      toast.success('Trading profile saved');
+    } catch {
+      toast.error('Failed to save trading profile');
+    } finally {
+      setSavingTp(false);
+    }
+  };
+
   const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
 
   return (
@@ -337,7 +386,52 @@ export default function ProfileSettings() {
           )}
         </div>
 
-        {/* Theme */}
+        {/* AI Trading Profile */}
+        <div className="glass-card p-6 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Brain className="h-4 w-4 text-muted-foreground" />
+            <div>
+              <h2 className="text-sm font-semibold">AI Trading Profile</h2>
+              <p className="text-xs text-muted-foreground">Help your AI advisor give hyper-personalized advice</p>
+            </div>
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Trading Style</Label>
+            <Input value={tpStyle} onChange={e => setTpStyle(e.target.value)} placeholder="e.g. ICT scalper, swing trader, momentum..." className="mt-1 bg-secondary border-border h-9" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Favorite Instruments</Label>
+            <Input value={tpInstruments} onChange={e => setTpInstruments(e.target.value)} placeholder="e.g. XAUUSD, NAS100" className="mt-1 bg-secondary border-border h-9" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Preferred Sessions</Label>
+            <Input value={tpSessions} onChange={e => setTpSessions(e.target.value)} placeholder="e.g. London, NY" className="mt-1 bg-secondary border-border h-9" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Account Goals</Label>
+            <Textarea value={tpGoals} onChange={e => setTpGoals(e.target.value)} placeholder="e.g. Grow $500 to $5000 by year-end, maintain 60%+ win rate..." className="mt-1 bg-secondary border-border min-h-[60px]" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Common Mistakes (be honest!)</Label>
+            <Textarea value={tpMistakes} onChange={e => setTpMistakes(e.target.value)} placeholder="e.g. Revenge trading after losses, overtrading during Asian session..." className="mt-1 bg-secondary border-border min-h-[60px]" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Personal Trading Rules</Label>
+            <Textarea value={tpRules} onChange={e => setTpRules(e.target.value)} placeholder="e.g. Max 3 trades/day, no trading on Fridays, always wait for CISD confirmation..." className="mt-1 bg-secondary border-border min-h-[60px]" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Risk Per Trade</Label>
+            <Input value={tpRisk} onChange={e => setTpRisk(e.target.value)} placeholder="e.g. 1% of account, max $50" className="mt-1 bg-secondary border-border h-9" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Additional Notes</Label>
+            <Textarea value={tpNotes} onChange={e => setTpNotes(e.target.value)} placeholder="Anything else the AI should know about you..." className="mt-1 bg-secondary border-border min-h-[60px]" />
+          </div>
+          <Button size="sm" onClick={handleSaveTraderProfile} disabled={savingTp}>
+            {savingTp ? 'Saving...' : 'Save Trading Profile'}
+          </Button>
+        </div>
+
         <div className="glass-card p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
