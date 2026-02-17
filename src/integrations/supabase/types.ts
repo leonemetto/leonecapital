@@ -74,11 +74,13 @@ export type Database = {
       trader_profiles: {
         Row: {
           account_goals: string
+          behavioral_memory: Json
           common_mistakes: string
           created_at: string
           favorite_instruments: string
           favorite_sessions: string
           id: string
+          mental_triggers: string
           notes: string
           risk_per_trade: string
           trading_rules: string
@@ -88,11 +90,13 @@ export type Database = {
         }
         Insert: {
           account_goals?: string
+          behavioral_memory?: Json
           common_mistakes?: string
           created_at?: string
           favorite_instruments?: string
           favorite_sessions?: string
           id?: string
+          mental_triggers?: string
           notes?: string
           risk_per_trade?: string
           trading_rules?: string
@@ -102,11 +106,13 @@ export type Database = {
         }
         Update: {
           account_goals?: string
+          behavioral_memory?: Json
           common_mistakes?: string
           created_at?: string
           favorite_instruments?: string
           favorite_sessions?: string
           id?: string
+          mental_triggers?: string
           notes?: string
           risk_per_trade?: string
           trading_rules?: string

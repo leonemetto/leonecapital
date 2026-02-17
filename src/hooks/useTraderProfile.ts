@@ -13,6 +13,8 @@ export interface TraderProfile {
   commonMistakes: string;
   tradingRules: string;
   riskPerTrade: string;
+  mentalTriggers: string;
+  behavioralMemory: { insight: string; date: string }[];
   notes: string;
 }
 
@@ -27,6 +29,8 @@ function rowToProfile(r: any): TraderProfile {
     commonMistakes: r.common_mistakes || '',
     tradingRules: r.trading_rules || '',
     riskPerTrade: r.risk_per_trade || '',
+    mentalTriggers: r.mental_triggers || '',
+    behavioralMemory: Array.isArray(r.behavioral_memory) ? r.behavioral_memory : [],
     notes: r.notes || '',
   };
 }
@@ -54,7 +58,7 @@ export function useTraderProfile() {
   const saveProfile = useCallback(async (fields: Partial<Omit<TraderProfile, 'id' | 'userId'>>) => {
     if (!user) throw new Error('Not authenticated');
 
-    const updates: Record<string, string> = {};
+    const updates: Record<string, any> = {};
     if (fields.tradingStyle !== undefined) updates.trading_style = fields.tradingStyle;
     if (fields.favoriteInstruments !== undefined) updates.favorite_instruments = fields.favoriteInstruments;
     if (fields.favoriteSessions !== undefined) updates.favorite_sessions = fields.favoriteSessions;
@@ -62,6 +66,7 @@ export function useTraderProfile() {
     if (fields.commonMistakes !== undefined) updates.common_mistakes = fields.commonMistakes;
     if (fields.tradingRules !== undefined) updates.trading_rules = fields.tradingRules;
     if (fields.riskPerTrade !== undefined) updates.risk_per_trade = fields.riskPerTrade;
+    if (fields.mentalTriggers !== undefined) updates.mental_triggers = fields.mentalTriggers;
     if (fields.notes !== undefined) updates.notes = fields.notes;
 
     if (traderProfile) {

@@ -7,7 +7,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-async function authenticateUser(req: Request): Promise<string> {
+async function authenticateUser(req: Request): Promise<{ userId: string; token: string }> {
   const authHeader = req.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
     throw new Error("Unauthorized: Missing or invalid Authorization header");
@@ -25,14 +25,14 @@ async function authenticateUser(req: Request): Promise<string> {
     throw new Error("Unauthorized: Invalid token");
   }
 
-  return data.claims.sub as string;
+  return { userId: data.claims.sub as string, token };
 }
 
 function validateRequest(body: unknown): {
   messages: { role: string; content: string }[];
   tradesSummary: string;
   recentTrades: any[];
-  traderProfile: Record<string, string> | null;
+  traderProfile: Record<string, any> | null;
 } {
   if (!body || typeof body !== "object") throw new Error("Invalid request body");
 
@@ -59,28 +59,25 @@ function validateRequest(body: unknown): {
     return { role: msg.role, content: msg.content };
   });
 
-  // Validate recentTrades (optional array, max 50)
   let validatedTrades: any[] = [];
   if (Array.isArray(recentTrades)) {
     validatedTrades = recentTrades.slice(0, 50);
   }
 
-  // Validate traderProfile (optional object)
-  let validatedProfile: Record<string, string> | null = null;
+  let validatedProfile: Record<string, any> | null = null;
   if (traderProfile && typeof traderProfile === "object" && !Array.isArray(traderProfile)) {
-    validatedProfile = traderProfile as Record<string, string>;
+    validatedProfile = traderProfile as Record<string, any>;
   }
 
   return { messages: validated, tradesSummary, recentTrades: validatedTrades, traderProfile: validatedProfile };
 }
 
-function buildSystemPrompt(tradesSummary: string, recentTrades: any[], traderProfile: Record<string, string> | null): string {
-  let prompt = `You are a friendly, expert trading coach. The user logs trades in a journal app. You have their complete data below.
+function buildSystemPrompt(tradesSummary: string, recentTrades: any[], traderProfile: Record<string, any> | null): string {
+  let prompt = `You are the user's personal Risk Manager and Quant Coach. You have deep access to their trading data and behavioral profile. Your role is NOT to give generic trading advice — instead, you identify specific "drains" and behavioral leaks (like FOMO, revenge trading, overtrading, rule violations) based on THEIR data.
 
 AGGREGATE STATS:
 ${tradesSummary}`;
 
-  // Add trader profile if available
   if (traderProfile) {
     const profileLines: string[] = [];
     if (traderProfile.trading_style) profileLines.push(`Trading Style: ${traderProfile.trading_style}`);
@@ -90,17 +87,26 @@ ${tradesSummary}`;
     if (traderProfile.common_mistakes) profileLines.push(`Known Mistakes: ${traderProfile.common_mistakes}`);
     if (traderProfile.trading_rules) profileLines.push(`Personal Rules: ${traderProfile.trading_rules}`);
     if (traderProfile.risk_per_trade) profileLines.push(`Risk Per Trade: ${traderProfile.risk_per_trade}`);
+    if (traderProfile.mental_triggers) profileLines.push(`Mental/Emotional Triggers: ${traderProfile.mental_triggers}`);
     if (traderProfile.notes) profileLines.push(`Additional Notes: ${traderProfile.notes}`);
+
+    // Behavioral memory
+    if (Array.isArray(traderProfile.behavioral_memory) && traderProfile.behavioral_memory.length > 0) {
+      const recentMemories = traderProfile.behavioral_memory.slice(-10);
+      profileLines.push(`\nBEHAVIORAL MEMORY (past AI observations about this trader):`);
+      recentMemories.forEach((m: any) => {
+        profileLines.push(`  - [${m.date || 'unknown'}] ${m.insight}`);
+      });
+    }
 
     if (profileLines.length > 0) {
       prompt += `
 
-TRADER PROFILE (use this to personalize advice):
+TRADER PROFILE (use this to give HYPER-PERSONALIZED advice):
 ${profileLines.join('\n')}`;
     }
   }
 
-  // Add recent raw trades for pattern analysis
   if (recentTrades.length > 0) {
     const tradeLines = recentTrades.map((t: any) =>
       `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || '-'} | ${t.session || '-'} | ${t.outcome} | $${t.pnl} | ${t.notes || '-'}`
@@ -114,15 +120,19 @@ ${tradeLines.join('\n')}`;
 
   prompt += `
 
+ANALYSIS FRAMEWORK:
+- When analyzing trades, always calculate and reference Profit Factor (gross wins / gross losses) and note the Max Adverse Excursion pattern (how deep losing trades go before stopping out vs winning trades).
+- Look for clusters of losses that suggest emotional trading (revenge trades after a loss, FOMO entries after missing a move).
+- Cross-reference their actions against their stated trading rules. Call out violations specifically.
+- If behavioral memory exists, reference patterns you've noticed before. Build on previous observations.
+
 RULES:
-- Be conversational and natural. If the user says "hi" or greets you, just greet them back briefly. Do NOT dump data unless asked.
-- Keep responses SHORT (2-4 sentences max) unless the user explicitly asks for detailed or in-depth analysis.
-- Only reference their trading data when it's relevant to what they asked.
-- If they ask a specific question, answer JUST that question concisely.
-- Use bullet points only when listing 3+ items. Prefer plain sentences.
-- Be encouraging but honest. Use concrete numbers only when directly relevant.
-- If the user has a trader profile, use it to give HYPER-PERSONALIZED advice. Reference their goals, call out when they violate their own rules, and tailor suggestions to their trading style.
-- If you spot a pattern in their recent trades that violates their stated rules or common mistakes, proactively mention it (briefly).
+- Be conversational and natural. If the user says "hi", greet them briefly. Do NOT dump data unless asked.
+- Keep responses SHORT (2-4 sentences max) unless explicitly asked for detail.
+- Only reference data when it's relevant to what they asked.
+- Be direct and honest. You are a coach, not a cheerleader. Point out problems clearly but constructively.
+- If you spot a pattern that violates their stated rules or matches their known mental triggers, proactively mention it (briefly).
+- Use concrete numbers from their data. Never give advice you can't back up with their stats.
 - If the user wants more detail, they'll ask. Don't over-explain.`;
 
   return prompt;
@@ -134,7 +144,8 @@ serve(async (req) => {
   try {
     let userId: string;
     try {
-      userId = await authenticateUser(req);
+      const auth = await authenticateUser(req);
+      userId = auth.userId;
     } catch {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
