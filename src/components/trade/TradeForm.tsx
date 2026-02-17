@@ -57,12 +57,15 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const pnl = parseFloat(form.pnl);
+    const rawPnl = parseFloat(form.pnl);
 
-    if (!form.instrument || isNaN(pnl)) {
+    if (!form.instrument || isNaN(rawPnl)) {
       toast.error('Instrument and P&L are required');
       return;
     }
+
+    const outcome = form.outcome as 'win' | 'loss' | 'breakeven';
+    const pnl = outcome === 'breakeven' ? 0 : outcome === 'loss' ? -Math.abs(rawPnl) : Math.abs(rawPnl);
 
     try {
       await onSubmit({
@@ -71,7 +74,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         direction: form.direction as 'long' | 'short',
         strategy: form.strategy,
         session: form.session,
-        outcome: form.outcome as 'win' | 'loss' | 'breakeven',
+        outcome,
         pnl,
         notes: form.notes,
         accountId: form.accountId || undefined,
@@ -215,9 +218,9 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       {/* Row 3: P&L, R Multiple, Notes */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">P&L ($)</Label>
-          <Input type="number" step="any" value={form.pnl} onChange={e => update('pnl', e.target.value)}
-            placeholder="0.00" className="mt-1 bg-secondary border-border font-mono h-9" />
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">P&L Amount ($)</Label>
+          <Input type="number" step="any" min="0" value={form.pnl} onChange={e => update('pnl', e.target.value)}
+            placeholder="Enter amount" className="mt-1 bg-secondary border-border font-mono h-9" />
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Notes (optional)</Label>
