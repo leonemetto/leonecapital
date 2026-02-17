@@ -28,17 +28,20 @@ async function authenticateUser(req: Request): Promise<string> {
   return data.claims.sub as string;
 }
 
-function validateRequest(body: unknown): { messages: { role: string; content: string }[]; tradesSummary: string } {
+function validateRequest(body: unknown): {
+  messages: { role: string; content: string }[];
+  tradesSummary: string;
+  recentTrades: any[];
+  traderProfile: Record<string, string> | null;
+} {
   if (!body || typeof body !== "object") throw new Error("Invalid request body");
 
-  const { messages, tradesSummary } = body as Record<string, unknown>;
+  const { messages, tradesSummary, recentTrades, traderProfile } = body as Record<string, unknown>;
 
-  // Validate tradesSummary
   if (typeof tradesSummary !== "string" || tradesSummary.length > 50000) {
     throw new Error("Invalid or too long tradesSummary");
   }
 
-  // Validate messages array
   if (!Array.isArray(messages) || messages.length === 0 || messages.length > 100) {
     throw new Error("Messages must be an array with 1-100 items");
   }
@@ -56,14 +59,79 @@ function validateRequest(body: unknown): { messages: { role: string; content: st
     return { role: msg.role, content: msg.content };
   });
 
-  return { messages: validated, tradesSummary };
+  // Validate recentTrades (optional array, max 50)
+  let validatedTrades: any[] = [];
+  if (Array.isArray(recentTrades)) {
+    validatedTrades = recentTrades.slice(0, 50);
+  }
+
+  // Validate traderProfile (optional object)
+  let validatedProfile: Record<string, string> | null = null;
+  if (traderProfile && typeof traderProfile === "object" && !Array.isArray(traderProfile)) {
+    validatedProfile = traderProfile as Record<string, string>;
+  }
+
+  return { messages: validated, tradesSummary, recentTrades: validatedTrades, traderProfile: validatedProfile };
+}
+
+function buildSystemPrompt(tradesSummary: string, recentTrades: any[], traderProfile: Record<string, string> | null): string {
+  let prompt = `You are a friendly, expert trading coach. The user logs trades in a journal app. You have their complete data below.
+
+AGGREGATE STATS:
+${tradesSummary}`;
+
+  // Add trader profile if available
+  if (traderProfile) {
+    const profileLines: string[] = [];
+    if (traderProfile.trading_style) profileLines.push(`Trading Style: ${traderProfile.trading_style}`);
+    if (traderProfile.favorite_instruments) profileLines.push(`Favorite Instruments: ${traderProfile.favorite_instruments}`);
+    if (traderProfile.favorite_sessions) profileLines.push(`Preferred Sessions: ${traderProfile.favorite_sessions}`);
+    if (traderProfile.account_goals) profileLines.push(`Goals: ${traderProfile.account_goals}`);
+    if (traderProfile.common_mistakes) profileLines.push(`Known Mistakes: ${traderProfile.common_mistakes}`);
+    if (traderProfile.trading_rules) profileLines.push(`Personal Rules: ${traderProfile.trading_rules}`);
+    if (traderProfile.risk_per_trade) profileLines.push(`Risk Per Trade: ${traderProfile.risk_per_trade}`);
+    if (traderProfile.notes) profileLines.push(`Additional Notes: ${traderProfile.notes}`);
+
+    if (profileLines.length > 0) {
+      prompt += `
+
+TRADER PROFILE (use this to personalize advice):
+${profileLines.join('\n')}`;
+    }
+  }
+
+  // Add recent raw trades for pattern analysis
+  if (recentTrades.length > 0) {
+    const tradeLines = recentTrades.map((t: any) =>
+      `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || '-'} | ${t.session || '-'} | ${t.outcome} | $${t.pnl} | ${t.notes || '-'}`
+    );
+    prompt += `
+
+RECENT TRADES (last ${recentTrades.length}, newest first):
+Date | Instrument | Direction | Strategy | Session | Outcome | P&L | Notes
+${tradeLines.join('\n')}`;
+  }
+
+  prompt += `
+
+RULES:
+- Be conversational and natural. If the user says "hi" or greets you, just greet them back briefly. Do NOT dump data unless asked.
+- Keep responses SHORT (2-4 sentences max) unless the user explicitly asks for detailed or in-depth analysis.
+- Only reference their trading data when it's relevant to what they asked.
+- If they ask a specific question, answer JUST that question concisely.
+- Use bullet points only when listing 3+ items. Prefer plain sentences.
+- Be encouraging but honest. Use concrete numbers only when directly relevant.
+- If the user has a trader profile, use it to give HYPER-PERSONALIZED advice. Reference their goals, call out when they violate their own rules, and tailor suggestions to their trading style.
+- If you spot a pattern in their recent trades that violates their stated rules or common mistakes, proactively mention it (briefly).
+- If the user wants more detail, they'll ask. Don't over-explain.`;
+
+  return prompt;
 }
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    // Authenticate the user
     let userId: string;
     try {
       userId = await authenticateUser(req);
@@ -77,24 +145,12 @@ serve(async (req) => {
     console.log("Authenticated user:", userId);
 
     const rawBody = await req.json();
-    const { messages, tradesSummary } = validateRequest(rawBody);
+    const { messages, tradesSummary, recentTrades, traderProfile } = validateRequest(rawBody);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a friendly trading coach. The user logs trades in a journal app. You have their data below.
-
-TRADING DATA:
-${tradesSummary}
-
-RULES:
-- Be conversational and natural. If the user says "hi" or greets you, just greet them back briefly. Do NOT dump data unless asked.
-- Keep responses SHORT (2-4 sentences max) unless the user explicitly asks for a detailed or in-depth analysis.
-- Only reference their trading data when it's relevant to what they asked.
-- If they ask a specific question, answer JUST that question concisely.
-- Use bullet points only when listing 3+ items. Prefer plain sentences.
-- Be encouraging but honest. Use concrete numbers only when directly relevant.
-- If the user wants more detail, they'll ask. Don't over-explain.`;
+    const systemPrompt = buildSystemPrompt(tradesSummary, recentTrades, traderProfile);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

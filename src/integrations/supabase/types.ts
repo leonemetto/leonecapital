@@ -71,6 +71,51 @@ export type Database = {
         }
         Relationships: []
       }
+      trader_profiles: {
+        Row: {
+          account_goals: string
+          common_mistakes: string
+          created_at: string
+          favorite_instruments: string
+          favorite_sessions: string
+          id: string
+          notes: string
+          risk_per_trade: string
+          trading_rules: string
+          trading_style: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_goals?: string
+          common_mistakes?: string
+          created_at?: string
+          favorite_instruments?: string
+          favorite_sessions?: string
+          id?: string
+          notes?: string
+          risk_per_trade?: string
+          trading_rules?: string
+          trading_style?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_goals?: string
+          common_mistakes?: string
+          created_at?: string
+          favorite_instruments?: string
+          favorite_sessions?: string
+          id?: string
+          notes?: string
+          risk_per_trade?: string
+          trading_rules?: string
+          trading_style?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       trades: {
         Row: {
           account_id: string | null

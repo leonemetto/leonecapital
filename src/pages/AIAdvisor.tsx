@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useAuth } from '@/hooks/useAuth';
+import { useTraderProfile } from '@/hooks/useTraderProfile';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -98,6 +99,7 @@ export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
   const { session } = useAuth();
+  const { traderProfile } = useTraderProfile();
   const location = useLocation();
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -157,6 +159,26 @@ export default function AIAdvisor() {
         body: JSON.stringify({
           messages: messagesForApi,
           tradesSummary,
+          recentTrades: trades.slice(0, 50).map(t => ({
+            date: t.date,
+            instrument: t.instrument,
+            direction: t.direction,
+            strategy: t.strategy,
+            session: t.session,
+            outcome: t.outcome,
+            pnl: t.pnl,
+            notes: t.notes,
+          })),
+          traderProfile: traderProfile ? {
+            trading_style: traderProfile.tradingStyle,
+            favorite_instruments: traderProfile.favoriteInstruments,
+            favorite_sessions: traderProfile.favoriteSessions,
+            account_goals: traderProfile.accountGoals,
+            common_mistakes: traderProfile.commonMistakes,
+            trading_rules: traderProfile.tradingRules,
+            risk_per_trade: traderProfile.riskPerTrade,
+            notes: traderProfile.notes,
+          } : null,
         }),
       });
 
