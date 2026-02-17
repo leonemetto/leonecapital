@@ -1,26 +1,20 @@
 
 
-## Security Fixes Plan
+## Auto-Sign P&L Based on Trade Outcome
 
-### Finding 1: Add DELETE policy to profiles table (FIX)
-Add an RLS policy so users can delete their own profile. This is a legitimate gap — without it, users cannot remove their data.
+When logging a trade, the P&L sign will be automatically determined by the selected outcome (Win/Loss/BE), so you only need to enter the absolute number.
 
-**SQL Migration:**
-```sql
-CREATE POLICY "Users can delete their own profile"
-ON public.profiles FOR DELETE
-USING (auth.uid() = user_id);
-```
+### How It Will Work
+- **Win**: P&L is always positive (e.g., entering "50" saves as +50)
+- **Loss**: P&L is always negative (e.g., entering "50" saves as -50)
+- **Breakeven**: P&L is set to 0 regardless of input
 
-### Finding 2: Account balance manipulation (DISMISS)
-This warning flags that users can edit their own `current_balance` and `starting_balance`. Since this is a **personal trading journal** where users manage their own accounts, this is expected and intended behavior — not a security issue. This finding will be marked as ignored.
+### Technical Changes
 
-### Finding 3: Trade P&L manipulation (DISMISS)
-Same reasoning: users editing their own trade records (including P&L) is the core functionality of a personal journal app. There's no multi-user audit requirement. This finding will be marked as ignored.
+**File: `src/components/trade/TradeForm.tsx`**
+- In `handleSubmit`, after parsing the P&L value, apply the sign based on the selected outcome:
+  - If outcome is `"loss"`, ensure `pnl` is negative using `-Math.abs(pnl)`
+  - If outcome is `"win"`, ensure `pnl` is positive using `Math.abs(pnl)`
+  - If outcome is `"breakeven"`, set `pnl` to `0`
+- Update the P&L input label/placeholder to hint that only the amount is needed (e.g., "P&L Amount ($)")
 
-### Technical Steps
-1. Run a database migration to add the DELETE policy on `profiles`
-2. Mark finding 1 as resolved (delete from scan results)
-3. Mark findings 2 and 3 as ignored with explanation that this is a personal journal app where users own and manage their own data
-
-No frontend code changes are needed.
