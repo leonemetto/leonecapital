@@ -93,8 +93,28 @@ const SUGGESTIONS = [
   "How can I improve my win rate?",
 ];
 
+const STORAGE_KEY = 'ai-advisor-chat-history';
+const MAX_STORED_CHATS = 10;
+
 let msgId = 0;
 const nextId = () => `msg-${++msgId}`;
+
+function loadChatHistory(): Msg[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as Msg[];
+    // Keep last MAX_STORED_CHATS pairs (user+assistant = 2 msgs each, so 20 messages)
+    return parsed.slice(-(MAX_STORED_CHATS * 2));
+  } catch { return []; }
+}
+
+function saveChatHistory(messages: Msg[]) {
+  try {
+    const toStore = messages.slice(-(MAX_STORED_CHATS * 2));
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(toStore));
+  } catch {}
+}
 
 export default function AIAdvisor() {
   const { trades } = useSharedTrades();
@@ -102,8 +122,13 @@ export default function AIAdvisor() {
   const { session } = useAuth();
   const { traderProfile } = useTraderProfile();
   const location = useLocation();
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [messages, setMessages] = useState<Msg[]>(() => loadChatHistory());
   const [input, setInput] = useState('');
+
+  // Persist chat history whenever messages change
+  useEffect(() => {
+    if (messages.length > 0) saveChatHistory(messages);
+  }, [messages]);
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const streamingIdRef = useRef<string | null>(null);
