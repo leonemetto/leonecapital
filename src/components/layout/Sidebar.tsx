@@ -5,6 +5,7 @@ import {
   LayoutDashboard, PlusCircle, BookOpen, Wallet,
   ChevronLeft, ChevronRight, Menu, X, Activity,
 } from 'lucide-react';
+import { AIMemoryCard } from '@/components/sidebar/AIMemoryCard';
 
 
 const navItems = [
@@ -86,6 +87,9 @@ export function Sidebar() {
             </NavLink>
           ))}
         </nav>
+
+        {/* AI Memory */}
+        <AIMemoryCard collapsed={collapsed} />
 
         {/* Collapse toggle */}
         <div className="hidden lg:flex border-t border-border p-2">
