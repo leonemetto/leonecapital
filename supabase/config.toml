@@ -1,7 +1,1 @@
 project_id = "utooegbakhgwdfvjtaxc"
-
-[functions.trade-advisor]
-verify_jwt = false
-
-[functions.extract-insight]
-verify_jwt = false
