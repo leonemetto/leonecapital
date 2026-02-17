@@ -49,6 +49,7 @@ export default function ProfileSettings() {
   const [tpMistakes, setTpMistakes] = useState('');
   const [tpRules, setTpRules] = useState('');
   const [tpRisk, setTpRisk] = useState('');
+  const [tpTriggers, setTpTriggers] = useState('');
   const [tpNotes, setTpNotes] = useState('');
   const [savingTp, setSavingTp] = useState(false);
 
@@ -62,6 +63,7 @@ export default function ProfileSettings() {
       setTpMistakes(traderProfile.commonMistakes);
       setTpRules(traderProfile.tradingRules);
       setTpRisk(traderProfile.riskPerTrade);
+      setTpTriggers(traderProfile.mentalTriggers);
       setTpNotes(traderProfile.notes);
     }
   }, [traderProfile]);
@@ -245,6 +247,7 @@ export default function ProfileSettings() {
         commonMistakes: tpMistakes,
         tradingRules: tpRules,
         riskPerTrade: tpRisk,
+        mentalTriggers: tpTriggers,
         notes: tpNotes,
       });
       toast.success('Trading profile saved');
@@ -418,6 +421,10 @@ export default function ProfileSettings() {
           <div>
             <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Personal Trading Rules</Label>
             <Textarea value={tpRules} onChange={e => setTpRules(e.target.value)} placeholder="e.g. Max 3 trades/day, no trading on Fridays, always wait for CISD confirmation..." className="mt-1 bg-secondary border-border min-h-[60px]" />
+          </div>
+          <div>
+            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Mental / Emotional Triggers</Label>
+            <Textarea value={tpTriggers} onChange={e => setTpTriggers(e.target.value)} placeholder="e.g. FOMO when missing a move, anxiety after 2 consecutive losses, overconfidence after a big win..." className="mt-1 bg-secondary border-border min-h-[60px]" />
           </div>
           <div>
             <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Risk Per Trade</Label>

@@ -16,6 +16,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 type Msg = { role: 'user' | 'assistant'; content: string; id: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/trade-advisor`;
+const INSIGHT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-insight`;
 
 function buildTradesSummary(trades: any[], accounts: any[]) {
   if (trades.length === 0) return 'No trades logged yet.';
@@ -177,6 +178,8 @@ export default function AIAdvisor() {
             common_mistakes: traderProfile.commonMistakes,
             trading_rules: traderProfile.tradingRules,
             risk_per_trade: traderProfile.riskPerTrade,
+            mental_triggers: traderProfile.mentalTriggers,
+            behavioral_memory: traderProfile.behavioralMemory,
             notes: traderProfile.notes,
           } : null,
         }),
@@ -234,6 +237,20 @@ export default function AIAdvisor() {
 
     streamingIdRef.current = null;
     setIsLoading(false);
+
+    // Post-processing: extract behavioral insight (fire-and-forget)
+    if (assistantSoFar.length > 20) {
+      const convoForInsight = [...allMessages, { role: 'assistant', content: assistantSoFar }]
+        .map(m => ({ role: m.role, content: m.content }));
+      fetch(INSIGHT_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+        },
+        body: JSON.stringify({ conversation: convoForInsight }),
+      }).catch(() => {});
+    }
   };
 
 
