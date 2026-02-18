@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Activity, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { BackgroundPaths } from '@/components/ui/background-paths';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -123,7 +124,8 @@ export default function Auth() {
   // Email OTP verification screen after signup
   if (awaitingOtp) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
+        <BackgroundPaths />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -177,7 +179,8 @@ export default function Auth() {
   // MFA verification screen
   if (mfaRequired) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
+        <BackgroundPaths />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -229,7 +232,8 @@ export default function Auth() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
+      <BackgroundPaths />
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
