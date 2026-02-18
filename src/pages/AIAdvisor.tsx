@@ -270,7 +270,7 @@ export default function AIAdvisor() {
           <div ref={bottomRef} />
         </div>
 
-        <div className="border-t border-border pt-3 pb-2">
+        <div className="pt-3 pb-2">
           <form onSubmit={e => { e.preventDefault(); send(input); }} className="flex gap-2">
             <Textarea value={input} onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
