@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { Button } from '@/components/ui/button';
@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Activity, LogIn, UserPlus, ShieldCheck, Mail, ArrowLeft } from 'lucide-react';
+import { Activity, LogIn, UserPlus, ShieldCheck, Mail, ArrowLeft, RefreshCw } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 
@@ -24,11 +24,43 @@ export default function Auth() {
   const [resetEmail, setResetEmail] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
 
+  // Resend cooldown
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resending, setResending] = useState(false);
+  const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
   // MFA challenge state
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [totpCode, setTotpCode] = useState('');
   const [verifying, setVerifying] = useState(false);
+
+  useEffect(() => {
+    return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
+  }, []);
+
+  const startCooldown = () => {
+    setResendCooldown(60);
+    cooldownRef.current = setInterval(() => {
+      setResendCooldown(prev => {
+        if (prev <= 1) { clearInterval(cooldownRef.current!); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleResend = async () => {
+    setResending(true);
+    const { error } = await supabase.auth.resend({ type: 'signup', email });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      toast.success('Verification code resent!');
+      startCooldown();
+    }
+    setResending(false);
+  };
+
 
 
   const handleGoogleSignIn = async () => {
@@ -252,13 +284,24 @@ export default function Auth() {
               {otpVerifying ? 'Verifying...' : 'Verify Email'}
             </Button>
 
-            <button
-              type="button"
-              onClick={() => { setAwaitingOtp(false); setOtpCode(''); }}
-              className="text-xs text-muted-foreground hover:underline w-full text-center"
-            >
-              Back to sign up
-            </button>
+            <div className="flex items-center justify-between pt-1">
+              <button
+                type="button"
+                onClick={() => { setAwaitingOtp(false); setOtpCode(''); }}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1"
+              >
+                <ArrowLeft className="h-3 w-3" /> Back to sign up
+              </button>
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resending || resendCooldown > 0}
+                className="text-xs text-primary hover:underline disabled:opacity-40 disabled:no-underline flex items-center gap-1 transition-opacity"
+              >
+                <RefreshCw className={`h-3 w-3 ${resending ? 'animate-spin' : ''}`} />
+                {resendCooldown > 0 ? `Resend in ${resendCooldown}s` : resending ? 'Sending…' : 'Resend code'}
+              </button>
+            </div>
           </div>
         </motion.div>
       </div>
