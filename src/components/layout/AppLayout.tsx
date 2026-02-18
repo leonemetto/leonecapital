@@ -7,7 +7,7 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden">
+    <div className="relative min-h-screen bg-background overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
       <NeuralBackground particleCount={400} trailOpacity={0.1} speed={0.8} />
       <div className="relative z-10">
         <TopNav />

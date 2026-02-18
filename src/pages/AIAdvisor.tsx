@@ -229,7 +229,7 @@ export default function AIAdvisor() {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-120px)]">
-        <div className="flex-1 overflow-y-auto space-y-4 py-4 px-1">
+        <div className="flex-1 overflow-y-auto space-y-4 py-4 px-1 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <AnimatePresence initial={false}>
             {messages.length === 0 && (
               <motion.div key="empty" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
