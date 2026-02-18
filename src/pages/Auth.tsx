@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { Activity, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
+import { Activity, LogIn, UserPlus, ShieldCheck, Mail, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 
@@ -19,12 +19,17 @@ export default function Auth() {
   const [awaitingOtp, setAwaitingOtp] = useState(false);
   const [otpCode, setOtpCode] = useState('');
   const [otpVerifying, setOtpVerifying] = useState(false);
+  const [forgotPassword, setForgotPassword] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
 
   // MFA challenge state
   const [mfaRequired, setMfaRequired] = useState(false);
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [totpCode, setTotpCode] = useState('');
   const [verifying, setVerifying] = useState(false);
+
 
   const handleGoogleSignIn = async () => {
     setGoogleLoading(true);
@@ -120,6 +125,90 @@ export default function Auth() {
       setOtpVerifying(false);
     }
   };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      toast.error(error.message);
+    } else {
+      setResetSent(true);
+    }
+    setResetLoading(false);
+  };
+
+  // Forgot password screen
+  if (forgotPassword) {
+    return (
+      <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
+        <DottedSurface />
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-sm relative z-10"
+        >
+          <div className="flex items-center gap-3 justify-center mb-8">
+            <Activity className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-black tracking-tight">EDGEJOURNAL</h1>
+          </div>
+          <div className="glass-card p-6 space-y-5">
+            {resetSent ? (
+              <div className="text-center space-y-3 py-2">
+                <Mail className="h-10 w-10 text-primary mx-auto" />
+                <h2 className="text-lg font-bold">Check Your Email</h2>
+                <p className="text-xs text-muted-foreground">
+                  We sent a password reset link to <span className="font-medium text-foreground">{resetEmail}</span>. Click the link in the email to set a new password.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => { setForgotPassword(false); setResetSent(false); setResetEmail(''); }}
+                  className="text-xs text-primary font-semibold hover:underline w-full text-center pt-1"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="text-center">
+                  <Mail className="h-8 w-8 text-primary mx-auto mb-2" />
+                  <h2 className="text-lg font-bold">Forgot Password</h2>
+                  <p className="text-xs text-muted-foreground mt-1">Enter your email and we'll send you a reset link</p>
+                </div>
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div>
+                    <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Email</Label>
+                    <Input
+                      type="email"
+                      value={resetEmail}
+                      onChange={e => setResetEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      required
+                      autoFocus
+                      className="mt-1 bg-secondary border-border h-9"
+                    />
+                  </div>
+                  <Button type="submit" className="w-full gap-2" disabled={resetLoading}>
+                    <Mail className="h-4 w-4" />
+                    {resetLoading ? 'Sending…' : 'Send Reset Link'}
+                  </Button>
+                </form>
+                <button
+                  type="button"
+                  onClick={() => setForgotPassword(false)}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mx-auto"
+                >
+                  <ArrowLeft className="h-3 w-3" /> Back to Sign In
+                </button>
+              </>
+            )}
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   // Email OTP verification screen after signup
   if (awaitingOtp) {
@@ -280,6 +369,15 @@ export default function Auth() {
               {isLogin ? <LogIn className="h-4 w-4" /> : <UserPlus className="h-4 w-4" />}
               {loading ? 'Loading...' : isLogin ? 'Sign In' : 'Sign Up'}
             </Button>
+            {isLogin && (
+              <button
+                type="button"
+                onClick={() => { setForgotPassword(true); setResetEmail(email); }}
+                className="text-xs text-muted-foreground hover:text-primary transition-colors w-full text-right"
+              >
+                Forgot password?
+              </button>
+            )}
           </form>
 
           <div className="flex items-center gap-3">

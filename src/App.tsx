@@ -17,7 +17,7 @@ import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
 import Accounts from "./pages/Accounts";
 import AIAdvisor from "./pages/AIAdvisor";
-
+import ResetPassword from "./pages/ResetPassword";
 import ProfileSettings from "./pages/ProfileSettings";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
@@ -118,24 +118,28 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AuthGate>
-            <ProfileGate>
-              <AccountsProvider>
-                <TradesProvider>
-                  <Routes>
-                    <Route path="/" element={<Dashboard />} />
-                    <Route path="/add-trade" element={<AddTrade />} />
-                    <Route path="/journal" element={<Journal />} />
-                    <Route path="/accounts" element={<Accounts />} />
-                    <Route path="/ai" element={<AIAdvisor />} />
-                    
-                    <Route path="/profile" element={<ProfileSettings />} />
-                    <Route path="*" element={<NotFound />} />
-                  </Routes>
-                </TradesProvider>
-              </AccountsProvider>
-            </ProfileGate>
-          </AuthGate>
+          <Routes>
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="*" element={
+              <AuthGate>
+                <ProfileGate>
+                  <AccountsProvider>
+                    <TradesProvider>
+                      <Routes>
+                        <Route path="/" element={<Dashboard />} />
+                        <Route path="/add-trade" element={<AddTrade />} />
+                        <Route path="/journal" element={<Journal />} />
+                        <Route path="/accounts" element={<Accounts />} />
+                        <Route path="/ai" element={<AIAdvisor />} />
+                        <Route path="/profile" element={<ProfileSettings />} />
+                        <Route path="*" element={<NotFound />} />
+                      </Routes>
+                    </TradesProvider>
+                  </AccountsProvider>
+                </ProfileGate>
+              </AuthGate>
+            } />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
