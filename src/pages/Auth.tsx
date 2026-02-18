@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { Activity, LogIn, UserPlus, ShieldCheck } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { BackgroundPaths } from '@/components/ui/background-paths';
+import { DottedSurface } from '@/components/ui/dotted-surface';
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -125,7 +125,7 @@ export default function Auth() {
   if (awaitingOtp) {
     return (
       <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
-        <BackgroundPaths />
+        <DottedSurface />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -180,7 +180,7 @@ export default function Auth() {
   if (mfaRequired) {
     return (
       <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
-        <BackgroundPaths />
+        <DottedSurface />
         <motion.div
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -233,7 +233,7 @@ export default function Auth() {
 
   return (
     <div className="relative min-h-screen bg-background flex items-center justify-center p-4">
-      <BackgroundPaths />
+      <DottedSurface />
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
