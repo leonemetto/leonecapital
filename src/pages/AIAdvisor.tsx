@@ -5,6 +5,8 @@ import { useSharedTrades } from '@/contexts/TradesContext';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useAuth } from '@/hooks/useAuth';
 import { useTraderProfile } from '@/hooks/useTraderProfile';
+import { useCriteria } from '@/hooks/useCriteria';
+import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -88,6 +90,9 @@ export default function AIAdvisor() {
   const { accounts } = useAccounts();
   const { session } = useAuth();
   const { traderProfile } = useTraderProfile();
+  const { activeCriteria } = useCriteria();
+  const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
+  const { data: verificationsMap = {} } = useTradeVerifications(tradeIds);
   const location = useLocation();
   const [messages, setMessages] = useState<Msg[]>(() => loadChatHistory());
   const [input, setInput] = useState('');
@@ -146,7 +151,13 @@ export default function AIAdvisor() {
           recentTrades: trades.slice(0, 50).map(t => ({
             date: t.date, instrument: t.instrument, direction: t.direction,
             strategy: t.strategy, session: t.session, outcome: t.outcome, pnl: t.pnl, notes: t.notes,
+            checklistChecked: activeCriteria.filter(c => verificationsMap[t.id]?.[c.id]).length,
+            checklistTotal: activeCriteria.length,
+            checklistFollowed: activeCriteria.length > 0
+              ? activeCriteria.every(c => verificationsMap[t.id]?.[c.id])
+              : null,
           })),
+          criteriaDefinitions: activeCriteria.map(c => ({ label: c.label, category: c.category })),
           traderProfile: traderProfile ? {
             trading_style: traderProfile.tradingStyle,
             favorite_instruments: traderProfile.favoriteInstruments,
