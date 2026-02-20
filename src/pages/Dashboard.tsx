@@ -10,14 +10,16 @@ import { TradingCalendar } from '@/components/calendar/TradingCalendar';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
+import { useCriteria } from '@/hooks/useCriteria';
 
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
-  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet, Filter,
+  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet, Filter, ClipboardList, CheckSquare, Settings2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 
 function getGreeting(): string {
@@ -32,6 +34,7 @@ const Dashboard = () => {
   const { accounts } = useSharedAccounts();
   const { profile } = useProfile();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const { activeCriteria, isLoading: criteriaLoading } = useCriteria();
 
   // Auto-select first account when accounts load
   const effectiveAccountId = selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
@@ -92,7 +95,7 @@ const Dashboard = () => {
       {/* Greeting */}
       <h1 className="text-xl font-bold mb-4">{getGreeting()}, {profile?.nickname || 'Trader'} 👋</h1>
 
-      {/* Account Filter */}
+      {/* Account Filter + Checklist Button */}
       <div className="flex items-center gap-2 mb-4">
         <Filter className="h-3.5 w-3.5 text-muted-foreground" />
         <Select value={effectiveAccountId} onValueChange={setSelectedAccountId}>
@@ -105,6 +108,81 @@ const Dashboard = () => {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Entry Checklist Sheet */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs">
+              <ClipboardList className="h-3.5 w-3.5" />
+              Entry Checklist
+              {!criteriaLoading && activeCriteria.length > 0 && (
+                <span className="ml-0.5 text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full font-mono">
+                  {activeCriteria.length}
+                </span>
+              )}
+            </Button>
+          </SheetTrigger>
+          <SheetContent className="w-80 sm:w-96">
+            <SheetHeader className="mb-5">
+              <SheetTitle className="flex items-center gap-2 text-sm">
+                <CheckSquare className="h-4 w-4 text-primary" />
+                Entry Checklist
+              </SheetTitle>
+            </SheetHeader>
+
+            {criteriaLoading ? (
+              <p className="text-xs text-muted-foreground">Loading...</p>
+            ) : activeCriteria.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+                <div className="p-3 rounded-xl bg-primary/10">
+                  <ClipboardList className="h-6 w-6 text-primary" />
+                </div>
+                <p className="text-sm font-medium">No checklist yet</p>
+                <p className="text-xs text-muted-foreground max-w-[200px]">
+                  Go to Trading Plan to create your entry criteria checklist.
+                </p>
+                <Link to="/trading-plan">
+                  <Button size="sm" variant="outline" className="gap-1.5 text-xs mt-1">
+                    <Settings2 className="h-3.5 w-3.5" /> Set Up Checklist
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Group by category */}
+                {(() => {
+                  const grouped: Record<string, typeof activeCriteria> = {};
+                  for (const c of activeCriteria) {
+                    const cat = c.category || 'General';
+                    if (!grouped[cat]) grouped[cat] = [];
+                    grouped[cat].push(c);
+                  }
+                  return Object.entries(grouped).map(([category, items]) => (
+                    <div key={category}>
+                      <p className="text-[9px] text-muted-foreground/60 uppercase tracking-widest mb-2">{category}</p>
+                      <div className="space-y-2">
+                        {items.map(c => (
+                          <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-secondary/40 border border-border/50">
+                            <CheckSquare className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="text-xs">{c.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+
+                <div className="pt-2 border-t border-border">
+                  <Link to="/trading-plan">
+                    <Button variant="ghost" size="sm" className="w-full gap-1.5 text-xs justify-start">
+                      <Settings2 className="h-3.5 w-3.5" /> Customize Checklist
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
       </div>
 
       {/* Row 1: Quick Actions + KPI Cards */}
