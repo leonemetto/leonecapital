@@ -26,12 +26,16 @@ function validateRequest(body: any) {
   if (body.recentTrades && !Array.isArray(body.recentTrades)) {
     throw new Error("recentTrades must be an array");
   }
+  if (body.criteriaDefinitions && !Array.isArray(body.criteriaDefinitions)) {
+    throw new Error("criteriaDefinitions must be an array");
+  }
 }
 
 function buildSystemPrompt(
   tradesSummary: string,
   recentTrades: any[],
-  traderProfile: any | null
+  traderProfile: any | null,
+  criteriaDefinitions: any[]
 ): string {
   let profileSection = "";
   if (traderProfile) {
@@ -53,13 +57,38 @@ function buildSystemPrompt(
     if (parts.length > 0) profileSection = `\n\nTRADER PROFILE:\n${parts.join("\n")}`;
   }
 
+  let checklistSection = "";
+  if (criteriaDefinitions && criteriaDefinitions.length > 0) {
+    const labels = criteriaDefinitions.map((c: any) => `  [${c.category || 'General'}] ${c.label}`).join("\n");
+    checklistSection = `\n\nENTRY CHECKLIST (user's defined rules before every trade):\n${labels}`;
+
+    if (recentTrades && recentTrades.length > 0) {
+      const total = recentTrades.length;
+      const withData = recentTrades.filter((t: any) => t.checklistTotal > 0 && t.checklistFollowed !== null);
+      const fullCompliance = withData.filter((t: any) => t.checklistFollowed === true).length;
+      const complianceRate = withData.length > 0 ? ((fullCompliance / withData.length) * 100).toFixed(1) : "N/A";
+      const winWhenFollowed = withData.filter((t: any) => t.checklistFollowed === true && t.outcome === 'win').length;
+      const totalWhenFollowed = withData.filter((t: any) => t.checklistFollowed === true).length;
+      const winWhenNot = withData.filter((t: any) => t.checklistFollowed === false && t.outcome === 'win').length;
+      const totalWhenNot = withData.filter((t: any) => t.checklistFollowed === false).length;
+      checklistSection += `\n\nCHECKLIST COMPLIANCE ANALYTICS:`;
+      checklistSection += `\n  Full checklist compliance rate: ${complianceRate}% (${fullCompliance}/${withData.length} trades)`;
+      if (totalWhenFollowed > 0) checklistSection += `\n  Win rate when fully followed: ${((winWhenFollowed / totalWhenFollowed) * 100).toFixed(1)}% (${winWhenFollowed}/${totalWhenFollowed})`;
+      if (totalWhenNot > 0) checklistSection += `\n  Win rate when NOT fully followed: ${((winWhenNot / totalWhenNot) * 100).toFixed(1)}% (${winWhenNot}/${totalWhenNot})`;
+    }
+  }
+
   let recentSection = "";
   if (recentTrades && recentTrades.length > 0) {
     const lines = recentTrades.slice(0, 50).map(
-      (t: any) =>
-        `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || "-"} | ${t.session || "-"} | ${t.outcome} | $${t.pnl}${t.notes ? ` | "${t.notes}"` : ""}`
+      (t: any) => {
+        const checkStr = t.checklistTotal > 0
+          ? ` | Checklist: ${t.checklistChecked}/${t.checklistTotal}`
+          : "";
+        return `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || "-"} | ${t.session || "-"} | ${t.outcome} | $${t.pnl}${checkStr}${t.notes ? ` | "${t.notes}"` : ""}`;
+      }
     );
-    recentSection = `\n\nRECENT TRADES (last ${lines.length}):\nDate | Instrument | Direction | Strategy | Session | Outcome | P&L | Notes\n${lines.join("\n")}`;
+    recentSection = `\n\nRECENT TRADES (last ${lines.length}):\nDate | Instrument | Direction | Strategy | Session | Outcome | P&L | Checklist | Notes\n${lines.join("\n")}`;
   }
 
   return `You are the user's personal Risk Manager and Quant Coach. You have deep knowledge of trading psychology, risk management, and quantitative analysis.
@@ -69,12 +98,14 @@ ROLE & BEHAVIOR:
 - Focus on finding "drains" — patterns like FOMO, revenge trading, overtrading, session drift, rule-breaking
 - Reference specific trades and patterns from the data, not generic advice
 - When trade data is present, calculate and reference Profit Factor and identify Max Adverse Excursion patterns (using P&L as proxy)
+- When checklist data is available, analyze the correlation between checklist compliance and win rate — this is critical discipline data
+- Flag specifically if the trader has lower win rates when they skip checklist items — this is a key behavioral leak
 - Keep responses concise: 2-4 sentences max unless asked for detail
 - Be conversational, direct, and occasionally use trading slang
 - If the user's actions contradict their stated rules or goals, call it out firmly but constructively
 
 ANALYTICS SUMMARY:
-${tradesSummary}${profileSection}${recentSection}
+${tradesSummary}${profileSection}${checklistSection}${recentSection}
 
 Use all this context to give hyper-personalized, data-driven advice. Never make up trades or stats not in the data.`;
 }
@@ -94,7 +125,8 @@ serve(async (req) => {
     const systemPrompt = buildSystemPrompt(
       body.tradesSummary || "No trades data available.",
       body.recentTrades || [],
-      body.traderProfile || null
+      body.traderProfile || null,
+      body.criteriaDefinitions || []
     );
 
     const messages: Message[] = [

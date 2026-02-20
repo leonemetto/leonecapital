@@ -7,8 +7,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TradeForm } from './TradeForm';
 import { exportTradesCSV } from '@/lib/analytics';
-import { Search, Download, Trash2, Edit3, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, Download, Trash2, Edit3, ChevronLeft, ChevronRight, CheckSquare, XSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTradeVerifications } from '@/hooks/useTradeVerifications';
+import { useCriteria } from '@/hooks/useCriteria';
 
 interface TradeTableProps {
   trades: Trade[];
@@ -29,6 +31,11 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
   const [page, setPage] = useState(0);
   const [editTrade, setEditTrade] = useState<Trade | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const { activeCriteria } = useCriteria();
+  const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
+  const { data: verificationsMap = {} } = useTradeVerifications(tradeIds);
+  const hasCriteria = activeCriteria.length > 0;
 
   const filtered = useMemo(() => {
     let result = [...trades];
@@ -147,6 +154,11 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                 <th className="text-center p-2.5">
                   <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Result</span>
                 </th>
+                {hasCriteria && (
+                  <th className="text-center p-2.5 hidden md:table-cell">
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Checklist</span>
+                  </th>
+                )}
                 <th className="text-right p-2.5 w-16">
                   <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Act</span>
                 </th>
@@ -190,6 +202,28 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                       {trade.outcome === 'breakeven' ? 'BE' : trade.outcome}
                     </span>
                   </td>
+                  {hasCriteria && (() => {
+                    const checks = verificationsMap[trade.id] ?? {};
+                    const total = activeCriteria.length;
+                    const checked = activeCriteria.filter(c => checks[c.id]).length;
+                    const allDone = checked === total;
+                    const none = checked === 0 && !verificationsMap[trade.id];
+                    return (
+                      <td className="p-2.5 text-center hidden md:table-cell">
+                        {none ? (
+                          <span className="text-[10px] text-muted-foreground/40">—</span>
+                        ) : allDone ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-profit">
+                            <CheckSquare className="h-3 w-3" />{checked}/{total}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-loss">
+                            <XSquare className="h-3 w-3" />{checked}/{total}
+                          </span>
+                        )}
+                      </td>
+                    );
+                  })()}
                   <td className="p-2.5 text-right">
                     <div className="flex items-center gap-0.5 justify-end">
                       <button
