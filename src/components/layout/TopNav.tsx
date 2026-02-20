@@ -32,11 +32,14 @@ export function TopNav() {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="rounded-full ring-2 ring-border hover:ring-primary transition-all">
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src={profile?.avatarUrl || undefined} />
-                  <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">{initials}</AvatarFallback>
-                </Avatar>
+              <button className="flex flex-col items-center gap-0.5 group">
+                <div className="rounded-full ring-2 ring-border group-hover:ring-primary transition-all">
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={profile?.avatarUrl || undefined} />
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">{initials}</AvatarFallback>
+                  </Avatar>
+                </div>
+                <span className="text-[9px] font-semibold tracking-wider uppercase text-muted-foreground group-hover:text-foreground transition-colors">Profile</span>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
