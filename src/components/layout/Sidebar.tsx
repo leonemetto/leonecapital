@@ -3,7 +3,7 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, PlusCircle, BookOpen, Wallet,
-  ChevronLeft, ChevronRight, Menu, X, Activity,
+  ChevronLeft, ChevronRight, Menu, X, Activity, ClipboardList,
 } from 'lucide-react';
 import { AIMemoryCard } from '@/components/sidebar/AIMemoryCard';
 
@@ -13,6 +13,7 @@ const navItems = [
   { title: 'Add Trade', path: '/add-trade', icon: PlusCircle },
   { title: 'Journal', path: '/journal', icon: BookOpen },
   { title: 'Accounts', path: '/accounts', icon: Wallet },
+  { title: 'Trading Plan', path: '/trading-plan', icon: ClipboardList },
 ];
 
 export function Sidebar() {

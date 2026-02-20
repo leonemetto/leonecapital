@@ -5,7 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
+import { useCriteria } from "@/hooks/useCriteria";
 import { MfaChallenge } from "@/components/MfaChallenge";
+import { ChecklistSetup } from "@/components/criteria/ChecklistSetup";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
@@ -19,6 +21,7 @@ import Accounts from "./pages/Accounts";
 import AIAdvisor from "./pages/AIAdvisor";
 import ResetPassword from "./pages/ResetPassword";
 import ProfileSettings from "./pages/ProfileSettings";
+import TradingPlan from "./pages/TradingPlan";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -93,6 +96,17 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function ChecklistGate({ children }: { children: React.ReactNode }) {
+  const { criteria, isLoading } = useCriteria();
+  const [dismissed, setDismissed] = useState(false);
+
+  if (isLoading) return <>{children}</>;
+  if (!dismissed && criteria.length === 0) {
+    return <ChecklistSetup onDone={() => setDismissed(true)} />;
+  }
+  return <>{children}</>;
+}
+
 function ProfileGate({ children }: { children: React.ReactNode }) {
   const { isLoading, needsNickname, setNickname } = useProfile();
 
@@ -125,15 +139,18 @@ const App = () => (
                 <ProfileGate>
                   <AccountsProvider>
                     <TradesProvider>
-                      <Routes>
-                        <Route path="/" element={<Dashboard />} />
-                        <Route path="/add-trade" element={<AddTrade />} />
-                        <Route path="/journal" element={<Journal />} />
-                        <Route path="/accounts" element={<Accounts />} />
-                        <Route path="/ai" element={<AIAdvisor />} />
-                        <Route path="/profile" element={<ProfileSettings />} />
-                        <Route path="*" element={<NotFound />} />
-                      </Routes>
+                      <ChecklistGate>
+                        <Routes>
+                          <Route path="/" element={<Dashboard />} />
+                          <Route path="/add-trade" element={<AddTrade />} />
+                          <Route path="/journal" element={<Journal />} />
+                          <Route path="/accounts" element={<Accounts />} />
+                          <Route path="/ai" element={<AIAdvisor />} />
+                          <Route path="/profile" element={<ProfileSettings />} />
+                          <Route path="/trading-plan" element={<TradingPlan />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </ChecklistGate>
                     </TradesProvider>
                   </AccountsProvider>
                 </ProfileGate>
