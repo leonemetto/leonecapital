@@ -24,7 +24,7 @@ interface TradeFormProps {
 }
 
 const defaults = {
-  date: new Date().toISOString().slice(0, 16),
+  date: new Date().toISOString().slice(0, 10),
   instrument: '',
   direction: 'long' as const,
   strategy: '',
@@ -141,7 +141,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <Label htmlFor="date" className="text-[10px] text-muted-foreground uppercase tracking-wider">Date</Label>
-          <Input id="date" type="datetime-local" value={form.date} onChange={e => update('date', e.target.value)}
+          <Input id="date" type="date" value={form.date.slice(0, 10)} onChange={e => update('date', e.target.value)}
             className="mt-1 bg-secondary border-border font-mono text-sm h-9" />
         </div>
         <div>
