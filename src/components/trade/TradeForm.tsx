@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Trade, TradeFormData, INSTRUMENTS, STRATEGIES, SESSIONS } from '@/types/trade';
+import { Trade, TradeFormData, SESSIONS } from '@/types/trade';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CreatableSelect } from '@/components/ui/creatable-select';
+import { useCustomOptions } from '@/hooks/useCustomOptions';
 import { toast } from 'sonner';
 import { ArrowUpRight, ArrowDownRight, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -37,6 +39,7 @@ const defaults = {
 export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', onCancel }: TradeFormProps) {
   const navigate = useNavigate();
   const { accounts } = useSharedAccounts();
+  const { instruments, confirmations, addInstrument, addConfirmation } = useCustomOptions();
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState(() => {
     if (initialData) {
@@ -143,14 +146,14 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Instrument</Label>
-          <Select value={form.instrument} onValueChange={v => update('instrument', v)}>
-            <SelectTrigger className="mt-1 bg-secondary border-border h-9">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              {INSTRUMENTS.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <CreatableSelect
+            value={form.instrument}
+            onChange={v => update('instrument', v)}
+            options={instruments}
+            onAddOption={addInstrument}
+            placeholder="Select or add..."
+            uppercase
+          />
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Direction</Label>
@@ -187,14 +190,13 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Entry Confirmation</Label>
-          <Select value={form.strategy} onValueChange={v => update('strategy', v)}>
-            <SelectTrigger className="mt-1 bg-secondary border-border h-9">
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              {STRATEGIES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-            </SelectContent>
-          </Select>
+          <CreatableSelect
+            value={form.strategy}
+            onChange={v => update('strategy', v)}
+            options={confirmations}
+            onAddOption={addConfirmation}
+            placeholder="Select or add..."
+          />
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Session</Label>
