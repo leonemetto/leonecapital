@@ -98,9 +98,11 @@ export default function AIAdvisor() {
   const [messages, setMessages] = useState<Msg[]>(() => loadChatHistory());
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [loaderIds, setLoaderIds] = useState<Set<string>>(new Set());
   const bottomRef = useRef<HTMLDivElement>(null);
   const streamingIdRef = useRef<string | null>(null);
   const hasHandledNavState = useRef(false);
+  const MIN_LOADER_MS = 2200;
 
   const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
 
@@ -181,8 +183,11 @@ export default function AIAdvisor() {
         return;
       }
 
+      // Show loader — add assistantId to loaderIds so it renders the animation
+      setLoaderIds(prev => new Set(prev).add(assistantId));
       setMessages(prev => [...prev, { role: 'assistant', content: '', id: assistantId }]);
 
+      const loaderStart = Date.now();
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
       let textBuffer = '';
@@ -206,8 +211,6 @@ export default function AIAdvisor() {
             const content = parsed.choices?.[0]?.delta?.content as string | undefined;
             if (content) {
               assistantSoFar += content;
-              const snapshot = assistantSoFar;
-              setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: snapshot } : m));
             }
           } catch {
             textBuffer = line + '\n' + textBuffer;
@@ -215,6 +218,18 @@ export default function AIAdvisor() {
           }
         }
       }
+
+      // Ensure loader shows for at least MIN_LOADER_MS
+      const elapsed = Date.now() - loaderStart;
+      if (elapsed < MIN_LOADER_MS) {
+        await new Promise(resolve => setTimeout(resolve, MIN_LOADER_MS - elapsed));
+      }
+
+      // Now reveal the content and remove from loaderIds
+      const snapshot = assistantSoFar;
+      setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: snapshot } : m));
+      setLoaderIds(prev => { const next = new Set(prev); next.delete(assistantId); return next; });
+
     } catch (e) {
       console.error(e);
       setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Connection error. Please try again.', id: assistantId }]);
@@ -265,8 +280,10 @@ export default function AIAdvisor() {
                 <div className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border'}`}>
                   {msg.role === 'assistant' ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1">
-                      {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : (
+                      {loaderIds.has(msg.id) ? (
                         <AILoader size={120} text="Generating" />
+                      ) : (
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
                       )}
                     </div>
                   ) : msg.content}
