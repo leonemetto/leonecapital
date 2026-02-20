@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { ArrowUpRight, ArrowDownRight, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { TradeChecklist } from '@/components/criteria/TradeChecklist';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TradeFormProps {
   initialData?: Trade;
@@ -35,6 +37,7 @@ const defaults = {
 export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', onCancel }: TradeFormProps) {
   const navigate = useNavigate();
   const { accounts } = useSharedAccounts();
+  const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [form, setForm] = useState(() => {
     if (initialData) {
       return {
@@ -68,7 +71,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     const pnl = outcome === 'breakeven' ? 0 : outcome === 'loss' ? -Math.abs(rawPnl) : Math.abs(rawPnl);
 
     try {
-      await onSubmit({
+      const savedTrade = await onSubmit({
         date: form.date,
         instrument: form.instrument,
         direction: form.direction as 'long' | 'short',
@@ -80,9 +83,22 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         accountId: form.accountId || undefined,
       });
 
+      // Save checklist verifications if there are any checks
+      if (savedTrade?.id && Object.keys(checks).length > 0) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('trade_verifications' as any).upsert({
+            trade_id: savedTrade.id,
+            user_id: user.id,
+            checks,
+          }, { onConflict: 'trade_id' });
+        }
+      }
+
       toast.success(initialData ? 'Trade updated!' : 'Trade logged!');
       if (!initialData) {
         setForm(defaults);
+        setChecks({});
         navigate('/');
       }
       if (onCancel) onCancel();
@@ -231,6 +247,11 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
             className="mt-1 bg-secondary border-border min-h-[36px] h-9 resize-none text-sm py-2"
           />
         </div>
+      </div>
+
+      {/* Entry Checklist */}
+      <div className="border-t border-border pt-4">
+        <TradeChecklist checks={checks} onChange={setChecks} />
       </div>
 
       {/* Actions */}

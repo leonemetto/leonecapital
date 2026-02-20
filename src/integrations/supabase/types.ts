@@ -47,6 +47,39 @@ export type Database = {
         }
         Relationships: []
       }
+      criteria_settings: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          sort_order: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          sort_order?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          sort_order?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -67,6 +100,33 @@ export type Database = {
           created_at?: string
           id?: string
           nickname?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      trade_verifications: {
+        Row: {
+          checks: Json
+          created_at: string
+          id: string
+          trade_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          checks?: Json
+          created_at?: string
+          id?: string
+          trade_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          checks?: Json
+          created_at?: string
+          id?: string
+          trade_id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
