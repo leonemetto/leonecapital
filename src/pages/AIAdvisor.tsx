@@ -11,6 +11,7 @@ import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } fro
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { AILoader } from '@/components/ui/ai-loader';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -265,9 +266,7 @@ export default function AIAdvisor() {
                   {msg.role === 'assistant' ? (
                     <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1">
                       {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : (
-                        <span className="inline-flex gap-1 text-muted-foreground">
-                          <span className="animate-pulse">●</span><span className="animate-pulse [animation-delay:150ms]">●</span><span className="animate-pulse [animation-delay:300ms]">●</span>
-                        </span>
+                        <AILoader size={120} text="Generating" />
                       )}
                     </div>
                   ) : msg.content}
