@@ -62,6 +62,13 @@ const Dashboard = () => {
   );
 
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
+  const prevStats = useMemo(() => {
+    if (filteredTrades.length < 2) return null;
+    const sorted = [...filteredTrades].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return calculateAnalytics(sorted.slice(1));
+  }, [filteredTrades]);
+  const pnlDelta: 'up' | 'down' | 'neutral' | undefined = prevStats ? (stats.netPnl > prevStats.netPnl ? 'up' : stats.netPnl < prevStats.netPnl ? 'down' : 'neutral') : undefined;
+  const pfDelta: 'up' | 'down' | 'neutral' | undefined = prevStats ? (stats.profitFactor > prevStats.profitFactor ? 'up' : stats.profitFactor < prevStats.profitFactor ? 'down' : 'neutral') : undefined;
   const equityData = useMemo(() => getEquityCurve(filteredTrades), [filteredTrades]);
   const strategyData = useMemo(() => getStrategyPerformance(filteredTrades), [filteredTrades]);
 
@@ -215,7 +222,7 @@ const Dashboard = () => {
           <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
           <StatsCard title="Total P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
-            trend={stats.netPnl >= 0 ? 'up' : 'down'} delay={1} />
+            trend={stats.netPnl >= 0 ? 'up' : 'down'} delta={pnlDelta} delay={1} />
           <StatsCard title="Returns" value={`${filteredTrades.length} trades`} icon={TrendingUp}
             delay={2} />
           <StatsCard
@@ -228,6 +235,7 @@ const Dashboard = () => {
             ) : stats.profitFactor.toFixed(2)}
             icon={ArrowUpDown}
             trend={stats.profitFactor >= 999 ? undefined : stats.profitFactor >= 1 ? 'up' : 'down'}
+            delta={stats.profitFactor >= 999 ? undefined : pfDelta}
             delay={3}
           />
         </div>

@@ -1,5 +1,5 @@
 import { cn } from '@/lib/utils';
-import { LucideIcon } from 'lucide-react';
+import { LucideIcon, TrendingUp, TrendingDown } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface StatsCardProps {
@@ -7,11 +7,12 @@ interface StatsCardProps {
   value: React.ReactNode;
   icon: LucideIcon;
   trend?: 'up' | 'down' | 'neutral';
+  delta?: 'up' | 'down' | 'neutral';
   className?: string;
   delay?: number;
 }
 
-export function StatsCard({ title, value, icon: Icon, trend, className, delay = 0 }: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, trend, delta, className, delay = 0 }: StatsCardProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -40,15 +41,22 @@ export function StatsCard({ title, value, icon: Icon, trend, className, delay = 
             <Icon className="h-3.5 w-3.5" />
           </div>
         </div>
-        <div
-          className={cn(
-            'text-2xl font-bold font-mono tracking-tight tabular-nums',
-            trend === 'up' && 'text-profit',
-            trend === 'down' && 'text-loss',
-            !trend && 'text-foreground',
+        <div className="flex items-center gap-1.5">
+          <span
+            className={cn(
+              'text-2xl font-bold font-mono tracking-tight tabular-nums',
+              trend === 'up' && 'text-profit',
+              trend === 'down' && 'text-loss',
+              !trend && 'text-foreground',
+            )}
+          >
+            {value}
+          </span>
+          {delta && delta !== 'neutral' && (
+            <span className={cn('flex items-center', delta === 'up' ? 'text-profit' : 'text-loss')}>
+              {delta === 'up' ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
+            </span>
           )}
-        >
-          {value}
         </div>
       </div>
     </motion.div>
