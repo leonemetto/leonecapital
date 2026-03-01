@@ -8,7 +8,7 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="relative min-h-screen bg-background overflow-hidden flex [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-      <BGPattern variant="grid" size={40} fill="hsla(142, 69%, 45%, 0.04)" mask="fade-edges" className="pointer-events-none" />
+      <BGPattern variant="grid" size={40} fill="hsla(142, 69%, 45%, 0.04)" mask="fade-edges" className="pointer-events-none fixed inset-0 z-0" />
       <AppSidebar />
       <div className="relative z-10 flex-1 min-w-0">
         <main className="max-w-[1600px] mx-auto p-5 md:p-6 lg:p-8 pt-16 lg:pt-8">
