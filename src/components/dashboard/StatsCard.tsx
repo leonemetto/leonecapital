@@ -18,7 +18,7 @@ export function StatsCard({ title, value, icon: Icon, trend, className, delay = 
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: delay * 0.06 }}
       className={cn(
-        'glass-card p-5 transition-all duration-200 hover:border-primary/20 group relative overflow-hidden',
+        'glass-card p-5 transition-all duration-300 hover:shadow-lg hover:shadow-primary/[0.06] group',
         className
       )}
     >

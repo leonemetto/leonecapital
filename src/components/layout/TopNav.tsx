@@ -22,7 +22,7 @@ export function TopNav() {
   const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
 
   return (
-    <header className="w-full border-b border-border/40 bg-card/60 backdrop-blur-2xl sticky top-0 z-50">
+    <header className="w-full glass-nav sticky top-0 z-50">
       <div className="max-w-[1600px] mx-auto px-4 md:px-6">
         {/* Brand */}
         <div className="flex items-center justify-between pt-5 pb-4">
