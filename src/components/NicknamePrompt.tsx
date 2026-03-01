@@ -28,7 +28,7 @@ export function NicknamePrompt({ onSubmit }: NicknamePromptProps) {
         <div className="p-3 rounded-xl bg-primary/10 inline-block">
           <User className="h-8 w-8 text-primary" />
         </div>
-        <h1 className="text-xl font-bold">Welcome to EdgeJournal</h1>
+        <h1 className="text-xl font-bold">Welcome to EdgeFlow</h1>
         <p className="text-sm text-muted-foreground">What should we call you?</p>
         <Input
           value={nickname}

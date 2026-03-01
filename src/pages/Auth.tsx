@@ -183,7 +183,7 @@ export default function Auth() {
         >
           <div className="flex items-center gap-3 justify-center mb-8">
             <Activity className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-black tracking-tight">EDGEJOURNAL</h1>
+            <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
           </div>
           <div className="glass-card p-6 space-y-5">
             {resetSent ? (
@@ -253,7 +253,7 @@ export default function Auth() {
         >
           <div className="flex items-center gap-3 justify-center mb-8">
             <Activity className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-black tracking-tight">EDGEJOURNAL</h1>
+            <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
           </div>
 
           <div className="glass-card p-6 space-y-5 text-center">
@@ -291,7 +291,7 @@ export default function Auth() {
         >
           <div className="flex items-center gap-3 justify-center mb-8">
             <Activity className="h-6 w-6 text-primary" />
-            <h1 className="text-2xl font-black tracking-tight">EDGEJOURNAL</h1>
+            <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
           </div>
 
           <div className="glass-card p-6 space-y-5">
@@ -344,7 +344,7 @@ export default function Auth() {
       >
         <div className="flex items-center gap-3 justify-center mb-8">
           <Activity className="h-6 w-6 text-primary" />
-          <h1 className="text-2xl font-black tracking-tight">EDGEJOURNAL</h1>
+          <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
         </div>
 
         <div className="glass-card p-6 space-y-5">

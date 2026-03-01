@@ -467,7 +467,7 @@ export function exportTradesCSV(trades: Trade[]) {
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `edgejournal_trades_${new Date().toISOString().split('T')[0]}.csv`;
+  a.download = `edgeflow_trades_${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
   URL.revokeObjectURL(url);
 }
