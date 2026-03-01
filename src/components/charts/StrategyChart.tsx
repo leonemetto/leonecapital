@@ -22,14 +22,14 @@ export function StrategyChart({ data }: StrategyChartProps) {
       <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ left: 10 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(169, 30%, 13%)" horizontal={false} />
-            <XAxis type="number" stroke="hsl(169, 30%, 18%)" tick={{ fill: 'hsl(140, 18%, 52%)', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
-            <YAxis type="category" dataKey="strategy" stroke="hsl(169, 30%, 18%)" tick={{ fill: 'hsl(140, 18%, 52%)', fontSize: 10 }} tickLine={false} axisLine={false} width={75} />
-            <Tooltip contentStyle={{ backgroundColor: 'hsl(171, 55%, 10.5%)', border: '1px solid hsl(169, 30%, 13%)', borderRadius: '8px', color: 'hsl(130, 39%, 90%)', fontSize: 11 }}
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(0, 0%, 11%)" horizontal={false} />
+            <XAxis type="number" stroke="hsl(0, 0%, 20%)" tick={{ fill: 'hsl(0, 0%, 56%)', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+            <YAxis type="category" dataKey="strategy" stroke="hsl(0, 0%, 20%)" tick={{ fill: 'hsl(0, 0%, 56%)', fontSize: 10 }} tickLine={false} axisLine={false} width={75} />
+            <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #1C1C1E', borderRadius: '8px', color: '#eee', fontSize: 11 }}
               formatter={(value: number, _name: string, props: any) => [`$${value.toFixed(2)} | WR: ${props.payload.winRate}% | ${props.payload.total} trades`, 'P&L']} />
             <Bar dataKey="pnl" radius={[0, 4, 4, 0]} maxBarSize={20}>
               {data.map((entry, i) => (
-                <Cell key={i} fill={entry.pnl >= 0 ? 'hsl(155, 54%, 42%)' : 'hsl(0, 84%, 60%)'} />
+                <Cell key={i} fill={entry.pnl >= 0 ? '#30D158' : '#EF4444'} />
               ))}
             </Bar>
           </BarChart>
