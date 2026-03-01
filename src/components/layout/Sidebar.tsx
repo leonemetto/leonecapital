@@ -32,7 +32,7 @@ export function Sidebar() {
         </button>
         <div className="flex items-center gap-2 ml-3">
           <Activity className="h-4 w-4 text-profit" />
-          <span className="font-bold text-sm tracking-tight">EdgeJournal</span>
+          <span className="font-bold text-sm tracking-tight">EdgeFlow</span>
         </div>
       </header>
 
@@ -58,7 +58,7 @@ export function Sidebar() {
           collapsed ? 'justify-center' : 'gap-2'
         )}>
           <Activity className="h-5 w-5 text-profit shrink-0" />
-          {!collapsed && <span className="font-bold text-sm tracking-tight">EdgeJournal</span>}
+          {!collapsed && <span className="font-bold text-sm tracking-tight">EdgeFlow</span>}
           <button
             onClick={() => setMobileOpen(false)}
             className="ml-auto p-1 rounded hover:bg-secondary lg:hidden"

@@ -32,7 +32,7 @@ export function TopNav() {
               <div className="absolute -inset-1 bg-primary/10 rounded-xl blur-md -z-10" />
             </div>
             <div>
-              <h1 className="text-lg font-black tracking-tight leading-none">TRADE JOURNAL</h1>
+              <h1 className="text-lg font-black tracking-tight leading-none">EDGEFLOW</h1>
               <p className="text-[9px] text-muted-foreground/50 font-medium tracking-[0.2em] uppercase mt-0.5">Professional Analytics</p>
             </div>
           </div>

@@ -101,7 +101,7 @@ export function AppSidebar() {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <h1 className="text-sm font-black tracking-tight leading-none truncate">TRADE JOURNAL</h1>
+              <h1 className="text-sm font-black tracking-tight leading-none truncate">EDGEFLOW</h1>
               <p className="text-[8px] text-muted-foreground/40 font-medium tracking-[0.15em] uppercase mt-0.5">Pro Analytics</p>
             </div>
           )}
