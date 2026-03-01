@@ -1,4 +1,5 @@
 import { TopNav } from './TopNav';
+import NeuralBackground from '@/components/ui/flow-field-background';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -6,13 +7,15 @@ interface AppLayoutProps {
 
 export function AppLayout({ children }: AppLayoutProps) {
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] noise-overlay">
+    <div className="relative min-h-screen bg-background overflow-hidden [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+      <NeuralBackground particleCount={400} trailOpacity={0.1} speed={0.8} />
       <div className="relative z-10">
         <TopNav />
-        <main className="max-w-[1400px] mx-auto px-5 md:px-8 lg:px-10 py-6 md:py-8">
+        <main className="max-w-[1600px] mx-auto p-4 md:p-5 lg:p-6">
           {children}
         </main>
       </div>
     </div>
   );
 }
+
