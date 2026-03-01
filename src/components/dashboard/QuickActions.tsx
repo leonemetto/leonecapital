@@ -50,26 +50,26 @@ export function QuickActions() {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className="glass-card p-5 h-full"
+      transition={{ duration: 0.3 }}
+      className="glass-card p-6 md:p-8 h-full"
     >
-      <h3 className="text-sm font-bold mb-5">Quick Actions</h3>
-      <div className="space-y-2.5">
+      <h3 className="text-[12px] font-medium text-muted-foreground uppercase tracking-[0.08em] mb-6">Quick Actions</h3>
+      <div className="space-y-3">
         <Link
           to="/add-trade"
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-gradient-to-b from-white/[0.06] to-transparent border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_16px_rgba(48,209,88,0.08)] transition-all text-sm font-semibold"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/50 border border-border hover:bg-secondary transition-all duration-200 text-[13px] font-medium"
         >
-          <PlusCircle className="h-4 w-4 text-primary" />
-          TRADE ENTRY
+          <PlusCircle className="h-4 w-4 text-primary opacity-70" />
+          New Trade
         </Link>
         <button
           onClick={handleDailyReview}
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-gradient-to-b from-white/[0.06] to-transparent border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_16px_rgba(48,209,88,0.08)] transition-all text-sm font-semibold w-full text-left"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/50 border border-border hover:bg-secondary transition-all duration-200 text-[13px] font-medium w-full text-left"
         >
-          <FileText className="h-4 w-4 text-primary" />
-          DAILY REVIEW
+          <FileText className="h-4 w-4 text-primary opacity-70" />
+          Daily Review
         </button>
       </div>
     </motion.div>
