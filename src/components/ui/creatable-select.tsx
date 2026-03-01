@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { Check, ChevronDown, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -23,7 +24,9 @@ export function CreatableSelect({
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const filtered = query
@@ -34,16 +37,43 @@ export function CreatableSelect({
     query.trim().length > 0 &&
     !options.some(o => o.toLowerCase() === query.trim().toLowerCase());
 
+  const updatePosition = useCallback(() => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setPosition({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+      });
+    }
+  }, []);
+
   useEffect(() => {
+    if (!open) return;
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [open, updatePosition]);
+
+  useEffect(() => {
+    if (!open) return;
     function handleClickOutside(e: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+      const target = e.target as Node;
+      if (
+        triggerRef.current && !triggerRef.current.contains(target) &&
+        dropdownRef.current && !dropdownRef.current.contains(target)
+      ) {
         setOpen(false);
         setQuery('');
       }
     }
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+  }, [open]);
 
   function handleSelect(option: string) {
     onChange(option);
@@ -55,16 +85,22 @@ export function CreatableSelect({
     const trimmed = query.trim();
     if (!trimmed) return;
     setAdding(true);
-    await onAddOption(trimmed);
-    onChange(uppercase ? trimmed.toUpperCase() : trimmed);
-    setOpen(false);
-    setQuery('');
-    setAdding(false);
+    try {
+      await onAddOption(trimmed);
+      onChange(uppercase ? trimmed.toUpperCase() : trimmed);
+    } catch (error) {
+      console.error('Error adding option:', error);
+    } finally {
+      setOpen(false);
+      setQuery('');
+      setAdding(false);
+    }
   }
 
   return (
-    <div ref={containerRef} className={cn('relative', open && 'z-50')}>
+    <div className="relative">
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => {
           setOpen(o => !o);
@@ -78,8 +114,18 @@ export function CreatableSelect({
         <ChevronDown className={cn('h-3.5 w-3.5 text-muted-foreground transition-transform', open && 'rotate-180')} />
       </button>
 
-      {open && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-popover border border-border rounded-md shadow-lg overflow-hidden">
+      {open && createPortal(
+        <div
+          ref={dropdownRef}
+          style={{
+            position: 'fixed',
+            top: position.top,
+            left: position.left,
+            width: position.width,
+            zIndex: 9999,
+          }}
+          className="bg-popover border border-border rounded-md shadow-lg overflow-hidden"
+        >
           <div className="p-1.5 border-b border-border">
             <input
               ref={inputRef}
@@ -124,7 +170,8 @@ export function CreatableSelect({
               <p className="px-3 py-2 text-sm text-muted-foreground">No results</p>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
