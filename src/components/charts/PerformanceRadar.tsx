@@ -39,14 +39,13 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
       <h3 className="label-text mb-1">
         Performance Profile
       </h3>
-      <div className="h-[280px]">
+      <div className="h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={data} cx="50%" cy="52%" outerRadius="55%">
+          <RadarChart data={data} cx="50%" cy="50%" outerRadius="65%">
             <PolarGrid stroke="hsl(220, 6%, 14%)" strokeWidth={0.5} />
             <PolarAngleAxis
               dataKey="metric"
-              tick={{ fill: 'hsl(220, 5%, 45%)', fontSize: 9, fontWeight: 500 }}
-              tickLine={false}
+              tick={{ fill: 'hsl(220, 5%, 45%)', fontSize: 10, fontWeight: 500 }}
             />
             <PolarRadiusAxis
               angle={90}
