@@ -63,7 +63,7 @@ export function CreatableSelect({
   }
 
   return (
-    <div ref={containerRef} className="relative">
+    <div ref={containerRef} className={cn('relative', open && 'z-50')}>
       <button
         type="button"
         onClick={() => {
