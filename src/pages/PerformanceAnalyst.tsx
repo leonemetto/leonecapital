@@ -143,20 +143,20 @@ function RiskIndicator({ trades }: { trades: Trade[] }) {
 
 // ─── Strategy Simulator ───
 function StrategySimulator({ trades }: { trades: Trade[] }) {
-  const [htfBias, setHtfBias] = useState<string>('');
-  const [minConfidence, setMinConfidence] = useState<string>('');
+  const [htfBias, setHtfBias] = useState<string>('__any__');
+  const [minConfidence, setMinConfidence] = useState<string>('__any__');
   const [followedPlan, setFollowedPlan] = useState<boolean>(false);
   const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
-  const [minEmotion, setMinEmotion] = useState<string>('');
+  const [minEmotion, setMinEmotion] = useState<string>('__any__');
   const [result, setResult] = useState<SimulationResult | null>(null);
 
   const runSimulation = () => {
     const sim = simulateFilter(trades, {
-      htfBias: htfBias || undefined,
-      minConfidence: minConfidence ? parseInt(minConfidence) : undefined,
+      htfBias: htfBias !== '__any__' ? htfBias : undefined,
+      minConfidence: minConfidence !== '__any__' ? parseInt(minConfidence) : undefined,
       followedPlan: followedPlan ? true : undefined,
       sessions: selectedSessions.length > 0 ? selectedSessions : undefined,
-      minEmotionalState: minEmotion ? parseInt(minEmotion) : undefined,
+      minEmotionalState: minEmotion !== '__any__' ? parseInt(minEmotion) : undefined,
     });
     setResult(sim);
   };
@@ -177,7 +177,7 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
           <Select value={htfBias} onValueChange={setHtfBias}>
             <SelectTrigger className="mt-1 h-8 text-xs bg-secondary"><SelectValue placeholder="Any" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="__any__">Any</SelectItem>
               {HTF_BIASES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -187,7 +187,7 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
           <Select value={minConfidence} onValueChange={setMinConfidence}>
             <SelectTrigger className="mt-1 h-8 text-xs bg-secondary"><SelectValue placeholder="Any" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="__any__">Any</SelectItem>
               {[3, 4, 5].map(n => <SelectItem key={n} value={String(n)}>≥{n}</SelectItem>)}
             </SelectContent>
           </Select>
@@ -197,7 +197,7 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
           <Select value={minEmotion} onValueChange={setMinEmotion}>
             <SelectTrigger className="mt-1 h-8 text-xs bg-secondary"><SelectValue placeholder="Any" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Any</SelectItem>
+              <SelectItem value="__any__">Any</SelectItem>
               {[3, 4, 5].map(n => <SelectItem key={n} value={String(n)}>≥{n}</SelectItem>)}
             </SelectContent>
           </Select>
