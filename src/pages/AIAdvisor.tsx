@@ -303,7 +303,7 @@ export default function AIAdvisor() {
                 >
                   <h2 className="text-2xl font-black tracking-tight mb-2">AI Trade Advisor</h2>
                   <p className="text-sm text-muted-foreground/70 max-w-md leading-relaxed">
-                    Your personal trading analyst. Ask anything about your performance — I'll surface patterns, risks, and actionable insights from your data.
+                    Ask anything about your performance — I'll find the patterns.
                   </p>
                 </motion.div>
                 <motion.div
