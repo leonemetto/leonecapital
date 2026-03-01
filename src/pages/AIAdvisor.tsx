@@ -21,7 +21,7 @@ const INSIGHT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-i
 const STORAGE_KEY = 'ai-advisor-chat-history';
 const MAX_STORED_CHATS = 10;
 
-let msgId = 0;
+let msgId = Date.now();
 const nextId = () => `msg-${++msgId}`;
 
 function loadChatHistory(): Msg[] {
