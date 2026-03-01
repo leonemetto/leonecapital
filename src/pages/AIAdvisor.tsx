@@ -10,7 +10,7 @@ import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Sparkles } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -114,6 +114,11 @@ export default function AIAdvisor() {
       send(state.prompt, state.extraContext);
     }
   }, [location.state]);
+
+  const clearChat = () => {
+    setMessages([]);
+    localStorage.removeItem(STORAGE_KEY);
+  };
 
   const send = async (text: string, extraContext?: string) => {
     const trimmed = text.trim();
@@ -226,7 +231,6 @@ export default function AIAdvisor() {
     streamingIdRef.current = null;
     setIsLoading(false);
 
-    // Post-processing: extract behavioral insight
     if (assistantSoFar.length > 20) {
       const convoForInsight = [...allMessages, { role: 'assistant', content: assistantSoFar }]
         .map(m => ({ role: m.role, content: m.content }));
@@ -244,40 +248,127 @@ export default function AIAdvisor() {
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-120px)]">
-        <div className="flex-1 overflow-y-auto space-y-4 py-4 px-1 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        {/* Header */}
+        {messages.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex items-center justify-between pb-3 border-b border-border/50 mb-1"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
+              <span className="text-[11px] font-bold tracking-widest uppercase text-muted-foreground">
+                AI Advisor
+              </span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={clearChat}
+              className="text-[10px] tracking-wider uppercase text-muted-foreground/60 hover:text-destructive h-7 px-2.5 gap-1.5"
+            >
+              <Trash2 className="h-3 w-3" />
+              Clear
+            </Button>
+          </motion.div>
+        )}
+
+        {/* Messages */}
+        <div className="flex-1 overflow-y-auto space-y-5 py-5 px-1 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <AnimatePresence initial={false}>
             {messages.length === 0 && (
-              <motion.div key="empty" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
-                className="flex flex-col items-center justify-center h-full text-center gap-4">
-                <div className="p-3 rounded-xl bg-primary/10"><Sparkles className="h-8 w-8 text-primary" /></div>
-                <div>
-                  <h2 className="text-lg font-bold mb-1">AI Trade Advisor</h2>
-                  <p className="text-sm text-muted-foreground max-w-sm">Ask me anything about your trading performance. I'll analyze your data and give you actionable insights.</p>
-                </div>
-                <div className="flex flex-wrap gap-2 justify-center mt-2">
-                  {SUGGESTIONS.map(s => (<Button key={s} variant="outline" size="sm" className="text-xs" onClick={() => send(s)}>{s}</Button>))}
-                </div>
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="flex flex-col items-center justify-center h-full text-center gap-6"
+              >
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.4 }}
+                  className="relative"
+                >
+                  <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl scale-150" />
+                  <div className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10">
+                    <Sparkles className="h-10 w-10 text-primary" />
+                  </div>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2, duration: 0.4 }}
+                >
+                  <h2 className="text-2xl font-black tracking-tight mb-2">AI Trade Advisor</h2>
+                  <p className="text-sm text-muted-foreground/70 max-w-md leading-relaxed">
+                    Your personal trading analyst. Ask anything about your performance — I'll surface patterns, risks, and actionable insights from your data.
+                  </p>
+                </motion.div>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.35, duration: 0.4 }}
+                  className="flex flex-wrap gap-2 justify-center mt-1"
+                >
+                  {SUGGESTIONS.map((s, i) => (
+                    <motion.div
+                      key={s}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.4 + i * 0.06 }}
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs border-border/60 bg-card/50 backdrop-blur-sm hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all duration-200"
+                        onClick={() => send(s)}
+                      >
+                        {s}
+                      </Button>
+                    </motion.div>
+                  ))}
+                </motion.div>
               </motion.div>
             )}
+
             {messages.map((msg) => (
-              <motion.div key={msg.id} initial={{ opacity: 0, y: 12, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.3, ease: 'easeOut' }} className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}>
+              <motion.div
+                key={msg.id}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
+              >
                 {msg.role === 'assistant' && (
-                  <div className="shrink-0 h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center mt-0.5"><Bot className="h-3.5 w-3.5 text-primary" /></div>
+                  <div className="shrink-0 h-8 w-8 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10 flex items-center justify-center mt-0.5">
+                    <Bot className="h-4 w-4 text-primary" />
+                  </div>
                 )}
-                <div className={`max-w-[80%] rounded-xl px-4 py-2.5 text-sm ${msg.role === 'user' ? 'bg-primary text-primary-foreground' : 'bg-card border border-border'}`}>
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    msg.role === 'user'
+                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/10'
+                      : 'glass-card'
+                  }`}
+                >
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1 [&>ul]:my-1 [&>ol]:my-1">
+                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1.5 [&>ul]:my-1.5 [&>ol]:my-1.5 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm [&>li]:text-muted-foreground [&>p]:text-foreground/90">
                       {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : (
-                        <span className="inline-flex gap-1 text-muted-foreground">
-                          <span className="animate-pulse">●</span><span className="animate-pulse [animation-delay:150ms]">●</span><span className="animate-pulse [animation-delay:300ms]">●</span>
+                        <span className="inline-flex gap-1.5 text-primary/60 py-1">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse [animation-delay:150ms]" />
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse [animation-delay:300ms]" />
                         </span>
                       )}
                     </div>
                   ) : msg.content}
                 </div>
                 {msg.role === 'user' && (
-                  <div className="shrink-0 h-7 w-7 rounded-full bg-muted flex items-center justify-center mt-0.5"><User className="h-3.5 w-3.5 text-muted-foreground" /></div>
+                  <div className="shrink-0 h-8 w-8 rounded-xl bg-muted/80 border border-border/50 flex items-center justify-center mt-0.5">
+                    <User className="h-4 w-4 text-muted-foreground" />
+                  </div>
                 )}
               </motion.div>
             ))}
@@ -285,13 +376,34 @@ export default function AIAdvisor() {
           <div ref={bottomRef} />
         </div>
 
-        <div className="pt-3 pb-2">
-          <form onSubmit={e => { e.preventDefault(); send(input); }} className="flex gap-2">
-            <Textarea value={input} onChange={e => setInput(e.target.value)}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
-              placeholder="Ask about your trading performance..." className="min-h-[44px] max-h-[120px] resize-none text-sm" rows={1} />
-            <Button type="submit" size="icon" disabled={!input.trim() || isLoading} className="shrink-0 h-[44px] w-[44px]"><Send className="h-4 w-4" /></Button>
+        {/* Input */}
+        <div className="pt-4 pb-2">
+          <form
+            onSubmit={e => { e.preventDefault(); send(input); }}
+            className="relative flex items-end gap-2"
+          >
+            <div className="flex-1 relative">
+              <Textarea
+                value={input}
+                onChange={e => setInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
+                placeholder="Ask about your trading performance..."
+                className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-xl bg-card/80 backdrop-blur-sm border-border/60 focus:border-primary/40 focus:ring-primary/20 pr-4 py-3.5 transition-all duration-200"
+                rows={1}
+              />
+            </div>
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!input.trim() || isLoading}
+              className="shrink-0 h-[48px] w-[48px] rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200 disabled:shadow-none"
+            >
+              <Send className="h-4 w-4" />
+            </Button>
           </form>
+          <p className="text-[10px] text-muted-foreground/40 text-center mt-2 tracking-wide">
+            AI analyzes your trade data to provide personalized insights
+          </p>
         </div>
       </div>
     </AppLayout>
