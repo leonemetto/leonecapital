@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Trade, TradeFormData, SESSIONS } from '@/types/trade';
+import { Trade, TradeFormData, SESSIONS, HTF_BIASES } from '@/types/trade';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -32,6 +32,12 @@ const defaults = {
   outcome: 'win' as const,
   pnl: '',
   rMultiple: '',
+  riskPercent: '',
+  htfBias: '',
+  emotionalState: '',
+  confidenceLevel: '',
+  timeInTrade: '',
+  followedPlan: '',
   notes: '',
   accountId: '',
 };
@@ -52,6 +58,12 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         outcome: initialData.outcome,
         pnl: String(initialData.pnl),
         rMultiple: initialData.rMultiple !== undefined ? String(initialData.rMultiple) : '',
+        riskPercent: initialData.riskPercent !== undefined ? String(initialData.riskPercent) : '',
+        htfBias: initialData.htfBias || '',
+        emotionalState: initialData.emotionalState !== undefined ? String(initialData.emotionalState) : '',
+        confidenceLevel: initialData.confidenceLevel !== undefined ? String(initialData.confidenceLevel) : '',
+        timeInTrade: initialData.timeInTrade !== undefined ? String(initialData.timeInTrade) : '',
+        followedPlan: initialData.followedPlan !== undefined ? (initialData.followedPlan ? 'yes' : 'no') : '',
         notes: initialData.notes,
         accountId: initialData.accountId || '',
       };
@@ -82,6 +94,13 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         session: form.session,
         outcome,
         pnl,
+        rMultiple: form.rMultiple ? parseFloat(form.rMultiple) : undefined,
+        riskPercent: form.riskPercent ? parseFloat(form.riskPercent) : undefined,
+        htfBias: form.htfBias || undefined,
+        emotionalState: form.emotionalState ? parseInt(form.emotionalState) : undefined,
+        confidenceLevel: form.confidenceLevel ? parseInt(form.confidenceLevel) : undefined,
+        timeInTrade: form.timeInTrade ? parseInt(form.timeInTrade) : undefined,
+        followedPlan: form.followedPlan === 'yes' ? true : form.followedPlan === 'no' ? false : undefined,
         notes: form.notes,
         accountId: form.accountId || undefined,
       });
@@ -233,12 +252,107 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         </div>
       </div>
 
-      {/* Row 3: P&L, R Multiple, Notes */}
+      {/* Row 3: P&L, R-Multiple, Risk % */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">P&L Amount ($)</Label>
           <Input type="number" step="any" min="0" value={form.pnl} onChange={e => update('pnl', e.target.value)}
             placeholder="Enter amount" className="mt-1 bg-secondary border-border font-mono h-9" />
+        </div>
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">R-Multiple</Label>
+          <Input type="number" step="0.1" value={form.rMultiple} onChange={e => update('rMultiple', e.target.value)}
+            placeholder="e.g. 2.5" className="mt-1 bg-secondary border-border font-mono h-9" />
+        </div>
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Risk %</Label>
+          <Input type="number" step="0.1" min="0" max="100" value={form.riskPercent} onChange={e => update('riskPercent', e.target.value)}
+            placeholder="e.g. 1.0" className="mt-1 bg-secondary border-border font-mono h-9" />
+        </div>
+      </div>
+
+      {/* Row 4: HTF Bias, Emotional State, Confidence */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">HTF Bias</Label>
+          <Select value={form.htfBias} onValueChange={v => update('htfBias', v)}>
+            <SelectTrigger className="mt-1 bg-secondary border-border h-9">
+              <SelectValue placeholder="Select" />
+            </SelectTrigger>
+            <SelectContent>
+              {HTF_BIASES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Emotional State (1-5)</Label>
+          <div className="flex gap-1 mt-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => update('emotionalState', String(n))}
+                className={cn(
+                  'flex-1 py-2 rounded-md text-xs font-semibold transition-all border h-9',
+                  form.emotionalState === String(n)
+                    ? 'bg-primary/15 text-primary border-primary/30'
+                    : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confidence (1-5)</Label>
+          <div className="flex gap-1 mt-1">
+            {[1, 2, 3, 4, 5].map(n => (
+              <button
+                key={n}
+                type="button"
+                onClick={() => update('confidenceLevel', String(n))}
+                className={cn(
+                  'flex-1 py-2 rounded-md text-xs font-semibold transition-all border h-9',
+                  form.confidenceLevel === String(n)
+                    ? 'bg-primary/15 text-primary border-primary/30'
+                    : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {n}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Row 5: Time in Trade, Followed Plan, Notes */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Time in Trade (min)</Label>
+          <Input type="number" min="0" value={form.timeInTrade} onChange={e => update('timeInTrade', e.target.value)}
+            placeholder="e.g. 45" className="mt-1 bg-secondary border-border font-mono h-9" />
+        </div>
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Followed Plan?</Label>
+          <div className="flex gap-1.5 mt-1">
+            {[{ val: 'yes', label: 'YES' }, { val: 'no', label: 'NO' }].map(o => (
+              <button
+                key={o.val}
+                type="button"
+                onClick={() => update('followedPlan', o.val)}
+                className={cn(
+                  'flex-1 py-2 rounded-md text-xs font-semibold transition-all border h-9',
+                  form.followedPlan === o.val
+                    ? o.val === 'yes' ? 'bg-profit/15 text-profit border-profit/30'
+                      : 'bg-loss/15 text-loss border-loss/30'
+                    : 'bg-secondary border-border text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {o.label}
+              </button>
+            ))}
+          </div>
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Notes (optional)</Label>

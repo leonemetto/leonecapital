@@ -8,6 +8,12 @@ export interface Trade {
   outcome: 'win' | 'loss' | 'breakeven';
   pnl: number;
   rMultiple?: number;
+  riskPercent?: number;
+  htfBias?: string;
+  emotionalState?: number;
+  confidenceLevel?: number;
+  timeInTrade?: number;
+  followedPlan?: boolean;
   notes: string;
   accountId?: string;
   createdAt: string;
@@ -27,3 +33,5 @@ export const STRATEGIES = [
 export const SESSIONS = [
   'London', 'New York', 'Asian', 'London/NY Overlap', 'Off-hours',
 ] as const;
+
+export const HTF_BIASES = ['Bullish', 'Bearish', 'Neutral'] as const;

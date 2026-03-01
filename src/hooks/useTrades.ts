@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Trade, TradeFormData } from '@/types/trade';
 
@@ -13,6 +13,13 @@ function rowToTrade(r: any): Trade {
     session: r.session || '',
     outcome: r.outcome,
     pnl: Number(r.pnl),
+    rMultiple: r.r_multiple != null ? Number(r.r_multiple) : undefined,
+    riskPercent: r.risk_percent != null ? Number(r.risk_percent) : undefined,
+    htfBias: r.htf_bias || undefined,
+    emotionalState: r.emotional_state != null ? Number(r.emotional_state) : undefined,
+    confidenceLevel: r.confidence_level != null ? Number(r.confidence_level) : undefined,
+    timeInTrade: r.time_in_trade != null ? Number(r.time_in_trade) : undefined,
+    followedPlan: r.followed_plan != null ? Boolean(r.followed_plan) : undefined,
     notes: r.notes || '',
     accountId: r.account_id ?? undefined,
     createdAt: r.created_at,
@@ -50,7 +57,14 @@ export function useTrades() {
       pnl: form.pnl,
       notes: form.notes,
       account_id: form.accountId || null,
-    }).select().single();
+      r_multiple: form.rMultiple ?? null,
+      risk_percent: form.riskPercent ?? null,
+      htf_bias: form.htfBias || '',
+      emotional_state: form.emotionalState ?? null,
+      confidence_level: form.confidenceLevel ?? null,
+      time_in_trade: form.timeInTrade ?? null,
+      followed_plan: form.followedPlan ?? null,
+    } as any).select().single();
 
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
@@ -68,6 +82,13 @@ export function useTrades() {
     if (form.pnl !== undefined) updates.pnl = form.pnl;
     if (form.notes !== undefined) updates.notes = form.notes;
     if (form.accountId !== undefined) updates.account_id = form.accountId || null;
+    if (form.rMultiple !== undefined) updates.r_multiple = form.rMultiple ?? null;
+    if (form.riskPercent !== undefined) updates.risk_percent = form.riskPercent ?? null;
+    if (form.htfBias !== undefined) updates.htf_bias = form.htfBias || '';
+    if (form.emotionalState !== undefined) updates.emotional_state = form.emotionalState ?? null;
+    if (form.confidenceLevel !== undefined) updates.confidence_level = form.confidenceLevel ?? null;
+    if (form.timeInTrade !== undefined) updates.time_in_trade = form.timeInTrade ?? null;
+    if (form.followedPlan !== undefined) updates.followed_plan = form.followedPlan ?? null;
 
     const { error } = await supabase.from('trades').update(updates).eq('id', id);
     if (error) throw error;

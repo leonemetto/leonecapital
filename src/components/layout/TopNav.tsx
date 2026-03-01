@@ -1,6 +1,6 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings, User } from 'lucide-react';
+import { BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings, User, Activity } from 'lucide-react';
 import logoImg from '@/assets/logo.png';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 
 const tabs = [
   { title: 'ANALYTICS', path: '/', icon: BarChart3 },
+  { title: 'ANALYST', path: '/analyst', icon: Activity },
   { title: 'TRADES DB', path: '/journal', icon: BookOpen },
   { title: 'ACCOUNTS', path: '/accounts', icon: Wallet },
   { title: 'AI', path: '/ai', icon: Sparkles },

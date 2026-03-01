@@ -185,44 +185,65 @@ export type Database = {
       trades: {
         Row: {
           account_id: string | null
+          confidence_level: number | null
           created_at: string
           date: string
           direction: string
+          emotional_state: number | null
+          followed_plan: boolean | null
+          htf_bias: string
           id: string
           instrument: string
           notes: string
           outcome: string
           pnl: number
+          r_multiple: number | null
+          risk_percent: number | null
           session: string
           strategy: string
+          time_in_trade: number | null
           user_id: string
         }
         Insert: {
           account_id?: string | null
+          confidence_level?: number | null
           created_at?: string
           date: string
           direction: string
+          emotional_state?: number | null
+          followed_plan?: boolean | null
+          htf_bias?: string
           id?: string
           instrument: string
           notes?: string
           outcome: string
           pnl?: number
+          r_multiple?: number | null
+          risk_percent?: number | null
           session?: string
           strategy?: string
+          time_in_trade?: number | null
           user_id: string
         }
         Update: {
           account_id?: string | null
+          confidence_level?: number | null
           created_at?: string
           date?: string
           direction?: string
+          emotional_state?: number | null
+          followed_plan?: boolean | null
+          htf_bias?: string
           id?: string
           instrument?: string
           notes?: string
           outcome?: string
           pnl?: number
+          r_multiple?: number | null
+          risk_percent?: number | null
           session?: string
           strategy?: string
+          time_in_trade?: number | null
           user_id?: string
         }
         Relationships: [

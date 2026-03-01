@@ -22,6 +22,7 @@ import AIAdvisor from "./pages/AIAdvisor";
 import ResetPassword from "./pages/ResetPassword";
 import ProfileSettings from "./pages/ProfileSettings";
 import TradingPlan from "./pages/TradingPlan";
+import PerformanceAnalyst from "./pages/PerformanceAnalyst";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -146,6 +147,7 @@ const App = () => (
                           <Route path="/journal" element={<Journal />} />
                           <Route path="/accounts" element={<Accounts />} />
                           <Route path="/ai" element={<AIAdvisor />} />
+                          <Route path="/analyst" element={<PerformanceAnalyst />} />
                           <Route path="/profile" element={<ProfileSettings />} />
                           <Route path="/trading-plan" element={<TradingPlan />} />
                           <Route path="*" element={<NotFound />} />
