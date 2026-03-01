@@ -151,6 +151,10 @@ export default function AIAdvisor() {
           recentTrades: trades.slice(0, 50).map(t => ({
             date: t.date, instrument: t.instrument, direction: t.direction,
             strategy: t.strategy, session: t.session, outcome: t.outcome, pnl: t.pnl, notes: t.notes,
+            rMultiple: t.rMultiple ?? null, riskPercent: t.riskPercent ?? null,
+            htfBias: t.htfBias ?? null, emotionalState: t.emotionalState ?? null,
+            confidenceLevel: t.confidenceLevel ?? null, timeInTrade: t.timeInTrade ?? null,
+            followedPlan: t.followedPlan ?? null,
             checklistChecked: activeCriteria.filter(c => verificationsMap[t.id]?.[c.id]).length,
             checklistTotal: activeCriteria.length,
             checklistFollowed: activeCriteria.length > 0
