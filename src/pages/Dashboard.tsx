@@ -115,11 +115,11 @@ const Dashboard = () => {
   return (
     <AppLayout>
       {/* Greeting */}
-      <h1 className="text-xl font-bold mb-4">{getGreeting()}, {profile?.nickname || 'Trader'} 👋</h1>
+      <h1 className="text-2xl font-semibold mb-6 tracking-tight">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
 
       {/* Account Filter + Checklist Button */}
-      <div className="flex items-center gap-2 mb-4">
-        <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+      <div className="flex items-center gap-2 mb-6">
+        <Filter className="h-3.5 w-3.5 text-muted-foreground opacity-40" />
         <Select value={effectiveAccountId} onValueChange={setSelectedAccountId}>
           <SelectTrigger className="w-[200px] h-8 text-xs">
             <SelectValue placeholder="Select Account" />
@@ -208,9 +208,9 @@ const Dashboard = () => {
       </div>
 
       {/* Row 1: Quick Actions + KPI Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-6">
         <QuickActions />
-        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
           <StatsCard title="Total P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
@@ -234,21 +234,21 @@ const Dashboard = () => {
 
       {/* Account Balances */}
       {accounts.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
           {accounts.map(account => {
             const accountPnl = trades.filter(t => t.accountId === account.id).reduce((s, t) => s + t.pnl, 0);
             const balance = account.currentBalance + accountPnl;
             const pctChange = account.startingBalance > 0 ? ((balance - account.startingBalance) / account.startingBalance) * 100 : 0;
             return (
-              <div key={account.id} className="glass-card p-4 flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  <Wallet className="h-4 w-4 text-primary" />
+              <div key={account.id} className="glass-card p-5 flex items-center gap-4">
+                <div className="p-2 rounded-xl bg-secondary">
+                  <Wallet className="h-4 w-4 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">{account.name} ({account.type})</p>
-                  <p className="text-lg font-bold font-mono">${balance.toFixed(2)}</p>
+                  <p className="text-[12px] text-muted-foreground truncate tracking-wide">{account.name} · {account.type}</p>
+                  <p className="text-xl font-semibold font-mono mt-0.5">${balance.toFixed(2)}</p>
                 </div>
-                <span className={cn('text-xs font-mono font-semibold', accountPnl >= 0 ? 'text-profit' : 'text-loss')}>
+                <span className={cn('text-[13px] font-mono font-medium', accountPnl >= 0 ? 'text-profit' : 'text-loss')}>
                   {accountPnl >= 0 ? '+' : ''}{pctChange.toFixed(1)}%
                 </span>
               </div>
@@ -258,7 +258,7 @@ const Dashboard = () => {
       )}
 
       {/* Row 2: Performance Radar + Calendar */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-6">
         <PerformanceRadar stats={stats} />
         <div className="lg:col-span-3">
           <TradingCalendar trades={filteredTrades} />
@@ -266,7 +266,7 @@ const Dashboard = () => {
       </div>
 
       {/* Row 3: Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <EquityCurve data={equityData} />
         <WinLossPie wins={stats.wins} losses={stats.losses} breakevens={stats.breakevens} />
         <StrategyChart data={strategyData} />

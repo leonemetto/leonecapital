@@ -23,29 +23,29 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
 
   const data = [
     { metric: 'Win Rate', value: winRate },
-    { metric: 'Recovery Factor', value: recovery },
+    { metric: 'Recovery', value: recovery },
     { metric: 'Profit Factor', value: profitFactor },
-    { metric: 'Consistency Score', value: consistency },
-    { metric: 'Plan Adherence', value: planAdherence },
+    { metric: 'Consistency', value: consistency },
+    { metric: 'Adherence', value: planAdherence },
   ];
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25, delay: 0.1 }}
-      className="glass-card p-5 h-full"
+      transition={{ duration: 0.3, delay: 0.1 }}
+      className="glass-card p-6 md:p-8 h-full"
     >
-      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest opacity-50 mb-1">
+      <h3 className="text-[12px] font-medium text-muted-foreground uppercase tracking-[0.08em] mb-2">
         Performance Profile
       </h3>
       <div className="h-[260px]">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart data={data} cx="50%" cy="50%" outerRadius="65%">
-            <PolarGrid stroke="hsl(0, 0%, 16%)" strokeWidth={0.5} />
+            <PolarGrid stroke="hsl(0 0% 100% / 0.06)" strokeWidth={0.5} />
             <PolarAngleAxis
               dataKey="metric"
-              tick={{ fill: 'hsl(0, 0%, 56%)', fontSize: 10, fontWeight: 500 }}
+              tick={{ fill: 'hsl(0, 0%, 50%)', fontSize: 10, fontWeight: 400 }}
             />
             <PolarRadiusAxis
               angle={90}
@@ -56,11 +56,11 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
             <Radar
               name="Performance"
               dataKey="value"
-              stroke="#30D158"
-              fill="#30D158"
-              fillOpacity={0.08}
+              stroke="hsl(142, 50%, 45%)"
+              fill="hsl(142, 50%, 45%)"
+              fillOpacity={0.06}
               strokeWidth={1}
-              dot={{ r: 2, fill: '#30D158', strokeWidth: 0 }}
+              dot={{ r: 2, fill: 'hsl(142, 50%, 45%)', strokeWidth: 0 }}
             />
           </RadarChart>
         </ResponsiveContainer>

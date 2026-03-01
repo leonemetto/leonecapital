@@ -79,12 +79,12 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
     <button
       onClick={() => toggleSort(field)}
       className={cn(
-        'flex items-center gap-1 text-[10px] uppercase tracking-wider font-semibold hover:text-foreground transition-colors',
-        sortField === field ? 'text-primary' : 'text-muted-foreground'
+        'flex items-center gap-1 text-[11px] uppercase tracking-[0.06em] font-medium hover:text-foreground transition-colors duration-200',
+        sortField === field ? 'text-foreground' : 'text-muted-foreground'
       )}
     >
       {children}
-      {sortField === field && <span>{sortDir === 'asc' ? '↑' : '↓'}</span>}
+      {sortField === field && <span className="opacity-50">{sortDir === 'asc' ? '↑' : '↓'}</span>}
     </button>
   );
 
@@ -104,21 +104,21 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.2 }}
+      transition={{ duration: 0.3 }}
     >
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-2 mb-3">
+      <div className="flex flex-col sm:flex-row gap-2 mb-4">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground opacity-50" />
           <Input
             value={search}
             onChange={e => { setSearch(e.target.value); setPage(0); }}
-            placeholder="Search..."
-            className="pl-8 bg-secondary border-border h-8 text-sm"
+            placeholder="Search trades..."
+            className="pl-9 bg-secondary/50 border-border h-9 text-[13px]"
           />
         </div>
         <Select value={outcomeFilter} onValueChange={v => { setOutcomeFilter(v); setPage(0); }}>
-          <SelectTrigger className="w-[120px] bg-secondary border-border h-8 text-xs">
+          <SelectTrigger className="w-[120px] bg-secondary/50 border-border h-9 text-[13px]">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -128,8 +128,8 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
             <SelectItem value="breakeven">BE</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" onClick={() => exportTradesCSV(trades)} className="gap-1 h-8 text-xs">
-          <Download className="h-3 w-3" /> CSV
+        <Button variant="outline" size="sm" onClick={() => exportTradesCSV(trades)} className="gap-1.5 h-9 text-[13px]">
+          <Download className="h-3.5 w-3.5 opacity-50" /> Export
         </Button>
       </div>
 
@@ -139,64 +139,64 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border">
-                <th className="text-left p-2.5"><SortHeader field="date">Date</SortHeader></th>
-                <th className="text-left p-2.5"><SortHeader field="instrument">Pair</SortHeader></th>
-                <th className="text-left p-2.5 hidden md:table-cell">
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Dir</span>
+                <th className="text-left px-4 py-3"><SortHeader field="date">Date</SortHeader></th>
+                <th className="text-left px-4 py-3"><SortHeader field="instrument">Pair</SortHeader></th>
+                <th className="text-left px-4 py-3 hidden md:table-cell">
+                  <span className="text-[11px] uppercase tracking-[0.06em] font-medium text-muted-foreground">Dir</span>
                 </th>
-                <th className="text-left p-2.5 hidden lg:table-cell">
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Strategy</span>
+                <th className="text-left px-4 py-3 hidden lg:table-cell">
+                  <span className="text-[11px] uppercase tracking-[0.06em] font-medium text-muted-foreground">Strategy</span>
                 </th>
-                <th className="text-left p-2.5 hidden lg:table-cell">
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Session</span>
+                <th className="text-left px-4 py-3 hidden lg:table-cell">
+                  <span className="text-[11px] uppercase tracking-[0.06em] font-medium text-muted-foreground">Session</span>
                 </th>
-                <th className="text-right p-2.5"><SortHeader field="pnl">P&L</SortHeader></th>
-                <th className="text-center p-2.5">
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Result</span>
+                <th className="text-right px-4 py-3"><SortHeader field="pnl">P&L</SortHeader></th>
+                <th className="text-center px-4 py-3">
+                  <span className="text-[11px] uppercase tracking-[0.06em] font-medium text-muted-foreground">Result</span>
                 </th>
                 {hasCriteria && (
-                  <th className="text-center p-2.5 hidden md:table-cell">
-                    <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Checklist</span>
+                  <th className="text-center px-4 py-3 hidden md:table-cell">
+                    <span className="text-[11px] uppercase tracking-[0.06em] font-medium text-muted-foreground">Checklist</span>
                   </th>
                 )}
-                <th className="text-right p-2.5 w-16">
-                  <span className="text-[10px] uppercase tracking-wider font-semibold text-muted-foreground">Act</span>
+                <th className="text-right px-4 py-3 w-20">
+                  <span className="text-[11px] uppercase tracking-[0.06em] font-medium text-muted-foreground">Actions</span>
                 </th>
               </tr>
             </thead>
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="text-center py-10 text-muted-foreground text-sm">
+                  <td colSpan={8} className="text-center py-12 text-muted-foreground text-sm">
                     {trades.length === 0 ? 'No trades logged yet' : 'No matches'}
                   </td>
                 </tr>
               ) : paged.map(trade => (
-                <tr key={trade.id} className="border-b border-border/40 hover:bg-secondary/30 transition-colors">
-                  <td className="p-2.5 text-xs font-mono text-muted-foreground whitespace-nowrap">
+                <tr key={trade.id} className="border-b border-border/30 hover:bg-secondary/20 transition-colors duration-200">
+                  <td className="px-4 py-3.5 text-[13px] font-mono text-muted-foreground whitespace-nowrap">
                     {new Date(trade.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                   </td>
-                  <td className="p-2.5 text-xs font-semibold">{trade.instrument}</td>
-                  <td className="p-2.5 hidden md:table-cell">
+                  <td className="px-4 py-3.5 text-[13px] font-medium">{trade.instrument}</td>
+                  <td className="px-4 py-3.5 hidden md:table-cell">
                     <span className={cn(
-                      'text-[10px] font-bold px-1.5 py-0.5 rounded',
-                      trade.direction === 'long' ? 'bg-profit/15 text-profit' : 'bg-loss/15 text-loss'
+                      'text-[11px] font-medium px-2 py-0.5 rounded-md',
+                      trade.direction === 'long' ? 'bg-profit/8 text-profit' : 'bg-loss/8 text-loss'
                     )}>
-                      {trade.direction === 'long' ? 'L' : 'S'}
+                      {trade.direction === 'long' ? 'Long' : 'Short'}
                     </span>
                   </td>
-                  <td className="p-2.5 text-xs hidden lg:table-cell text-muted-foreground">{trade.strategy}</td>
-                  <td className="p-2.5 text-xs hidden lg:table-cell text-muted-foreground">{trade.session}</td>
-                  <td className={cn('p-2.5 text-right text-xs font-mono font-semibold',
+                  <td className="px-4 py-3.5 text-[13px] hidden lg:table-cell text-muted-foreground">{trade.strategy}</td>
+                  <td className="px-4 py-3.5 text-[13px] hidden lg:table-cell text-muted-foreground">{trade.session}</td>
+                  <td className={cn('px-4 py-3.5 text-right text-[14px] font-mono font-medium',
                     trade.pnl > 0 ? 'text-profit' : trade.pnl < 0 ? 'text-loss' : 'text-muted-foreground'
                   )}>
                     {trade.pnl >= 0 ? '+' : ''}{trade.pnl.toFixed(2)}
                   </td>
-                  <td className="p-2.5 text-center">
+                  <td className="px-4 py-3.5 text-center">
                     <span className={cn(
-                      'text-[9px] font-bold px-1.5 py-0.5 rounded uppercase',
-                      trade.outcome === 'win' ? 'bg-profit/15 text-profit' :
-                      trade.outcome === 'loss' ? 'bg-loss/15 text-loss' :
+                      'text-[10px] font-medium px-2 py-1 rounded-md uppercase tracking-wide',
+                      trade.outcome === 'win' ? 'bg-profit/8 text-profit' :
+                      trade.outcome === 'loss' ? 'bg-loss/8 text-loss' :
                       'bg-secondary text-muted-foreground'
                     )}>
                       {trade.outcome === 'breakeven' ? 'BE' : trade.outcome}
@@ -209,34 +209,34 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                     const allDone = checked === total;
                     const none = checked === 0 && !verificationsMap[trade.id];
                     return (
-                      <td className="p-2.5 text-center hidden md:table-cell">
+                      <td className="px-4 py-3.5 text-center hidden md:table-cell">
                         {none ? (
-                          <span className="text-[10px] text-muted-foreground/40">—</span>
+                          <span className="text-[11px] text-muted-foreground/30">—</span>
                         ) : allDone ? (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-profit">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-profit">
                             <CheckSquare className="h-3 w-3" />{checked}/{total}
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-loss">
+                          <span className="inline-flex items-center gap-1 text-[11px] font-medium text-loss">
                             <XSquare className="h-3 w-3" />{checked}/{total}
                           </span>
                         )}
                       </td>
                     );
                   })()}
-                  <td className="p-2.5 text-right">
-                    <div className="flex items-center gap-0.5 justify-end">
+                  <td className="px-4 py-3.5 text-right">
+                    <div className="flex items-center gap-1 justify-end">
                       <button
                         onClick={() => setEditTrade(trade)}
-                        className="p-1 rounded hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors duration-200"
                       >
-                        <Edit3 className="h-3 w-3" />
+                        <Edit3 className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => setDeletingId(trade.id)}
-                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                        className="p-1.5 rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors duration-200"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-3.5 w-3.5" />
                       </button>
                     </div>
                   </td>
@@ -247,17 +247,17 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-3 py-2 border-t border-border">
-            <span className="text-[10px] text-muted-foreground">
-              {filtered.length} trades • Page {page + 1}/{totalPages}
+          <div className="flex items-center justify-between px-4 py-3 border-t border-border/30">
+            <span className="text-[12px] text-muted-foreground">
+              {filtered.length} trades · Page {page + 1} of {totalPages}
             </span>
-            <div className="flex gap-0.5">
+            <div className="flex gap-1">
               <button onClick={() => setPage(p => Math.max(0, p - 1))} disabled={page === 0}
-                className="p-1 rounded hover:bg-secondary disabled:opacity-30 transition-colors">
+                className="p-1.5 rounded-lg hover:bg-secondary disabled:opacity-20 transition-colors duration-200">
                 <ChevronLeft className="h-3.5 w-3.5" />
               </button>
               <button onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))} disabled={page >= totalPages - 1}
-                className="p-1 rounded hover:bg-secondary disabled:opacity-30 transition-colors">
+                className="p-1.5 rounded-lg hover:bg-secondary disabled:opacity-20 transition-colors duration-200">
                 <ChevronRight className="h-3.5 w-3.5" />
               </button>
             </div>
