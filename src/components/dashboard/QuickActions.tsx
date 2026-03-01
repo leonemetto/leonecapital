@@ -55,21 +55,25 @@ export function QuickActions() {
       transition={{ duration: 0.25 }}
       className="glass-card p-5 h-full"
     >
-      <h3 className="text-sm font-bold mb-5">Quick Actions</h3>
+      <h3 className="label-text mb-5">Quick Actions</h3>
       <div className="space-y-2.5">
         <Link
           to="/add-trade"
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-gradient-to-b from-white/[0.06] to-transparent border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_16px_rgba(48,209,88,0.08)] transition-all text-sm font-semibold"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary/10 to-primary/[0.03] border border-primary/15 hover:border-primary/30 hover:from-primary/15 transition-all text-sm font-semibold group"
         >
-          <PlusCircle className="h-4 w-4 text-primary" />
-          TRADE ENTRY
+          <div className="p-1.5 rounded-lg bg-primary/15 group-hover:bg-primary/20 transition-colors">
+            <PlusCircle className="h-4 w-4 text-primary" />
+          </div>
+          <span>TRADE ENTRY</span>
         </Link>
         <button
           onClick={handleDailyReview}
-          className="flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-gradient-to-b from-white/[0.06] to-transparent border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.04)] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_16px_rgba(48,209,88,0.08)] transition-all text-sm font-semibold w-full text-left"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-secondary/80 to-transparent border border-border/50 hover:border-border transition-all text-sm font-semibold w-full text-left group"
         >
-          <FileText className="h-4 w-4 text-primary" />
-          DAILY REVIEW
+          <div className="p-1.5 rounded-lg bg-secondary group-hover:bg-muted transition-colors">
+            <FileText className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+          </div>
+          <span>DAILY REVIEW</span>
         </button>
       </div>
     </motion.div>
