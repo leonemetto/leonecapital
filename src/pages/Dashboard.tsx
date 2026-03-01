@@ -115,10 +115,11 @@ const Dashboard = () => {
   return (
     <AppLayout>
       {/* Greeting */}
-      <h1 className="text-xl font-bold mb-4">{getGreeting()}, {profile?.nickname || 'Trader'} 👋</h1>
+      <h1 className="text-2xl font-bold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'} 👋</h1>
+      <p className="text-xs text-muted-foreground/50 mb-5">Here's your trading overview</p>
 
       {/* Account Filter + Checklist Button */}
-      <div className="flex items-center gap-2 mb-4">
+      <div className="flex items-center gap-2 mb-5">
         <Filter className="h-3.5 w-3.5 text-muted-foreground" />
         <Select value={effectiveAccountId} onValueChange={setSelectedAccountId}>
           <SelectTrigger className="w-[200px] h-8 text-xs">
@@ -208,9 +209,9 @@ const Dashboard = () => {
       </div>
 
       {/* Row 1: Quick Actions + KPI Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-3 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 mb-5">
         <QuickActions />
-        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="lg:col-span-4 grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatsCard title="Win Rate" value={`${stats.winRate.toFixed(1)}%`} icon={Target}
             trend={stats.winRate >= 50 ? 'up' : 'down'} delay={0} />
           <StatsCard title="Total P&L" value={`$${stats.netPnl.toFixed(2)}`} icon={DollarSign}
@@ -234,7 +235,7 @@ const Dashboard = () => {
 
       {/* Account Balances */}
       {accounts.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
           {accounts.map(account => {
             const accountPnl = trades.filter(t => t.accountId === account.id).reduce((s, t) => s + t.pnl, 0);
             const balance = account.currentBalance + accountPnl;
@@ -258,7 +259,7 @@ const Dashboard = () => {
       )}
 
       {/* Row 2: Performance Radar + Calendar */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-3 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 mb-5">
         <PerformanceRadar stats={stats} />
         <div className="lg:col-span-3">
           <TradingCalendar trades={filteredTrades} />
@@ -266,7 +267,7 @@ const Dashboard = () => {
       </div>
 
       {/* Row 3: Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <EquityCurve data={equityData} />
         <WinLossPie wins={stats.wins} losses={stats.losses} breakevens={stats.breakevens} />
         <StrategyChart data={strategyData} />
