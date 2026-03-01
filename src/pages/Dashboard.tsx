@@ -11,12 +11,12 @@ import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
 import { useCriteria } from '@/hooks/useCriteria';
-import { insertDemoTrades } from '@/lib/demoData';
+
 import { toast } from 'sonner';
 
 import { calculateAnalytics, getEquityCurve, getStrategyPerformance } from '@/lib/analytics';
 import {
-  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet, Filter, ClipboardList, CheckSquare, Settings2, Database,
+  Target, DollarSign, BarChart3, TrendingUp, PlusCircle, ArrowUpDown, Wallet, Filter, ClipboardList, CheckSquare, Settings2,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -37,21 +37,6 @@ const Dashboard = () => {
   const { profile } = useProfile();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
   const { activeCriteria, isLoading: criteriaLoading } = useCriteria();
-  const [loadingDemo, setLoadingDemo] = useState(false);
-
-  const handleAddDemo = useCallback(async () => {
-    if (accounts.length === 0) return;
-    setLoadingDemo(true);
-    try {
-      const count = await insertDemoTrades(accounts[0].id);
-      toast.success(`${count} demo trades added`);
-      window.location.reload();
-    } catch (e: any) {
-      toast.error(e.message || 'Failed to add demo data');
-    } finally {
-      setLoadingDemo(false);
-    }
-  }, [accounts]);
 
   // Auto-select first account when accounts load
   const effectiveAccountId = selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
@@ -104,16 +89,11 @@ const Dashboard = () => {
           <p className="text-sm text-muted-foreground mb-5 max-w-sm">
             Great, you have an account! Now log your first trade to unlock analytics.
           </p>
-          <div className="flex gap-2">
-            <Link to="/add-trade">
-              <Button size="sm" className="gap-1.5">
-                <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
-              </Button>
-            </Link>
-            <Button size="sm" variant="outline" className="gap-1.5" onClick={handleAddDemo} disabled={loadingDemo}>
-              <Database className="h-3.5 w-3.5" /> {loadingDemo ? 'Adding...' : 'Add Demo Data'}
+          <Link to="/add-trade">
+            <Button size="sm" className="gap-1.5">
+              <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
             </Button>
-          </div>
+          </Link>
         </div>
       </AppLayout>
     );
