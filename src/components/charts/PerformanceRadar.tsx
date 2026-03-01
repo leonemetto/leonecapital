@@ -41,7 +41,7 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
       </h3>
       <div className="h-[320px]">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={data} cx="50%" cy="50%" outerRadius="75%">
+          <RadarChart data={data} cx="50%" cy="50%" outerRadius="60%" margin={{ top: 20, right: 40, bottom: 20, left: 40 }}>
             <PolarGrid stroke="hsl(220, 6%, 14%)" strokeWidth={0.5} />
             <PolarAngleAxis
               dataKey="metric"
