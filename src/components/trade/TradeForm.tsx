@@ -76,17 +76,23 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
 
   const update = (key: string, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
-    if (key === 'followedPlan' && value === 'yes' && activeCriteria.length > 0) {
-      const allChecked: Record<string, boolean> = {};
-      activeCriteria.forEach(c => { allChecked[c.id] = true; });
-      setChecks(allChecked);
+    if (key === 'followedPlan' && activeCriteria.length > 0) {
+      if (value === 'yes') {
+        const allChecked: Record<string, boolean> = {};
+        activeCriteria.forEach(c => { allChecked[c.id] = true; });
+        setChecks(allChecked);
+      } else if (value === 'no') {
+        setChecks({});
+      }
     }
   };
 
-  const FieldTooltip = ({ text }: { text: string }) => (
-    <TooltipProvider delayDuration={200}>
-      <Tooltip>
-        <TooltipTrigger type="button" className="ml-1 inline-flex">
+  const [openTooltip, setOpenTooltip] = useState<string | null>(null);
+
+  const FieldTooltip = ({ id, text }: { id: string; text: string }) => (
+    <TooltipProvider delayDuration={0}>
+      <Tooltip open={openTooltip === id} onOpenChange={(open) => setOpenTooltip(open ? id : null)}>
+        <TooltipTrigger type="button" className="ml-1 inline-flex" onClick={() => setOpenTooltip(prev => prev === id ? null : id)}>
           <HelpCircle className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground transition-colors" />
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[200px] text-xs">
@@ -308,7 +314,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
           </Select>
         </div>
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Emotional State (1-5)<FieldTooltip text="Rate your emotional state before/during the trade. 1 = very anxious/tilted, 5 = calm and focused." /></Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Emotional State (1-5)<FieldTooltip id="emotional" text="Rate your emotional state before/during the trade. 1 = very anxious/tilted, 5 = calm and focused." /></Label>
           <div className="flex gap-1 mt-1">
             {[1, 2, 3, 4, 5].map(n => (
               <button
@@ -328,7 +334,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
           </div>
         </div>
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confidence (1-5)<FieldTooltip text="How confident were you in this trade setup before entering? 1 = low conviction, 5 = very high conviction." /></Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confidence (1-5)<FieldTooltip id="confidence" text="How confident were you in this trade setup before entering? 1 = low conviction, 5 = very high conviction." /></Label>
           <div className="flex gap-1 mt-1">
             {[1, 2, 3, 4, 5].map(n => (
               <button
@@ -357,7 +363,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
             placeholder="e.g. 45" className="mt-1 bg-secondary border-border font-mono h-9" />
         </div>
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Followed Plan?<FieldTooltip text="Did you follow every item on your entry checklist? Selecting YES will auto-tick all checklist items below." /></Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Followed Plan?<FieldTooltip id="plan" text="Did you follow every item on your entry checklist? Selecting YES will auto-tick all checklist items below." /></Label>
           <div className="flex gap-1.5 mt-1">
             {[{ val: 'yes', label: 'YES' }, { val: 'no', label: 'NO' }].map(o => (
               <button
