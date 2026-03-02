@@ -89,13 +89,19 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
 
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
 
-  const FieldTooltip = ({ id, text }: { id: string; text: string }) => (
+  const toggleTooltip = (id: string) => {
+    setOpenTooltip(prev => prev === id ? null : id);
+  };
+
+  const renderTooltip = (id: string, text: string) => (
     <TooltipProvider delayDuration={0}>
-      <Tooltip open={openTooltip === id} onOpenChange={(open) => setOpenTooltip(open ? id : null)}>
-        <TooltipTrigger type="button" className="ml-1 inline-flex" onClick={() => setOpenTooltip(prev => prev === id ? null : id)}>
-          <HelpCircle className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground transition-colors" />
+      <Tooltip open={openTooltip === id} onOpenChange={() => {}}>
+        <TooltipTrigger asChild>
+          <button type="button" className="ml-1 inline-flex" onClick={(e) => { e.preventDefault(); e.stopPropagation(); toggleTooltip(id); }}>
+            <HelpCircle className="h-3 w-3 text-muted-foreground/60 hover:text-muted-foreground transition-colors" />
+          </button>
         </TooltipTrigger>
-        <TooltipContent side="top" className="max-w-[200px] text-xs">
+        <TooltipContent side="top" className="max-w-[200px] text-xs" onPointerDownOutside={() => setOpenTooltip(null)}>
           {text}
         </TooltipContent>
       </Tooltip>
@@ -314,7 +320,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
           </Select>
         </div>
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Emotional State (1-5)<FieldTooltip id="emotional" text="Rate your emotional state before/during the trade. 1 = very anxious/tilted, 5 = calm and focused." /></Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Emotional State (1-5){renderTooltip("emotional", "Rate your emotional state before/during the trade. 1 = very anxious/tilted, 5 = calm and focused.")}</Label>
           <div className="flex gap-1 mt-1">
             {[1, 2, 3, 4, 5].map(n => (
               <button
@@ -334,7 +340,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
           </div>
         </div>
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confidence (1-5)<FieldTooltip id="confidence" text="How confident were you in this trade setup before entering? 1 = low conviction, 5 = very high conviction." /></Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confidence (1-5){renderTooltip("confidence", "How confident were you in this trade setup before entering? 1 = low conviction, 5 = very high conviction.")}</Label>
           <div className="flex gap-1 mt-1">
             {[1, 2, 3, 4, 5].map(n => (
               <button
@@ -363,7 +369,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
             placeholder="e.g. 45" className="mt-1 bg-secondary border-border font-mono h-9" />
         </div>
         <div>
-          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Followed Plan?<FieldTooltip id="plan" text="Did you follow every item on your entry checklist? Selecting YES will auto-tick all checklist items below." /></Label>
+          <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Followed Plan?{renderTooltip("plan", "Did you follow every item on your entry checklist? Selecting YES will auto-tick all checklist items below.")}</Label>
           <div className="flex gap-1.5 mt-1">
             {[{ val: 'yes', label: 'YES' }, { val: 'no', label: 'NO' }].map(o => (
               <button
