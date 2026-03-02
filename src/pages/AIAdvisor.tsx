@@ -18,24 +18,28 @@ type Msg = { role: 'user' | 'assistant'; content: string; id: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/trade-advisor`;
 const INSIGHT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-insight`;
-const STORAGE_KEY = 'ai-advisor-chat-history';
+const STORAGE_KEY_PREFIX = 'ai-advisor-chat-history';
 const MAX_STORED_CHATS = 10;
 
 let msgId = Date.now();
 const nextId = () => `msg-${++msgId}`;
 
-function loadChatHistory(): Msg[] {
+function getStorageKey(userId: string) {
+  return `${STORAGE_KEY_PREFIX}-${userId}`;
+}
+
+function loadChatHistory(userId: string): Msg[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(getStorageKey(userId));
     if (!raw) return [];
     const parsed = JSON.parse(raw) as Msg[];
     return parsed.slice(-(MAX_STORED_CHATS * 2));
   } catch { return []; }
 }
 
-function saveChatHistory(messages: Msg[]) {
+function saveChatHistory(userId: string, messages: Msg[]) {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-(MAX_STORED_CHATS * 2))));
+    localStorage.setItem(getStorageKey(userId), JSON.stringify(messages.slice(-(MAX_STORED_CHATS * 2))));
   } catch {}
 }
 
@@ -89,12 +93,13 @@ export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
   const { session } = useAuth();
+  const userId = session?.user?.id ?? '';
   const { traderProfile } = useTraderProfile();
   const { activeCriteria } = useCriteria();
   const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
   const { data: verificationsMap = {} } = useTradeVerifications(tradeIds);
   const location = useLocation();
-  const [messages, setMessages] = useState<Msg[]>(() => loadChatHistory());
+  const [messages, setMessages] = useState<Msg[]>(() => userId ? loadChatHistory(userId) : []);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -104,7 +109,7 @@ export default function AIAdvisor() {
   const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-  useEffect(() => { if (messages.length > 0) saveChatHistory(messages); }, [messages]);
+  useEffect(() => { if (messages.length > 0 && userId) saveChatHistory(userId, messages); }, [messages, userId]);
 
   useEffect(() => {
     const state = location.state as { prompt?: string; extraContext?: string } | null;
@@ -117,7 +122,7 @@ export default function AIAdvisor() {
 
   const clearChat = () => {
     setMessages([]);
-    localStorage.removeItem(STORAGE_KEY);
+    if (userId) localStorage.removeItem(getStorageKey(userId));
   };
 
   const send = async (text: string, extraContext?: string) => {
