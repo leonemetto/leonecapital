@@ -4,7 +4,7 @@ import {
   BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings,
   Activity, ChevronLeft, ChevronRight, Menu, X,
 } from 'lucide-react';
-import logoImg from '@/assets/logo.png';
+import logoImg from '@/assets/logo.svg';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
