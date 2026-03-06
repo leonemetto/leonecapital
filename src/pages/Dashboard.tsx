@@ -32,10 +32,11 @@ function getGreeting(): string {
 }
 
 const Dashboard = () => {
-  const { trades } = useSharedTrades();
+  const { trades, addTrade } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const { profile } = useProfile();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const { activeCriteria, isLoading: criteriaLoading } = useCriteria();
 
   // Auto-select first account when accounts load
