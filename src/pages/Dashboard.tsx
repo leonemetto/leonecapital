@@ -79,8 +79,6 @@ const Dashboard = () => {
     );
   }
 
-  const [loadingDemo, setLoadingDemo] = useState(false);
-
   const loadDemoData = useCallback(async () => {
     const accountId = accounts[0]?.id;
     if (!accountId) return;
