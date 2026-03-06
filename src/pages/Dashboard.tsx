@@ -32,10 +32,11 @@ function getGreeting(): string {
 }
 
 const Dashboard = () => {
-  const { trades } = useSharedTrades();
+  const { trades, addTrade } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const { profile } = useProfile();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [loadingDemo, setLoadingDemo] = useState(false);
   const { activeCriteria, isLoading: criteriaLoading } = useCriteria();
 
   // Auto-select first account when accounts load
@@ -56,6 +57,32 @@ const Dashboard = () => {
   const pfDelta: 'up' | 'down' | 'neutral' | undefined = prevStats ? (stats.profitFactor > prevStats.profitFactor ? 'up' : stats.profitFactor < prevStats.profitFactor ? 'down' : 'neutral') : undefined;
   const equityData = useMemo(() => getEquityCurve(filteredTrades), [filteredTrades]);
   const strategyData = useMemo(() => getStrategyPerformance(filteredTrades), [filteredTrades]);
+
+  const loadDemoData = useCallback(async () => {
+    const accountId = accounts[0]?.id;
+    if (!accountId) return;
+    setLoadingDemo(true);
+    try {
+      const today = new Date();
+      const demoTrades: Array<Parameters<typeof addTrade>[0]> = [
+        { date: new Date(today.getTime() - 6 * 86400000).toISOString().slice(0, 10), instrument: 'XAUUSD', direction: 'long' as const, strategy: 'CISD', session: 'London', outcome: 'win' as const, pnl: 320, rMultiple: 2.5, riskPercent: 1, htfBias: 'Bullish', emotionalState: 4, confidenceLevel: 5, followedPlan: true, notes: 'Clean CISD setup on gold, held to TP.', accountId, timeInTrade: 45 },
+        { date: new Date(today.getTime() - 5 * 86400000).toISOString().slice(0, 10), instrument: 'NAS100', direction: 'short' as const, strategy: 'IFVG', session: 'New York', outcome: 'loss' as const, pnl: -150, rMultiple: -1, riskPercent: 1, htfBias: 'Bearish', emotionalState: 2, confidenceLevel: 3, followedPlan: false, notes: 'Entered too early, didn\'t wait for confirmation.', accountId, timeInTrade: 20 },
+        { date: new Date(today.getTime() - 4 * 86400000).toISOString().slice(0, 10), instrument: 'EUR/USD', direction: 'long' as const, strategy: 'Both', session: 'London/NY Overlap', outcome: 'win' as const, pnl: 210, rMultiple: 1.8, riskPercent: 1.5, htfBias: 'Bullish', emotionalState: 4, confidenceLevel: 4, followedPlan: true, notes: 'Solid overlap session trade.', accountId, timeInTrade: 60 },
+        { date: new Date(today.getTime() - 3 * 86400000).toISOString().slice(0, 10), instrument: 'GBP/USD', direction: 'short' as const, strategy: 'CISD', session: 'London', outcome: 'breakeven' as const, pnl: 0, rMultiple: 0, riskPercent: 1, htfBias: 'Neutral', emotionalState: 3, confidenceLevel: 3, followedPlan: true, notes: 'Moved SL to BE, got stopped out.', accountId, timeInTrade: 35 },
+        { date: new Date(today.getTime() - 2 * 86400000).toISOString().slice(0, 10), instrument: 'XAUUSD', direction: 'long' as const, strategy: 'IFVG', session: 'New York', outcome: 'win' as const, pnl: 480, rMultiple: 3.2, riskPercent: 1, htfBias: 'Bullish', emotionalState: 5, confidenceLevel: 5, followedPlan: true, notes: 'Perfect IFVG entry, let it run.', accountId, timeInTrade: 90 },
+        { date: new Date(today.getTime() - 1 * 86400000).toISOString().slice(0, 10), instrument: 'US30', direction: 'short' as const, strategy: 'CISD', session: 'New York', outcome: 'loss' as const, pnl: -130, rMultiple: -0.9, riskPercent: 1, htfBias: 'Bearish', emotionalState: 2, confidenceLevel: 2, followedPlan: false, notes: 'Revenge trade after missing earlier setup.', accountId, timeInTrade: 15 },
+        { date: today.toISOString().slice(0, 10), instrument: 'BTC/USD', direction: 'long' as const, strategy: 'Both', session: 'Asian', outcome: 'win' as const, pnl: 275, rMultiple: 2.0, riskPercent: 1.5, htfBias: 'Bullish', emotionalState: 4, confidenceLevel: 4, followedPlan: true, notes: 'Asian session breakout on BTC.', accountId, timeInTrade: 55 },
+      ];
+      for (const t of demoTrades) {
+        await addTrade(t);
+      }
+      toast.success('Demo data loaded — 7 sample trades added!');
+    } catch (e: any) {
+      toast.error(e.message || 'Failed to load demo data');
+    } finally {
+      setLoadingDemo(false);
+    }
+  }, [accounts, addTrade]);
 
   if (accounts.length === 0) {
     return (
@@ -89,11 +116,16 @@ const Dashboard = () => {
           <p className="text-sm text-muted-foreground mb-5 max-w-sm">
             Great, you have an account! Now log your first trade to unlock analytics.
           </p>
-          <Link to="/add-trade">
-            <Button size="sm" className="gap-1.5">
-              <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
+          <div className="flex gap-3">
+            <Link to="/add-trade">
+              <Button size="sm" className="gap-1.5">
+                <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
+              </Button>
+            </Link>
+            <Button size="sm" variant="outline" className="gap-1.5" onClick={loadDemoData} disabled={loadingDemo}>
+              <BarChart3 className="h-3.5 w-3.5" /> {loadingDemo ? 'Loading...' : 'Load Demo Data'}
             </Button>
-          </Link>
+          </div>
         </div>
       </AppLayout>
     );
