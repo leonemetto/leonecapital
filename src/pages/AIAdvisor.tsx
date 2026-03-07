@@ -111,6 +111,7 @@ export default function AIAdvisor() {
 
   const clearChat = () => {
     setMessages([]);
+    sessionStorage.removeItem('ai-advisor-chat');
   };
 
   const send = async (text: string, extraContext?: string) => {
