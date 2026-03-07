@@ -112,7 +112,7 @@ export default function AIAdvisor() {
     if (!trimmed || isLoading) return;
 
     const userMsg: Msg = { role: 'user', content: trimmed, id: nextId() };
-    setMessages(prev => [...prev, userMsg]);
+    setMessages(prev => trimMessages([...prev, userMsg]));
     setInput('');
     setIsLoading(true);
 
