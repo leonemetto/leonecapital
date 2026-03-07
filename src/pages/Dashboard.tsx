@@ -137,11 +137,12 @@ const Dashboard = () => {
       {/* Account Filter + Checklist Button */}
       <div className="flex items-center gap-2 mb-5">
         <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-        <Select value={effectiveAccountId} onValueChange={setSelectedAccountId}>
+        <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
           <SelectTrigger className="w-[200px] h-8 text-xs">
             <SelectValue placeholder="Select Account" />
           </SelectTrigger>
           <SelectContent>
+            <SelectItem value="__all__">All Accounts</SelectItem>
             {accounts.map(a => (
               <SelectItem key={a.id} value={a.id}>{a.name} ({a.type})</SelectItem>
             ))}
