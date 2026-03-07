@@ -18,29 +18,13 @@ type Msg = { role: 'user' | 'assistant'; content: string; id: string };
 
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/trade-advisor`;
 const INSIGHT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-insight`;
-const STORAGE_KEY_PREFIX = 'ai-advisor-chat-history';
-const MAX_STORED_CHATS = 10;
+const MAX_MESSAGES = 10;
 
 let msgId = Date.now();
 const nextId = () => `msg-${++msgId}`;
 
-function getStorageKey(userId: string) {
-  return `${STORAGE_KEY_PREFIX}-${userId}`;
-}
-
-function loadChatHistory(userId: string): Msg[] {
-  try {
-    const raw = localStorage.getItem(getStorageKey(userId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as Msg[];
-    return parsed.slice(-(MAX_STORED_CHATS * 2));
-  } catch { return []; }
-}
-
-function saveChatHistory(userId: string, messages: Msg[]) {
-  try {
-    localStorage.setItem(getStorageKey(userId), JSON.stringify(messages.slice(-(MAX_STORED_CHATS * 2))));
-  } catch {}
+function trimMessages(msgs: Msg[]): Msg[] {
+  return msgs.length > MAX_MESSAGES ? msgs.slice(-MAX_MESSAGES) : msgs;
 }
 
 function buildTradesSummary(trades: any[], accounts: any[]) {
