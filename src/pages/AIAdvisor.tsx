@@ -83,7 +83,7 @@ export default function AIAdvisor() {
   const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
   const { data: verificationsMap = {} } = useTradeVerifications(tradeIds);
   const location = useLocation();
-  const [messages, setMessages] = useState<Msg[]>(() => userId ? loadChatHistory(userId) : []);
+  const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -93,7 +93,6 @@ export default function AIAdvisor() {
   const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-  useEffect(() => { if (messages.length > 0 && userId) saveChatHistory(userId, messages); }, [messages, userId]);
 
   useEffect(() => {
     const state = location.state as { prompt?: string; extraContext?: string } | null;
