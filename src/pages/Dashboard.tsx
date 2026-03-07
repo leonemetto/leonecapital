@@ -35,16 +35,13 @@ const Dashboard = () => {
   const { trades, addTrade } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const { profile } = useProfile();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
   const [loadingDemo, setLoadingDemo] = useState(false);
   const { activeCriteria, isLoading: criteriaLoading } = useCriteria();
 
-  // Auto-select first account when accounts load
-  const effectiveAccountId = selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
-
   const filteredTrades = useMemo(
-    () => effectiveAccountId ? trades.filter(t => t.accountId === effectiveAccountId) : trades,
-    [trades, effectiveAccountId]
+    () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
+    [trades, selectedAccountId]
   );
 
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
