@@ -172,7 +172,7 @@ export default function AIAdvisor() {
 
       if (!resp.ok || !resp.body) {
         const err = await resp.json().catch(() => ({ error: 'Failed to connect' }));
-        setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${err.error || 'Something went wrong.'}`, id: assistantId }]);
+        setMessages(prev => trimMessages([...prev, { role: 'assistant', content: `⚠️ ${err.error || 'Something went wrong.'}`, id: assistantId }]));
         setIsLoading(false);
         return;
       }
