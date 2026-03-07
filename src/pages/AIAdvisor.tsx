@@ -213,7 +213,7 @@ export default function AIAdvisor() {
       }
     } catch (e) {
       console.error(e);
-      setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Connection error. Please try again.', id: assistantId }]);
+      setMessages(prev => trimMessages([...prev, { role: 'assistant', content: '⚠️ Connection error. Please try again.', id: assistantId }]));
     }
 
     streamingIdRef.current = null;
