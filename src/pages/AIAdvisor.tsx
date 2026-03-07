@@ -98,6 +98,7 @@ export default function AIAdvisor() {
   const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => { try { sessionStorage.setItem('ai-advisor-chat', JSON.stringify(messages)); } catch {} }, [messages]);
 
   useEffect(() => {
     const state = location.state as { prompt?: string; extraContext?: string } | null;
