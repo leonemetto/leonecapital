@@ -105,7 +105,6 @@ export default function AIAdvisor() {
 
   const clearChat = () => {
     setMessages([]);
-    if (userId) localStorage.removeItem(getStorageKey(userId));
   };
 
   const send = async (text: string, extraContext?: string) => {
