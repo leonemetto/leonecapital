@@ -94,7 +94,8 @@ function buildSystemPrompt(
           t.followedPlan != null ? (t.followedPlan ? 'Plan:Y' : 'Plan:N') : null,
           t.timeInTrade != null ? `${t.timeInTrade}min` : null,
         ].filter(Boolean).join(' | ');
-        return `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || "-"} | ${t.session || "-"} | ${t.outcome} | $${t.pnl}${checkStr}${extras ? ` | ${extras}` : ""}${t.notes ? ` | "${t.notes}"` : ""}`;
+        const acctStr = t.accountName ? ` | Acct:${t.accountName}` : '';
+        return `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || "-"} | ${t.session || "-"} | ${t.outcome} | $${t.pnl}${acctStr}${checkStr}${extras ? ` | ${extras}` : ""}${t.notes ? ` | "${t.notes}"` : ""}`;
       }
     );
     recentSection = `\n\nRECENT TRADES (last ${lines.length}):\n${lines.join("\n")}`;
