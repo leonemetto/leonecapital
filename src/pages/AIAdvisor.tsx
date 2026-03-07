@@ -83,7 +83,12 @@ export default function AIAdvisor() {
   const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
   const { data: verificationsMap = {} } = useTradeVerifications(tradeIds);
   const location = useLocation();
-  const [messages, setMessages] = useState<Msg[]>([]);
+  const [messages, setMessages] = useState<Msg[]>(() => {
+    try {
+      const stored = sessionStorage.getItem('ai-advisor-chat');
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -93,6 +98,7 @@ export default function AIAdvisor() {
   const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+  useEffect(() => { try { sessionStorage.setItem('ai-advisor-chat', JSON.stringify(messages)); } catch {} }, [messages]);
 
   useEffect(() => {
     const state = location.state as { prompt?: string; extraContext?: string } | null;
@@ -105,6 +111,7 @@ export default function AIAdvisor() {
 
   const clearChat = () => {
     setMessages([]);
+    sessionStorage.removeItem('ai-advisor-chat');
   };
 
   const send = async (text: string, extraContext?: string) => {
