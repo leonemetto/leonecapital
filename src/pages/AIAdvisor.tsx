@@ -177,7 +177,7 @@ export default function AIAdvisor() {
         return;
       }
 
-      setMessages(prev => [...prev, { role: 'assistant', content: '', id: assistantId }]);
+      setMessages(prev => trimMessages([...prev, { role: 'assistant', content: '', id: assistantId }]));
 
       const reader = resp.body.getReader();
       const decoder = new TextDecoder();
