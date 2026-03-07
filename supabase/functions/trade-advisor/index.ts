@@ -94,7 +94,8 @@ function buildSystemPrompt(
           t.followedPlan != null ? (t.followedPlan ? 'Plan:Y' : 'Plan:N') : null,
           t.timeInTrade != null ? `${t.timeInTrade}min` : null,
         ].filter(Boolean).join(' | ');
-        return `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || "-"} | ${t.session || "-"} | ${t.outcome} | $${t.pnl}${checkStr}${extras ? ` | ${extras}` : ""}${t.notes ? ` | "${t.notes}"` : ""}`;
+        const acctStr = t.accountName ? ` | Acct:${t.accountName}` : '';
+        return `${t.date} | ${t.instrument} | ${t.direction} | ${t.strategy || "-"} | ${t.session || "-"} | ${t.outcome} | $${t.pnl}${acctStr}${checkStr}${extras ? ` | ${extras}` : ""}${t.notes ? ` | "${t.notes}"` : ""}`;
       }
     );
     recentSection = `\n\nRECENT TRADES (last ${lines.length}):\n${lines.join("\n")}`;
@@ -125,6 +126,12 @@ COMMUNICATION RULES:
 - Keep all responses concise. Limit initial analysis to only what is explicitly requested.
 - Do not offer unsolicited advice or data dumps before the user asks.
 - If the user asks for a summary, prioritize the specific area they inquired about first.
+
+ACCOUNT-SPECIFIC QUERIES:
+- When the user asks about a specific account (e.g., "Tell me about my 100K account", "How is my demo account doing?"), ONLY analyze trades belonging to that account. Do NOT mix in data from other accounts.
+- Each trade in the RECENT TRADES section has an "Acct:" tag showing which account it belongs to. The BY ACCOUNT section in the summary also breaks down stats per account.
+- If the user asks about multiple accounts specifically, analyze each one separately.
+- If the user asks a general question without specifying an account, you may use all data.
 
 ANALYSIS PRIORITIES:
 1. Identify where the edge exists (pair + session + direction + HTF alignment + confidence combinations)

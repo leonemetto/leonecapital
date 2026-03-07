@@ -285,12 +285,11 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
 const PerformanceAnalyst = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
 
-  const effectiveAccountId = selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
   const filteredTrades = useMemo(
-    () => effectiveAccountId ? trades.filter(t => t.accountId === effectiveAccountId) : trades,
-    [trades, effectiveAccountId]
+    () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
+    [trades, selectedAccountId]
   );
 
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
@@ -321,14 +320,15 @@ const PerformanceAnalyst = () => {
     <AppLayout>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-xl font-bold">Performance Analyst</h1>
-        {accounts.length > 1 && (
+        {accounts.length > 0 && (
           <div className="flex items-center gap-2">
             <Filter className="h-3.5 w-3.5 text-muted-foreground" />
-            <Select value={effectiveAccountId} onValueChange={setSelectedAccountId}>
+            <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
               <SelectTrigger className="w-[180px] h-8 text-xs">
                 <SelectValue placeholder="Account" />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="__all__">All Accounts</SelectItem>
                 {accounts.map(a => (
                   <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
                 ))}

@@ -165,6 +165,7 @@ export default function AIAdvisor() {
             htfBias: t.htfBias ?? null, emotionalState: t.emotionalState ?? null,
             confidenceLevel: t.confidenceLevel ?? null, timeInTrade: t.timeInTrade ?? null,
             followedPlan: t.followedPlan ?? null,
+            accountName: accounts.find(a => a.id === t.accountId)?.name ?? 'Unassigned',
             checklistChecked: activeCriteria.filter(c => verificationsMap[t.id]?.[c.id]).length,
             checklistTotal: activeCriteria.length,
             checklistFollowed: activeCriteria.length > 0
