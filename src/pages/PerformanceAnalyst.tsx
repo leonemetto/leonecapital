@@ -285,12 +285,11 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
 const PerformanceAnalyst = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
 
-  const effectiveAccountId = selectedAccountId || (accounts.length > 0 ? accounts[0].id : '');
   const filteredTrades = useMemo(
-    () => effectiveAccountId ? trades.filter(t => t.accountId === effectiveAccountId) : trades,
-    [trades, effectiveAccountId]
+    () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
+    [trades, selectedAccountId]
   );
 
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
