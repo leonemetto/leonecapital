@@ -431,6 +431,9 @@ export default function ProfileSettings() {
           </Button>
         </div>
 
+        {/* Demo Data Management */}
+        <DemoDataSection />
+
         <div className="glass-card p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
