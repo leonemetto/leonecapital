@@ -6,8 +6,10 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
 import { useCriteria } from "@/hooks/useCriteria";
+import { useOnboarding } from "@/hooks/useOnboarding";
 import { MfaChallenge } from "@/components/MfaChallenge";
 import { ChecklistSetup } from "@/components/criteria/ChecklistSetup";
+import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
@@ -23,6 +25,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ProfileSettings from "./pages/ProfileSettings";
 import TradingPlan from "./pages/TradingPlan";
 import PerformanceAnalyst from "./pages/PerformanceAnalyst";
+import Guide from "./pages/Guide";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
 
@@ -45,10 +48,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         const { data, error } = await supabase.auth.mfa.listFactors();
         if (error) throw error;
         const verifiedFactors = data?.totp?.filter((f: any) => f.status === 'verified') || [];
-        const currentAal = session.user?.factors?.some((f: any) => f.status === 'verified')
-          ? (session as any)?.aal || 'aal1'
-          : 'aal1';
-        // Check actual AAL from the access token
         const aal = JSON.parse(atob(session.access_token.split('.')[1]))?.aal || 'aal1';
         if (verifiedFactors.length > 0 && aal === 'aal1') {
           setMfaFactorId(verifiedFactors[0].id);
@@ -82,7 +81,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         onVerified={() => {
           setMfaRequired(false);
           setMfaFactorId(null);
-          // Force session refresh
           supabase.auth.refreshSession();
         }}
         onCancel={() => {
@@ -126,6 +124,36 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function OnboardingGate({ children }: { children: React.ReactNode }) {
+  const { onboardingCompleted, isLoading, completeOnboarding, provisionDemoAccount } = useOnboarding();
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [provisioned, setProvisioned] = useState(false);
+
+  useEffect(() => {
+    if (!isLoading && !onboardingCompleted && !provisioned) {
+      // Provision demo account on first load
+      provisionDemoAccount().then(() => {
+        setProvisioned(true);
+        setShowWelcome(true);
+      });
+    }
+  }, [isLoading, onboardingCompleted, provisioned, provisionDemoAccount]);
+
+  if (isLoading) return <>{children}</>;
+
+  const handleSkip = async () => {
+    await completeOnboarding();
+    setShowWelcome(false);
+  };
+
+  return (
+    <>
+      <WelcomeModal open={showWelcome && !onboardingCompleted} onSkip={handleSkip} />
+      {children}
+    </>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
@@ -141,17 +169,20 @@ const App = () => (
                   <AccountsProvider>
                     <TradesProvider>
                       <ChecklistGate>
-                        <Routes>
-                          <Route path="/" element={<Dashboard />} />
-                          <Route path="/add-trade" element={<AddTrade />} />
-                          <Route path="/journal" element={<Journal />} />
-                          <Route path="/accounts" element={<Accounts />} />
-                          <Route path="/ai" element={<AIAdvisor />} />
-                          <Route path="/analyst" element={<PerformanceAnalyst />} />
-                          <Route path="/profile" element={<ProfileSettings />} />
-                          <Route path="/trading-plan" element={<TradingPlan />} />
-                          <Route path="*" element={<NotFound />} />
-                        </Routes>
+                        <OnboardingGate>
+                          <Routes>
+                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/add-trade" element={<AddTrade />} />
+                            <Route path="/journal" element={<Journal />} />
+                            <Route path="/accounts" element={<Accounts />} />
+                            <Route path="/ai" element={<AIAdvisor />} />
+                            <Route path="/analyst" element={<PerformanceAnalyst />} />
+                            <Route path="/profile" element={<ProfileSettings />} />
+                            <Route path="/trading-plan" element={<TradingPlan />} />
+                            <Route path="/guide" element={<Guide />} />
+                            <Route path="*" element={<NotFound />} />
+                          </Routes>
+                        </OnboardingGate>
                       </ChecklistGate>
                     </TradesProvider>
                   </AccountsProvider>
