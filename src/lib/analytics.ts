@@ -289,8 +289,11 @@ export interface SimulationResult {
   filteredExpectancy: number;
   originalPnl: number;
   filteredPnl: number;
+  originalMaxDrawdown: number;
+  filteredMaxDrawdown: number;
   improvementPct: number;
   equityCurve: { date: string; balance: number }[];
+  originalEquityCurve: { date: string; balance: number }[];
 }
 
 export function simulateFilter(trades: Trade[], filters: {
@@ -299,10 +302,15 @@ export function simulateFilter(trades: Trade[], filters: {
   followedPlan?: boolean;
   sessions?: string[];
   minEmotionalState?: number;
+  instrument?: string;
 }): SimulationResult {
   let filtered = [...trades];
   const labels: string[] = [];
 
+  if (filters.instrument) {
+    filtered = filtered.filter(t => t.instrument === filters.instrument);
+    labels.push(filters.instrument);
+  }
   if (filters.htfBias) {
     filtered = filtered.filter(t => t.htfBias === filters.htfBias);
     labels.push(`HTF ${filters.htfBias}`);
@@ -327,11 +335,20 @@ export function simulateFilter(trades: Trade[], filters: {
   const origStats = calculateAnalytics(trades);
   const filtStats = calculateAnalytics(filtered);
 
+  // Filtered equity curve
   const sortedFiltered = [...filtered].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
   let balance = 0;
   const equityCurve = sortedFiltered.map(t => {
     balance += t.pnl;
     return { date: t.date.split('T')[0], balance: Number(balance.toFixed(2)) };
+  });
+
+  // Original (total) equity curve
+  const sortedAll = [...trades].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  let origBalance = 0;
+  const originalEquityCurve = sortedAll.map(t => {
+    origBalance += t.pnl;
+    return { date: t.date.split('T')[0], balance: Number(origBalance.toFixed(2)) };
   });
 
   const origPnl = origStats.netPnl;
@@ -348,9 +365,70 @@ export function simulateFilter(trades: Trade[], filters: {
     filteredExpectancy: filtStats.rExpectancy || filtStats.expectancy,
     originalPnl: origStats.netPnl,
     filteredPnl: filtStats.netPnl,
+    originalMaxDrawdown: origStats.maxDrawdown,
+    filteredMaxDrawdown: filtStats.maxDrawdown,
     improvementPct: Number(improvementPct.toFixed(1)),
     equityCurve,
+    originalEquityCurve,
   };
+}
+
+// ─── Toxic Combination Detection ───
+export interface ToxicCombo {
+  instrument: string;
+  session: string;
+  direction: string;
+  trades: number;
+  expectancy: number;
+  pnl: number;
+  diagnostic: string;
+}
+
+export function detectToxicCombinations(trades: Trade[]): ToxicCombo[] {
+  const combos = new Map<string, Trade[]>();
+  for (const t of trades) {
+    const key = `${t.instrument}|${t.session}|${t.direction}`;
+    if (!combos.has(key)) combos.set(key, []);
+    combos.get(key)!.push(t);
+  }
+
+  const results: ToxicCombo[] = [];
+  for (const [key, subset] of combos) {
+    if (subset.length < 3) continue;
+    const bd = computeBreakdown(key, subset);
+    if (bd.expectancy < 0) {
+      const [instrument, session, direction] = key.split('|');
+      const diagnostic = `Negative expectancy on ${instrument} ${direction} during ${session}. ${
+        bd.winRate < 40
+          ? 'Low win rate suggests poor setup selection.'
+          : 'Win rate is acceptable but losses outweigh wins — consider tighter stops.'
+      }`;
+      results.push({
+        instrument, session, direction,
+        trades: subset.length,
+        expectancy: bd.expectancy,
+        pnl: bd.pnl,
+        diagnostic,
+      });
+    }
+  }
+  return results.sort((a, b) => a.expectancy - b.expectancy);
+}
+
+// Helper to generate diagnostic for a single segment leak
+export function getLeakDiagnostic(field: string, key: string, expectancy: number, winRate: number): string {
+  if (field === 'instrument') {
+    return winRate < 40
+      ? `Negative expectancy on ${key}. Frequent losses suggest poor setup identification.`
+      : `${key} shows acceptable win rate but outsized losses. Consider tightening risk on this pair.`;
+  }
+  if (field === 'session') {
+    return `${key} session is a net drag on performance. Review if market conditions suit your strategy here.`;
+  }
+  if (field === 'direction') {
+    return `Going ${key.toLowerCase()} yields negative expectancy. Check HTF alignment before taking ${key.toLowerCase()} entries.`;
+  }
+  return `Negative expectancy detected on ${key}. Consider filtering this segment or adjusting your approach.`;
 }
 
 // ─── Drawdown & Risk Status ───
