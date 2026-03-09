@@ -77,7 +77,7 @@ function ExpectancyTable({
                         <span className="text-[9px] text-amber-500" title="Low sample size">⚠</span>
                       )}
                       {isLeak && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full" data-tour="leak-badge">
                           <AlertTriangle className="h-2.5 w-2.5" />
                           LEAK
                         </span>
