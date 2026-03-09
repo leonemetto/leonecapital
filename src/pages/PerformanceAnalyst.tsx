@@ -607,9 +607,17 @@ const PerformanceAnalyst = () => {
       </div>
 
       {/* Strategy Simulator */}
-      <div ref={simulatorRef}>
+      <div ref={simulatorRef} data-tour="simulator">
         <StrategySimulator trades={filteredTrades} preFilter={preFilter} />
       </div>
+
+      {/* Onboarding Tour */}
+      {showTour && (
+        <OnboardingTour onComplete={() => {
+          setShowTour(false);
+          setSearchParams({});
+        }} />
+      )}
     </AppLayout>
   );
 };
