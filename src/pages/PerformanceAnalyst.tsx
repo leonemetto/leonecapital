@@ -1,11 +1,12 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import {
   calculateAnalytics, getExpectancyByField, getExpectancyByPlanAdherence,
   detectBehavioralPatterns, simulateFilter, getCurrentRiskStatus,
-  getEquityCurve, ExpectancyBreakdown, BehavioralInsight, SimulationResult,
+  ExpectancyBreakdown, BehavioralInsight, SimulationResult,
+  getLeakDiagnostic, detectToxicCombinations,
 } from '@/lib/analytics';
 import { Trade, SESSIONS, HTF_BIASES } from '@/types/trade';
 import { cn } from '@/lib/utils';
@@ -23,9 +24,20 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 
-// ─── Expectancy Table ───
-function ExpectancyTable({ title, data }: { title: string; data: ExpectancyBreakdown[] }) {
+// ─── Expectancy Table with Heat-Bars & Leak Detection ───
+function ExpectancyTable({
+  title, data, field, onSimulate,
+}: {
+  title: string;
+  data: ExpectancyBreakdown[];
+  field?: string;
+  onSimulate?: (key: string, field: string) => void;
+}) {
   if (data.length === 0) return null;
+
+  const maxAbsExpectancy = Math.max(...data.map(r => Math.abs(r.expectancy)), 0.001);
+  const maxAbsR = Math.max(...data.map(r => Math.abs(r.avgR)), 0.001);
+
   return (
     <div className="glass-card p-4">
       <h3 className="text-[10px] font-semibold mb-3 text-muted-foreground uppercase tracking-widest">{title}</h3>
@@ -39,30 +51,96 @@ function ExpectancyTable({ title, data }: { title: string; data: ExpectancyBreak
               <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">Avg R</th>
               <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">Expect.</th>
               <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">P&L</th>
+              {onSimulate && <th className="text-right p-2 text-[10px] text-muted-foreground uppercase w-8"></th>}
             </tr>
           </thead>
           <tbody>
-            {data.map(row => (
-              <tr key={row.key} className="border-b border-border/30 hover:bg-secondary/30">
-                <td className="p-2 font-medium">
-                  {row.key}
-                  {row.sampleWarning && (
-                    <span className="ml-1.5 text-[9px] text-amber-500" title="Low sample size">⚠</span>
+            {data.map(row => {
+              const isLeak = row.expectancy < 0;
+              const expectBarWidth = Math.min((Math.abs(row.expectancy) / maxAbsExpectancy) * 100, 100);
+              const avgRBarWidth = Math.min((Math.abs(row.avgR) / maxAbsR) * 100, 100);
+
+              return (
+                <tr
+                  key={row.key}
+                  className={cn(
+                    'border-b border-border/30 hover:bg-secondary/30 transition-colors duration-200',
+                    isLeak && 'bg-loss/5'
                   )}
-                </td>
-                <td className="p-2 text-right font-mono text-muted-foreground">{row.trades}</td>
-                <td className={cn('p-2 text-right font-mono', row.winRate >= 50 ? 'text-profit' : 'text-loss')}>
-                  {row.winRate}%
-                </td>
-                <td className="p-2 text-right font-mono">{row.avgR || '—'}</td>
-                <td className={cn('p-2 text-right font-mono font-semibold', row.expectancy > 0 ? 'text-profit' : row.expectancy < 0 ? 'text-loss' : '')}>
-                  {row.expectancy}
-                </td>
-                <td className={cn('p-2 text-right font-mono', row.pnl >= 0 ? 'text-profit' : 'text-loss')}>
-                  ${row.pnl}
-                </td>
-              </tr>
-            ))}
+                >
+                  <td className="p-2 font-medium">
+                    <div className="flex items-center gap-1.5">
+                      {row.key}
+                      {row.sampleWarning && (
+                        <span className="text-[9px] text-amber-500" title="Low sample size">⚠</span>
+                      )}
+                      {isLeak && (
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full">
+                          <AlertTriangle className="h-2.5 w-2.5" />
+                          LEAK
+                        </span>
+                      )}
+                    </div>
+                    {isLeak && field && (
+                      <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight opacity-70">
+                        {getLeakDiagnostic(field, row.key, row.expectancy, row.winRate)}
+                      </p>
+                    )}
+                  </td>
+                  <td className="p-2 text-right font-mono text-muted-foreground">{row.trades}</td>
+                  <td className={cn('p-2 text-right font-mono', row.winRate >= 50 ? 'text-profit' : 'text-loss')}>
+                    {row.winRate}%
+                  </td>
+                  {/* Avg R with heat-bar */}
+                  <td className="p-2 text-right font-mono">
+                    <div className="relative inline-flex items-center justify-end w-full">
+                      <div
+                        className={cn(
+                          'absolute inset-y-0 right-0 rounded-sm transition-all duration-200 opacity-20',
+                          row.avgR >= 0 ? 'bg-profit' : 'bg-loss'
+                        )}
+                        style={{ width: `${avgRBarWidth}%` }}
+                      />
+                      <span className="relative z-10">{row.avgR || '—'}</span>
+                    </div>
+                  </td>
+                  {/* Expectancy with heat-bar */}
+                  <td className="p-2 text-right font-mono font-semibold">
+                    <div className="relative inline-flex items-center justify-end w-full">
+                      <div
+                        className={cn(
+                          'absolute inset-y-0 right-0 rounded-sm transition-all duration-200 opacity-20',
+                          row.expectancy > 0 ? 'bg-profit' : row.expectancy < 0 ? 'bg-loss' : ''
+                        )}
+                        style={{ width: `${expectBarWidth}%` }}
+                      />
+                      <span className={cn('relative z-10', row.expectancy > 0 ? 'text-profit' : row.expectancy < 0 ? 'text-loss' : '')}>
+                        {row.expectancy}
+                      </span>
+                    </div>
+                  </td>
+                  <td className={cn('p-2 text-right font-mono', row.pnl >= 0 ? 'text-profit' : 'text-loss')}>
+                    ${row.pnl}
+                  </td>
+                  {onSimulate && field && (
+                    <td className="p-2 text-right">
+                      <button
+                        onClick={() => onSimulate(row.key, field)}
+                        className={cn(
+                          'p-1 rounded transition-all duration-200 hover:scale-110',
+                          isLeak
+                            ? 'text-amber-500 hover:bg-amber-500/10'
+                            : 'text-muted-foreground hover:text-primary hover:bg-primary/10'
+                        )}
+                        title={`Simulate ${row.key}`}
+                      >
+                        <Zap className="h-3.5 w-3.5" />
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -142,7 +220,13 @@ function RiskIndicator({ trades }: { trades: Trade[] }) {
 }
 
 // ─── Strategy Simulator ───
-function StrategySimulator({ trades }: { trades: Trade[] }) {
+interface SimulatorPreFilter {
+  field: string;
+  value: string;
+}
+
+function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?: SimulatorPreFilter | null }) {
+  const [instrument, setInstrument] = useState<string>('__any__');
   const [htfBias, setHtfBias] = useState<string>('__any__');
   const [minConfidence, setMinConfidence] = useState<string>('__any__');
   const [followedPlan, setFollowedPlan] = useState<boolean>(false);
@@ -150,20 +234,86 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
   const [minEmotion, setMinEmotion] = useState<string>('__any__');
   const [result, setResult] = useState<SimulationResult | null>(null);
 
-  const runSimulation = () => {
+  // Unique instruments from trades
+  const instruments = useMemo(() => {
+    const set = new Set(trades.map(t => t.instrument));
+    return Array.from(set).sort();
+  }, [trades]);
+
+  // Apply pre-filter from table row click
+  useEffect(() => {
+    if (!preFilter) return;
+    if (preFilter.field === 'instrument') {
+      setInstrument(preFilter.value);
+    } else if (preFilter.field === 'session') {
+      setSelectedSessions([preFilter.value]);
+    } else if (preFilter.field === 'htfBias') {
+      setHtfBias(preFilter.value);
+    } else if (preFilter.field === 'direction') {
+      // Can't filter by direction directly, ignore
+    }
+    // Auto-run after applying pre-filter
+    setTimeout(() => runSimulationWithValues(preFilter), 100);
+  }, [preFilter]);
+
+  const runSimulationWithValues = (pf?: SimulatorPreFilter | null) => {
+    const inst = pf?.field === 'instrument' ? pf.value : instrument;
+    const sess = pf?.field === 'session' ? [pf.value] : selectedSessions;
+
     const sim = simulateFilter(trades, {
+      instrument: inst !== '__any__' ? inst : undefined,
       htfBias: htfBias !== '__any__' ? htfBias : undefined,
       minConfidence: minConfidence !== '__any__' ? parseInt(minConfidence) : undefined,
       followedPlan: followedPlan ? true : undefined,
-      sessions: selectedSessions.length > 0 ? selectedSessions : undefined,
+      sessions: sess.length > 0 ? sess : undefined,
       minEmotionalState: minEmotion !== '__any__' ? parseInt(minEmotion) : undefined,
     });
     setResult(sim);
   };
 
+  const runSimulation = () => runSimulationWithValues();
+
   const toggleSession = (s: string) => {
     setSelectedSessions(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   };
+
+  // Dynamic insight header
+  const insightText = useMemo(() => {
+    if (!result) return '';
+    if (result.filteredPnl <= result.originalPnl && result.filteredPnl > 0 && result.originalPnl > 0) {
+      const pct = ((result.filteredPnl / result.originalPnl) * 100).toFixed(1);
+      return `This setup accounts for ${pct}% ($${result.filteredPnl.toFixed(0)}) of your total gains`;
+    }
+    if (result.filteredPnl > result.originalPnl) {
+      const diff = result.filteredPnl - result.originalPnl;
+      return `Filtering improves P&L by ${result.improvementPct}% — removing excluded trades adds $${diff.toFixed(0)}`;
+    }
+    if (result.filteredPnl < 0) {
+      return `This filter isolates a losing subset — $${Math.abs(result.filteredPnl).toFixed(0)} in losses from ${result.filteredTrades} trades`;
+    }
+    return `${result.improvementPct > 0 ? '+' : ''}${result.improvementPct}% P&L change with filter: ${result.label}`;
+  }, [result]);
+
+  const drawdownReduced = result ? result.filteredMaxDrawdown < result.originalMaxDrawdown : false;
+  const highExpectancy = result ? result.filteredExpectancy > 0.5 : false;
+
+  // Merge equity curves for ghost overlay
+  const mergedCurveData = useMemo(() => {
+    if (!result || result.originalEquityCurve.length === 0) return [];
+    const map = new Map<string, { date: string; original: number; filtered?: number }>();
+    for (const pt of result.originalEquityCurve) {
+      map.set(pt.date, { date: pt.date, original: pt.balance });
+    }
+    for (const pt of result.equityCurve) {
+      const existing = map.get(pt.date);
+      if (existing) {
+        existing.filtered = pt.balance;
+      } else {
+        map.set(pt.date, { date: pt.date, original: 0, filtered: pt.balance });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
+  }, [result]);
 
   return (
     <div className="glass-card p-4">
@@ -171,7 +321,17 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
         <Zap className="h-3.5 w-3.5" /> Strategy Optimizer — "What If?"
       </h3>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3">
+        <div>
+          <Label className="text-[10px] text-muted-foreground uppercase">Instrument</Label>
+          <Select value={instrument} onValueChange={setInstrument}>
+            <SelectTrigger className="mt-1 h-8 text-xs bg-secondary"><SelectValue placeholder="Any" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__any__">Any</SelectItem>
+              {instruments.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase">HTF Bias</Label>
           <Select value={htfBias} onValueChange={setHtfBias}>
@@ -216,7 +376,7 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
               type="button"
               onClick={() => toggleSession(s)}
               className={cn(
-                'text-[10px] px-2 py-1 rounded-full border transition-all',
+                'text-[10px] px-2 py-1 rounded-full border transition-all duration-200',
                 selectedSessions.includes(s)
                   ? 'bg-primary/15 text-primary border-primary/30'
                   : 'bg-secondary border-border text-muted-foreground'
@@ -236,41 +396,82 @@ function StrategySimulator({ trades }: { trades: Trade[] }) {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="mt-4 space-y-3">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {[
-              { label: 'Trades', orig: result.originalTrades, filt: result.filteredTrades },
-              { label: 'Win Rate', orig: `${result.originalWinRate.toFixed(1)}%`, filt: `${result.filteredWinRate.toFixed(1)}%` },
-              { label: 'Expectancy', orig: result.originalExpectancy.toFixed(3), filt: result.filteredExpectancy.toFixed(3) },
-              { label: 'P&L', orig: `$${result.originalPnl.toFixed(0)}`, filt: `$${result.filteredPnl.toFixed(0)}` },
+              { label: 'Trades', orig: result.originalTrades, filt: result.filteredTrades, badge: null },
+              { label: 'Win Rate', orig: `${result.originalWinRate.toFixed(1)}%`, filt: `${result.filteredWinRate.toFixed(1)}%`, badge: null },
+              { label: 'Expectancy', orig: result.originalExpectancy.toFixed(3), filt: result.filteredExpectancy.toFixed(3), badge: highExpectancy ? 'lightning' : null },
+              { label: 'P&L', orig: `$${result.originalPnl.toFixed(0)}`, filt: `$${result.filteredPnl.toFixed(0)}`, badge: null },
             ].map(m => (
               <div key={m.label} className="bg-secondary/50 rounded-lg p-2.5">
-                <p className="text-[9px] text-muted-foreground uppercase">{m.label}</p>
+                <div className="flex items-center gap-1">
+                  <p className="text-[9px] text-muted-foreground uppercase">{m.label}</p>
+                  {m.badge === 'lightning' && <Zap className="h-3 w-3 text-profit" />}
+                </div>
                 <p className="text-xs text-muted-foreground line-through">{m.orig}</p>
                 <p className="text-sm font-bold font-mono">{m.filt}</p>
               </div>
             ))}
           </div>
 
+          {/* Drawdown comparison with shield badge */}
+          {drawdownReduced && (
+            <div className="flex items-center gap-1.5 text-[10px] text-profit font-mono bg-profit/5 rounded-lg px-3 py-1.5 border border-profit/20">
+              <Shield className="h-3 w-3" />
+              Drawdown reduced: ${result.originalMaxDrawdown.toFixed(0)} → ${result.filteredMaxDrawdown.toFixed(0)}
+            </div>
+          )}
+
+          {/* Dynamic insight header */}
           <div className={cn(
-            'text-center py-2 rounded-lg text-xs font-semibold',
-            result.improvementPct > 0 ? 'bg-profit/10 text-profit' : 'bg-loss/10 text-loss'
+            'text-center py-2.5 rounded-lg text-xs font-medium transition-all duration-200',
+            result.filteredPnl >= result.originalPnl ? 'bg-profit/10 text-profit border border-profit/20' : 'bg-secondary/50 text-muted-foreground border border-border'
           )}>
-            {result.improvementPct > 0 ? '+' : ''}{result.improvementPct}% P&L improvement with filter: {result.label}
+            {insightText}
           </div>
 
-          {result.equityCurve.length > 0 && (
-            <div className="h-[160px]">
+          {/* Ghost Curve + Filtered Curve */}
+          {mergedCurveData.length > 0 && (
+            <div className="h-[180px]">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={result.equityCurve}>
+                <AreaChart data={mergedCurveData}>
                   <defs>
-                    <linearGradient id="simGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#30D158" stopOpacity={0.2} />
+                    <linearGradient id="filteredGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#30D158" stopOpacity={0.25} />
                       <stop offset="95%" stopColor="#30D158" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(0,0%,11%)" vertical={false} />
-                  <XAxis dataKey="date" tick={{ fill: 'hsl(0,0%,56%)', fontSize: 9 }} tickLine={false} axisLine={false} />
-                  <YAxis tick={{ fill: 'hsl(0,0%,56%)', fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={v => `$${v}`} />
-                  <Tooltip contentStyle={{ backgroundColor: '#161618', border: '1px solid #1C1C1E', borderRadius: '8px', color: '#eee', fontSize: 10 }} />
-                  <Area type="monotone" dataKey="balance" stroke="#30D158" strokeWidth={1.5} fill="url(#simGrad)" />
+                  <XAxis dataKey="date" tick={{ fill: 'hsl(0,0%,40%)', fontSize: 9 }} tickLine={false} axisLine={false} />
+                  <YAxis tick={{ fill: 'hsl(0,0%,40%)', fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={v => `$${v}`} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#000',
+                      border: '1px solid hsl(0,0%,15%)',
+                      borderRadius: '8px',
+                      color: '#eee',
+                      fontSize: 10,
+                    }}
+                  />
+                  {/* Ghost curve — original portfolio */}
+                  <Area
+                    type="monotone"
+                    dataKey="original"
+                    stroke="hsl(0,0%,35%)"
+                    strokeWidth={1}
+                    strokeDasharray="4 3"
+                    fill="none"
+                    name="Total Portfolio"
+                  />
+                  {/* Filtered curve — bold neon green with glow */}
+                  <Area
+                    type="monotone"
+                    dataKey="filtered"
+                    stroke="#30D158"
+                    strokeWidth={2}
+                    fill="url(#filteredGrad)"
+                    name="Filtered Strategy"
+                    style={{ filter: 'drop-shadow(0 0 4px rgba(48, 209, 88, 0.4))' }}
+                    connectNulls
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -286,6 +487,8 @@ const PerformanceAnalyst = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
+  const [preFilter, setPreFilter] = useState<SimulatorPreFilter | null>(null);
+  const simulatorRef = useRef<HTMLDivElement>(null);
 
   const filteredTrades = useMemo(
     () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
@@ -301,6 +504,13 @@ const PerformanceAnalyst = () => {
   const byHTF = useMemo(() => getExpectancyByField(filteredTrades, 'htfBias'), [filteredTrades]);
   const byPlan = useMemo(() => getExpectancyByPlanAdherence(filteredTrades), [filteredTrades]);
   const behavioral = useMemo(() => detectBehavioralPatterns(filteredTrades), [filteredTrades]);
+
+  const handleSimulate = (key: string, field: string) => {
+    setPreFilter({ field, value: key });
+    setTimeout(() => {
+      simulatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
+  };
 
   if (trades.length === 0) {
     return (
@@ -343,10 +553,10 @@ const PerformanceAnalyst = () => {
         <RiskIndicator trades={filteredTrades} />
         <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'R-Expectancy', value: stats.rExpectancy ? stats.rExpectancy.toFixed(3) : '—', positive: stats.rExpectancy > 0 },
-            { label: 'Avg R Win', value: stats.avgRWin ? `+${stats.avgRWin}R` : '—', positive: true },
-            { label: 'Avg R Loss', value: stats.avgRLoss ? `-${stats.avgRLoss}R` : '—', positive: false },
-            { label: 'Max Drawdown', value: `$${stats.maxDrawdown}`, positive: false },
+            { label: 'R-Expectancy', value: stats.rExpectancy ? stats.rExpectancy.toFixed(3) : '—', positive: stats.rExpectancy > 0, badge: stats.rExpectancy > 0.5 ? 'lightning' : null },
+            { label: 'Avg R Win', value: stats.avgRWin ? `+${stats.avgRWin}R` : '—', positive: true, badge: null },
+            { label: 'Avg R Loss', value: stats.avgRLoss ? `-${stats.avgRLoss}R` : '—', positive: false, badge: null },
+            { label: 'Max Drawdown', value: `$${stats.maxDrawdown}`, positive: false, badge: null },
           ].map((s, i) => (
             <motion.div
               key={s.label}
@@ -355,7 +565,10 @@ const PerformanceAnalyst = () => {
               transition={{ delay: i * 0.05 }}
               className="glass-card p-3"
             >
-              <p className="text-[9px] text-muted-foreground uppercase tracking-widest">{s.label}</p>
+              <div className="flex items-center gap-1">
+                <p className="text-[9px] text-muted-foreground uppercase tracking-widest">{s.label}</p>
+                {s.badge === 'lightning' && <Zap className="h-3 w-3 text-profit" />}
+              </div>
               <p className={cn('text-lg font-bold font-mono mt-1', s.positive ? 'text-profit' : 'text-loss')}>
                 {s.value}
               </p>
@@ -371,17 +584,19 @@ const PerformanceAnalyst = () => {
 
       {/* Expectancy Breakdowns */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-4">
-        <ExpectancyTable title="By Instrument" data={byPair} />
-        <ExpectancyTable title="By Session" data={bySession} />
-        <ExpectancyTable title="By Direction" data={byDirection} />
-        <ExpectancyTable title="By HTF Bias" data={byHTF} />
-        <ExpectancyTable title="By Emotional State" data={byEmotion} />
-        <ExpectancyTable title="By Confidence Level" data={byConfidence} />
-        {byPlan.length > 0 && <ExpectancyTable title="By Plan Adherence" data={byPlan} />}
+        <ExpectancyTable title="By Instrument" data={byPair} field="instrument" onSimulate={handleSimulate} />
+        <ExpectancyTable title="By Session" data={bySession} field="session" onSimulate={handleSimulate} />
+        <ExpectancyTable title="By Direction" data={byDirection} field="direction" onSimulate={handleSimulate} />
+        <ExpectancyTable title="By HTF Bias" data={byHTF} field="htfBias" onSimulate={handleSimulate} />
+        <ExpectancyTable title="By Emotional State" data={byEmotion} field="emotionalState" onSimulate={handleSimulate} />
+        <ExpectancyTable title="By Confidence Level" data={byConfidence} field="confidenceLevel" onSimulate={handleSimulate} />
+        {byPlan.length > 0 && <ExpectancyTable title="By Plan Adherence" data={byPlan} field="followedPlan" onSimulate={handleSimulate} />}
       </div>
 
       {/* Strategy Simulator */}
-      <StrategySimulator trades={filteredTrades} />
+      <div ref={simulatorRef}>
+        <StrategySimulator trades={filteredTrades} preFilter={preFilter} />
+      </div>
     </AppLayout>
   );
 };
