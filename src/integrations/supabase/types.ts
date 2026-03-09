@@ -84,22 +84,28 @@ export type Database = {
         Row: {
           avatar_url: string | null
           created_at: string
+          guide_progress: Json
           id: string
           nickname: string
+          onboarding_completed: boolean
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
+          guide_progress?: Json
           id?: string
           nickname?: string
+          onboarding_completed?: boolean
           user_id: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
+          guide_progress?: Json
           id?: string
           nickname?: string
+          onboarding_completed?: boolean
           user_id?: string
         }
         Relationships: []
