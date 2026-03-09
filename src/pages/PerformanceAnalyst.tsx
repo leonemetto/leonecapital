@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import {
