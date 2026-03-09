@@ -12,7 +12,47 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import { Camera, KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldOff, Loader2, Brain } from 'lucide-react';
+import { Camera, KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldOff, Loader2, Brain, Trash2, FlaskConical } from 'lucide-react';
+import { useOnboarding } from '@/hooks/useOnboarding';
+import { useSharedAccounts } from '@/contexts/AccountsContext';
+
+function DemoDataSection() {
+  const { deleteDemoAccount } = useOnboarding();
+  const { accounts } = useSharedAccounts();
+  const [deleting, setDeleting] = useState(false);
+  const hasDemoAccount = accounts.some(a => a.type === 'demo');
+
+  if (!hasDemoAccount) return null;
+
+  const handleDelete = async () => {
+    if (!confirm('Delete demo account and all its trades? This cannot be undone.')) return;
+    setDeleting(true);
+    try {
+      await deleteDemoAccount();
+      toast.success('Demo account deleted');
+    } catch {
+      toast.error('Failed to delete demo account');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  return (
+    <div className="glass-card p-6 space-y-3">
+      <div className="flex items-center gap-2 mb-1">
+        <FlaskConical className="h-4 w-4 text-muted-foreground" />
+        <div>
+          <h2 className="text-sm font-semibold">Demo Data</h2>
+          <p className="text-xs text-muted-foreground">Manage your demo account and sample trades</p>
+        </div>
+      </div>
+      <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting} className="gap-1.5">
+        <Trash2 className="h-3.5 w-3.5" />
+        {deleting ? 'Deleting...' : 'Delete Demo Account'}
+      </Button>
+    </div>
+  );
+}
 
 export default function ProfileSettings() {
   const { profile, setNickname, updateAvatarUrl } = useProfile();
@@ -430,6 +470,9 @@ export default function ProfileSettings() {
             {savingTp ? 'Saving...' : 'Save Trading Profile'}
           </Button>
         </div>
+
+        {/* Demo Data Management */}
+        <DemoDataSection />
 
         <div className="glass-card p-6">
           <div className="flex items-center justify-between">

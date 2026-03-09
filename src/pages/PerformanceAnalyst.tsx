@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import {
@@ -75,7 +77,7 @@ function ExpectancyTable({
                         <span className="text-[9px] text-amber-500" title="Low sample size">⚠</span>
                       )}
                       {isLeak && (
-                        <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full">
+                        <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full" data-tour="leak-badge">
                           <AlertTriangle className="h-2.5 w-2.5" />
                           LEAK
                         </span>
@@ -126,6 +128,7 @@ function ExpectancyTable({
                     <td className="p-2 text-right">
                       <button
                         onClick={() => onSimulate(row.key, field)}
+                        data-tour="simulate-btn"
                         className={cn(
                           'p-1 rounded transition-all duration-200 hover:scale-110',
                           isLeak
@@ -489,6 +492,16 @@ const PerformanceAnalyst = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
   const [preFilter, setPreFilter] = useState<SimulatorPreFilter | null>(null);
   const simulatorRef = useRef<HTMLDivElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('tour') === '1') {
+      // Delay to let the page render
+      const timer = setTimeout(() => setShowTour(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const filteredTrades = useMemo(
     () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
@@ -594,9 +607,17 @@ const PerformanceAnalyst = () => {
       </div>
 
       {/* Strategy Simulator */}
-      <div ref={simulatorRef}>
+      <div ref={simulatorRef} data-tour="simulator">
         <StrategySimulator trades={filteredTrades} preFilter={preFilter} />
       </div>
+
+      {/* Onboarding Tour */}
+      {showTour && (
+        <OnboardingTour onComplete={() => {
+          setShowTour(false);
+          setSearchParams({});
+        }} />
+      )}
     </AppLayout>
   );
 };
