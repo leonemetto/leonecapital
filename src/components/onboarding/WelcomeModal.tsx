@@ -45,7 +45,10 @@ export function WelcomeModal({ open, onSkip }: WelcomeModalProps) {
 
           <Button
             className="w-full gap-2"
-            onClick={() => navigate('/guide')}
+            onClick={() => {
+              localStorage.setItem('edgeflow_welcome_seen', '1');
+              navigate('/guide');
+            }}
           >
             <BookOpen className="h-4 w-4" />
             View Platform Guide
