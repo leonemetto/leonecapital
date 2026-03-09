@@ -157,11 +157,11 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={
               <AuthGate>
-                <ProfileGate>
-                  <AccountsProvider>
-                    <TradesProvider>
-                      <ChecklistGate>
-                        <OnboardingGate>
+                <OnboardingGate>
+                  <ProfileGate>
+                    <AccountsProvider>
+                      <TradesProvider>
+                        <ChecklistGate>
                           <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/add-trade" element={<AddTrade />} />
@@ -174,11 +174,11 @@ const App = () => (
                             <Route path="/guide" element={<Guide />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
-                        </OnboardingGate>
-                      </ChecklistGate>
-                    </TradesProvider>
-                  </AccountsProvider>
-                </ProfileGate>
+                        </ChecklistGate>
+                      </TradesProvider>
+                    </AccountsProvider>
+                  </ProfileGate>
+                </OnboardingGate>
               </AuthGate>
             } />
           </Routes>
