@@ -128,6 +128,7 @@ function ExpectancyTable({
                     <td className="p-2 text-right">
                       <button
                         onClick={() => onSimulate(row.key, field)}
+                        data-tour="simulate-btn"
                         className={cn(
                           'p-1 rounded transition-all duration-200 hover:scale-110',
                           isLeak
