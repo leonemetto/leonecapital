@@ -108,6 +108,7 @@ function ChecklistGate({ children }: { children: React.ReactNode }) {
 
 function ProfileGate({ children }: { children: React.ReactNode }) {
   const { isLoading, needsNickname, setNickname } = useProfile();
+  const { provisionDemoAccount } = useOnboarding();
 
   if (isLoading) {
     return (
@@ -118,7 +119,10 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   }
 
   if (needsNickname) {
-    return <NicknamePrompt onSubmit={setNickname} />;
+    return <NicknamePrompt onSubmit={async (nickname) => {
+      await setNickname(nickname);
+      await provisionDemoAccount();
+    }} />;
   }
 
   return <>{children}</>;
