@@ -1,20 +1,14 @@
 
 
-## Auto-Sign P&L Based on Trade Outcome
+# Add Guide Tab to AppSidebar
 
-When logging a trade, the P&L sign will be automatically determined by the selected outcome (Win/Loss/BE), so you only need to enter the absolute number.
+The Guide tab is in `TopNav.tsx` but missing from `AppSidebar.tsx`, which is the actual sidebar component used in `AppLayout`.
 
-### How It Will Work
-- **Win**: P&L is always positive (e.g., entering "50" saves as +50)
-- **Loss**: P&L is always negative (e.g., entering "50" saves as -50)
-- **Breakeven**: P&L is set to 0 regardless of input
+## Change
 
-### Technical Changes
+**`src/components/layout/AppSidebar.tsx`** (line 3-19):
+- Import `BookMarked` from lucide-react
+- Add `{ title: 'Guide', path: '/guide', icon: BookMarked }` to the `navItems` array
 
-**File: `src/components/trade/TradeForm.tsx`**
-- In `handleSubmit`, after parsing the P&L value, apply the sign based on the selected outcome:
-  - If outcome is `"loss"`, ensure `pnl` is negative using `-Math.abs(pnl)`
-  - If outcome is `"win"`, ensure `pnl` is positive using `Math.abs(pnl)`
-  - If outcome is `"breakeven"`, set `pnl` to `0`
-- Update the P&L input label/placeholder to hint that only the amount is needed (e.g., "P&L Amount ($)")
+One file, two-line change.
 
