@@ -492,6 +492,16 @@ const PerformanceAnalyst = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
   const [preFilter, setPreFilter] = useState<SimulatorPreFilter | null>(null);
   const simulatorRef = useRef<HTMLDivElement>(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    if (searchParams.get('tour') === '1') {
+      // Delay to let the page render
+      const timer = setTimeout(() => setShowTour(true), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const filteredTrades = useMemo(
     () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
