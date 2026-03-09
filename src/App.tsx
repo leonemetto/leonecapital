@@ -108,6 +108,7 @@ function ChecklistGate({ children }: { children: React.ReactNode }) {
 
 function ProfileGate({ children }: { children: React.ReactNode }) {
   const { isLoading, needsNickname, setNickname } = useProfile();
+  const { provisionDemoAccount } = useOnboarding();
 
   if (isLoading) {
     return (
@@ -118,37 +119,28 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   }
 
   if (needsNickname) {
-    return <NicknamePrompt onSubmit={setNickname} />;
+    return <NicknamePrompt onSubmit={async (nickname) => {
+      await setNickname(nickname);
+      await provisionDemoAccount();
+    }} />;
   }
 
   return <>{children}</>;
 }
 
 function OnboardingGate({ children }: { children: React.ReactNode }) {
-  const { onboardingCompleted, isLoading, completeOnboarding, provisionDemoAccount } = useOnboarding();
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [provisioned, setProvisioned] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return !localStorage.getItem('edgeflow_welcome_seen');
+  });
 
-  useEffect(() => {
-    if (!isLoading && !onboardingCompleted && !provisioned) {
-      // Provision demo account on first load
-      provisionDemoAccount().then(() => {
-        setProvisioned(true);
-        setShowWelcome(true);
-      });
-    }
-  }, [isLoading, onboardingCompleted, provisioned, provisionDemoAccount]);
-
-  if (isLoading) return <>{children}</>;
-
-  const handleSkip = async () => {
-    await completeOnboarding();
+  const handleSkip = () => {
+    localStorage.setItem('edgeflow_welcome_seen', '1');
     setShowWelcome(false);
   };
 
   return (
     <>
-      <WelcomeModal open={showWelcome && !onboardingCompleted} onSkip={handleSkip} />
+      <WelcomeModal open={showWelcome} onSkip={handleSkip} />
       {children}
     </>
   );
@@ -165,11 +157,11 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={
               <AuthGate>
-                <ProfileGate>
-                  <AccountsProvider>
-                    <TradesProvider>
-                      <ChecklistGate>
-                        <OnboardingGate>
+                <OnboardingGate>
+                  <ProfileGate>
+                    <AccountsProvider>
+                      <TradesProvider>
+                        <ChecklistGate>
                           <Routes>
                             <Route path="/" element={<Dashboard />} />
                             <Route path="/add-trade" element={<AddTrade />} />
@@ -182,11 +174,11 @@ const App = () => (
                             <Route path="/guide" element={<Guide />} />
                             <Route path="*" element={<NotFound />} />
                           </Routes>
-                        </OnboardingGate>
-                      </ChecklistGate>
-                    </TradesProvider>
-                  </AccountsProvider>
-                </ProfileGate>
+                        </ChecklistGate>
+                      </TradesProvider>
+                    </AccountsProvider>
+                  </ProfileGate>
+                </OnboardingGate>
               </AuthGate>
             } />
           </Routes>
