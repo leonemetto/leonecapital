@@ -125,30 +125,18 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
 }
 
 function OnboardingGate({ children }: { children: React.ReactNode }) {
-  const { onboardingCompleted, isLoading, completeOnboarding, provisionDemoAccount } = useOnboarding();
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [provisioned, setProvisioned] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(() => {
+    return !localStorage.getItem('edgeflow_welcome_seen');
+  });
 
-  useEffect(() => {
-    if (!isLoading && !onboardingCompleted && !provisioned) {
-      // Provision demo account on first load
-      provisionDemoAccount().then(() => {
-        setProvisioned(true);
-        setShowWelcome(true);
-      });
-    }
-  }, [isLoading, onboardingCompleted, provisioned, provisionDemoAccount]);
-
-  if (isLoading) return <>{children}</>;
-
-  const handleSkip = async () => {
-    await completeOnboarding();
+  const handleSkip = () => {
+    localStorage.setItem('edgeflow_welcome_seen', '1');
     setShowWelcome(false);
   };
 
   return (
     <>
-      <WelcomeModal open={showWelcome && !onboardingCompleted} onSkip={handleSkip} />
+      <WelcomeModal open={showWelcome} onSkip={handleSkip} />
       {children}
     </>
   );
