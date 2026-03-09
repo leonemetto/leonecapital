@@ -8,6 +8,8 @@ export interface Profile {
   nickname: string;
   avatarUrl: string;
   createdAt: string;
+  onboardingCompleted: boolean;
+  guideProgress: { sections: string[] };
 }
 
 export function useProfile() {
