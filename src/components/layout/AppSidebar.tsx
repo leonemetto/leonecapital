@@ -17,6 +17,7 @@ const navItems = [
   { title: 'Trades DB', path: '/journal', icon: BookOpen },
   { title: 'Accounts', path: '/accounts', icon: Wallet },
   { title: 'AI Advisor', path: '/ai', icon: Sparkles },
+  { title: 'Guide', path: '/guide', icon: BookMarked },
 ];
 
 export function AppSidebar() {
