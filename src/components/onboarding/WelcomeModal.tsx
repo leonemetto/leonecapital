@@ -13,8 +13,8 @@ export function WelcomeModal({ open, onSkip }: WelcomeModalProps) {
   const navigate = useNavigate();
 
   return (
-    <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="sm:max-w-md p-0 overflow-hidden" onPointerDownOutside={e => e.preventDefault()}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onSkip(); }}>
+      <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         {/* Header */}
         <div className="relative px-6 pt-8 pb-6 text-center">
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent" />
