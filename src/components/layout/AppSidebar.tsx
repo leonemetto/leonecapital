@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
-  BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings,
+  BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings, BookMarked,
   Activity, ChevronLeft, ChevronRight, Menu, X,
 } from 'lucide-react';
 import logoImg from '@/assets/logo.svg';
@@ -17,6 +17,7 @@ const navItems = [
   { title: 'Trades DB', path: '/journal', icon: BookOpen },
   { title: 'Accounts', path: '/accounts', icon: Wallet },
   { title: 'AI Advisor', path: '/ai', icon: Sparkles },
+  { title: 'Guide', path: '/guide', icon: BookMarked },
 ];
 
 export function AppSidebar() {
