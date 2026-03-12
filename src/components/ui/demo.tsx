@@ -34,7 +34,7 @@ function AnimationDemo({
 
 function ChunkToCharacterDemo() {
   const [isPlaying, setIsPlaying] = useState(true);
-  const chunkText = useAnimatedText(isPlaying ? DEMO_TEXT : "", "\n\n", 1);
+  const chunkText = useAnimatedText(isPlaying ? DEMO_TEXT : "", "\n\n");
   const characterText = useAnimatedText(isPlaying ? DEMO_TEXT : "", "");
 
   const handleRestart = () => {
