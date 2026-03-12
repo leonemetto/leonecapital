@@ -7,12 +7,11 @@ interface Props {
 }
 
 export function AnimatedAssistantMessage({ content, isStreaming }: Props) {
-  // Use word-level animation for a natural streaming feel
-  const animatedContent = useAnimatedText(content, " ");
+  // Word-level animation — works during and after streaming
+  // Higher speed = faster reveal. Linear easing for smooth consistent pace.
+  const animatedContent = useAnimatedText(content, " ", 80);
 
-  const displayContent = isStreaming ? content : animatedContent;
-
-  if (!displayContent) {
+  if (!animatedContent) {
     return (
       <span className="inline-flex gap-1.5 text-primary/60 py-1">
         <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse" />
@@ -24,7 +23,7 @@ export function AnimatedAssistantMessage({ content, isStreaming }: Props) {
 
   return (
     <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1.5 [&>ul]:my-1.5 [&>ol]:my-1.5 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm [&>li]:text-muted-foreground [&>p]:text-foreground/90">
-      <ReactMarkdown>{displayContent}</ReactMarkdown>
+      <ReactMarkdown>{animatedContent}</ReactMarkdown>
     </div>
   );
 }
