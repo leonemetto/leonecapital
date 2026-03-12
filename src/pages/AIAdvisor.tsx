@@ -11,7 +11,7 @@ import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } fro
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { AnimatedAssistantMessage } from '@/components/ai/AnimatedAssistantMessage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Msg = { role: 'user' | 'assistant'; content: string; id: string };
