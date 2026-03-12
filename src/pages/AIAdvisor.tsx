@@ -11,7 +11,7 @@ import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } fro
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
+import { AnimatedAssistantMessage } from '@/components/ai/AnimatedAssistantMessage';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Msg = { role: 'user' | 'assistant'; content: string; id: string };
@@ -349,15 +349,10 @@ export default function AIAdvisor() {
                   }`}
                 >
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none [&>p]:my-1.5 [&>ul]:my-1.5 [&>ol]:my-1.5 [&>h1]:text-base [&>h2]:text-sm [&>h3]:text-sm [&>li]:text-muted-foreground [&>p]:text-foreground/90">
-                      {msg.content ? <ReactMarkdown>{msg.content}</ReactMarkdown> : (
-                        <span className="inline-flex gap-1.5 text-primary/60 py-1">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse" />
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse [animation-delay:150ms]" />
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-pulse [animation-delay:300ms]" />
-                        </span>
-                      )}
-                    </div>
+                    <AnimatedAssistantMessage
+                      content={msg.content}
+                      isStreaming={streamingIdRef.current === msg.id}
+                    />
                   ) : msg.content}
                 </div>
                 {msg.role === 'user' && (
