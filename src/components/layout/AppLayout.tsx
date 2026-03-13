@@ -1,5 +1,5 @@
 import { AppSidebar } from './AppSidebar';
-import { BGPattern } from '@/components/ui/bg-pattern';
+import { FlickeringGrid } from '@/components/ui/flickering-grid';
 import { SandboxBanner } from '@/components/onboarding/SandboxBanner';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 
@@ -14,7 +14,14 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   return (
     <div className="relative min-h-screen bg-background overflow-hidden flex [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-      <BGPattern variant="grid" size={40} fill="hsla(142, 69%, 45%, 0.04)" mask="fade-edges" className="pointer-events-none fixed inset-0 z-0" />
+      <FlickeringGrid
+        className="pointer-events-none fixed inset-0 z-0 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]"
+        squareSize={4}
+        gridGap={6}
+        color="hsl(142, 69%, 45%)"
+        maxOpacity={0.12}
+        flickerChance={0.15}
+      />
       <AppSidebar />
       <div className="relative z-10 flex-1 min-w-0">
         {isDemoSelected && <SandboxBanner />}
