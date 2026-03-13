@@ -1,5 +1,5 @@
 import { AppSidebar } from './AppSidebar';
-import { BGPattern } from '@/components/ui/bg-pattern';
+import { FlickeringGrid } from '@/components/ui/flickering-grid';
 import { SandboxBanner } from '@/components/onboarding/SandboxBanner';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 
