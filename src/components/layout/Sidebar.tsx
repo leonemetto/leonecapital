@@ -9,7 +9,7 @@ import { AIMemoryCard } from '@/components/sidebar/AIMemoryCard';
 
 
 const navItems = [
-  { title: 'Dashboard', path: '/', icon: LayoutDashboard },
+  { title: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
   { title: 'Add Trade', path: '/add-trade', icon: PlusCircle },
   { title: 'Journal', path: '/journal', icon: BookOpen },
   { title: 'Accounts', path: '/accounts', icon: Wallet },

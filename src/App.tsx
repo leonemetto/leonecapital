@@ -27,6 +27,7 @@ import TradingPlan from "./pages/TradingPlan";
 import PerformanceAnalyst from "./pages/PerformanceAnalyst";
 import Guide from "./pages/Guide";
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -154,6 +155,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={
               <AuthGate>
@@ -163,7 +166,7 @@ const App = () => (
                       <TradesProvider>
                         <ChecklistGate>
                           <Routes>
-                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/add-trade" element={<AddTrade />} />
                             <Route path="/journal" element={<Journal />} />
                             <Route path="/accounts" element={<Accounts />} />

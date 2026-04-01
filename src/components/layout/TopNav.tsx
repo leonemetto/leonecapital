@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
 const tabs = [
-  { title: 'ANALYTICS', path: '/', icon: BarChart3 },
+  { title: 'ANALYTICS', path: '/dashboard', icon: BarChart3 },
   { title: 'ANALYST', path: '/analyst', icon: Activity },
   { title: 'TRADES DB', path: '/journal', icon: BookOpen },
   { title: 'ACCOUNTS', path: '/accounts', icon: Wallet },
@@ -136,7 +136,7 @@ export function TopNav() {
             <NavLink
               key={`${tab.title}-${i}`}
               to={tab.path}
-              end={tab.path === '/'}
+              end={tab.path === '/dashboard'}
               className={({ isActive }) => cn(
                 'flex items-center gap-2 px-4 py-2.5 text-[10px] font-bold tracking-[0.15em] border-b-2 transition-all whitespace-nowrap rounded-t-lg',
                 isActive

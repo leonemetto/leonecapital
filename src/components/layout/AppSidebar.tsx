@@ -12,7 +12,7 @@ import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const navItems = [
-  { title: 'Analytics', path: '/', icon: BarChart3 },
+  { title: 'Analytics', path: '/dashboard', icon: BarChart3 },
   { title: 'Analyst', path: '/analyst', icon: Activity },
   { title: 'Trades DB', path: '/journal', icon: BookOpen },
   { title: 'Accounts', path: '/accounts', icon: Wallet },

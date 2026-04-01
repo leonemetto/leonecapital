@@ -156,7 +156,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       if (!initialData) {
         setForm(defaults);
         setChecks({});
-        navigate('/');
+        navigate('/dashboard');
       }
       if (onCancel) onCancel();
     } catch (err: any) {

@@ -98,7 +98,7 @@ export default function Guide() {
           </div>
           <Button variant="ghost" size="sm" className="text-xs" onClick={async () => {
             await completeOnboarding();
-            navigate('/');
+            navigate('/dashboard');
           }}>
             Skip Guide
           </Button>
