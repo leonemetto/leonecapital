@@ -155,7 +155,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/landing" element={<Landing />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={
@@ -166,7 +166,7 @@ const App = () => (
                       <TradesProvider>
                         <ChecklistGate>
                           <Routes>
-                            <Route path="/" element={<Dashboard />} />
+                            <Route path="/dashboard" element={<Dashboard />} />
                             <Route path="/add-trade" element={<AddTrade />} />
                             <Route path="/journal" element={<Journal />} />
                             <Route path="/accounts" element={<Accounts />} />
