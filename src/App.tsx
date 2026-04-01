@@ -27,6 +27,7 @@ import TradingPlan from "./pages/TradingPlan";
 import PerformanceAnalyst from "./pages/PerformanceAnalyst";
 import Guide from "./pages/Guide";
 import Auth from "./pages/Auth";
+import Landing from "./pages/Landing";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
