@@ -9,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger, DropdownMenuLabel } from '@/components/ui/dropdown-menu';
 
 const tabs = [
-  { title: 'ANALYTICS', path: '/', icon: BarChart3 },
+  { title: 'ANALYTICS', path: '/dashboard', icon: BarChart3 },
   { title: 'ANALYST', path: '/analyst', icon: Activity },
   { title: 'TRADES DB', path: '/journal', icon: BookOpen },
   { title: 'ACCOUNTS', path: '/accounts', icon: Wallet },
