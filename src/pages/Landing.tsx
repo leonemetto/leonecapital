@@ -71,6 +71,16 @@ const faqs = [
 
 export default function Landing() {
   const navigate = useNavigate();
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsLoggedIn(!!session);
+    });
+  }, []);
+
+  if (isLoggedIn === null) return null;
+  if (isLoggedIn) return <Navigate to="/dashboard" replace />;
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
