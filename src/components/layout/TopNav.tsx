@@ -136,7 +136,7 @@ export function TopNav() {
             <NavLink
               key={`${tab.title}-${i}`}
               to={tab.path}
-              end={tab.path === '/'}
+              end={tab.path === '/dashboard'}
               className={({ isActive }) => cn(
                 'flex items-center gap-2 px-4 py-2.5 text-[10px] font-bold tracking-[0.15em] border-b-2 transition-all whitespace-nowrap rounded-t-lg',
                 isActive
