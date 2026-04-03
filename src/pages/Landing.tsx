@@ -1,602 +1,1020 @@
-import { useNavigate, Navigate } from 'react-router-dom';
-import { useEffect, useRef, useState } from 'react';
+/*
+  ╔══════════════════════════════════════════╗
+  ║        HOW TO ADD YOUR SCREENSHOTS       ║
+  ╠══════════════════════════════════════════╣
+  ║ 1. Export your app screenshots as PNG    ║
+  ║    Recommended: 1280x800px               ║
+  ║ 2. Drop them into /public/screenshots/   ║
+  ║ 3. Update the image paths in slides[]    ║
+  ║    array below                           ║
+  ║ 4. To add more slides: copy any object   ║
+  ║    in the array and update id/label/path ║
+  ║ 5. To remove slides: delete the object   ║
+  ╚══════════════════════════════════════════╝
+*/
+
+import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { motion, useScroll, useTransform, useInView } from 'framer-motion';
+import { motion, useScroll, useTransform, useInView, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import {
-  TrendingUp,
-  BarChart3,
-  BookOpen,
-  Target,
-  LineChart,
-  PieChart,
-  ArrowRight,
-  CheckCircle2,
-  Zap,
-  Shield,
-  Users,
-  Menu,
-  X,
-  Twitter,
-  Linkedin,
-  Github,
-  Mail,
-  Brain,
-  Wallet,
-  Activity,
-  Sparkles,
+  TrendingUp, BarChart3, BookOpen, Target, LineChart, PieChart,
+  ArrowRight, ArrowLeft, CheckCircle2, Zap, Shield, Users, Menu, X,
+  Twitter, Linkedin, Mail, Brain, Activity, Sparkles, ChevronDown,
+  ImagePlus, Lock, Smartphone, MessageCircle, Eye, Search, FileText,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
 import logoImg from '@/assets/logo.svg';
 
-/* ── Sub-components ── */
+/* ══════════════════════════════════════════
+   CAROUSEL SLIDES CONFIG
+   ══════════════════════════════════════════ */
+const slides = [
+  {
+    id: 1,
+    label: "Dashboard Overview",
+    image: "/screenshots/slide-1.png",
+    description: "Track your performance at a glance",
+  },
+  {
+    id: 2,
+    label: "Trade Log",
+    image: "/screenshots/slide-2.png",
+    description: "Every trade, perfectly organized",
+  },
+  {
+    id: 3,
+    label: "AI Insights",
+    image: "/screenshots/slide-3.png",
+    description: "Your personal AI trading analyst",
+  },
+  {
+    id: 4,
+    label: "Leak Detection",
+    image: "/screenshots/slide-4.png",
+    description: "Find what's costing you money",
+  },
+  {
+    id: 5,
+    label: "Performance Analytics",
+    image: "/screenshots/slide-5.png",
+    description: "Deep-dive into your edge",
+  },
+];
 
-interface FeatureCardProps {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  delay?: number;
+/* ══════════════════════════════════════════
+   HELPERS
+   ══════════════════════════════════════════ */
+
+// Animated counter hook
+function useCountUp(target: number, inView: boolean, duration = 2000) {
+  const [value, setValue] = useState(0);
+  useEffect(() => {
+    if (!inView) return;
+    let start = 0;
+    const startTime = performance.now();
+    const step = (now: number) => {
+      const progress = Math.min((now - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setValue(Math.floor(eased * target));
+      if (progress < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }, [inView, target, duration]);
+  return value;
 }
 
-const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, delay = 0 }) => {
+// Section wrapper with scroll animation
+const Section = ({ children, className = '', id = '' }: { children: React.ReactNode; className?: string; id?: string }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
+  const isInView = useInView(ref, { once: true, margin: '-80px' });
   return (
-    <motion.div
+    <motion.section
       ref={ref}
-      initial={{ opacity: 0, y: 30 }}
+      id={id}
+      initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.6, delay, ease: 'easeOut' }}
-      className="group relative overflow-hidden rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6 hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+      transition={{ duration: 0.7, ease: 'easeOut' }}
+      className={className}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      <div className="relative z-10">
-        <div className="mb-4 inline-flex items-center justify-center rounded-xl bg-primary/10 p-2.5 group-hover:bg-primary/20 transition-colors">
-          {icon}
-        </div>
-        <h3 className="mb-2 text-lg font-semibold">{title}</h3>
-        <p className="text-sm leading-relaxed text-muted-foreground">{description}</p>
-      </div>
-    </motion.div>
+      {children}
+    </motion.section>
   );
 };
 
-interface StatCardProps {
-  value: string;
-  label: string;
-  delay?: number;
-}
-
-const StatCard: React.FC<StatCardProps> = ({ value, label, delay = 0 }) => {
+// Stagger child wrapper
+const StaggerChild = ({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { once: true });
-
+  const isInView = useInView(ref, { once: true, margin: '-60px' });
   return (
     <motion.div
       ref={ref}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={isInView ? { opacity: 1, scale: 1 } : {}}
-      transition={{ duration: 0.5, delay }}
-      className="text-center"
+      initial={{ opacity: 0, y: 24 }}
+      animate={isInView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.5, delay, ease: 'easeOut' }}
     >
-      <p className="text-3xl font-bold sm:text-4xl">{value}</p>
-      <p className="mt-1 text-sm text-muted-foreground">{label}</p>
+      {children}
     </motion.div>
   );
 };
 
-const Navbar: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+/* ══════════════════════════════════════════
+   FAQ ACCORDION
+   ══════════════════════════════════════════ */
+const faqData = [
+  {
+    q: "Do I need trading experience to use EdgeFlow?",
+    a: "Not at all. Whether you've been trading 2 weeks or 10 years, EdgeFlow adapts to your data and gives you insights relevant to your exact level.",
+  },
+  {
+    q: "Is EdgeFlow free to use?",
+    a: "You get a full 14-day free trial — no credit card required on the Starter plan. After that, paid plans start at an accessible rate with a free tier always available.",
+  },
+  {
+    q: "What markets does EdgeFlow support?",
+    a: "Forex, crypto, futures, stocks, indices, and commodities. If you can trade it, you can journal and analyze it.",
+  },
+  {
+    q: "How is this different from a spreadsheet?",
+    a: "A spreadsheet shows you numbers. EdgeFlow shows you WHY. The AI layer does what no spreadsheet can — pattern detection, leak surfacing, and personalized weekly recommendations based on your data.",
+  },
+  {
+    q: "Is my trading data secure?",
+    a: "Completely. All data is encrypted end-to-end and never shared, sold, or used to train models. Your edge stays yours, always.",
+  },
+];
+
+const FaqItem = ({ q, a, isOpen, toggle }: { q: string; a: string; isOpen: boolean; toggle: () => void }) => (
+  <div className="border-b border-[#1a3d2b]/40">
+    <button
+      onClick={toggle}
+      className="w-full flex items-center justify-between py-5 text-left group"
+    >
+      <span className="text-[#f5f0eb] text-lg font-medium pr-4">{q}</span>
+      <ChevronDown
+        className={`w-5 h-5 text-[#16a34a] shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+      />
+    </button>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ height: 0, opacity: 0 }}
+          animate={{ height: 'auto', opacity: 1 }}
+          exit={{ height: 0, opacity: 0 }}
+          transition={{ duration: 0.3, ease: 'easeInOut' }}
+          className="overflow-hidden"
+        >
+          <p className="pb-5 text-gray-400 leading-relaxed">{a}</p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  </div>
+);
+
+/* ══════════════════════════════════════════
+   CAROUSEL COMPONENT
+   ══════════════════════════════════════════ */
+const PlatformCarousel = () => {
+  const [current, setCurrent] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const [imgErrors, setImgErrors] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setCurrent((p) => (p + 1) % slides.length);
+    }, 3500);
+    return () => clearInterval(timer);
+  }, [isPaused]);
 
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    setIsOpen(false);
+  const next = () => setCurrent((p) => (p + 1) % slides.length);
+  const prev = () => setCurrent((p) => (p - 1 + slides.length) % slides.length);
+
+  const handleImgError = (id: number) => {
+    setImgErrors((p) => ({ ...p, [id]: true }));
   };
 
   return (
-    <motion.nav
-      initial={{ y: -20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled ? 'border-b border-border/40 bg-background/80 backdrop-blur-xl shadow-sm' : 'bg-transparent'
-      }`}
+    <div
+      className="relative max-w-5xl mx-auto"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="mx-auto max-w-7xl px-4 sm:px-8">
-        <div className="flex h-16 items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <img src={logoImg} alt="EdgeFlow Logo" className="h-8 w-8 rounded-xl" />
-            <span className="text-lg font-bold tracking-tight">EdgeFlow</span>
+      {/* Browser frame */}
+      <div className="rounded-[20px] border border-[#1a3d2b] bg-[#0a0a0a] overflow-hidden shadow-2xl shadow-black/60">
+        {/* Top bar */}
+        <div className="flex items-center gap-3 px-5 py-3 bg-[#0d0d0d] border-b border-[#1a3d2b]/60">
+          <div className="flex gap-2">
+            <div className="w-3 h-3 rounded-full bg-[#ff5f57]" />
+            <div className="w-3 h-3 rounded-full bg-[#febc2e]" />
+            <div className="w-3 h-3 rounded-full bg-[#28c840]" />
           </div>
-
-          <div className="hidden items-center gap-8 text-sm text-muted-foreground md:flex">
-            <button onClick={() => scrollTo('features')} className="hover:text-foreground transition-colors">Features</button>
-            <button onClick={() => scrollTo('how-it-works')} className="hover:text-foreground transition-colors">How It Works</button>
-            <button onClick={() => scrollTo('testimonials')} className="hover:text-foreground transition-colors">Testimonials</button>
-            <button onClick={() => scrollTo('faq')} className="hover:text-foreground transition-colors">FAQ</button>
+          <div className="flex-1 flex justify-center">
+            <div className="bg-[#161616] rounded-md px-4 py-1.5 text-xs text-gray-500 font-mono">
+              app.edgeflow.io
+            </div>
           </div>
-
-          <div className="hidden items-center gap-3 md:flex">
-            <Button variant="ghost" onClick={() => onNavigate('/auth')}>Sign In</Button>
-            <Button onClick={() => onNavigate('/auth')}>
-              Get Started <ArrowRight className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <button onClick={() => setIsOpen(!isOpen)} className="md:hidden text-foreground">
-            {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
         </div>
 
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            className="border-t border-border/40 py-4 md:hidden"
-          >
-            <div className="flex flex-col gap-3">
-              <button onClick={() => scrollTo('features')} className="text-sm text-muted-foreground hover:text-foreground text-left">Features</button>
-              <button onClick={() => scrollTo('how-it-works')} className="text-sm text-muted-foreground hover:text-foreground text-left">How It Works</button>
-              <button onClick={() => scrollTo('testimonials')} className="text-sm text-muted-foreground hover:text-foreground text-left">Testimonials</button>
-              <button onClick={() => scrollTo('faq')} className="text-sm text-muted-foreground hover:text-foreground text-left">FAQ</button>
-              <div className="flex gap-2 pt-2">
-                <Button variant="ghost" className="flex-1" onClick={() => onNavigate('/auth')}>Sign In</Button>
-                <Button className="flex-1" onClick={() => onNavigate('/auth')}>Get Started</Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        {/* Slide area */}
+        <div className="relative aspect-[16/10] bg-[#0d1a12] overflow-hidden">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={current}
+              initial={{ opacity: 0, x: 30, scale: 1.02 }}
+              animate={{ opacity: 1, x: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.5, ease: 'easeInOut' }}
+              className="absolute inset-0"
+            >
+              {imgErrors[slides[current].id] ? (
+                /* Placeholder fallback */
+                <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-[#16a34a]/30 rounded-lg">
+                  <ImagePlus className="w-12 h-12 text-[#16a34a]/40 mb-3" />
+                  <p className="text-[#f5f0eb] font-medium text-lg">{slides[current].label}</p>
+                  <p className="text-gray-500 text-sm mt-1">Add your screenshot here</p>
+                  {/* Replace image path in slides[] array above. Drop your .png/.jpg into /public/screenshots/. Recommended size: 1280x800px */}
+                </div>
+              ) : (
+                <img
+                  src={slides[current].image}
+                  alt={slides[current].label}
+                  className="w-full h-full object-contain"
+                  onError={() => handleImgError(slides[current].id)}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Slide label overlay */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`label-${current}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4, delay: 0.15 }}
+              className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6"
+            >
+              <p className="text-[#16a34a] text-sm font-medium uppercase tracking-wider">{slides[current].label}</p>
+              <p className="text-[#f5f0eb] text-lg">{slides[current].description}</p>
+            </motion.div>
+          </AnimatePresence>
+
+          {/* Arrow buttons */}
+          <button onClick={prev} className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-[#1a3d2b] flex items-center justify-center text-[#f5f0eb] hover:bg-[#16a34a]/20 transition-colors">
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <button onClick={next} className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/60 backdrop-blur-sm border border-[#1a3d2b] flex items-center justify-center text-[#f5f0eb] hover:bg-[#16a34a]/20 transition-colors">
+            <ChevronRight className="w-5 h-5" />
+          </button>
+        </div>
       </div>
-    </motion.nav>
+
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mt-5">
+        {slides.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`h-2 rounded-full transition-all duration-300 ${
+              current === i ? 'w-7 bg-[#16a34a]' : 'w-2 bg-gray-600 hover:bg-gray-500'
+            }`}
+          />
+        ))}
+      </div>
+
+      {/* Trust chips */}
+      <div className="flex flex-wrap justify-center gap-4 md:gap-6 mt-6 text-sm text-gray-400">
+        <span className="flex items-center gap-1.5"><Lock className="w-4 h-4 text-[#16a34a]" /> Bank-level encryption</span>
+        <span className="flex items-center gap-1.5"><Zap className="w-4 h-4 text-[#16a34a]" /> Real-time sync</span>
+        <span className="flex items-center gap-1.5"><Smartphone className="w-4 h-4 text-[#16a34a]" /> Works on all devices</span>
+      </div>
+    </div>
   );
 };
 
-const Footer: React.FC = () => (
-  <footer className="border-t border-border/40 bg-card/30">
-    <div className="mx-auto max-w-7xl px-4 py-12 sm:px-8">
-      <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-        <div>
-          <div className="mb-4 flex items-center gap-2.5">
-            <img src={logoImg} alt="EdgeFlow" className="h-8 w-8 rounded-xl" />
-            <span className="text-lg font-bold">EdgeFlow</span>
-          </div>
-          <p className="mb-4 text-sm leading-relaxed text-muted-foreground">
-            The ultimate AI-powered trading journal to track, analyze, and improve your trading performance.
-          </p>
-          <div className="flex gap-3">
-            {[Twitter, Linkedin, Github, Mail].map((Icon, i) => (
-              <a key={i} href="#" className="rounded-lg p-2 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
-                <Icon className="h-4 w-4" />
+/* ══════════════════════════════════════════
+   PRICING
+   ══════════════════════════════════════════ */
+const pricingPlans = {
+  monthly: [
+    {
+      name: 'Starter',
+      price: '$0',
+      period: 'forever',
+      subtitle: 'For traders just getting started.',
+      featured: false,
+      cta: 'Get Started Free',
+      ctaVariant: 'outline' as const,
+      finePrint: 'No credit card required',
+      features: [
+        { text: 'Up to 50 trades/month', included: true },
+        { text: 'Basic equity curve', included: true },
+        { text: 'Win/loss breakdown', included: true },
+        { text: '1 trading account', included: true },
+        { text: 'AI Trade Advisor', included: false },
+        { text: 'Leak Detection Engine', included: false },
+        { text: 'What-If Simulations', included: false },
+      ],
+    },
+    {
+      name: 'Pro',
+      price: '$29',
+      period: '/month',
+      subtitle: 'For serious traders ready to find their edge.',
+      featured: true,
+      cta: 'Start 14-Day Free Trial →',
+      ctaVariant: 'default' as const,
+      finePrint: 'Credit card required · Cancel before trial ends and you won\'t be charged',
+      features: [
+        { text: 'Unlimited trades', included: true },
+        { text: 'Advanced analytics dashboard', included: true },
+        { text: 'AI Trade Advisor (full access)', included: true },
+        { text: 'Leak Detection Engine', included: true },
+        { text: 'What-If Simulations', included: true },
+        { text: 'Pre-Trade Checklist', included: true },
+        { text: 'Up to 3 trading accounts', included: true },
+        { text: 'Weekly AI performance report', included: true },
+        { text: 'Multi-account (unlimited)', included: false },
+        { text: 'Priority support', included: false },
+      ],
+    },
+    {
+      name: 'Elite',
+      price: '$79',
+      period: '/month',
+      subtitle: 'For prop traders and full-time professionals.',
+      featured: false,
+      cta: 'Start 14-Day Free Trial →',
+      ctaVariant: 'outline' as const,
+      finePrint: 'Credit card required · Cancel before trial ends and you won\'t be charged',
+      features: [
+        { text: 'Everything in Pro', included: true },
+        { text: 'Unlimited trading accounts', included: true },
+        { text: 'Prop firm account tracking', included: true },
+        { text: 'Multi-currency support', included: true },
+        { text: 'Priority 1-on-1 support', included: true },
+        { text: 'Early access to new features', included: true },
+        { text: 'Custom strategy tags & categories', included: true },
+        { text: 'Export reports (PDF & CSV)', included: true },
+      ],
+    },
+  ],
+  annual: [
+    {
+      name: 'Starter',
+      price: '$0',
+      period: 'forever',
+      subtitle: 'For traders just getting started.',
+      featured: false,
+      cta: 'Get Started Free',
+      ctaVariant: 'outline' as const,
+      finePrint: 'No credit card required',
+      features: [
+        { text: 'Up to 50 trades/month', included: true },
+        { text: 'Basic equity curve', included: true },
+        { text: 'Win/loss breakdown', included: true },
+        { text: '1 trading account', included: true },
+        { text: 'AI Trade Advisor', included: false },
+        { text: 'Leak Detection Engine', included: false },
+        { text: 'What-If Simulations', included: false },
+      ],
+    },
+    {
+      name: 'Pro',
+      price: '$19',
+      period: '/month',
+      subtitle: 'For serious traders ready to find their edge.',
+      featured: true,
+      cta: 'Start 14-Day Free Trial →',
+      ctaVariant: 'default' as const,
+      finePrint: 'Credit card required · Cancel before trial ends and you won\'t be charged',
+      features: [
+        { text: 'Unlimited trades', included: true },
+        { text: 'Advanced analytics dashboard', included: true },
+        { text: 'AI Trade Advisor (full access)', included: true },
+        { text: 'Leak Detection Engine', included: true },
+        { text: 'What-If Simulations', included: true },
+        { text: 'Pre-Trade Checklist', included: true },
+        { text: 'Up to 3 trading accounts', included: true },
+        { text: 'Weekly AI performance report', included: true },
+        { text: 'Multi-account (unlimited)', included: false },
+        { text: 'Priority support', included: false },
+      ],
+    },
+    {
+      name: 'Elite',
+      price: '$54',
+      period: '/month',
+      subtitle: 'For prop traders and full-time professionals.',
+      featured: false,
+      cta: 'Start 14-Day Free Trial →',
+      ctaVariant: 'outline' as const,
+      finePrint: 'Credit card required · Cancel before trial ends and you won\'t be charged',
+      features: [
+        { text: 'Everything in Pro', included: true },
+        { text: 'Unlimited trading accounts', included: true },
+        { text: 'Prop firm account tracking', included: true },
+        { text: 'Multi-currency support', included: true },
+        { text: 'Priority 1-on-1 support', included: true },
+        { text: 'Early access to new features', included: true },
+        { text: 'Custom strategy tags & categories', included: true },
+        { text: 'Export reports (PDF & CSV)', included: true },
+      ],
+    },
+  ],
+};
+
+/* ══════════════════════════════════════════
+   MAIN LANDING PAGE
+   ══════════════════════════════════════════ */
+export default function Landing() {
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [billingAnnual, setBillingAnnual] = useState(false);
+
+  // Auth redirect
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) navigate('/dashboard', { replace: true });
+    });
+  }, [navigate]);
+
+  // Scroll listener for navbar
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 30);
+    window.addEventListener('scroll', onScroll);
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  const plans = billingAnnual ? pricingPlans.annual : pricingPlans.monthly;
+
+  return (
+    <div className="min-h-screen bg-[#080808] text-[#f5f0eb] font-['DM_Sans',sans-serif] overflow-x-hidden">
+
+      {/* ─── NAVBAR ─── */}
+      <nav
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled
+            ? 'bg-[#080808]/80 backdrop-blur-xl border-b border-[#1a3d2b]/30'
+            : 'bg-transparent'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+          <a href="/" className="flex items-center gap-2">
+            <img src={logoImg} alt="EdgeFlow" className="w-7 h-7" />
+            <span className="text-[#f5f0eb] font-semibold text-lg tracking-tight">EdgeFlow</span>
+          </a>
+
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-400">
+            {['Features', 'How It Works', 'Testimonials', 'Pricing', 'FAQ'].map((item) => (
+              <a
+                key={item}
+                href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                className="hover:text-[#f5f0eb] transition-colors"
+              >
+                {item}
               </a>
             ))}
           </div>
-        </div>
-        {[
-          { title: 'Product', links: ['Features', 'Pricing', 'Security', 'Updates'] },
-          { title: 'Company', links: ['About', 'Blog', 'Careers', 'Contact'] },
-          { title: 'Resources', links: ['Documentation', 'Help Center', 'Community', 'API'] },
-        ].map((col) => (
-          <div key={col.title}>
-            <h4 className="mb-3 text-sm font-semibold">{col.title}</h4>
-            <ul className="space-y-2">
-              {col.links.map((link) => (
-                <li key={link}>
-                  <a href="#" className="text-sm text-muted-foreground hover:text-foreground transition-colors">{link}</a>
-                </li>
-              ))}
-            </ul>
+
+          <div className="hidden md:flex items-center gap-3">
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/auth')}
+              className="text-gray-300 hover:text-[#f5f0eb] hover:bg-transparent"
+            >
+              Sign In
+            </Button>
+            <button
+              onClick={() => navigate('/auth')}
+              className="relative px-5 py-2.5 rounded-full bg-[#16a34a] text-white text-sm font-medium overflow-hidden group"
+            >
+              <span className="relative z-10">Start Free Trial →</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+            </button>
           </div>
-        ))}
-      </div>
-      <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border/40 pt-8 sm:flex-row">
-        <p className="text-xs text-muted-foreground">© {new Date().getFullYear()} EdgeFlow. All rights reserved.</p>
-        <div className="flex gap-6 text-xs text-muted-foreground">
-          <a href="#" className="hover:text-foreground transition-colors">Privacy Policy</a>
-          <a href="#" className="hover:text-foreground transition-colors">Terms of Service</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-);
 
-/* ── Data ── */
-
-const features = [
-  { icon: <BarChart3 className="h-5 w-5 text-primary" />, title: 'Advanced Analytics Dashboard', description: 'Equity curves, win/loss breakdowns, R-multiple tracking, and session-by-session performance — all in real time.' },
-  { icon: <Brain className="h-5 w-5 text-primary" />, title: 'AI-Powered Trade Advisor', description: 'Get personalized insights from an AI that learns your trading patterns, detects leaks, and suggests improvements.' },
-  { icon: <Target className="h-5 w-5 text-primary" />, title: 'Leak Detection Engine', description: 'Automatically surfaces your worst-performing setups, sessions, and emotional states so you can eliminate them.' },
-  { icon: <TrendingUp className="h-5 w-5 text-primary" />, title: 'What-If Simulations', description: 'Model scenarios like "What if I only traded London session?" to quantify the impact before making changes.' },
-  { icon: <Shield className="h-5 w-5 text-primary" />, title: 'Pre-Trade Checklist', description: 'Customizable entry criteria checklist to enforce discipline and ensure every trade meets your plan.' },
-  { icon: <Wallet className="h-5 w-5 text-primary" />, title: 'Multi-Account Management', description: 'Track live and demo accounts separately with independent balances, currencies, and performance metrics.' },
-];
-
-const benefits = [
-  'Improve trading discipline',
-  'Identify winning patterns',
-  'Track emotional states',
-  'Analyze risk management',
-  'Review past mistakes',
-  'Celebrate successes',
-];
-
-const faqs = [
-  { q: 'What is the best trading journal?', a: 'EdgeFlow is a top-rated professional trading journal combining AI analytics, leak detection, strategy optimization, and multi-account management for traders of all levels.' },
-  { q: 'Is EdgeFlow free to use?', a: 'Yes — EdgeFlow offers a free demo account pre-loaded with 25 sample trades so you can explore every feature before logging your own trades.' },
-  { q: 'What markets does EdgeFlow support?', a: 'EdgeFlow supports forex, stocks, crypto, futures, options, and commodities. Track trades across multiple accounts and asset classes in one place.' },
-  { q: 'How does the AI trading advisor work?', a: 'The AI analyzes your complete trade history to identify patterns, detect performance leaks, and deliver personalized recommendations to improve win rate and risk management.' },
-];
-
-const screenshots = [
-  { title: 'Dashboard Overview', description: 'Track your performance at a glance', gradient: 'from-primary/60 to-primary/20' },
-  { title: 'Trade Journal', description: 'Document every trade with detailed notes', gradient: 'from-primary/40 to-accent/60' },
-  { title: 'Analytics & Reports', description: 'Deep insights into your trading patterns', gradient: 'from-accent/60 to-primary/30' },
-  { title: 'Performance Metrics', description: 'Monitor your progress over time', gradient: 'from-primary/50 to-primary/10' },
-];
-
-/* ── Main Component ── */
-
-export default function Landing() {
-  const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.15], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.15], [1, 0.95]);
-
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const imageRef = useRef<HTMLDivElement>(null);
-  const imageInView = useInView(imageRef, { margin: '-200px' });
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setIsLoggedIn(!!session);
-    });
-  }, []);
-
-  useEffect(() => {
-    if (imageInView) {
-      const interval = setInterval(() => {
-        setCurrentImageIndex((prev) => (prev + 1) % screenshots.length);
-      }, 3000);
-      return () => clearInterval(interval);
-    }
-  }, [imageInView]);
-
-  if (isLoggedIn === null) return null;
-  if (isLoggedIn) return <Navigate to="/dashboard" replace />;
-
-  return (
-    <div ref={containerRef} className="min-h-screen bg-background text-foreground overflow-x-hidden font-sans">
-      <Navbar onNavigate={navigate} />
-
-      {/* Subtle background grid */}
-      <div className="pointer-events-none fixed inset-0 z-0 opacity-[0.03]" style={{
-        backgroundImage: 'radial-gradient(hsl(var(--primary)) 1px, transparent 1px)',
-        backgroundSize: '32px 32px',
-      }} />
-
-      {/* ── Hero ── */}
-      <motion.section style={{ opacity: heroOpacity, scale: heroScale }} className="relative z-10 pt-28 pb-20 sm:pt-36 sm:pb-28">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-1/2 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/5 blur-[120px]" />
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden text-[#f5f0eb]">
+            {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 sm:px-8">
-          <div className="mx-auto max-w-4xl text-center">
+        {/* Mobile menu */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs font-semibold text-primary"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden bg-[#0a0a0a]/95 backdrop-blur-xl border-t border-[#1a3d2b]/30 overflow-hidden"
             >
-              <Sparkles className="h-3.5 w-3.5" />
-              AI-Powered Trading Intelligence
+              <div className="px-6 py-4 flex flex-col gap-3">
+                {['Features', 'How It Works', 'Testimonials', 'Pricing', 'FAQ'].map((item) => (
+                  <a
+                    key={item}
+                    href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-gray-300 py-2 hover:text-[#f5f0eb]"
+                  >
+                    {item}
+                  </a>
+                ))}
+                <hr className="border-[#1a3d2b]/30" />
+                <Button variant="ghost" onClick={() => navigate('/auth')} className="justify-start text-gray-300">Sign In</Button>
+                <button onClick={() => navigate('/auth')} className="w-full px-5 py-2.5 rounded-full bg-[#16a34a] text-white text-sm font-medium">
+                  Start Free Trial →
+                </button>
+              </div>
             </motion.div>
+          )}
+        </AnimatePresence>
+      </nav>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="mb-6 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl"
-            >
-              This Isn't a Journal.{' '}
-              <span className="bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                It's Your Personal Analyst.
-              </span>
-            </motion.h1>
+      {/* ─── HERO ─── */}
+      <section className="relative pt-32 md:pt-44 pb-20 px-6 overflow-hidden">
+        {/* Grain overlay */}
+        <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundSize: '128px 128px',
+        }} />
 
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="mx-auto mb-10 max-w-2xl text-lg leading-relaxed text-muted-foreground"
-            >
-              Stop trading on emotion. Your AI analyst builds systematic confidence in every decision you make.
-            </motion.p>
+        {/* Gradient glow */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[#16a34a]/8 rounded-full blur-[120px] pointer-events-none" />
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-wrap items-center justify-center gap-4"
-            >
-              <Button size="lg" onClick={() => navigate('/auth')} className="px-8 shadow-lg shadow-primary/20">
-                Start Free Trial <ArrowRight className="h-4 w-4" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <StaggerChild delay={0}>
+            <span className="inline-block text-[#16a34a] text-sm font-medium uppercase tracking-[0.2em] mb-6">
+              The Trading Journal That Thinks With You
+            </span>
+          </StaggerChild>
+
+          <StaggerChild delay={0.1}>
+            <h1 className="text-4xl sm:text-5xl md:text-7xl font-['Cormorant_Garamond',serif] font-bold leading-[1.1] mb-6 text-[#f5f0eb]">
+              Most Traders Lose Because They Don't Know Why They{' '}
+              <span className="text-[#22c55e]">Win.</span>
+            </h1>
+          </StaggerChild>
+
+          <StaggerChild delay={0.2}>
+            <p className="text-gray-400 text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed">
+              EdgeFlow analyzes every trade you make — spotting the patterns, leaks, and emotional triggers 
+              that are costing you money. Stop guessing. Start compounding.
+            </p>
+          </StaggerChild>
+
+          <StaggerChild delay={0.3}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+              <button
+                onClick={() => navigate('/auth')}
+                className="relative px-8 py-3.5 rounded-full bg-[#16a34a] text-white font-medium text-base overflow-hidden group"
+              >
+                <span className="relative z-10">Start Free — No Card Needed →</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </button>
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  const el = document.getElementById('platform-preview');
+                  el?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="text-gray-300 border border-[#1a3d2b] hover:border-[#16a34a]/40 hover:bg-transparent px-6 py-3 rounded-full"
+              >
+                See It In Action
               </Button>
-              <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>
-                <Zap className="h-4 w-4" /> Guide Tour
-              </Button>
-            </motion.div>
+            </div>
+          </StaggerChild>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.5 }}
-              className="mt-8 flex items-center justify-center gap-6 text-sm text-muted-foreground"
-            >
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-primary" /> No credit card required</span>
-              <span className="flex items-center gap-1.5"><CheckCircle2 className="h-4 w-4 text-primary" /> 14-day free trial</span>
-            </motion.div>
-          </div>
-        </div>
-      </motion.section>
-
-      {/* ── Stats ── */}
-      <section className="relative z-10 border-y border-border/40 bg-card/30 py-16">
-        <div className="mx-auto grid max-w-4xl grid-cols-2 gap-8 px-4 sm:grid-cols-4 sm:px-8">
-          <StatCard value="10,000+" label="Trades Logged" delay={0} />
-          <StatCard value="4.9★" label="User Rating" delay={0.1} />
-          <StatCard value="24/7" label="AI Advisor" delay={0.2} />
-          <StatCard value="100%" label="Free Demo" delay={0.3} />
+          <StaggerChild delay={0.4}>
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#16a34a]" /> 14-day free trial</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#16a34a]" /> No credit card</span>
+              <span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4 text-[#16a34a]" /> Cancel anytime</span>
+            </div>
+          </StaggerChild>
         </div>
       </section>
 
-      {/* ── Screenshot Carousel ── */}
-      <section className="relative z-10 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <div className="mb-12 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">Platform Preview</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Powerful Interface, Simple Experience</h2>
-            <p className="mx-auto max-w-xl text-muted-foreground">Explore our intuitive platform designed for traders of all levels</p>
+      {/* ─── PLATFORM PREVIEW CAROUSEL ─── */}
+      <Section id="platform-preview" className="py-20 px-6">
+        <div className="text-center mb-12">
+          <p className="text-[#16a34a] uppercase tracking-[0.2em] text-sm font-medium mb-3">Platform Preview</p>
+          <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb] mb-4">
+            Powerful Interface. <span className="text-[#16a34a]">Simple Experience.</span>
+          </h2>
+          <p className="text-gray-400 max-w-xl mx-auto text-lg">
+            Explore the tools built to give you a professional edge.
+          </p>
+        </div>
+        <PlatformCarousel />
+      </Section>
+
+      {/* ─── SOCIAL PROOF BAR ─── */}
+      <SocialProofBar />
+
+      {/* ─── FEATURES ─── */}
+      <Section id="features" className="py-24 px-6 relative">
+        {/* Dot grid bg */}
+        <div className="absolute inset-0 opacity-[0.04] pointer-events-none"
+          style={{
+            backgroundImage: 'radial-gradient(circle, #16a34a 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
+          }}
+        />
+        <div className="max-w-7xl mx-auto relative z-10">
+          <div className="mb-14">
+            <p className="text-[#16a34a] uppercase tracking-[0.2em] text-sm font-medium mb-3">Everything You Need</p>
+            <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb]">Stop Trading Blind.</h2>
           </div>
 
-          <div ref={imageRef} className="relative">
-            <div className="flex gap-6 overflow-hidden">
-              {screenshots.map((screenshot, index) => (
-                <motion.div
-                  key={index}
-                  animate={{
-                    scale: currentImageIndex === index ? 1 : 0.9,
-                    opacity: currentImageIndex === index ? 1 : 0.4,
-                  }}
-                  transition={{ duration: 0.5 }}
-                  className={`min-w-full rounded-2xl border border-border/60 bg-gradient-to-br ${screenshot.gradient} p-8 ${
-                    currentImageIndex === index ? '' : 'hidden'
-                  }`}
-                >
-                  <div className="mb-6 rounded-xl bg-background/60 backdrop-blur-sm p-4">
-                    <h3 className="text-lg font-semibold">{screenshot.title}</h3>
-                    <p className="text-sm text-muted-foreground">{screenshot.description}</p>
-                  </div>
-                  {/* Mock UI */}
-                  <div className="space-y-3">
-                    <div className="flex gap-3">
-                      <div className="h-3 w-1/3 rounded-full bg-foreground/10" />
-                      <div className="h-3 w-1/4 rounded-full bg-foreground/10" />
-                      <div className="h-3 w-1/5 rounded-full bg-foreground/10" />
-                    </div>
-                    <div className="h-32 rounded-xl bg-foreground/5" />
-                    <div className="flex gap-3">
-                      <div className="h-20 flex-1 rounded-xl bg-foreground/5" />
-                      <div className="h-20 flex-1 rounded-xl bg-foreground/5" />
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            {/* Large left card */}
+            <StaggerChild delay={0}>
+              <div className="group h-full rounded-2xl border border-[#1a3d2b]/60 bg-[#0d1a12]/50 p-8 md:p-10 hover:border-[#16a34a]/40 hover:shadow-lg hover:shadow-[#16a34a]/5 transition-all duration-500">
+                <div className="w-14 h-14 rounded-xl bg-[#16a34a]/10 flex items-center justify-center mb-6">
+                  <Brain className="w-7 h-7 text-[#16a34a]" />
+                </div>
+                <h3 className="text-2xl font-bold text-[#f5f0eb] mb-4">AI Trade Advisor</h3>
+                <p className="text-gray-400 leading-relaxed text-base">
+                  Most traders repeat the same mistakes for years. EdgeFlow's AI studies your full trading history, 
+                  identifies your exact leaks in real time, and tells you precisely what to fix — like having a 
+                  professional analyst on call 24/7, for a fraction of the cost.
+                </p>
+              </div>
+            </StaggerChild>
 
-            <div className="mt-6 flex justify-center gap-2">
-              {screenshots.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentImageIndex(index)}
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    currentImageIndex === index ? 'w-8 bg-primary' : 'w-2 bg-muted-foreground/30'
-                  }`}
-                />
+            {/* 2x2 grid right */}
+            <div className="grid sm:grid-cols-2 gap-6">
+              {[
+                { icon: <Search className="w-6 h-6 text-[#16a34a]" />, title: 'Leak Detection Engine', desc: 'Automatically surfaces your worst setups, sessions, and emotional patterns before they drain your account.' },
+                { icon: <Activity className="w-6 h-6 text-[#16a34a]" />, title: 'What-If Simulations', desc: "Filter out your worst trades and instantly see how your equity curve changes. Know your edge precisely." },
+                { icon: <Target className="w-6 h-6 text-[#16a34a]" />, title: 'Pre-Trade Checklist', desc: 'A customizable discipline gate. Every trade must earn its entry before you pull the trigger.' },
+                { icon: <PieChart className="w-6 h-6 text-[#16a34a]" />, title: 'Multi-Account Management', desc: 'Track live, demo, and prop firm accounts separately, all under one roof with independent analytics.' },
+              ].map((f, i) => (
+                <StaggerChild key={f.title} delay={0.1 * (i + 1)}>
+                  <div className="group rounded-2xl border border-[#1a3d2b]/60 bg-[#0d1a12]/50 p-6 hover:border-[#16a34a]/40 hover:shadow-lg hover:shadow-[#16a34a]/5 transition-all duration-500 h-full">
+                    <div className="w-10 h-10 rounded-lg bg-[#16a34a]/10 flex items-center justify-center mb-4">
+                      {f.icon}
+                    </div>
+                    <h3 className="text-lg font-bold text-[#f5f0eb] mb-2">{f.title}</h3>
+                    <p className="text-gray-400 text-sm leading-relaxed">{f.desc}</p>
+                  </div>
+                </StaggerChild>
               ))}
             </div>
           </div>
         </div>
-      </section>
+      </Section>
 
-      {/* ── Features ── */}
-      <section id="features" className="relative z-10 border-t border-border/40 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <div className="mb-16 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">Everything You Need</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Professional-Grade Trading Analytics</h2>
-            <p className="mx-auto max-w-xl text-muted-foreground">
-              Built for traders who are serious about finding their edge and eliminating costly mistakes.
+      {/* ─── HOW IT WORKS ─── */}
+      <Section id="how-it-works" className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-[#16a34a] uppercase tracking-[0.2em] text-sm font-medium mb-3">Simple Process</p>
+            <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb]">
+              From Trade to Insight in Seconds.
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              { step: '01', title: 'Log Your Trade', desc: 'Add your instrument, direction, R-size, session, strategy tag, and emotional state. Takes 30 seconds.' },
+              { step: '02', title: 'See Your Patterns', desc: 'Instant equity curves, session breakdowns, win rates by setup — everything visualized clearly.' },
+              { step: '03', title: 'Get Your Edge', desc: 'Your AI advisor delivers personalized weekly recommendations based on YOUR actual data. Not generic advice. Your patterns. Your fixes.' },
+            ].map((s, i) => (
+              <StaggerChild key={s.step} delay={0.15 * i}>
+                <div className="relative rounded-2xl border border-[#1a3d2b]/40 bg-[#0d1a12]/30 p-8 text-center">
+                  <span className="text-[#16a34a]/30 text-6xl font-bold font-['Cormorant_Garamond',serif] absolute top-4 right-6">{s.step}</span>
+                  <div className="relative z-10">
+                    <h3 className="text-xl font-bold text-[#f5f0eb] mb-3 mt-8">{s.title}</h3>
+                    <p className="text-gray-400 leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              </StaggerChild>
+            ))}
+          </div>
+        </div>
+      </Section>
+
+      {/* ─── WHY TRADERS LOVE US ─── */}
+      <Section className="py-24 px-6">
+        <div className="max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <p className="text-[#16a34a] uppercase tracking-[0.2em] text-sm font-medium mb-3">Why Traders Love Us</p>
+            <h2 className="text-3xl md:text-4xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb] mb-6">
+              The Difference Between Breaking Even and Breakthrough.
+            </h2>
+            <p className="text-gray-400 leading-relaxed mb-8">
+              Thousands of retail traders have used EdgeFlow to finally understand what separates their winning days 
+              from their losing ones — and systematically close the gap.
+            </p>
+            <div className="space-y-3">
+              {[
+                'Identify and eliminate your most expensive habits',
+                'Build unshakeable confidence through data, not hope',
+                'Know exactly which setups, sessions, and markets to own',
+              ].map((b) => (
+                <div key={b} className="flex items-start gap-3">
+                  <CheckCircle2 className="w-5 h-5 text-[#16a34a] mt-0.5 shrink-0" />
+                  <span className="text-gray-300">{b}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Stats card */}
+          <StaggerChild delay={0.2}>
+            <div className="rounded-2xl border border-[#1a3d2b]/60 bg-[#0d1a12]/50 p-8 grid grid-cols-2 gap-6">
+              {[
+                { label: 'Win Rate', value: '68%' },
+                { label: 'Average R', value: '2.4R' },
+                { label: 'Drawdown Reduction', value: '-34%' },
+                { label: 'Active Traders', value: '10K+' },
+              ].map((s) => (
+                <div key={s.label} className="text-center">
+                  <p className="text-3xl font-bold text-[#22c55e] mb-1">{s.value}</p>
+                  <p className="text-gray-500 text-sm">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </StaggerChild>
+        </div>
+      </Section>
+
+      {/* ─── TESTIMONIALS ─── */}
+      <Section id="testimonials" className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-14">
+            <p className="text-[#16a34a] uppercase tracking-[0.2em] text-sm font-medium mb-3">Trusted By Traders</p>
+            <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb]">
+              Real Traders. Real Results.
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+            {[
+              { name: 'Alex M.', type: 'Forex Trader', initials: 'AM', quote: 'I was hemorrhaging money every Friday. EdgeFlow flagged it in under 5 minutes. I cut Fridays — win rate jumped 14% that month alone.' },
+              { name: 'Sarah K.', type: 'Crypto Trader', initials: 'SK', quote: "It's like having a coach who has watched every single trade I've ever taken. The AI pattern detection is frighteningly accurate." },
+              { name: 'James R.', type: 'Futures Trader', initials: 'JR', quote: "The What-If tool showed me I was giving back 40% of my profits on revenge trades. That one insight paid for years of subscription." },
+            ].map((t, i) => (
+              <StaggerChild key={t.name} delay={0.1 * i}>
+                <div className="group rounded-2xl border border-[#1a3d2b]/60 bg-[#0d1a12]/50 p-7 hover:border-[#16a34a]/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-[#16a34a]/5 transition-all duration-300">
+                  <p className="text-gray-300 leading-relaxed mb-6 italic">"{t.quote}"</p>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-[#16a34a]/20 flex items-center justify-center text-[#16a34a] font-bold text-sm">
+                      {t.initials}
+                    </div>
+                    <div>
+                      <p className="text-[#f5f0eb] font-medium text-sm">{t.name}</p>
+                      <p className="text-gray-500 text-xs">{t.type}</p>
+                    </div>
+                  </div>
+                </div>
+              </StaggerChild>
+            ))}
+          </div>
+          <p className="text-center text-gray-600 text-xs mt-6">
+            Testimonials are illustrative examples. Individual results vary.
+          </p>
+        </div>
+      </Section>
+
+      {/* ─── PRICING ─── */}
+      <Section id="pricing" className="py-24 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="text-center mb-10">
+            <p className="text-[#16a34a] uppercase tracking-[0.2em] text-sm font-medium mb-3">Simple Pricing</p>
+            <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb] mb-4">
+              Invest in Your Edge.
+            </h2>
+            <p className="text-gray-400 max-w-xl mx-auto">
+              Start free. Upgrade when you're ready. No hidden fees, no surprises.
             </p>
           </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((feature, index) => (
-              <FeatureCard key={feature.title} {...feature} delay={index * 0.08} />
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ── How It Works ── */}
-      <section id="how-it-works" className="relative z-10 border-t border-border/40 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <div className="mb-16 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">Simple Process</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">How EdgeFlow Works</h2>
-          </div>
-          <div className="mx-auto grid max-w-4xl gap-8 sm:grid-cols-3">
-            {[
-              { step: '01', icon: BookOpen, title: 'Log Your Trades', desc: 'Enter trade details including instrument, direction, P&L, strategy, session, and emotional state.' },
-              { step: '02', icon: LineChart, title: 'Analyze Performance', desc: 'Instantly see equity curves, win rates, R-multiples, and leak detection across all your accounts.' },
-              { step: '03', icon: Activity, title: 'Get AI Insights', desc: 'Your AI advisor identifies patterns and delivers actionable recommendations to improve your edge.' },
-            ].map((s, i) => (
+          {/* Billing toggle */}
+          <div className="flex items-center justify-center gap-4 mb-12">
+            <span className={`text-sm ${!billingAnnual ? 'text-[#f5f0eb]' : 'text-gray-500'}`}>Monthly</span>
+            <button
+              onClick={() => setBillingAnnual(!billingAnnual)}
+              className="relative w-14 h-7 rounded-full bg-[#1a3d2b] transition-colors"
+            >
               <motion.div
-                key={s.step}
-                className="text-center"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.15, duration: 0.5 }}
-              >
-                <div className="mb-3 text-5xl font-bold text-primary/15">{s.step}</div>
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
-                  <s.icon className="h-6 w-6 text-primary" />
+                className="absolute top-1 w-5 h-5 rounded-full bg-[#16a34a]"
+                animate={{ left: billingAnnual ? '2rem' : '0.25rem' }}
+                transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+              />
+            </button>
+            <span className={`text-sm ${billingAnnual ? 'text-[#f5f0eb]' : 'text-gray-500'}`}>Annual</span>
+            <AnimatePresence>
+              {billingAnnual && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="text-xs bg-[#16a34a]/20 text-[#22c55e] px-2.5 py-1 rounded-full font-medium"
+                >
+                  Save up to 34%
+                </motion.span>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Cards */}
+          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {plans.map((plan, i) => (
+              <StaggerChild key={plan.name} delay={0.1 * i}>
+                <div
+                  className={`relative rounded-2xl p-7 h-full flex flex-col ${
+                    plan.featured
+                      ? 'border-2 border-[#16a34a]/60 bg-[#0d1a12]/70 shadow-lg shadow-[#16a34a]/10 scale-[1.02]'
+                      : 'border border-[#1a3d2b]/60 bg-[#0d1a12]/40'
+                  }`}
+                >
+                  {plan.featured && (
+                    <span className="absolute -top-3 right-6 bg-[#16a34a] text-white text-xs font-medium px-3 py-1 rounded-full">
+                      Most Popular
+                    </span>
+                  )}
+                  <h3 className="text-xl font-bold text-[#f5f0eb] mb-1">{plan.name}</h3>
+                  <p className="text-gray-500 text-sm mb-4">{plan.subtitle}</p>
+                  <div className="flex items-baseline gap-1 mb-6">
+                    <span className="text-4xl font-bold text-[#f5f0eb]">{plan.price}</span>
+                    <span className="text-gray-500 text-sm">{plan.period}</span>
+                  </div>
+                  <div className="space-y-3 mb-8 flex-1">
+                    {plan.features.map((f) => (
+                      <div key={f.text} className="flex items-start gap-2.5">
+                        {f.included ? (
+                          <CheckCircle2 className="w-4 h-4 text-[#16a34a] mt-0.5 shrink-0" />
+                        ) : (
+                          <X className="w-4 h-4 text-gray-600 mt-0.5 shrink-0" />
+                        )}
+                        <span className={`text-sm ${f.included ? 'text-gray-300' : 'text-gray-600'}`}>{f.text}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => navigate('/auth')}
+                    className={`w-full py-3 rounded-full text-sm font-medium transition-all relative overflow-hidden group ${
+                      plan.featured
+                        ? 'bg-[#16a34a] text-white hover:bg-[#16a34a]/90'
+                        : 'border border-[#1a3d2b] text-[#f5f0eb] hover:border-[#16a34a]/50'
+                    }`}
+                  >
+                    <span className="relative z-10">{plan.cta}</span>
+                    {plan.featured && (
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+                    )}
+                  </button>
+                  <p className="text-center text-gray-600 text-xs mt-3">{plan.finePrint}</p>
                 </div>
-                <h3 className="mb-2 text-base font-bold">{s.title}</h3>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
-              </motion.div>
+              </StaggerChild>
+            ))}
+          </div>
+
+          <p className="text-center text-gray-500 text-sm mt-10">
+            All plans include: 14-day free trial on paid plans · SSL encryption · Cancel anytime · No setup fees
+          </p>
+          <p className="text-center text-gray-600 text-sm mt-2">
+            Need a custom plan for a trading team or fund?{' '}
+            <a href="mailto:support@edgeflow.io" className="text-[#16a34a] hover:underline">Contact us →</a>
+          </p>
+        </div>
+      </Section>
+
+      {/* ─── FAQ ─── */}
+      <Section id="faq" className="py-24 px-6">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb] text-center mb-12">
+            Frequently Asked Questions
+          </h2>
+          <div>
+            {faqData.map((faq, i) => (
+              <FaqItem
+                key={i}
+                q={faq.q}
+                a={faq.a}
+                isOpen={openFaq === i}
+                toggle={() => setOpenFaq(openFaq === i ? null : i)}
+              />
             ))}
           </div>
         </div>
-      </section>
+      </Section>
 
-      {/* ── Benefits ── */}
-      <section className="relative z-10 border-t border-border/40 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <div className="grid items-center gap-12 lg:grid-cols-2">
-            <div>
-              <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">Why Traders Love Us</p>
-              <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Why Traders Love Our Platform</h2>
-              <p className="mb-8 max-w-lg text-muted-foreground">
-                Join thousands of successful traders who have transformed their trading journey with our comprehensive journaling solution.
+      {/* ─── FINAL CTA ─── */}
+      <Section className="py-24 px-6">
+        <div className="max-w-3xl mx-auto text-center relative">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-[#16a34a]/8 rounded-full blur-[100px] pointer-events-none" />
+          <div className="relative z-10">
+            <h2 className="text-3xl md:text-5xl font-['Cormorant_Garamond',serif] font-bold text-[#f5f0eb] mb-6">
+              Your Next Losing Streak Is Preventable.
+            </h2>
+            <p className="text-gray-400 text-lg mb-10 max-w-2xl mx-auto leading-relaxed">
+              Most traders keep repeating the same mistakes because they never look back systematically. 
+              EdgeFlow makes sure you do — automatically, intelligently, effortlessly.
+            </p>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+              <button
+                onClick={() => navigate('/auth')}
+                className="relative px-8 py-3.5 rounded-full bg-[#16a34a] text-white font-medium overflow-hidden group"
+              >
+                <span className="relative z-10">Start Free Trial →</span>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700" />
+              </button>
+              <Button
+                variant="ghost"
+                className="text-gray-300 border border-[#1a3d2b] hover:border-[#16a34a]/40 hover:bg-transparent px-6 py-3 rounded-full"
+              >
+                Schedule a Demo
+              </Button>
+            </div>
+            <p className="text-gray-600 text-sm">No credit card · 14-day free trial · Cancel anytime</p>
+          </div>
+        </div>
+      </Section>
+
+      {/* ─── FOOTER ─── */}
+      <footer className="border-t border-[#1a3d2b]/30 py-16 px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="grid md:grid-cols-5 gap-10 mb-12">
+            <div className="md:col-span-2">
+              <div className="flex items-center gap-2 mb-4">
+                <img src={logoImg} alt="EdgeFlow" className="w-6 h-6" />
+                <span className="text-[#f5f0eb] font-semibold">EdgeFlow</span>
+              </div>
+              <p className="text-gray-500 text-sm leading-relaxed mb-4">
+                The trading journal that works as hard as you do.
               </p>
-              <div className="grid gap-3 sm:grid-cols-2">
-                {benefits.map((benefit, index) => (
-                  <motion.div
-                    key={benefit}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: index * 0.08 }}
-                    className="flex items-center gap-3"
-                  >
-                    <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <CheckCircle2 className="h-3.5 w-3.5 text-primary" />
-                    </div>
-                    <span className="text-sm">{benefit}</span>
-                  </motion.div>
+              <div className="flex gap-3">
+                {[Twitter, Linkedin, MessageCircle, Mail].map((Icon, i) => (
+                  <a key={i} href="#" className="w-9 h-9 rounded-full border border-[#1a3d2b]/60 flex items-center justify-center text-gray-500 hover:text-[#16a34a] hover:border-[#16a34a]/40 transition-colors">
+                    <Icon className="w-4 h-4" />
+                  </a>
                 ))}
               </div>
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              className="relative"
-            >
-              <div className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-8">
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    { icon: TrendingUp, label: 'Win Rate', value: '68%' },
-                    { icon: BarChart3, label: 'Avg R', value: '2.4R' },
-                    { icon: PieChart, label: 'Best Session', value: 'London' },
-                    { icon: Users, label: 'Active Users', value: '5K+' },
-                  ].map(({ icon: Icon, label, value }) => (
-                    <div key={label} className="rounded-xl bg-background/60 p-4 text-center">
-                      <Icon className="mx-auto mb-2 h-5 w-5 text-primary" />
-                      <p className="text-lg font-bold">{value}</p>
-                      <p className="text-xs text-muted-foreground">{label}</p>
-                    </div>
+            {[
+              { title: 'Product', links: ['Features', 'Pricing', 'Security', 'Updates'] },
+              { title: 'Company', links: ['About', 'Blog', 'Careers', 'Contact'] },
+              { title: 'Resources', links: ['Documentation', 'Help Center', 'Community', 'API'] },
+            ].map((col) => (
+              <div key={col.title}>
+                <h4 className="text-[#f5f0eb] font-medium text-sm mb-4">{col.title}</h4>
+                <div className="space-y-2.5">
+                  {col.links.map((link) => (
+                    <a key={link} href="#" className="block text-gray-500 text-sm hover:text-gray-300 transition-colors">{link}</a>
                   ))}
                 </div>
               </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* ── Testimonials ── */}
-      <section id="testimonials" className="relative z-10 border-t border-border/40 py-20 sm:py-28">
-        <div className="mx-auto max-w-7xl px-4 sm:px-8">
-          <div className="mb-16 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">Trusted by Traders</p>
-            <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">What Traders Are Saying</h2>
-          </div>
-          <div className="mx-auto grid max-w-4xl gap-6 sm:grid-cols-3">
-            {[
-              { quote: 'EdgeFlow helped me identify that my Friday trades were bleeding my account. Cut them and my win rate jumped 12%.', name: 'Alex M.', role: 'Forex Trader' },
-              { quote: 'The AI advisor is like having a mentor who actually knows my trading data. Game-changer for accountability.', name: 'Sarah K.', role: 'Crypto Trader' },
-              { quote: "Best trading journal I've used. The What-If simulations alone saved me thousands in potential losses.", name: 'James R.', role: 'Futures Trader' },
-            ].map((t, i) => (
-              <motion.div
-                key={t.name}
-                className="rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-6"
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1, duration: 0.5 }}
-              >
-                <p className="mb-4 text-sm italic text-muted-foreground">"{t.quote}"</p>
-                <p className="text-sm font-bold">{t.name}</p>
-                <p className="text-xs text-muted-foreground">{t.role}</p>
-              </motion.div>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── FAQ ── */}
-      <section id="faq" className="relative z-10 border-t border-border/40 py-20 sm:py-28">
-        <div className="mx-auto max-w-3xl px-4 sm:px-8">
-          <div className="mb-12 text-center">
-            <p className="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-primary">FAQ</p>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Frequently Asked Questions</h2>
-          </div>
-          <div className="space-y-4">
-            {faqs.map((faq) => (
-              <details key={faq.q} className="group rounded-xl border border-border/60 bg-card/50 backdrop-blur-sm">
-                <summary className="flex cursor-pointer list-none items-center justify-between p-5 text-sm font-semibold">
-                  {faq.q}
-                  <ArrowRight className="h-4 w-4 text-muted-foreground transition-transform group-open:rotate-90" />
-                </summary>
-                <p className="px-5 pb-5 text-sm leading-relaxed text-muted-foreground">{faq.a}</p>
-              </details>
-            ))}
+          <div className="border-t border-[#1a3d2b]/30 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <p className="text-gray-600 text-xs">© 2026 EdgeFlow. All rights reserved.</p>
+            <div className="flex gap-6 text-xs text-gray-600">
+              <a href="#" className="hover:text-gray-400">Privacy Policy</a>
+              <a href="#" className="hover:text-gray-400">Terms of Service</a>
+              <a href="#" className="hover:text-gray-400">Cookie Policy</a>
+            </div>
           </div>
         </div>
-      </section>
+      </footer>
+    </div>
+  );
+}
 
-      {/* ── CTA ── */}
-      <section className="relative z-10 border-t border-border/40 py-20 sm:py-28">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[100px]" />
-        </div>
-        <div className="relative mx-auto max-w-3xl px-4 text-center sm:px-8">
-          <h2 className="mb-4 text-3xl font-bold tracking-tight sm:text-4xl">Ready to Transform Your Trading?</h2>
-          <p className="mx-auto mb-8 max-w-xl text-muted-foreground">
-            Start your free trial today and join thousands of successful traders.
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <Button size="lg" onClick={() => navigate('/auth')} className="px-8 shadow-lg shadow-primary/20">
-              Get Started Free <ArrowRight className="h-4 w-4" />
-            </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate('/auth')}>Schedule a Demo</Button>
-          </div>
-          <p className="mt-6 text-xs text-muted-foreground">
-            No credit card required • 14-day free trial • Cancel anytime
-          </p>
-        </div>
-      </section>
+/* ══════════════════════════════════════════
+   SOCIAL PROOF BAR
+   ══════════════════════════════════════════ */
+function SocialProofBar() {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: true });
 
-      <Footer />
+  const stats = [
+    { label: 'Trades Analyzed Daily', value: 'Thousands' },
+    { label: 'Loved by traders worldwide', value: '⭐' },
+    { label: 'AI Advisor', value: '24/7' },
+    { label: 'Track and improve your win rate', value: '📈' },
+  ];
+
+  return (
+    <div ref={ref} className="py-12 px-6 bg-[#0d1a12]/60 border-y border-[#1a3d2b]/30">
+      <div className="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        {stats.map((s, i) => (
+          <motion.div
+            key={s.label}
+            initial={{ opacity: 0, y: 20 }}
+            animate={isInView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 * i }}
+          >
+            <p className="text-2xl md:text-3xl font-bold text-[#22c55e] mb-1">{s.value}</p>
+            <p className="text-gray-500 text-sm">{s.label}</p>
+          </motion.div>
+        ))}
+      </div>
     </div>
   );
 }
