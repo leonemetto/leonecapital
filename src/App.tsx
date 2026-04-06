@@ -27,6 +27,7 @@ import TradingPlan from "./pages/TradingPlan";
 import PerformanceAnalyst from "./pages/PerformanceAnalyst";
 import Guide from "./pages/Guide";
 import Auth from "./pages/Auth";
+import AuthCallback from "./pages/AuthCallback";
 import Landing from "./pages/Landing";
 import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
