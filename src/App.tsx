@@ -28,6 +28,7 @@ import PerformanceAnalyst from "./pages/PerformanceAnalyst";
 import Guide from "./pages/Guide";
 import Auth from "./pages/Auth";
 import Landing from "./pages/Landing";
+import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -157,6 +158,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={
               <AuthGate>
