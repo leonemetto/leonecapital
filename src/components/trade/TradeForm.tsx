@@ -199,8 +199,28 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <Label htmlFor="date" className="text-[10px] text-muted-foreground uppercase tracking-wider">Date</Label>
-          <Input id="date" type="date" value={form.date.slice(0, 10)} onChange={e => update('date', e.target.value)}
-            className="mt-1 bg-secondary border-border font-mono text-sm h-9" />
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                className={cn(
+                  "mt-1 flex h-9 w-full items-center justify-between rounded-md border border-border bg-secondary px-3 py-2 text-sm font-mono",
+                  !form.date && "text-muted-foreground"
+                )}
+              >
+                {form.date ? form.date.slice(0, 10) : "Pick a date"}
+                <CalendarIcon className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-3 pointer-events-auto" align="start">
+              <RacCalendar
+                value={form.date ? parseDate(form.date.slice(0, 10)) : undefined}
+                onChange={(val: DateValue) => {
+                  if (val) update('date', val.toString());
+                }}
+              />
+            </PopoverContent>
+          </Popover>
         </div>
         <div>
           <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Instrument</Label>
