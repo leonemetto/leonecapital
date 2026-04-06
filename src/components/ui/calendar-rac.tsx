@@ -82,9 +82,7 @@ const Calendar = ({ className, ...props }: CalendarProps) => {
   return (
     <CalendarRac
       {...props}
-      className={composeRenderProps(props.className, (className) =>
-        cn("w-fit", className),
-      )}
+      className={cn("w-fit", className)}
     >
       <CalendarHeader />
       <CalendarGridComponent />
@@ -96,9 +94,7 @@ const RangeCalendar = ({ className, ...props }: RangeCalendarProps) => {
   return (
     <RangeCalendarRac
       {...props}
-      className={composeRenderProps(props.className, (className) =>
-        cn("w-fit", className),
-      )}
+      className={cn("w-fit", className)}
     >
       <CalendarHeader />
       <CalendarGridComponent isRange />
