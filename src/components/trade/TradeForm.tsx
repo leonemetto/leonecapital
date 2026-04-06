@@ -11,12 +11,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CreatableSelect } from '@/components/ui/creatable-select';
 import { useCustomOptions } from '@/hooks/useCustomOptions';
 import { toast } from 'sonner';
-import { ArrowUpRight, ArrowDownRight, Zap, HelpCircle } from 'lucide-react';
+import { ArrowUpRight, ArrowDownRight, Zap, HelpCircle, CalendarIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { RacCalendar } from '@/components/ui/calendar-rac';
 import { useCriteria } from '@/hooks/useCriteria';
 import { TradeChecklist } from '@/components/criteria/TradeChecklist';
 import { supabase } from '@/integrations/supabase/client';
+import { parseDate } from '@internationalized/date';
+import type { DateValue } from 'react-aria-components';
 
 interface TradeFormProps {
   initialData?: Trade;
