@@ -40,25 +40,31 @@ function ExpectancyTable({
   const maxAbsExpectancy = Math.max(...data.map(r => Math.abs(r.expectancy)), 0.001);
   const maxAbsR = Math.max(...data.map(r => Math.abs(r.avgR)), 0.001);
 
+  // Visual ranking: best = highest expectancy, worst = lowest expectancy
+  const maxExp = Math.max(...data.map(r => r.expectancy));
+  const minExp = Math.min(...data.map(r => r.expectancy));
+
   return (
     <div className="glass-card p-4">
-      <h3 className="text-[10px] font-semibold mb-3 text-muted-foreground uppercase tracking-widest">{title}</h3>
+      <h3 className="text-[10px] font-semibold mb-3 uppercase tracking-[0.12em]" style={{ color: 'rgba(255,255,255,0.3)' }}>{title}</h3>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
             <tr className="border-b border-border">
-              <th className="text-left p-2 text-[10px] text-muted-foreground uppercase">Segment</th>
-              <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">Trades</th>
-              <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">Win%</th>
-              <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">Avg R</th>
-              <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">Expect.</th>
-              <th className="text-right p-2 text-[10px] text-muted-foreground uppercase">P&L</th>
-              {onSimulate && <th className="text-right p-2 text-[10px] text-muted-foreground uppercase w-8"></th>}
+              <th className="text-left p-2 text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.35)' }}>Segment</th>
+              <th className="text-right p-2 text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.35)' }}>Trades</th>
+              <th className="text-right p-2 text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.35)' }}>Win%</th>
+              <th className="text-right p-2 text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.35)' }}>Avg R</th>
+              <th className="text-right p-2 text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.35)' }}>Expect.</th>
+              <th className="text-right p-2 text-[11px] font-medium uppercase tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.35)' }}>P&L</th>
+              {onSimulate && <th className="text-right p-2 text-[11px] font-medium uppercase w-8" style={{ color: 'rgba(255,255,255,0.35)' }}></th>}
             </tr>
           </thead>
           <tbody>
             {data.map(row => {
               const isLeak = row.expectancy < 0;
+              const isBest = data.length > 1 && row.expectancy === maxExp;
+              const isWorst = data.length > 1 && row.expectancy === minExp && minExp < 0;
               const expectBarWidth = Math.min((Math.abs(row.expectancy) / maxAbsExpectancy) * 100, 100);
               const avgRBarWidth = Math.min((Math.abs(row.avgR) / maxAbsR) * 100, 100);
 
@@ -69,13 +75,11 @@ function ExpectancyTable({
                     'border-b border-border/30 hover:bg-secondary/30 transition-colors duration-200',
                     isLeak && 'bg-loss/5'
                   )}
+                  style={isBest ? { borderLeft: '2px solid rgba(74,222,128,0.5)' } : isWorst ? { borderLeft: '2px solid rgba(248,113,113,0.5)' } : {}}
                 >
-                  <td className="p-2 font-medium">
+                  <td className="p-2 font-medium" style={{ color: 'rgba(255,255,255,0.8)', fontSize: 13 }}>
                     <div className="flex items-center gap-1.5">
                       {row.key}
-                      {row.sampleWarning && (
-                        <span className="text-[9px] text-amber-500" title="Low sample size">⚠</span>
-                      )}
                       {isLeak && (
                         <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full" data-tour="leak-badge">
                           <AlertTriangle className="h-2.5 w-2.5" />
@@ -152,13 +156,30 @@ function ExpectancyTable({
 }
 
 // ─── Behavioral Alert Card ───
-function BehavioralAlerts({ insights }: { insights: BehavioralInsight[] }) {
-  if (insights.length === 0) return (
+function BehavioralAlerts({ insights, tradeCount }: { insights: BehavioralInsight[]; tradeCount: number }) {
+  const THRESHOLD = 20;
+  if (tradeCount < THRESHOLD) return (
     <div className="glass-card p-4">
-      <h3 className="text-[10px] font-semibold mb-3 text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+      <h3 className="text-[10px] font-semibold mb-3 uppercase tracking-[0.12em] flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
         <Brain className="h-3.5 w-3.5" /> Behavioral Patterns
       </h3>
-      <p className="text-xs text-muted-foreground">Not enough data to detect patterns. Keep logging.</p>
+      <p className="text-sm font-medium text-white mb-1">Log at least 20 trades to detect behavioral patterns</p>
+      <p className="text-xs mb-3" style={{ color: 'rgba(255,255,255,0.4)' }}>EdgeFlow needs enough data to surface meaningful patterns in your trading behavior.</p>
+      <div className="flex items-center gap-3">
+        <div className="flex-1 h-1.5 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+          <div className="h-full bg-white/40 rounded-full transition-all" style={{ width: `${Math.min((tradeCount / THRESHOLD) * 100, 100)}%` }} />
+        </div>
+        <span className="text-[11px] font-mono shrink-0" style={{ color: 'rgba(255,255,255,0.4)' }}>{tradeCount}/{THRESHOLD} trades logged</span>
+      </div>
+    </div>
+  );
+
+  if (insights.length === 0) return (
+    <div className="glass-card p-4">
+      <h3 className="text-[10px] font-semibold mb-3 uppercase tracking-[0.12em] flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
+        <Brain className="h-3.5 w-3.5" /> Behavioral Patterns
+      </h3>
+      <p className="text-xs" style={{ color: 'rgba(255,255,255,0.4)' }}>No significant behavioral patterns detected. Keep logging consistently.</p>
     </div>
   );
 
@@ -167,7 +188,7 @@ function BehavioralAlerts({ insights }: { insights: BehavioralInsight[] }) {
 
   return (
     <div className="glass-card p-4">
-      <h3 className="text-[10px] font-semibold mb-3 text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+      <h3 className="text-[10px] font-semibold mb-3 uppercase tracking-[0.12em] flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
         <Brain className="h-3.5 w-3.5" /> Behavioral Patterns
       </h3>
       <div className="space-y-2">
@@ -320,7 +341,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
 
   return (
     <div className="glass-card p-4">
-      <h3 className="text-[10px] font-semibold mb-3 text-muted-foreground uppercase tracking-widest flex items-center gap-1.5">
+      <h3 className="text-[10px] font-semibold mb-3 uppercase tracking-[0.12em] flex items-center gap-1.5" style={{ color: 'rgba(255,255,255,0.3)' }}>
         <Zap className="h-3.5 w-3.5" /> Strategy Optimizer — "What If?"
       </h3>
 
@@ -532,7 +553,7 @@ const PerformanceAnalyst = () => {
           <div className="p-3 rounded-xl bg-primary/10 mb-5">
             <BarChart3 className="h-8 w-8 text-primary" />
           </div>
-          <h1 className="text-xl font-bold mb-1.5">Performance Analyst</h1>
+          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px] mb-1.5">Performance Analyst</h1>
           <p className="text-sm text-muted-foreground">Log trades to unlock intelligence.</p>
         </div>
       </AppLayout>
@@ -542,7 +563,7 @@ const PerformanceAnalyst = () => {
   return (
     <AppLayout>
       <div className="flex items-center justify-between mb-4">
-        <h1 className="text-xl font-bold">Performance Analyst</h1>
+        <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Performance Analyst</h1>
         {accounts.length > 0 && (
           <div className="flex items-center gap-2">
             <Filter className="h-3.5 w-3.5 text-muted-foreground" />
@@ -592,7 +613,7 @@ const PerformanceAnalyst = () => {
 
       {/* Behavioral Patterns */}
       <div className="mb-4">
-        <BehavioralAlerts insights={behavioral} />
+        <BehavioralAlerts insights={behavioral} tradeCount={filteredTrades.length} />
       </div>
 
       {/* Expectancy Breakdowns */}

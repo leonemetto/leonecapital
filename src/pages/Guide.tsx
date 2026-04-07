@@ -91,7 +91,7 @@ export default function Guide() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-xl font-bold">Platform Guide</h1>
+            <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Platform Guide</h1>
             <p className="text-xs text-muted-foreground mt-0.5">
               {guideProgress.length}/{SECTIONS.length} sections completed
             </p>
@@ -117,14 +117,14 @@ export default function Guide() {
                   className={cn(
                     'flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-left transition-all text-xs',
                     i === activeIndex
-                      ? 'bg-primary/10 text-primary font-semibold'
-                      : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+                      ? 'bg-white/10 text-white font-semibold border-l-2 border-white pl-[10px]'
+                      : 'border-l-2 border-transparent pl-[10px] hover:bg-white/5 hover:text-white'
                   )}
                 >
                   {done ? (
-                    <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
+                    <CheckCircle2 className="h-4 w-4 text-white shrink-0" />
                   ) : (
-                    <Icon className="h-4 w-4 shrink-0" />
+                    <Icon className="h-4 w-4 shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }} />
                   )}
                   <span className="truncate">{s.title}</span>
                 </button>
@@ -144,8 +144,8 @@ export default function Guide() {
               >
                 <div className="glass-card p-6">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="p-2.5 rounded-xl bg-primary/10">
-                      <activeSection.icon className="h-5 w-5 text-primary" />
+                    <div className="p-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
+                      <activeSection.icon className="h-5 w-5" style={{ color: 'rgba(255,255,255,0.6)' }} />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold">{activeSection.title}</h2>
@@ -187,7 +187,7 @@ export default function Guide() {
                           key={i}
                           className={cn(
                             'h-1.5 rounded-full transition-all',
-                            i === activeIndex ? 'w-6 bg-primary' : isCompleted(SECTIONS[i].id) ? 'w-1.5 bg-primary/40' : 'w-1.5 bg-border'
+                            i === activeIndex ? 'w-6 bg-white' : isCompleted(SECTIONS[i].id) ? 'w-1.5 bg-white/30' : 'w-1.5 bg-white/10'
                           )}
                         />
                       ))}
@@ -195,7 +195,7 @@ export default function Guide() {
 
                     <Button
                       size="sm"
-                      className="text-xs gap-1"
+                      className="text-xs gap-1 bg-white text-black hover:bg-white/90 rounded-[24px]"
                       onClick={handleContinue}
                     >
                       {isLast ? 'Finish Guide' : 'Continue'}
@@ -214,7 +214,7 @@ export default function Guide() {
                   onClick={() => setActiveIndex(i)}
                   className={cn(
                     'px-3 py-1.5 rounded-full text-[10px] font-medium whitespace-nowrap transition-all',
-                    i === activeIndex ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'
+                    i === activeIndex ? 'bg-white text-black' : 'bg-white/5 text-white/50'
                   )}
                 >
                   {s.title}

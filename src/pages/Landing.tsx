@@ -133,7 +133,7 @@ const ProductCards = () => (
               <p className="text-white/[0.3] text-[10px]">Total P&L</p>
             </div>
             <div>
-              <p className="text-[#22c55e] font-bold text-sm">68%</p>
+              <p className="text-white font-bold text-sm">68%</p>
               <p className="text-white/[0.3] text-[10px]">Win Rate</p>
             </div>
             <div>
@@ -159,7 +159,7 @@ const ProductCards = () => (
                 <div className="flex items-center gap-2.5">
                   <span className="text-white text-sm font-medium">{t.pair}</span>
                   <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
-                    t.dir === 'Long' ? 'bg-[#22c55e]/10 text-[#22c55e]' : 'bg-red-500/10 text-red-400'
+                    t.dir === 'Long' ? 'bg-white/10 text-white/80' : 'bg-red-500/10 text-red-400'
                   }`}>{t.dir}</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -176,7 +176,7 @@ const ProductCards = () => (
       <FadeUp delay={0.3}>
         <div className="bg-[#0c0c0c] border border-white/[0.06] rounded-2xl p-5 h-[280px] overflow-hidden">
           <p className="text-[11px] uppercase tracking-[0.12em] text-white/[0.35] font-semibold mb-4">AI Insight</p>
-          <div className="border-l-2 border-[#22c55e]/40 pl-4 mb-4">
+          <div className="border-l-2 border-white/20 pl-4 mb-4">
             <p className="text-white/[0.65] text-[13px] leading-relaxed">
               Your London session win rate <span className="text-white font-semibold">(74%)</span> is 2.3x better than NY. Consider reducing NY exposure by 40%.
             </p>
@@ -391,7 +391,7 @@ export default function Landing() {
           <FadeUp delay={0.3}>
             <div className="flex flex-col sm:flex-row items-start gap-4 mb-6">
               <button onClick={() => navigate('/auth')}
-                className="px-7 py-3 rounded-full bg-[#22c55e] text-black text-[14px] font-bold hover:bg-[#22c55e]/90 transition-colors">
+                className="px-7 py-3 rounded-full bg-white text-black text-[14px] font-bold hover:bg-white/90 transition-colors">
                 Start Free — No Card Needed
                 <ArrowRight className="inline ml-2 w-4 h-4" />
               </button>
@@ -552,7 +552,7 @@ export default function Landing() {
             <AnimatePresence>
               {billingAnnual && (
                 <motion.span initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.8 }}
-                  className="text-[11px] text-[#22c55e] font-medium">Save up to 34%</motion.span>
+                  className="text-[11px] text-white font-medium">Save up to 34%</motion.span>
               )}
             </AnimatePresence>
           </div>

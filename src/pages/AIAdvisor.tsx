@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react'; // refreshed
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useAccounts } from '@/hooks/useAccounts';
@@ -10,7 +10,7 @@ import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Sparkles, Trash2 } from 'lucide-react';
+import { Send, Bot, User, Sparkles, Trash2, Lock, PlusCircle } from 'lucide-react';
 import { AnimatedAssistantMessage } from '@/components/ai/AnimatedAssistantMessage';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -66,11 +66,13 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
   ].join('\n');
 }
 
+const TRADE_GATE = 10;
+
 const SUGGESTIONS = [
-  "What are my biggest weaknesses?",
-  "Which session should I avoid?",
-  "Analyze my strategy performance",
-  "How can I improve my win rate?",
+  "Which instrument makes me the most money?",
+  "What's my worst session and why?",
+  "Am I more profitable Long or Short?",
+  "What does my best trading day look like?",
 ];
 
 export default function AIAdvisor() {
@@ -240,6 +242,39 @@ export default function AIAdvisor() {
     }
   };
 
+  // Trade count gate
+  if (trades.length < TRADE_GATE) {
+    return (
+      <AppLayout>
+        <div className="max-w-md mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
+          <div className="p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
+            <Lock className="h-10 w-10" style={{ color: 'rgba(255,255,255,0.3)' }} />
+          </div>
+          <div>
+            <h2 className="text-[22px] font-bold text-white tracking-tight mb-2">Your AI advisor needs more data</h2>
+            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Log at least {TRADE_GATE} trades before your AI advisor can give you meaningful insights. Right now there isn't enough data to detect patterns.
+            </p>
+          </div>
+          <div className="w-full max-w-xs">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>{trades.length}/{TRADE_GATE} trades logged</span>
+              <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.25)' }}>{TRADE_GATE - trades.length} remaining</span>
+            </div>
+            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+              <div className="h-full rounded-full bg-white/40 transition-all" style={{ width: `${(trades.length / TRADE_GATE) * 100}%` }} />
+            </div>
+          </div>
+          <Link to="/add-trade">
+            <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
+              <PlusCircle className="h-3.5 w-3.5" /> Log a Trade →
+            </Button>
+          </Link>
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-120px)]">
@@ -391,8 +426,8 @@ export default function AIAdvisor() {
               <Send className="h-4 w-4" />
             </Button>
           </form>
-          <p className="text-[10px] text-muted-foreground/40 text-center mt-2 tracking-wide">
-            AI analyzes your trade data to provide personalized insights
+          <p className="text-[10px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
+            AI analysis is based on your logged trades only. Log more trades for more accurate insights.
           </p>
         </div>
       </div>

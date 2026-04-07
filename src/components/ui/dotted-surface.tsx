@@ -58,9 +58,9 @@ export function DottedSurface({ className, ...props }: DottedSurfaceProps) {
         const z = iy * SEPARATION - (AMOUNTY * SEPARATION) / 2;
         positions.push(x, y, z);
         if (isDark) {
-          colors.push(0.3, 1.0, 0.5); // green-ish for dark
+          colors.push(0.9, 0.9, 0.9); // neutral white for dark
         } else {
-          colors.push(0.1, 0.6, 0.3); // darker green for light
+          colors.push(0.4, 0.4, 0.4); // neutral gray for light
         }
       }
     }

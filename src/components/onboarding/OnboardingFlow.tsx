@@ -43,7 +43,7 @@ function ProgressDots({ step }: { step: Step }) {
             key={n}
             className={cn(
               'rounded-full transition-all duration-300',
-              isCompleted ? 'w-2.5 h-2.5 bg-[#4ade80]' :
+              isCompleted ? 'w-2.5 h-2.5 bg-white' :
               isActive    ? 'w-2.5 h-2.5 bg-white' :
                             'w-2 h-2 bg-[rgba(255,255,255,0.2)]',
             )}
@@ -78,7 +78,7 @@ function PillButton<T extends string>({
       className={cn(
         'px-4 py-2 rounded-full text-[13px] font-medium transition-all border',
         active
-          ? 'bg-[#4ade80] text-black border-transparent'
+          ? 'bg-white text-black border-transparent'
           : 'bg-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.45)] border-[rgba(255,255,255,0.1)] hover:text-[rgba(255,255,255,0.7)]',
       )}
     >
@@ -99,7 +99,7 @@ function GreenButton({
       disabled={disabled || loading}
       className={cn(
         'w-full py-3.5 rounded-[24px] text-[14px] font-bold transition-all',
-        'bg-[#4ade80] text-black hover:bg-[#22c55e]',
+        'bg-white text-black hover:bg-white/90',
         (disabled || loading) && 'opacity-50 cursor-not-allowed',
       )}
     >
@@ -297,7 +297,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
       <div className="space-y-3">
         <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <Database className="h-5 w-5 text-[#4ade80] shrink-0 mt-0.5" />
+          <Database className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
           <div>
             <p className="text-[13px] font-semibold text-white mb-0.5">The Truth Machine</p>
             <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
@@ -307,7 +307,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         </div>
 
         <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <BarChart2 className="h-5 w-5 text-[#4ade80] shrink-0 mt-0.5" />
+          <BarChart2 className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
           <div>
             <p className="text-[13px] font-semibold text-white mb-0.5">No Opinions, Only Data</p>
             <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
@@ -317,7 +317,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         </div>
 
         <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <Brain className="h-5 w-5 text-[#4ade80] shrink-0 mt-0.5" />
+          <Brain className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
           <div>
             <p className="text-[13px] font-semibold text-white mb-0.5">Your Edge is Quantifiable</p>
             <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
@@ -434,7 +434,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
             key={i}
             className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]"
           >
-            <Check className="h-3.5 w-3.5 text-[#4ade80] shrink-0" />
+            <Check className="h-3.5 w-3.5 text-white shrink-0" />
             <span className="flex-1 text-[13px] text-[rgba(255,255,255,0.8)]">{item}</span>
             <button
               type="button"
@@ -474,7 +474,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
             className={cn(
               'px-3 rounded-lg border text-sm transition-colors',
               newItem.trim()
-                ? 'bg-[#4ade80] text-black border-transparent'
+                ? 'bg-white text-black border-transparent'
                 : 'bg-transparent text-[rgba(255,255,255,0.25)] border-[rgba(255,255,255,0.1)] cursor-not-allowed',
             )}
           >
@@ -598,7 +598,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          className="mx-auto w-16 h-16 rounded-full bg-[#4ade80] flex items-center justify-center"
+          className="mx-auto w-16 h-16 rounded-full bg-white flex items-center justify-center"
         >
           <Check className="h-8 w-8 text-black stroke-[3]" />
         </motion.div>

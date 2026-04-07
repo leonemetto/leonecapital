@@ -119,7 +119,7 @@ const Dashboard = () => {
           <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Log your first trade to unlock analytics.</p>
           <div className="flex gap-3">
             <Link to="/add-trade">
-              <Button size="sm" className="gap-1.5 bg-[#16a34a] hover:bg-[#16a34a]/90 text-white rounded-full">
+              <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
                 <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
               </Button>
             </Link>
@@ -137,23 +137,27 @@ const Dashboard = () => {
       {/* Header row */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-xl font-semibold">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.3)]">Here's your trading overview</p>
+          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Here's your trading overview</p>
         </div>
         <div className="flex items-center gap-2">
-          {/* Account filter */}
-          <Filter className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" />
-          <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-            <SelectTrigger className="w-[160px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
-              <SelectValue placeholder="All Accounts" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all__">All Accounts</SelectItem>
-              {accounts.map(a => (
-                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          {/* Account filter — only show when multiple accounts */}
+          {accounts.length > 1 && (
+            <>
+              <Filter className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" />
+              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                <SelectTrigger className="w-[160px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+                  <SelectValue placeholder="All Accounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All Accounts</SelectItem>
+                  {accounts.map(a => (
+                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
 
           {/* Entry Checklist */}
           <Sheet>
@@ -229,7 +233,7 @@ const Dashboard = () => {
           </button>
           <Link
             to="/add-trade"
-            className="h-8 px-4 text-xs font-semibold text-white bg-[#16a34a] hover:bg-[#16a34a]/90 rounded-full flex items-center gap-1.5 transition-colors"
+            className="h-8 px-4 text-xs font-semibold text-black bg-white hover:bg-white/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
           >
             <PlusCircle className="h-3.5 w-3.5" />
             Trade Entry

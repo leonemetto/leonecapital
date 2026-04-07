@@ -18,7 +18,7 @@ export function AppLayout({ children }: AppLayoutProps) {
         className="pointer-events-none fixed inset-0 z-0 [mask-image:radial-gradient(ellipse_at_center,transparent_10%,black)]"
         squareSize={4}
         gridGap={6}
-        color="hsl(142, 69%, 55%)"
+        color="hsl(0, 0%, 100%)"
         maxOpacity={0.25}
         flickerChance={0.3}
       />
