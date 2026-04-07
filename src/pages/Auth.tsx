@@ -161,7 +161,7 @@ export default function Auth() {
     e.preventDefault();
     setResetLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: 'https://leone.capital/auth/callback',
     });
     if (error) {
       toast.error(error.message);

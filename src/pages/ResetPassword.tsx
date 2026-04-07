@@ -17,19 +17,20 @@ export default function ResetPassword() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
-    // Supabase puts the recovery token in the URL hash, which auto-signs the user in.
-    // We listen for the SIGNED_IN event with type=recovery.
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === 'PASSWORD_RECOVERY') {
-        setValidSession(true);
-      }
-      setChecking(false);
-    });
-
-    // Also check if there's already a session (user navigated back)
+    // AuthCallback exchanges the recovery code and establishes a session before
+    // redirecting here, so PASSWORD_RECOVERY fires there — we'll miss it.
+    // getSession() is the reliable check: if there's a session, the link was valid.
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) setValidSession(true);
       setChecking(false);
+    });
+
+    // Also catch the event in case the user lands here directly (implicit flow / hash)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') {
+        setValidSession(true);
+        setChecking(false);
+      }
     });
 
     return () => subscription.unsubscribe();

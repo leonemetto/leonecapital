@@ -53,7 +53,12 @@ export default function AuthCallback() {
           }
         }
 
-        // Redirect after successful auth
+        // Password reset tokens go to the reset form, everything else to the dashboard
+        if (type === 'recovery') {
+          navigate('/reset-password', { replace: true });
+          return;
+        }
+
         const next = params.get('next') ?? '/dashboard';
         navigate(next, { replace: true });
       } catch (err: any) {
