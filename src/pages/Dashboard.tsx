@@ -42,6 +42,13 @@ const Dashboard = () => {
 
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
 
+  const startingBalance = useMemo(() => {
+    if (selectedAccountId === '__all__') {
+      return accounts.reduce((sum, a) => sum + (a.startingBalance ?? 0), 0);
+    }
+    return accounts.find(a => a.id === selectedAccountId)?.startingBalance ?? 0;
+  }, [accounts, selectedAccountId]);
+
   const handleDailyReview = () => {
     const today = format(new Date(), 'yyyy-MM-dd');
     const todayTrades = trades.filter(t => t.date === today);
@@ -237,7 +244,7 @@ const Dashboard = () => {
 
       {/* Equity Curve */}
       <div className="mb-4">
-        <PremiumEquityCurve trades={filteredTrades} />
+        <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
       {/* Heat Map Calendar */}

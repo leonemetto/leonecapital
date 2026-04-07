@@ -5,6 +5,32 @@ import { cn } from '@/lib/utils';
 
 interface Props { trades: Trade[] }
 
+/**
+ * Maps win rate (0–100) to a single solid color:
+ *   0%  → #f87171 (red)
+ *   50% → #f59e0b (amber)
+ *   100%→ #4ade80 (green)
+ */
+function winRateColor(winRate: number): string {
+  const ratio = Math.max(0, Math.min(winRate, 100)) / 100;
+
+  if (ratio <= 0.5) {
+    // Interpolate red → amber
+    const t = ratio * 2;
+    const r = Math.round(248 + (245 - 248) * t);
+    const g = Math.round(113 + (158 - 113) * t);
+    const b = Math.round(113 + (11  - 113) * t);
+    return `rgb(${r},${g},${b})`;
+  } else {
+    // Interpolate amber → green
+    const t = (ratio - 0.5) * 2;
+    const r = Math.round(245 + (74  - 245) * t);
+    const g = Math.round(158 + (222 - 158) * t);
+    const b = Math.round(11  + (128 - 11 ) * t);
+    return `rgb(${r},${g},${b})`;
+  }
+}
+
 export function SessionPerformance({ trades }: Props) {
   const sessions = useMemo(() => {
     const data = getSessionPerformance(trades).filter(s => s.total > 0);
@@ -30,9 +56,7 @@ export function SessionPerformance({ trades }: Props) {
                 className="h-full rounded-full transition-all"
                 style={{
                   width: `${s.winRate}%`,
-                  background: `linear-gradient(90deg, #f87171, #4ade80)`,
-                  backgroundSize: '100% 100%',
-                  backgroundPosition: `${100 - s.winRate}% 0`,
+                  background: winRateColor(s.winRate),
                 }}
               />
             </div>

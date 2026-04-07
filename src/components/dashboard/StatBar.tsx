@@ -9,21 +9,38 @@ interface StatBarProps {
   trades: Trade[];
 }
 
-function MicroSparkline({ values }: { values: number[] }) {
-  const max = Math.max(...values.map(Math.abs), 1);
+// null = no trades that day (grey), 0 = breakeven (grey), positive = green, negative = red
+function MicroSparkline({ values }: { values: (number | null)[] }) {
+  const numericValues = values.filter((v): v is number => v !== null && v !== 0);
+  const max = Math.max(...numericValues.map(Math.abs), 1);
+
   return (
     <svg width={40} height={16} className="mt-1">
       {values.map((v, i) => {
-        const h = Math.max((Math.abs(v) / max) * 14, 1.5);
+        if (v === null || v === 0) {
+          // Grey stub for no-trade days and breakeven days
+          return (
+            <rect
+              key={i}
+              x={i * 6}
+              y={7}
+              width={4}
+              rx={1}
+              height={2}
+              fill="rgba(255,255,255,0.18)"
+            />
+          );
+        }
+        const h = Math.max((Math.abs(v) / max) * 14, 2);
         return (
           <rect
             key={i}
             x={i * 6}
-            y={v >= 0 ? 16 - h : 16 - h}
+            y={16 - h}
             width={4}
             rx={1}
             height={h}
-            className={v >= 0 ? 'fill-profit' : 'fill-loss'}
+            fill={v > 0 ? '#4ade80' : '#f87171'}
             opacity={0.85}
           />
         );
@@ -33,28 +50,33 @@ function MicroSparkline({ values }: { values: number[] }) {
 }
 
 const stats_config = [
-  { key: 'winRate', label: 'WIN RATE', format: (v: number) => `${v.toFixed(1)}%`, color: '' },
-  { key: 'netPnl', label: 'TOTAL P&L', format: (v: number) => `$${v.toFixed(0)}`, color: 'pnl' },
-  { key: 'profitFactor', label: 'PROFIT FACTOR', format: (v: number) => v >= 999 ? '∞' : v.toFixed(2), color: '' },
-  { key: 'avgR', label: 'AVG R', format: (v: number) => `${v.toFixed(2)}R`, color: '' },
-  { key: 'maxDrawdown', label: 'MAX DRAWDOWN', format: (v: number) => `-$${v.toFixed(0)}`, color: 'dd' },
+  { key: 'winRate',      label: 'WIN RATE',      format: (v: number) => `${v.toFixed(1)}%`,                                            color: ''    },
+  { key: 'netPnl',      label: 'TOTAL P&L',     format: (v: number) => `$${v.toFixed(0)}`,                                            color: 'pnl' },
+  { key: 'profitFactor', label: 'PROFIT FACTOR', format: (v: number) => v >= 999 ? '∞' : v.toFixed(2),                                color: ''    },
+  { key: 'avgR',         label: 'AVG R',          format: (v: number) => `${v.toFixed(2)}R`,                                           color: ''    },
+  { key: 'maxDrawdown',  label: 'MAX DRAWDOWN',  format: (v: number) => v === 0 ? '$0' : `-$${v.toFixed(0)}`,                         color: 'dd'  },
 ] as const;
 
 export function StatBar({ stats, trades }: StatBarProps) {
+  // Build a true 7-day window ending today; missing days get null (grey)
   const sparklines = useMemo(() => {
     const dailyPnl = getDailyPnl(trades);
-    const days = Array.from(dailyPnl.entries())
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([, d]) => d.pnl);
-    return days.slice(-7);
+    const today = new Date();
+    return Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (6 - i));
+      const key = d.toISOString().split('T')[0];
+      const entry = dailyPnl.get(key);
+      return entry !== undefined ? entry.pnl : null;
+    });
   }, [trades]);
 
   const values: Record<string, number> = {
-    winRate: stats.winRate,
-    netPnl: stats.netPnl,
+    winRate:      stats.winRate,
+    netPnl:       stats.netPnl,
     profitFactor: stats.profitFactor,
-    avgR: stats.avgRWin > 0 ? stats.avgRWin : stats.rExpectancy,
-    maxDrawdown: stats.maxDrawdown,
+    avgR:         stats.avgRWin > 0 ? stats.avgRWin : stats.rExpectancy,
+    maxDrawdown:  stats.maxDrawdown,
   };
 
   return (
@@ -65,7 +87,8 @@ export function StatBar({ stats, trades }: StatBarProps) {
         if (cfg.color === 'pnl') {
           valueColor = v > 0 ? 'text-profit' : v < 0 ? 'text-loss' : 'text-foreground';
         } else if (cfg.color === 'dd') {
-          valueColor = 'text-loss';
+          // Only red when there is an actual drawdown; white/neutral at $0
+          valueColor = v > 0 ? 'text-loss' : 'text-foreground';
         }
 
         return (
@@ -77,7 +100,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
               <span className={cn('text-[28px] leading-tight font-bold tabular-nums', valueColor)}>
                 {cfg.format(v)}
               </span>
-              {sparklines.length > 0 && <MicroSparkline values={sparklines} />}
+              {<MicroSparkline values={sparklines} />}
             </div>
             {i < stats_config.length - 1 && (
               <div className="w-px h-12 bg-[rgba(255,255,255,0.08)]" />

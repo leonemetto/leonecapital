@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { Trade } from '@/types/trade';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
@@ -6,18 +6,52 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 interface Props { trades: Trade[] }
 
+type Filter = 'all' | 'win' | 'loss';
+
+const PILLS: { key: Filter; label: string }[] = [
+  { key: 'all',  label: 'All'    },
+  { key: 'win',  label: 'Wins'   },
+  { key: 'loss', label: 'Losses' },
+];
+
 export function RecentTrades({ trades }: Props) {
+  const [filter, setFilter] = useState<Filter>('all');
+
   const recent = useMemo(() => {
-    return [...trades]
+    let pool = [...trades];
+    if (filter === 'win')  pool = pool.filter(t => t.outcome === 'win');
+    if (filter === 'loss') pool = pool.filter(t => t.outcome === 'loss');
+    return pool
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5);
-  }, [trades]);
+  }, [trades, filter]);
 
-  const isEmpty = recent.length === 0;
+  const isEmpty = trades.length === 0;
 
   return (
     <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6 h-full flex flex-col">
-      <span className="text-sm text-[rgba(255,255,255,0.4)]">Recent Trades</span>
+      {/* Title + filter pills */}
+      <div className="flex items-center justify-between">
+        <span className="text-sm text-[rgba(255,255,255,0.4)]">Recent Trades</span>
+        {!isEmpty && (
+          <div className="flex gap-1">
+            {PILLS.map(p => (
+              <button
+                key={p.key}
+                onClick={() => setFilter(p.key)}
+                className={cn(
+                  'text-[10px] px-[10px] py-[4px] rounded-[20px] border transition-colors',
+                  filter === p.key
+                    ? 'bg-foreground text-background border-transparent font-semibold'
+                    : 'bg-transparent text-[rgba(255,255,255,0.4)] border-[rgba(255,255,255,0.15)] hover:text-[rgba(255,255,255,0.65)]'
+                )}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="mt-4 flex-1">
         {isEmpty ? (
@@ -33,6 +67,10 @@ export function RecentTrades({ trades }: Props) {
               No trades yet — log your first trade to see insights
             </p>
           </div>
+        ) : recent.length === 0 ? (
+          <p className="text-xs text-[rgba(255,255,255,0.25)] text-center py-8">
+            No {filter === 'win' ? 'winning' : 'losing'} trades yet
+          </p>
         ) : (
           <div className="space-y-0">
             {recent.map((t, i) => (

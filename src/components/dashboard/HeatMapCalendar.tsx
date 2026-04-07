@@ -16,6 +16,8 @@ interface Props { trades: Trade[] }
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 function pnlIntensity(pnl: number, maxAbs: number): string {
+  // Zero P&L (breakeven days) and no-trade days stay transparent
+  if (pnl === 0) return 'transparent';
   const ratio = Math.min(Math.abs(pnl) / Math.max(maxAbs, 1), 1);
   if (pnl > 0) {
     if (ratio > 0.6) return 'rgba(74,222,128,0.6)';
@@ -111,7 +113,7 @@ export function HeatMapCalendar({ trades }: Props) {
                         <span className="text-[11px] text-[rgba(255,255,255,0.4)] tabular-nums">{format(day, 'd')}</span>
                         {data && (
                           <span className={cn('text-[10px] font-mono font-bold tabular-nums mt-0.5',
-                            data.pnl > 0 ? 'text-profit' : 'text-loss'
+                            data.pnl > 0 ? 'text-profit' : data.pnl < 0 ? 'text-loss' : 'text-foreground'
                           )}>
                             {data.pnl >= 0 ? '+' : ''}{fmtPnl(data.pnl)}
                           </span>

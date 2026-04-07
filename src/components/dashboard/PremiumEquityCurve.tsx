@@ -11,9 +11,10 @@ type Period = 'daily' | 'weekly' | 'monthly';
 
 interface Props {
   trades: Trade[];
+  startingBalance?: number;
 }
 
-export function PremiumEquityCurve({ trades }: Props) {
+export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   const [period, setPeriod] = useState<Period>('daily');
 
   const data = useMemo(() => {
@@ -21,7 +22,7 @@ export function PremiumEquityCurve({ trades }: Props) {
     if (sorted.length === 0) return [];
 
     if (period === 'daily') {
-      let bal = 0;
+      let bal = startingBalance;
       const dayMap = new Map<string, number>();
       for (const t of sorted) {
         const d = t.date.split('T')[0];
@@ -43,15 +44,15 @@ export function PremiumEquityCurve({ trades }: Props) {
       groups.set(key, (groups.get(key) || 0) + t.pnl);
     }
 
-    let bal = 0;
+    let bal = startingBalance;
     return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, pnl]) => {
       bal += pnl;
       return { date, balance: Number(bal.toFixed(2)), pnl };
     });
-  }, [trades, period]);
+  }, [trades, period, startingBalance]);
 
-  const lastBal = data.length > 0 ? data[data.length - 1].balance : 0;
-  const isPositive = lastBal >= 0;
+  const lastBal = data.length > 0 ? data[data.length - 1].balance : startingBalance;
+  const isPositive = lastBal >= startingBalance;
   const lineColor = isPositive ? '#4ade80' : '#f87171';
   const isEmpty = data.length === 0;
 
@@ -114,7 +115,7 @@ export function PremiumEquityCurve({ trades }: Props) {
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `$${v}`}
               />
-              <ReferenceLine y={0} stroke="rgba(255,255,255,0.06)" />
+              <ReferenceLine y={startingBalance} stroke="rgba(255,255,255,0.06)" />
               <Tooltip
                 contentStyle={{
                   backgroundColor: 'hsl(0,0%,6%)',
