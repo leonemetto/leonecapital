@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable/index';
 import { Button } from '@/components/ui/button';
@@ -10,7 +11,25 @@ import { Activity, LogIn, UserPlus, ShieldCheck, Mail, ArrowLeft, RefreshCw } fr
 import { motion } from 'framer-motion';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 
+function authErrorMessage(error: { message: string; code?: string }): string {
+  const msg = error.message?.toLowerCase() ?? '';
+  if (msg.includes('invalid login credentials') || error.code === 'invalid_credentials') {
+    return 'Incorrect email or password. Please try again.';
+  }
+  if (msg.includes('email not confirmed') || error.code === 'email_not_confirmed') {
+    return 'Please confirm your email before signing in. Check your inbox for the confirmation link.';
+  }
+  if (msg.includes('user not found') || msg.includes('no user found')) {
+    return 'No account found with this email address.';
+  }
+  if (msg.includes('too many requests') || error.code === 'over_request_rate_limit') {
+    return 'Too many attempts. Please wait a moment and try again.';
+  }
+  return error.message;
+}
+
 export default function Auth() {
+  const navigate = useNavigate();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -82,9 +101,9 @@ export default function Auth() {
     setLoading(true);
 
     if (isLogin) {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        toast.error(error.message);
+        toast.error(authErrorMessage(error));
         setLoading(false);
         return;
       }
@@ -94,13 +113,15 @@ export default function Auth() {
       const verifiedFactors = factorsData?.totp?.filter((f: any) => f.status === 'verified') || [];
 
       if (verifiedFactors.length > 0) {
-        // User has MFA enabled — need to verify TOTP before proceeding
         setMfaFactorId(verifiedFactors[0].id);
         setMfaRequired(true);
         setLoading(false);
         return;
       }
-      // No MFA — login is complete, auth state change will handle navigation
+
+      // No MFA — navigate to dashboard
+      navigate('/dashboard', { replace: true });
+      return;
     } else {
       const { error } = await supabase.auth.signUp({
         email,
@@ -108,7 +129,7 @@ export default function Auth() {
         options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
       });
       if (error) {
-        toast.error(error.message);
+        toast.error(authErrorMessage(error));
       } else {
         setAwaitingOtp(true);
       }
