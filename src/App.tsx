@@ -9,7 +9,7 @@ import { useCriteria } from "@/hooks/useCriteria";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { MfaChallenge } from "@/components/MfaChallenge";
 import { ChecklistSetup } from "@/components/criteria/ChecklistSetup";
-import { WelcomeModal } from "@/components/onboarding/WelcomeModal";
+import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
@@ -109,8 +109,8 @@ function ChecklistGate({ children }: { children: React.ReactNode }) {
 }
 
 function ProfileGate({ children }: { children: React.ReactNode }) {
-  const { isLoading, needsNickname, setNickname } = useProfile();
-  const { provisionDemoAccount } = useOnboarding();
+  const { isLoading, needsNickname, setNickname, profile } = useProfile();
+  const { onboardingCompleted, completeOnboarding } = useOnboarding();
 
   if (isLoading) {
     return (
@@ -121,31 +121,19 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   }
 
   if (needsNickname) {
-    return <NicknamePrompt onSubmit={async (nickname) => {
-      await setNickname(nickname);
-      await provisionDemoAccount();
-    }} />;
+    return <NicknamePrompt onSubmit={setNickname} />;
+  }
+
+  if (!onboardingCompleted) {
+    return (
+      <OnboardingFlow
+        nickname={profile?.nickname ?? ''}
+        onComplete={completeOnboarding}
+      />
+    );
   }
 
   return <>{children}</>;
-}
-
-function OnboardingGate({ children }: { children: React.ReactNode }) {
-  const [showWelcome, setShowWelcome] = useState(() => {
-    return !localStorage.getItem('edgeflow_welcome_seen');
-  });
-
-  const handleSkip = () => {
-    localStorage.setItem('edgeflow_welcome_seen', '1');
-    setShowWelcome(false);
-  };
-
-  return (
-    <>
-      <WelcomeModal open={showWelcome} onSkip={handleSkip} />
-      {children}
-    </>
-  );
 }
 
 const App = () => (
@@ -162,28 +150,26 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="*" element={
               <AuthGate>
-                <OnboardingGate>
-                  <ProfileGate>
-                    <AccountsProvider>
-                      <TradesProvider>
-                        <ChecklistGate>
-                          <Routes>
-                            <Route path="/dashboard" element={<Dashboard />} />
-                            <Route path="/add-trade" element={<AddTrade />} />
-                            <Route path="/journal" element={<Journal />} />
-                            <Route path="/accounts" element={<Accounts />} />
-                            <Route path="/ai" element={<AIAdvisor />} />
-                            <Route path="/analyst" element={<PerformanceAnalyst />} />
-                            <Route path="/profile" element={<ProfileSettings />} />
-                            <Route path="/trading-plan" element={<TradingPlan />} />
-                            <Route path="/guide" element={<Guide />} />
-                            <Route path="*" element={<NotFound />} />
-                          </Routes>
-                        </ChecklistGate>
-                      </TradesProvider>
-                    </AccountsProvider>
-                  </ProfileGate>
-                </OnboardingGate>
+                <ProfileGate>
+                  <AccountsProvider>
+                    <TradesProvider>
+                      <ChecklistGate>
+                        <Routes>
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/add-trade" element={<AddTrade />} />
+                          <Route path="/journal" element={<Journal />} />
+                          <Route path="/accounts" element={<Accounts />} />
+                          <Route path="/ai" element={<AIAdvisor />} />
+                          <Route path="/analyst" element={<PerformanceAnalyst />} />
+                          <Route path="/profile" element={<ProfileSettings />} />
+                          <Route path="/trading-plan" element={<TradingPlan />} />
+                          <Route path="/guide" element={<Guide />} />
+                          <Route path="*" element={<NotFound />} />
+                        </Routes>
+                      </ChecklistGate>
+                    </TradesProvider>
+                  </AccountsProvider>
+                </ProfileGate>
               </AuthGate>
             } />
           </Routes>
