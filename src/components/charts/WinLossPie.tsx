@@ -7,7 +7,7 @@ interface WinLossPieProps {
   breakevens: number;
 }
 
-const COLORS = ['#30D158', '#EF4444', 'hsl(220, 6%, 30%)'];
+const COLORS = ['#00c896', '#EF4444', 'hsl(220, 6%, 30%)'];
 
 export function WinLossPie({ wins, losses, breakevens }: WinLossPieProps) {
   const data = [

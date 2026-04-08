@@ -249,7 +249,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                       <td className="p-3 text-[13px] hidden lg:table-cell text-[rgba(255,255,255,0.7)]">{trade.session}</td>
                       <td className={cn(
                         'p-3 text-right text-[13px] font-mono font-bold',
-                        trade.pnl > 0 ? 'text-[#4ade80]' : trade.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.7)]'
+                        trade.pnl > 0 ? 'text-[#00c896]' : trade.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.7)]'
                       )}>
                         {trade.pnl >= 0 ? '+' : ''}{trade.pnl.toFixed(2)}
                       </td>
@@ -257,7 +257,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                         <span className={cn(
                           'text-[9px] font-bold px-1.5 py-0.5 rounded uppercase',
                           trade.outcome === 'win'
-                            ? 'bg-[rgba(74,222,128,0.12)] text-[#4ade80]'
+                            ? 'bg-[rgba(0,200,150,0.12)] text-[#00c896]'
                             : trade.outcome === 'loss'
                             ? 'bg-[rgba(248,113,113,0.12)] text-[#f87171]'
                             : 'bg-[rgba(255,255,255,0.07)] text-[rgba(255,255,255,0.5)]'
@@ -270,7 +270,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                           {!checklistChecked ? (
                             <span className="text-[11px] font-mono font-semibold text-[#f87171]">{0}/{total}</span>
                           ) : checked === total ? (
-                            <span className="text-[11px] font-mono font-semibold text-[#4ade80]">{checked}/{total}</span>
+                            <span className="text-[11px] font-mono font-semibold text-[#00c896]">{checked}/{total}</span>
                           ) : (
                             <span className="text-[11px] font-mono font-semibold text-amber-400">{checked}/{total}</span>
                           )}
@@ -312,7 +312,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                                     ? `${trade.rMultiple > 0 ? '+' : ''}${trade.rMultiple}R`
                                     : '—',
                                   color: (trade.rMultiple ?? 0) > 0
-                                    ? 'text-[#4ade80]'
+                                    ? 'text-[#00c896]'
                                     : (trade.rMultiple ?? 0) < 0
                                     ? 'text-[#f87171]'
                                     : 'text-white',

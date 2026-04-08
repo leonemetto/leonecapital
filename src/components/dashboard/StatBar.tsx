@@ -40,7 +40,7 @@ function MicroSparkline({ values }: { values: (number | null)[] }) {
             width={4}
             rx={1}
             height={h}
-            fill={v > 0 ? '#4ade80' : '#f87171'}
+            fill={v > 0 ? '#00c896' : '#f87171'}
             opacity={0.85}
           />
         );

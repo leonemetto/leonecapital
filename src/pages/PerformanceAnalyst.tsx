@@ -77,7 +77,7 @@ function ExpectancyTable({
                 <tr
                   key={row.key}
                   className="border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors"
-                  style={isBest ? { borderLeft: '2px solid rgba(74,222,128,0.5)' } : isWorst ? { borderLeft: '2px solid rgba(248,113,113,0.5)' } : {}}
+                  style={isBest ? { borderLeft: '2px solid rgba(0,200,150,0.5)' } : isWorst ? { borderLeft: '2px solid rgba(248,113,113,0.5)' } : {}}
                 >
                   <td className="py-2.5 pr-2 font-medium text-[rgba(255,255,255,0.8)] text-[13px]">
                     <div className="flex items-center gap-1.5">
@@ -96,13 +96,13 @@ function ExpectancyTable({
                     )}
                   </td>
                   <td className="py-2.5 text-right font-mono text-[rgba(255,255,255,0.35)]">{row.trades}</td>
-                  <td className={cn('py-2.5 text-right font-mono', row.winRate >= 50 ? 'text-[#4ade80]' : 'text-[#f87171]')}>
+                  <td className={cn('py-2.5 text-right font-mono', row.winRate >= 50 ? 'text-[#00c896]' : 'text-[#f87171]')}>
                     {row.winRate}%
                   </td>
                   <td className="py-2.5 text-right font-mono">
                     <div className="relative inline-flex items-center justify-end w-full">
                       <div
-                        className={cn('absolute inset-y-0 right-0 rounded-sm transition-all opacity-15', row.avgR >= 0 ? 'bg-[#4ade80]' : 'bg-[#f87171]')}
+                        className={cn('absolute inset-y-0 right-0 rounded-sm transition-all opacity-15', row.avgR >= 0 ? 'bg-[#00c896]' : 'bg-[#f87171]')}
                         style={{ width: `${avgRBarWidth}%` }}
                       />
                       <span className="relative z-10 text-[rgba(255,255,255,0.7)]">{row.avgR || '—'}</span>
@@ -111,15 +111,15 @@ function ExpectancyTable({
                   <td className="py-2.5 text-right font-mono font-semibold">
                     <div className="relative inline-flex items-center justify-end w-full">
                       <div
-                        className={cn('absolute inset-y-0 right-0 rounded-sm transition-all opacity-15', row.expectancy > 0 ? 'bg-[#4ade80]' : row.expectancy < 0 ? 'bg-[#f87171]' : '')}
+                        className={cn('absolute inset-y-0 right-0 rounded-sm transition-all opacity-15', row.expectancy > 0 ? 'bg-[#00c896]' : row.expectancy < 0 ? 'bg-[#f87171]' : '')}
                         style={{ width: `${expectBarWidth}%` }}
                       />
-                      <span className={cn('relative z-10', row.expectancy > 0 ? 'text-[#4ade80]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.7)]')}>
+                      <span className={cn('relative z-10', row.expectancy > 0 ? 'text-[#00c896]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.7)]')}>
                         {row.expectancy}
                       </span>
                     </div>
                   </td>
-                  <td className={cn('py-2.5 text-right font-mono', row.pnl >= 0 ? 'text-[#4ade80]' : 'text-[#f87171]')}>
+                  <td className={cn('py-2.5 text-right font-mono', row.pnl >= 0 ? 'text-[#00c896]' : 'text-[#f87171]')}>
                     ${row.pnl}
                   </td>
                   <td className="py-2.5 text-right">
@@ -220,8 +220,8 @@ function BehavioralAlerts({ insights, tradeCount }: { insights: BehavioralInsigh
 // ─── Risk Indicator ───
 function RiskIndicator({ trades }: { trades: Trade[] }) {
   const risk = getCurrentRiskStatus(trades);
-  const borderColor = { green: 'border-[rgba(74,222,128,0.3)]', yellow: 'border-[rgba(251,191,36,0.3)]', red: 'border-[rgba(248,113,113,0.3)]' };
-  const textColor = { green: 'text-[#4ade80]', yellow: 'text-amber-400', red: 'text-[#f87171]' };
+  const borderColor = { green: 'border-[rgba(0,200,150,0.3)]', yellow: 'border-[rgba(251,191,36,0.3)]', red: 'border-[rgba(248,113,113,0.3)]' };
+  const textColor = { green: 'text-[#00c896]', yellow: 'text-amber-400', red: 'text-[#f87171]' };
   const icons = { green: Shield, yellow: AlertTriangle, red: TrendingDown };
   const Icon = icons[risk.status];
 
@@ -382,7 +382,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
               <div key={m.label} className="rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3">
                 <div className="flex items-center gap-1 mb-1">
                   <p className="text-[9px] uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">{m.label}</p>
-                  {m.badge && <Zap className="h-3 w-3 text-[#4ade80]" />}
+                  {m.badge && <Zap className="h-3 w-3 text-[#00c896]" />}
                 </div>
                 <p className="text-[10px] text-[rgba(255,255,255,0.25)] line-through font-mono">{m.orig}</p>
                 <p className="text-sm font-bold font-mono text-white">{m.filt}</p>
@@ -391,7 +391,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
           </div>
 
           {drawdownReduced && (
-            <div className="flex items-center gap-1.5 text-[10px] text-[#4ade80] font-mono bg-[rgba(74,222,128,0.05)] rounded-lg px-3 py-2 border border-[rgba(74,222,128,0.15)]">
+            <div className="flex items-center gap-1.5 text-[10px] text-[#00c896] font-mono bg-[rgba(0,200,150,0.05)] rounded-lg px-3 py-2 border border-[rgba(0,200,150,0.15)]">
               <Shield className="h-3 w-3" />
               Drawdown reduced: ${result.originalMaxDrawdown.toFixed(0)} → ${result.filteredMaxDrawdown.toFixed(0)}
             </div>
@@ -400,7 +400,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
           <div className={cn(
             'text-center py-2.5 rounded-lg text-xs font-medium',
             result.filteredPnl >= result.originalPnl
-              ? 'bg-[rgba(74,222,128,0.06)] text-[#4ade80] border border-[rgba(74,222,128,0.15)]'
+              ? 'bg-[rgba(0,200,150,0.06)] text-[#00c896] border border-[rgba(0,200,150,0.15)]'
               : 'bg-[rgba(255,255,255,0.03)] text-[rgba(255,255,255,0.4)] border border-[rgba(255,255,255,0.07)]'
           )}>
             {insightText}
@@ -412,8 +412,8 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
                 <AreaChart data={mergedCurveData}>
                   <defs>
                     <linearGradient id="filteredGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#4ade80" stopOpacity={0.2} />
-                      <stop offset="95%" stopColor="#4ade80" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#00c896" stopOpacity={0.2} />
+                      <stop offset="95%" stopColor="#00c896" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
@@ -430,7 +430,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
                     }}
                   />
                   <Area type="monotone" dataKey="original" stroke="rgba(255,255,255,0.2)" strokeWidth={1} strokeDasharray="4 3" fill="none" name="Total Portfolio" />
-                  <Area type="monotone" dataKey="filtered" stroke="#4ade80" strokeWidth={1.5} fill="url(#filteredGrad)" name="Filtered Strategy" connectNulls />
+                  <Area type="monotone" dataKey="filtered" stroke="#00c896" strokeWidth={1.5} fill="url(#filteredGrad)" name="Filtered Strategy" connectNulls />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -518,15 +518,15 @@ const PerformanceAnalyst = () => {
         <RiskIndicator trades={filteredTrades} />
         <div className="lg:col-span-3 grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: 'R-Expectancy', value: stats.rExpectancy ? stats.rExpectancy.toFixed(3) : '—', color: stats.rExpectancy > 0 ? 'text-[#4ade80]' : 'text-[#f87171]', badge: stats.rExpectancy > 0.5 },
-            { label: 'Avg R Win', value: stats.avgRWin ? `+${stats.avgRWin}R` : '—', color: 'text-[#4ade80]', badge: false },
+            { label: 'R-Expectancy', value: stats.rExpectancy ? stats.rExpectancy.toFixed(3) : '—', color: stats.rExpectancy > 0 ? 'text-[#00c896]' : 'text-[#f87171]', badge: stats.rExpectancy > 0.5 },
+            { label: 'Avg R Win', value: stats.avgRWin ? `+${stats.avgRWin}R` : '—', color: 'text-[#00c896]', badge: false },
             { label: 'Avg R Loss', value: stats.avgRLoss ? `-${stats.avgRLoss}R` : '—', color: 'text-[#f87171]', badge: false },
             { label: 'Max Drawdown', value: `$${stats.maxDrawdown}`, color: stats.maxDrawdown > 0 ? 'text-[#f87171]' : 'text-white', badge: false },
           ].map((s, i) => (
             <motion.div key={s.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className={cn(CARD, 'p-4')}>
               <div className="flex items-center gap-1 mb-1.5">
                 <p className={SECTION_LABEL}>{s.label}</p>
-                {s.badge && <Zap className="h-3 w-3 text-[#4ade80]" />}
+                {s.badge && <Zap className="h-3 w-3 text-[#00c896]" />}
               </div>
               <p className={cn('text-xl font-bold font-mono', s.color)}>{s.value}</p>
             </motion.div>

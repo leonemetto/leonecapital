@@ -244,7 +244,7 @@ const Accounts = () => {
 
                   {/* P&L row */}
                   <div className="flex items-center gap-3 text-xs">
-                    <span className={cn('font-mono font-bold', pnl >= 0 ? 'text-[#4ade80]' : 'text-[#f87171]')}>
+                    <span className={cn('font-mono font-bold', pnl >= 0 ? 'text-[#00c896]' : 'text-[#f87171]')}>
                       {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)} ({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)
                     </span>
                     <span className="text-[rgba(255,255,255,0.35)]">{tradeCount} trades</span>

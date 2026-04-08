@@ -20,9 +20,9 @@ function pnlIntensity(pnl: number, maxAbs: number): string {
   if (pnl === 0) return 'transparent';
   const ratio = Math.min(Math.abs(pnl) / Math.max(maxAbs, 1), 1);
   if (pnl > 0) {
-    if (ratio > 0.6) return 'rgba(74,222,128,0.6)';
-    if (ratio > 0.3) return 'rgba(74,222,128,0.35)';
-    return 'rgba(74,222,128,0.15)';
+    if (ratio > 0.6) return 'rgba(0,200,150,0.6)';
+    if (ratio > 0.3) return 'rgba(0,200,150,0.35)';
+    return 'rgba(0,200,150,0.15)';
   }
   if (ratio > 0.6) return 'rgba(248,113,113,0.6)';
   if (ratio > 0.3) return 'rgba(248,113,113,0.35)';
