@@ -11,7 +11,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useCriteria } from '@/hooks/useCriteria';
 import { toast } from 'sonner';
 import { calculateAnalytics } from '@/lib/analytics';
-import { Wallet, BarChart3, PlusCircle, FileText, Filter, ClipboardList, CheckSquare, Settings2 } from 'lucide-react';
+import { Wallet, ChartBar, Plus, NotePencil, Funnel, ClipboardText, CheckFat, Gear } from '@phosphor-icons/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -98,11 +98,11 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" />
+          <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
           <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Add a trading account to get started.</p>
           <Link to="/accounts">
-            <Button size="sm" className="gap-1.5"><Wallet className="h-3.5 w-3.5" /> Add Account</Button>
+            <Button size="sm" className="gap-1.5"><Wallet className="h-3.5 w-3.5" weight="regular" /> Add Account</Button>
           </Link>
         </div>
       </AppLayout>
@@ -114,17 +114,17 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <BarChart3 className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" />
+          <ChartBar className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
           <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Log your first trade to unlock analytics.</p>
           <div className="flex gap-3">
             <Link to="/add-trade">
               <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
-                <PlusCircle className="h-3.5 w-3.5" /> Log First Trade
+                <Plus className="h-3.5 w-3.5" weight="bold" /> Log First Trade
               </Button>
             </Link>
             <Button size="sm" variant="outline" className="gap-1.5 rounded-full" onClick={loadDemoData} disabled={loadingDemo}>
-              <BarChart3 className="h-3.5 w-3.5" /> {loadingDemo ? 'Loading...' : 'Load Demo Data'}
+              <ChartBar className="h-3.5 w-3.5" weight="regular" /> {loadingDemo ? 'Loading...' : 'Load Demo Data'}
             </Button>
           </div>
         </div>
@@ -144,7 +144,7 @@ const Dashboard = () => {
           {/* Account filter — only show when multiple accounts */}
           {accounts.length > 1 && (
             <>
-              <Filter className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" />
+              <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
                 <SelectTrigger className="w-[160px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
                   <SelectValue placeholder="All Accounts" />
@@ -162,29 +162,29 @@ const Dashboard = () => {
           {/* Entry Checklist */}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm" className="h-8 gap-1.5 text-xs border-[rgba(255,255,255,0.15)] bg-transparent rounded-full">
-                <ClipboardList className="h-3.5 w-3.5" />
+              <button className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none">
+                <ClipboardText className="h-3.5 w-3.5" weight="regular" />
                 Checklist
                 {!criteriaLoading && activeCriteria.length > 0 && (
-                  <span className="text-[9px] bg-[rgba(255,255,255,0.1)] px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
+                  <span className="text-[9px] bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
                 )}
-              </Button>
+              </button>
             </SheetTrigger>
             <SheetContent className="w-80 sm:w-96">
               <SheetHeader className="mb-5">
                 <SheetTitle className="flex items-center gap-2 text-sm">
-                  <CheckSquare className="h-4 w-4 text-profit" /> Entry Checklist
+                  <CheckFat className="h-4 w-4 text-profit" weight="fill" /> Entry Checklist
                 </SheetTitle>
               </SheetHeader>
               {criteriaLoading ? (
                 <p className="text-xs text-muted-foreground">Loading...</p>
               ) : activeCriteria.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                  <ClipboardList className="h-6 w-6 text-[rgba(255,255,255,0.3)]" />
+                  <ClipboardText className="h-6 w-6 text-[rgba(255,255,255,0.3)]" weight="regular" />
                   <p className="text-sm font-medium">No checklist yet</p>
                   <Link to="/trading-plan">
                     <Button size="sm" variant="outline" className="gap-1.5 text-xs mt-1">
-                      <Settings2 className="h-3.5 w-3.5" /> Set Up Checklist
+                      <Gear className="h-3.5 w-3.5" weight="regular" /> Set Up Checklist
                     </Button>
                   </Link>
                 </div>
@@ -203,7 +203,7 @@ const Dashboard = () => {
                         <div className="space-y-2">
                           {items.map(c => (
                             <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
-                              <CheckSquare className="h-3.5 w-3.5 text-profit shrink-0" />
+                              <CheckFat className="h-3.5 w-3.5 text-profit shrink-0" weight="fill" />
                               <span className="text-xs">{c.label}</span>
                             </div>
                           ))}
@@ -214,7 +214,7 @@ const Dashboard = () => {
                   <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
                     <Link to="/trading-plan">
                       <Button variant="ghost" size="sm" className="w-full gap-1.5 text-xs justify-start">
-                        <Settings2 className="h-3.5 w-3.5" /> Customize Checklist
+                        <Gear className="h-3.5 w-3.5" weight="regular" /> Customize Checklist
                       </Button>
                     </Link>
                   </div>
@@ -223,20 +223,20 @@ const Dashboard = () => {
             </SheetContent>
           </Sheet>
 
-          {/* Quick Actions */}
+          {/* Daily Review */}
           <button
             onClick={handleDailyReview}
-            className="h-8 px-4 text-xs font-semibold text-[rgba(255,255,255,0.6)] border border-[rgba(255,255,255,0.15)] rounded-full hover:border-[rgba(255,255,255,0.3)] transition-colors"
+            className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none"
           >
-            <FileText className="h-3.5 w-3.5 inline mr-1.5" />
+            <NotePencil className="h-3.5 w-3.5" weight="regular" />
             Daily Review
           </button>
           <Link
             to="/add-trade"
             className="h-8 px-4 text-xs font-semibold text-black bg-white hover:bg-white/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
           >
-            <PlusCircle className="h-3.5 w-3.5" />
-            Trade Entry
+            <Plus className="h-3.5 w-3.5" weight="bold" />
+            Log Trade
           </Link>
         </div>
       </div>
