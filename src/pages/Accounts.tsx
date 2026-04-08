@@ -9,12 +9,44 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { PlusCircle, Wallet, Trash2, Pencil, Check, X } from 'lucide-react';
+import { Plus, Wallet, Trash, PencilSimple, Check, X } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
+import { useMemo } from 'react';
+import { Trade } from '@/types/trade';
 
 type BalanceEditState = { id: string; balance: string } | null;
 type NameEditState = { id: string; name: string } | null;
+
+function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: string }) {
+  const points = useMemo(() => {
+    const accountTrades = trades
+      .filter(t => t.accountId === accountId)
+      .sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
+    if (accountTrades.length < 2) return null;
+    let cum = 0;
+    return accountTrades.map(t => { cum += t.pnl; return cum; });
+  }, [trades, accountId]);
+
+  if (!points) return null;
+
+  const min = Math.min(0, ...points);
+  const max = Math.max(0, ...points);
+  const range = max - min || 1;
+  const W = 120, H = 36;
+  const xs = points.map((_, i) => (i / (points.length - 1)) * W);
+  const ys = points.map(v => H - ((v - min) / range) * H);
+  const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
+  const last = points[points.length - 1];
+  const color = last >= 0 ? '#00c896' : '#f87171';
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" aria-hidden>
+      <path d={d} stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.8" />
+      <circle cx={xs[xs.length - 1]} cy={ys[ys.length - 1]} r="2.5" fill={color} />
+    </svg>
+  );
+}
 
 const CARD = 'rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)]';
 const FIELD_LABEL = 'text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]';
@@ -71,7 +103,7 @@ const Accounts = () => {
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
-              <PlusCircle className="h-3.5 w-3.5" /> New Account
+              <Plus className="h-3.5 w-3.5" weight="bold" /> New Account
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md bg-[#0e0e0e] border-[rgba(255,255,255,0.1)]">
@@ -131,7 +163,7 @@ const Accounts = () => {
                 />
               </div>
               <Button type="submit" size="sm" className="w-full gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px] font-semibold">
-                <Wallet className="h-3.5 w-3.5" /> Create Account
+                <Wallet className="h-3.5 w-3.5" weight="bold" /> Create Account
               </Button>
             </form>
           </DialogContent>
@@ -142,12 +174,12 @@ const Accounts = () => {
       {accounts.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
           <div className="p-3 rounded-xl bg-[rgba(255,255,255,0.05)] mb-5">
-            <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.4)]" />
+            <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.4)]" weight="regular" />
           </div>
           <h2 className="text-lg font-bold text-white mb-1">No accounts yet</h2>
           <p className="text-sm text-[rgba(255,255,255,0.4)] mb-5">Create a trading account to start tracking balances</p>
           <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]" onClick={() => setOpen(true)}>
-            <PlusCircle className="h-3.5 w-3.5" /> Create First Account
+            <Plus className="h-3.5 w-3.5" weight="bold" /> Create First Account
           </Button>
         </div>
       ) : (
@@ -157,6 +189,8 @@ const Accounts = () => {
             const pnl = currentBalance - account.startingBalance;
             const pnlPercent = account.startingBalance > 0 ? (pnl / account.startingBalance) * 100 : 0;
             const tradeCount = getAccountTradeCount(account.id);
+            const accountTrades = trades.filter(t => t.accountId === account.id);
+            const winRate = tradeCount > 0 ? Math.round((accountTrades.filter(t => t.pnl > 0).length / tradeCount) * 100) : null;
 
             return (
               <motion.div
@@ -169,7 +203,7 @@ const Accounts = () => {
                 {/* Card header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 min-w-0">
-                    <Wallet className="h-4 w-4 shrink-0 text-[rgba(255,255,255,0.35)]" />
+                    <Wallet className="h-4 w-4 shrink-0 text-[rgba(255,255,255,0.35)]" weight="regular" />
                     {editingName?.id === account.id ? (
                       <span className="flex items-center gap-1 min-w-0">
                         <Input
@@ -198,10 +232,10 @@ const Accounts = () => {
                           }}
                           className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)] hover:text-white"
                         >
-                          <Check className="h-3 w-3" />
+                          <Check className="h-3 w-3" weight="bold" />
                         </button>
                         <button onClick={() => setEditingName(null)} className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.35)]">
-                          <X className="h-3 w-3" />
+                          <X className="h-3 w-3" weight="bold" />
                         </button>
                       </span>
                     ) : (
@@ -211,7 +245,7 @@ const Accounts = () => {
                         title="Click to rename"
                       >
                         <span className="text-sm font-semibold text-white truncate">{account.name}</span>
-                        <Pencil className="h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-40 transition-opacity text-[rgba(255,255,255,0.6)]" />
+                        <PencilSimple className="h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-40 transition-opacity text-[rgba(255,255,255,0.6)]" weight="bold" />
                       </button>
                     )}
                   </div>
@@ -228,68 +262,82 @@ const Accounts = () => {
                       }}
                       className="p-1 rounded text-[rgba(255,255,255,0.25)] hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
+                      <Trash className="h-3.5 w-3.5" weight="regular" />
                     </button>
                   </div>
                 </div>
 
-                {/* Balance */}
-                <div className="space-y-2">
+                {/* Balance + sparkline */}
+                <div className="flex items-end justify-between mb-3">
                   <div>
                     <span className={FIELD_LABEL}>Current Balance</span>
-                    <p className="text-2xl font-bold font-mono tracking-tight text-white mt-0.5">
-                      {currencySymbol(account.currency)}{currentBalance.toFixed(2)}
+                    <p className="text-[22px] font-bold font-mono tracking-[-0.03em] text-white mt-0.5 leading-none">
+                      {currencySymbol(account.currency)}{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </div>
+                  <AccountSparkline trades={trades} accountId={account.id} />
+                </div>
 
-                  {/* P&L row */}
-                  <div className="flex items-center gap-3 text-xs">
-                    <span className={cn('font-mono font-bold', pnl >= 0 ? 'text-[#00c896]' : 'text-[#f87171]')}>
-                      {pnl >= 0 ? '+' : ''}{pnl.toFixed(2)} ({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)
+                {/* Stats row */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">P&L</p>
+                    <p className={cn('text-[11px] font-bold font-mono leading-none', pnl >= 0 ? 'text-[#00c896]' : 'text-[#f87171]')}>
+                      {pnl >= 0 ? '+' : ''}{currencySymbol(account.currency)}{Math.abs(pnl).toFixed(0)}
+                      <span className="text-[9px] ml-1 opacity-70">({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)</span>
+                    </p>
+                  </div>
+                  <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">Win Rate</p>
+                    <p className={cn('text-[11px] font-bold font-mono leading-none', winRate !== null && winRate >= 50 ? 'text-[#00c896]' : 'text-[rgba(255,255,255,0.5)]')}>
+                      {winRate !== null ? `${winRate}%` : '—'}
+                    </p>
+                  </div>
+                  <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">Trades</p>
+                    <p className="text-[11px] font-bold font-mono leading-none text-white">{tradeCount}</p>
+                  </div>
+                </div>
+
+                {/* Starting balance edit */}
+                <div className="flex items-center gap-1.5 text-[10px] text-[rgba(255,255,255,0.3)]">
+                  <span>Starting: {account.currency}</span>
+                  {editingBalance?.id === account.id ? (
+                    <span className="flex items-center gap-1">
+                      <Input
+                        type="number" step="any"
+                        value={editingBalance.balance}
+                        onChange={e => setEditingBalance({ ...editingBalance, balance: e.target.value })}
+                        className="h-6 w-24 text-[10px] font-mono bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.15)] px-1.5"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => {
+                          const val = parseFloat(editingBalance.balance);
+                          if (isNaN(val)) { toast.error('Invalid balance'); return; }
+                          updateAccount(account.id, { startingBalance: val });
+                          setEditingBalance(null);
+                          toast.success('Balance updated');
+                        }}
+                        className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)] hover:text-white"
+                      >
+                        <Check className="h-3 w-3" weight="bold" />
+                      </button>
+                      <button onClick={() => setEditingBalance(null)} className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.35)]">
+                        <X className="h-3 w-3" weight="bold" />
+                      </button>
                     </span>
-                    <span className="text-[rgba(255,255,255,0.35)]">{tradeCount} trades</span>
-                  </div>
-
-                  {/* Starting balance edit */}
-                  <div className="flex items-center gap-1.5 text-[10px] text-[rgba(255,255,255,0.35)]">
-                    <span>Starting: {account.currency}</span>
-                    {editingBalance?.id === account.id ? (
-                      <span className="flex items-center gap-1">
-                        <Input
-                          type="number" step="any"
-                          value={editingBalance.balance}
-                          onChange={e => setEditingBalance({ ...editingBalance, balance: e.target.value })}
-                          className="h-6 w-24 text-[10px] font-mono bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.15)] px-1.5"
-                          autoFocus
-                        />
-                        <button
-                          onClick={() => {
-                            const val = parseFloat(editingBalance.balance);
-                            if (isNaN(val)) { toast.error('Invalid balance'); return; }
-                            updateAccount(account.id, { startingBalance: val });
-                            setEditingBalance(null);
-                            toast.success('Balance updated');
-                          }}
-                          className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)] hover:text-white"
-                        >
-                          <Check className="h-3 w-3" />
-                        </button>
-                        <button onClick={() => setEditingBalance(null)} className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.35)]">
-                          <X className="h-3 w-3" />
-                        </button>
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-1">
-                        {account.startingBalance.toLocaleString()}
-                        <button
-                          onClick={() => setEditingBalance({ id: account.id, balance: String(account.startingBalance) })}
-                          className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] transition-colors"
-                        >
-                          <Pencil className="h-2.5 w-2.5" />
-                        </button>
-                      </span>
-                    )}
-                  </div>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      {account.startingBalance.toLocaleString()}
+                      <button
+                        onClick={() => setEditingBalance({ id: account.id, balance: String(account.startingBalance) })}
+                        className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] transition-colors"
+                      >
+                        <PencilSimple className="h-2.5 w-2.5" weight="bold" />
+                      </button>
+                    </span>
+                  )}
                 </div>
               </motion.div>
             );
