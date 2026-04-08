@@ -25,9 +25,9 @@ const Journal = () => {
         </div>
         {accounts.length > 1 && (
           <div className="flex items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-muted-foreground" />
+            <Filter className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" />
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-              <SelectTrigger className="w-[200px] h-8 text-xs">
+              <SelectTrigger className="w-[180px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
                 <SelectValue placeholder="All Accounts" />
               </SelectTrigger>
               <SelectContent>
