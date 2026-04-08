@@ -100,7 +100,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
               <span className={cn('text-[28px] leading-tight font-bold tabular-nums', valueColor)}>
                 {cfg.format(v)}
               </span>
-              {<MicroSparkline values={sparklines} />}
+              {cfg.key === 'netPnl' && <MicroSparkline values={sparklines} />}
             </div>
             {i < stats_config.length - 1 && (
               <div className="w-px h-12 bg-[rgba(255,255,255,0.08)]" />

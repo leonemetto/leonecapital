@@ -59,11 +59,9 @@ export function QuickActions() {
       <div className="space-y-2.5">
         <Link
           to="/add-trade"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-primary/10 to-primary/[0.03] border border-primary/15 hover:border-primary/30 hover:from-primary/15 transition-all text-sm font-semibold group"
+          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white hover:bg-white/90 transition-all text-sm font-semibold text-black group"
         >
-          <div className="p-1.5 rounded-lg bg-primary/15 group-hover:bg-primary/20 transition-colors">
-            <PlusCircle className="h-4 w-4 text-primary" />
-          </div>
+          <PlusCircle className="h-4 w-4 text-black" />
           <span>TRADE ENTRY</span>
         </Link>
         <button

@@ -74,7 +74,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               className={cn(
                 'px-3 py-1 text-xs rounded-md transition-all',
                 period === p.key
-                  ? 'bg-foreground text-background font-semibold'
+                  ? 'bg-white text-black font-semibold'
                   : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.5)]'
               )}
             >

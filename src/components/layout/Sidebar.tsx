@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   LayoutDashboard, PlusCircle, BookOpen, Wallet,
@@ -31,7 +31,7 @@ export function Sidebar() {
           <Menu className="h-5 w-5" />
         </button>
         <div className="flex items-center gap-2 ml-3">
-          <Activity className="h-4 w-4 text-profit" />
+          <Activity className="h-4 w-4 text-white" />
           <span className="font-bold text-sm tracking-tight">EdgeFlow</span>
         </div>
       </header>
@@ -57,7 +57,7 @@ export function Sidebar() {
           'h-12 flex items-center border-b border-border px-3 shrink-0',
           collapsed ? 'justify-center' : 'gap-2'
         )}>
-          <Activity className="h-5 w-5 text-profit shrink-0" />
+          <Activity className="h-5 w-5 text-white shrink-0" />
           {!collapsed && <span className="font-bold text-sm tracking-tight">EdgeFlow</span>}
           <button
             onClick={() => setMobileOpen(false)}
@@ -76,11 +76,11 @@ export function Sidebar() {
               end={item.path === '/'}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) => cn(
-                'flex items-center gap-2.5 px-2.5 py-2 rounded-md text-sm font-medium transition-all duration-150',
+                'flex items-center gap-2.5 py-2 rounded-md text-sm font-medium transition-all duration-150',
                 isActive
-                  ? 'bg-primary/10 text-primary'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70',
-                collapsed && 'justify-center px-2'
+                  ? 'border-l-2 border-white pl-2 pr-[10px] text-white'
+                  : 'px-2.5 text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]',
+                collapsed && 'justify-center px-2 border-l-0 pl-2'
               )}
             >
               <item.icon className="h-4 w-4 shrink-0" />
