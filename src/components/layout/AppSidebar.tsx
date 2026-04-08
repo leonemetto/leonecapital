@@ -19,10 +19,8 @@ import { useProfile } from '@/hooks/useProfile';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 // ─── EdgeFlow Logomark ───
-// Step-chart shape: unambiguously financial, distinct, works at any size
 function EdgeFlowMark({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
@@ -40,11 +38,11 @@ function EdgeFlowMark({ size = 20 }: { size?: number }) {
 const GUIDE_SECTION_IDS = ['philosophy', 'analyst', 'optimizer', 'ai-advisor', 'workflow'];
 
 const baseNavItems = [
-  { title: 'Analytics',   path: '/dashboard', Icon: ChartLineUp },
-  { title: 'Analyst',     path: '/analyst',   Icon: ChartBar },
-  { title: 'Trades DB',   path: '/journal',   Icon: Rows },
-  { title: 'Accounts',    path: '/accounts',  Icon: CurrencyDollar },
-  { title: 'AI Advisor',  path: '/ai',        Icon: Brain },
+  { title: 'Analytics',  short: 'Stats',    path: '/dashboard', Icon: ChartLineUp },
+  { title: 'Analyst',    short: 'Analyst',  path: '/analyst',   Icon: ChartBar },
+  { title: 'Trades DB',  short: 'Trades',   path: '/journal',   Icon: Rows },
+  { title: 'Accounts',   short: 'Accounts', path: '/accounts',  Icon: CurrencyDollar },
+  { title: 'AI Advisor', short: 'AI',       path: '/ai',        Icon: Brain },
 ];
 
 export function AppSidebar() {
@@ -60,41 +58,11 @@ export function AppSidebar() {
   const navItems = [
     ...baseNavItems,
     guideComplete
-      ? { title: 'Settings', path: '/profile', Icon: GearSix }
-      : { title: 'Guide',    path: '/guide',   Icon: BookOpen },
+      ? { title: 'Settings', short: 'Settings', path: '/profile', Icon: GearSix }
+      : { title: 'Guide',    short: 'Guide',    path: '/guide',   Icon: BookOpen },
   ];
 
-  const sidebarWidth = collapsed ? 'w-[64px]' : 'w-[220px]';
-
-  const NavItem = ({ item }: { item: typeof navItems[0] }) => {
-    const link = (
-      <NavLink
-        to={item.path}
-        end={item.path === '/'}
-        onClick={() => setMobileOpen(false)}
-        className={({ isActive }) => cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 outline-none',
-          isActive
-            ? 'text-white border-l-2 border-white pl-[10px]'
-            : 'text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]',
-          collapsed && 'justify-center px-0 border-l-0 pl-0'
-        )}
-      >
-        <item.Icon className="h-[18px] w-[18px] shrink-0" weight="regular" />
-        {!collapsed && <span className="truncate">{item.title}</span>}
-      </NavLink>
-    );
-
-    if (collapsed) {
-      return (
-        <Tooltip delayDuration={0}>
-          <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" sideOffset={16} className="z-[200]">{item.title}</TooltipContent>
-        </Tooltip>
-      );
-    }
-    return link;
-  };
+  const sidebarWidth = collapsed ? 'w-[72px]' : 'w-[220px]';
 
   return (
     <>
@@ -147,47 +115,64 @@ export function AppSidebar() {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto overflow-x-hidden">
+        <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
           {navItems.map(item => (
-            <NavItem key={item.path} item={item} />
+            <NavLink
+              key={item.path}
+              to={item.path}
+              end={item.path === '/'}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) => cn(
+                'flex transition-all duration-200 outline-none rounded-lg',
+                collapsed
+                  ? 'flex-col items-center justify-center gap-1 py-2.5 px-1'
+                  : 'flex-row items-center gap-3 px-3 py-2.5',
+                isActive
+                  ? collapsed
+                    ? 'text-white bg-[rgba(255,255,255,0.06)]'
+                    : 'text-white border-l-2 border-white pl-[10px]'
+                  : 'text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]'
+              )}
+            >
+              <item.Icon
+                className={collapsed ? 'h-[17px] w-[17px] shrink-0' : 'h-[18px] w-[18px] shrink-0'}
+                weight="regular"
+              />
+              {collapsed
+                ? <span className="text-[8px] font-medium tracking-[0.04em] leading-none opacity-60">{item.short}</span>
+                : <span className="truncate text-[13px] font-medium">{item.title}</span>
+              }
+            </NavLink>
           ))}
         </nav>
 
         {/* User section */}
-        <div className="border-t border-[rgba(255,255,255,0.06)] p-3 space-y-0.5">
+        <div className="border-t border-[rgba(255,255,255,0.06)] p-2 space-y-0.5">
           {collapsed ? (
             <>
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => navigate('/profile')}
-                    className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
-                  >
-                    <Avatar className="h-7 w-7">
-                      <AvatarImage src={profile?.avatarUrl || undefined} />
-                      <AvatarFallback className="text-white text-[9px] font-bold" style={{ background: 'rgba(255,255,255,0.08)' }}>{initials}</AvatarFallback>
-                    </Avatar>
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={16} className="z-[200]">Profile</TooltipContent>
-              </Tooltip>
-              <Tooltip delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => signOut()}
-                    className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
-                  >
-                    <SignOut className="h-[18px] w-[18px]" weight="regular" />
-                  </button>
-                </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={16} className="z-[200]">Sign Out</TooltipContent>
-              </Tooltip>
+              <button
+                onClick={() => navigate('/profile')}
+                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+              >
+                <Avatar className="h-6 w-6">
+                  <AvatarImage src={profile?.avatarUrl || undefined} />
+                  <AvatarFallback className="text-white text-[8px] font-bold" style={{ background: 'rgba(255,255,255,0.08)' }}>{initials}</AvatarFallback>
+                </Avatar>
+                <span className="text-[8px] font-medium tracking-[0.04em] opacity-60">Profile</span>
+              </button>
+              <button
+                onClick={() => signOut()}
+                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+              >
+                <SignOut className="h-[17px] w-[17px]" weight="regular" />
+                <span className="text-[8px] font-medium tracking-[0.04em] opacity-60">Sign Out</span>
+              </button>
             </>
           ) : (
             <>
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
               >
                 <Avatar className="h-7 w-7 shrink-0">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
@@ -210,7 +195,7 @@ export function AppSidebar() {
         </div>
 
         {/* Collapse toggle */}
-        <div className="hidden lg:flex border-t border-[rgba(255,255,255,0.06)] p-3">
+        <div className="hidden lg:flex border-t border-[rgba(255,255,255,0.06)] p-2">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
@@ -219,10 +204,9 @@ export function AppSidebar() {
             )}
           >
             {collapsed
-              ? <CaretRight className="h-4 w-4" weight="regular" />
-              : <CaretLeft className="h-4 w-4" weight="regular" />
+              ? <CaretRight className="h-3.5 w-3.5" weight="regular" />
+              : <><CaretLeft className="h-3.5 w-3.5" weight="regular" /><span>Collapse</span></>
             }
-            {!collapsed && <span>Collapse</span>}
           </button>
         </div>
       </aside>
