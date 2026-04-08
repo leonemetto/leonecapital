@@ -1,5 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom';
-import { PlusCircle, FileText } from 'lucide-react';
+import { Plus, FileText } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { format } from 'date-fns';
@@ -53,24 +53,22 @@ export function QuickActions() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="glass-card p-5 h-full"
+      className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 h-full"
     >
-      <h3 className="label-text mb-5">Quick Actions</h3>
+      <h3 className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.25)] mb-5">Quick Actions</h3>
       <div className="space-y-2.5">
         <Link
           to="/add-trade"
-          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white hover:bg-white/90 transition-all text-sm font-semibold text-black group"
+          className="flex items-center gap-3 px-4 py-3 rounded-[24px] bg-white hover:bg-white/90 transition-all text-sm font-semibold text-black group"
         >
-          <PlusCircle className="h-4 w-4 text-black" />
+          <Plus className="h-4 w-4 text-black" weight="bold" />
           <span>TRADE ENTRY</span>
         </Link>
         <button
           onClick={handleDailyReview}
-          className="flex items-center gap-3 px-4 py-3 rounded-xl bg-gradient-to-r from-secondary/80 to-transparent border border-border/50 hover:border-border transition-all text-sm font-semibold w-full text-left group"
+          className="flex items-center gap-3 px-4 py-3 rounded-[24px] border border-[rgba(255,255,255,0.12)] hover:border-[rgba(255,255,255,0.25)] hover:bg-[rgba(255,255,255,0.03)] transition-all text-sm font-semibold w-full text-left text-[rgba(255,255,255,0.7)]"
         >
-          <div className="p-1.5 rounded-lg bg-secondary group-hover:bg-muted transition-colors">
-            <FileText className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
-          </div>
+          <FileText className="h-4 w-4 text-[rgba(255,255,255,0.4)]" weight="regular" />
           <span>DAILY REVIEW</span>
         </button>
       </div>

@@ -4,7 +4,7 @@ import { TradeTable } from '@/components/trade/TradeTable';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Filter } from 'lucide-react';
+import { Funnel } from '@phosphor-icons/react';
 
 const Journal = () => {
   const { trades, updateTrade, deleteTrade } = useSharedTrades();
@@ -25,7 +25,7 @@ const Journal = () => {
         </div>
         {accounts.length > 1 && (
           <div className="flex items-center gap-2">
-            <Filter className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" />
+            <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
               <SelectTrigger className="w-[180px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
                 <SelectValue placeholder="All Accounts" />

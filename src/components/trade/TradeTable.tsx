@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TradeForm } from './TradeForm';
 import { exportTradesCSV } from '@/lib/analytics';
-import { Search, Download, Trash2, Edit3, ChevronLeft, ChevronRight, ChevronDown, BookOpen, PlusCircle } from 'lucide-react';
+import { MagnifyingGlass, DownloadSimple, Trash, PencilSimple, CaretLeft, CaretRight, CaretDown, BookOpen, Plus } from '@phosphor-icons/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { useCriteria } from '@/hooks/useCriteria';
@@ -119,12 +119,12 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
   if (trades.length === 0) {
     return (
       <div className={cn(CARD, 'flex flex-col items-center justify-center py-20 text-center')}>
-        <BookOpen className="h-8 w-8 mb-4 text-[rgba(255,255,255,0.2)]" />
+        <BookOpen className="h-8 w-8 mb-4 text-[rgba(255,255,255,0.2)]" weight="regular" />
         <p className="text-base font-semibold text-white mb-1">No trades logged yet</p>
         <p className="text-xs text-[rgba(255,255,255,0.35)] mb-6">Start building your edge by logging your first trade.</p>
         <Link to="/add-trade">
           <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
-            <PlusCircle className="h-3.5 w-3.5" /> Log your first trade →
+            <Plus className="h-3.5 w-3.5" weight="bold" /> Log your first trade →
           </Button>
         </Link>
       </div>
@@ -136,7 +136,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-2 mb-2">
         <div className="relative flex-1">
-          <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" />
+          <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
           <Input
             value={search}
             onChange={e => { setSearch(e.target.value); resetPage(); }}
@@ -162,7 +162,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
           onClick={() => exportTradesCSV(trades)}
           className="gap-1 h-8 text-xs border-[rgba(255,255,255,0.15)] bg-transparent hover:bg-[rgba(255,255,255,0.06)] rounded-full"
         >
-          <Download className="h-3 w-3" /> CSV
+          <DownloadSimple className="h-3 w-3" weight="regular" /> CSV
         </Button>
       </div>
 
@@ -282,15 +282,15 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                             onClick={(e) => { e.stopPropagation(); setEditTrade(trade); }}
                             className="p-1 rounded text-[rgba(255,255,255,0.3)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors"
                           >
-                            <Edit3 className="h-3 w-3" />
+                            <PencilSimple className="h-3 w-3" weight="regular" />
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setDeletingId(trade.id); }}
                             className="p-1 rounded text-[rgba(255,255,255,0.3)] hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
                           >
-                            <Trash2 className="h-3 w-3" />
+                            <Trash className="h-3 w-3" weight="regular" />
                           </button>
-                          <ChevronDown className={cn('h-3.5 w-3.5 text-[rgba(255,255,255,0.25)] transition-transform', isExpanded && 'rotate-180')} />
+                          <CaretDown className={cn('h-3.5 w-3.5 text-[rgba(255,255,255,0.25)] transition-transform', isExpanded && 'rotate-180')} weight="regular" />
                         </div>
                       </td>
                     </tr>
@@ -356,14 +356,14 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                 disabled={page === 0}
                 className="p-1 rounded text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] disabled:opacity-25 transition-colors"
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
+                <CaretLeft className="h-3.5 w-3.5" weight="regular" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
                 className="p-1 rounded text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] disabled:opacity-25 transition-colors"
               >
-                <ChevronRight className="h-3.5 w-3.5" />
+                <CaretRight className="h-3.5 w-3.5" weight="regular" />
               </button>
             </div>
           </div>
