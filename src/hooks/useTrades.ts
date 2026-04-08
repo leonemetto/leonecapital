@@ -3,6 +3,26 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Trade, TradeFormData } from '@/types/trade';
 
+const BUCKET = 'trade-screenshots';
+
+export async function uploadTradeScreenshot(userId: string, tradeId: string, file: File): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'jpg';
+  const path = `${userId}/${tradeId}.${ext}`;
+  const { error } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: true });
+  if (error) throw error;
+  return path;
+}
+
+export async function getScreenshotUrl(path: string): Promise<string> {
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUrl(path, 3600);
+  if (error) throw error;
+  return data.signedUrl;
+}
+
+export async function deleteTradeScreenshot(path: string): Promise<void> {
+  await supabase.storage.from(BUCKET).remove([path]);
+}
+
 function rowToTrade(r: any): Trade {
   return {
     id: r.id,
@@ -22,6 +42,7 @@ function rowToTrade(r: any): Trade {
     followedPlan: r.followed_plan != null ? Boolean(r.followed_plan) : undefined,
     notes: r.notes || '',
     accountId: r.account_id ?? undefined,
+    screenshotUrl: r.screenshot_url ?? undefined,
     createdAt: r.created_at,
   };
 }
@@ -64,6 +85,7 @@ export function useTrades() {
       confidence_level: form.confidenceLevel ?? null,
       time_in_trade: form.timeInTrade ?? null,
       followed_plan: form.followedPlan ?? null,
+      screenshot_url: form.screenshotUrl ?? null,
     } as any).select().single();
 
     if (error) throw error;
@@ -89,6 +111,7 @@ export function useTrades() {
     if (form.confidenceLevel !== undefined) updates.confidence_level = form.confidenceLevel ?? null;
     if (form.timeInTrade !== undefined) updates.time_in_trade = form.timeInTrade ?? null;
     if (form.followedPlan !== undefined) updates.followed_plan = form.followedPlan ?? null;
+    if (form.screenshotUrl !== undefined) updates.screenshot_url = form.screenshotUrl ?? null;
 
     const { error } = await supabase.from('trades').update(updates).eq('id', id);
     if (error) throw error;

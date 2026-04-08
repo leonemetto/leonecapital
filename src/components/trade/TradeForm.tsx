@@ -11,7 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { CreatableSelect } from '@/components/ui/creatable-select';
 import { useCustomOptions } from '@/hooks/useCustomOptions';
 import { toast } from 'sonner';
-import { ArrowUpRight, ArrowDownRight, Lightning, Question, CalendarBlank, CaretDown, CaretUp } from '@phosphor-icons/react';
+import { ArrowUpRight, ArrowDownRight, Lightning, Question, CalendarBlank, CaretDown, CaretUp, Image, X } from '@phosphor-icons/react';
+import { deleteTradeScreenshot } from '@/hooks/useTrades';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -66,8 +67,10 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
   const { instruments, confirmations, addInstrument, addConfirmation } = useCustomOptions();
   const { activeCriteria } = useCriteria();
   const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
+  const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   // Show advanced by default when editing an existing trade that has advanced fields
-  const hasAdvancedData = !!(initialData?.htfBias || initialData?.emotionalState || initialData?.confidenceLevel || initialData?.timeInTrade || initialData?.followedPlan !== undefined || initialData?.notes);
+  const hasAdvancedData = !!(initialData?.htfBias || initialData?.emotionalState || initialData?.confidenceLevel || initialData?.timeInTrade || initialData?.followedPlan !== undefined || initialData?.notes || initialData?.screenshotUrl);
   const [showAdvanced, setShowAdvanced] = useState(!!initialData && hasAdvancedData);
   const [form, setForm] = useState(() => {
     if (initialData) {
@@ -106,6 +109,16 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     }
   };
 
+  const handleScreenshotSelect = (file: File) => {
+    setScreenshotFile(file);
+    setScreenshotPreview(URL.createObjectURL(file));
+  };
+
+  const clearScreenshot = () => {
+    setScreenshotFile(null);
+    setScreenshotPreview(null);
+  };
+
   const [openTooltip, setOpenTooltip] = useState<string | null>(null);
 
   const renderTooltip = (id: string, text: string) => (
@@ -136,6 +149,24 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     const pnl = outcome === 'breakeven' ? 0 : outcome === 'loss' ? -Math.abs(rawPnl) : Math.abs(rawPnl);
 
     try {
+      // Upload screenshot first so we can store path in one insert
+      let screenshotPath: string | undefined = initialData?.screenshotUrl;
+      if (screenshotFile) {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          if (initialData?.screenshotUrl) {
+            await deleteTradeScreenshot(initialData.screenshotUrl).catch(() => {});
+          }
+          const ext = screenshotFile.name.split('.').pop() ?? 'jpg';
+          const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
+          const { error: uploadErr } = await supabase.storage
+            .from('trade-screenshots')
+            .upload(path, screenshotFile, { upsert: true });
+          if (uploadErr) throw uploadErr;
+          screenshotPath = path;
+        }
+      }
+
       const savedTrade = await onSubmit({
         date: form.date,
         instrument: form.instrument,
@@ -153,6 +184,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         followedPlan: form.followedPlan === 'yes' ? true : form.followedPlan === 'no' ? false : undefined,
         notes: form.notes,
         accountId: form.accountId || undefined,
+        screenshotUrl: screenshotPath,
       });
 
       if (savedTrade?.id && Object.keys(checks).length > 0) {
@@ -391,6 +423,38 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                     className="mt-1 bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] min-h-[36px] h-9 resize-none text-sm py-2 focus-visible:ring-0 focus-visible:border-[rgba(255,255,255,0.3)] placeholder:text-[rgba(255,255,255,0.2)]"
                   />
                 </div>
+              </div>
+
+              {/* Screenshot upload */}
+              <div>
+                <Label className={LABEL}>Chart Screenshot</Label>
+                {screenshotPreview || initialData?.screenshotUrl ? (
+                  <div className="mt-1 relative inline-block">
+                    <img
+                      src={screenshotPreview ?? ''}
+                      alt="Chart screenshot"
+                      className="h-28 w-auto rounded-lg border border-[rgba(255,255,255,0.1)] object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={clearScreenshot}
+                      className="absolute -top-1.5 -right-1.5 h-5 w-5 rounded-full bg-[#f87171] flex items-center justify-center outline-none"
+                    >
+                      <X className="h-2.5 w-2.5 text-white" weight="bold" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className="mt-1 flex flex-col items-center justify-center gap-1.5 h-20 rounded-lg border border-dashed border-[rgba(255,255,255,0.15)] cursor-pointer hover:border-[rgba(255,255,255,0.3)] transition-colors">
+                    <Image className="h-5 w-5 text-[rgba(255,255,255,0.25)]" weight="regular" />
+                    <span className="text-[11px] text-[rgba(255,255,255,0.3)]">Click or drag to attach chart</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="sr-only"
+                      onChange={e => { const f = e.target.files?.[0]; if (f) handleScreenshotSelect(f); }}
+                    />
+                  </label>
+                )}
               </div>
             </div>
           </motion.div>

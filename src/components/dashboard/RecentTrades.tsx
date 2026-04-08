@@ -3,6 +3,7 @@ import { Trade } from '@/types/trade';
 import { cn } from '@/lib/utils';
 import { Link } from 'react-router-dom';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Camera } from '@phosphor-icons/react';
 
 interface Props { trades: Trade[] }
 
@@ -87,6 +88,9 @@ export function RecentTrades({ trades }: Props) {
                       </span>
                       {t.session && (
                         <span className="text-[10px] text-[rgba(255,255,255,0.3)]">{t.session}</span>
+                      )}
+                      {t.screenshotUrl && (
+                        <Camera className="h-3 w-3 text-[rgba(255,255,255,0.25)] shrink-0" weight="regular" />
                       )}
                     </div>
                     {t.strategy && (

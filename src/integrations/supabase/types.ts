@@ -208,6 +208,7 @@ export type Database = {
           session: string
           strategy: string
           time_in_trade: number | null
+          screenshot_url: string | null
           user_id: string
         }
         Insert: {
@@ -226,6 +227,7 @@ export type Database = {
           pnl?: number
           r_multiple?: number | null
           risk_percent?: number | null
+          screenshot_url?: string | null
           session?: string
           strategy?: string
           time_in_trade?: number | null
@@ -247,6 +249,7 @@ export type Database = {
           pnl?: number
           r_multiple?: number | null
           risk_percent?: number | null
+          screenshot_url?: string | null
           session?: string
           strategy?: string
           time_in_trade?: number | null

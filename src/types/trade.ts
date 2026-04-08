@@ -16,6 +16,7 @@ export interface Trade {
   followedPlan?: boolean;
   notes: string;
   accountId?: string;
+  screenshotUrl?: string;
   createdAt: string;
 }
 
