@@ -6,7 +6,7 @@ import {
   startOfMonth, endOfMonth, eachDayOfInterval, format, getDay,
   addMonths, subMonths, isSameMonth, startOfWeek,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { CaretLeft, CaretRight } from '@phosphor-icons/react';
 import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger,
 } from '@/components/ui/tooltip';
@@ -75,12 +75,12 @@ export function HeatMapCalendar({ trades }: Props) {
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setCurrentMonth(p => subMonths(p, 1))} className="text-[rgba(255,255,255,0.4)] hover:text-foreground transition-colors">
-              <ChevronLeft className="h-4 w-4" />
+            <button onClick={() => setCurrentMonth(p => subMonths(p, 1))} className="p-1.5 rounded-md text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+              <CaretLeft className="h-3.5 w-3.5" weight="bold" />
             </button>
-            <span className="text-sm font-semibold min-w-[130px] text-center">{format(currentMonth, 'MMMM yyyy')}</span>
-            <button onClick={() => setCurrentMonth(p => addMonths(p, 1))} className="text-[rgba(255,255,255,0.4)] hover:text-foreground transition-colors">
-              <ChevronRight className="h-4 w-4" />
+            <span className="text-[13px] font-semibold min-w-[120px] text-center tracking-[-0.01em]">{format(currentMonth, 'MMMM yyyy')}</span>
+            <button onClick={() => setCurrentMonth(p => addMonths(p, 1))} className="p-1.5 rounded-md text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+              <CaretRight className="h-3.5 w-3.5" weight="bold" />
             </button>
           </div>
         </div>
@@ -107,13 +107,20 @@ export function HeatMapCalendar({ trades }: Props) {
                   <Tooltip key={di}>
                     <TooltipTrigger asChild>
                       <div
-                        className="min-h-[52px] rounded-md p-1.5 flex flex-col items-center justify-center transition-all hover:ring-1 hover:ring-[rgba(255,255,255,0.15)] cursor-default"
-                        style={{ backgroundColor: data ? pnlIntensity(data.pnl, maxAbsPnl) : 'transparent' }}
+                        className="min-h-[56px] rounded-lg p-2 flex flex-col justify-between transition-all hover:ring-1 hover:ring-[rgba(255,255,255,0.12)] cursor-default"
+                        style={{
+                          backgroundColor: data ? pnlIntensity(data.pnl, maxAbsPnl) : 'rgba(255,255,255,0.02)',
+                          border: '0.5px solid rgba(255,255,255,0.05)',
+                        }}
                       >
-                        <span className="text-[11px] text-[rgba(255,255,255,0.4)] tabular-nums">{format(day, 'd')}</span>
+                        <span className={cn(
+                          'text-[10px] font-medium tabular-nums leading-none',
+                          data ? 'text-[rgba(255,255,255,0.6)]' : 'text-[rgba(255,255,255,0.2)]'
+                        )}>{format(day, 'd')}</span>
                         {data && (
-                          <span className={cn('text-[10px] font-mono font-bold tabular-nums mt-0.5',
-                            data.pnl > 0 ? 'text-profit' : data.pnl < 0 ? 'text-loss' : 'text-foreground'
+                          <span className={cn(
+                            'text-[9px] font-mono font-bold tabular-nums leading-none self-end',
+                            data.pnl > 0 ? 'text-[#00c896]' : data.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]'
                           )}>
                             {data.pnl >= 0 ? '+' : ''}{fmtPnl(data.pnl)}
                           </span>
@@ -135,17 +142,17 @@ export function HeatMapCalendar({ trades }: Props) {
         </div>
 
         {/* Summary strip */}
-        <div className="flex items-center gap-4 mt-4 pt-3 border-t border-[rgba(255,255,255,0.05)]">
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[rgba(255,255,255,0.05)]">
           {[
-            { label: 'Total P&L', value: fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? 'text-profit' : 'text-loss' },
-            { label: 'Win Days', value: String(monthStats.winDays), color: 'text-profit' },
-            { label: 'Loss Days', value: String(monthStats.lossDays), color: 'text-loss' },
-            { label: 'Best Day', value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: 'text-profit' },
-            { label: 'Worst Day', value: monthStats.worstDay < 0 ? fmtPnl(monthStats.worstDay) : '—', color: 'text-loss' },
+            { label: 'Month P&L', value: (monthStats.totalPnl >= 0 ? '+' : '') + fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? '#00c896' : '#f87171' },
+            { label: 'Win Days',  value: String(monthStats.winDays),  color: '#00c896' },
+            { label: 'Loss Days', value: String(monthStats.lossDays), color: '#f87171' },
+            { label: 'Best Day',  value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: '#00c896' },
+            { label: 'Worst',     value: monthStats.worstDay < 0 ? fmtPnl(monthStats.worstDay) : '—', color: '#f87171' },
           ].map(s => (
-            <div key={s.label} className="flex flex-col items-center flex-1">
-              <span className="text-[10px] text-[rgba(255,255,255,0.3)] uppercase tracking-wider">{s.label}</span>
-              <span className={cn('text-xs font-bold tabular-nums', s.color)}>{s.value}</span>
+            <div key={s.label} className="flex flex-col gap-0.5 flex-1 px-2 py-1.5 rounded-md bg-[rgba(255,255,255,0.02)]">
+              <span className="text-[9px] font-medium text-[rgba(255,255,255,0.25)] uppercase tracking-[0.08em] leading-none">{s.label}</span>
+              <span className="text-[11px] font-bold font-mono tabular-nums leading-none" style={{ color: s.color }}>{s.value}</span>
             </div>
           ))}
         </div>
