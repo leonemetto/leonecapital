@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Brain, ChevronDown, ChevronUp } from 'lucide-react';
+import { Brain, CaretDown, CaretUp } from '@phosphor-icons/react';
 import { useTraderProfile } from '@/hooks/useTraderProfile';
-import { cn } from '@/lib/utils';
 
 export function AIMemoryCard({ collapsed }: { collapsed: boolean }) {
   const { traderProfile } = useTraderProfile();
@@ -16,20 +15,23 @@ export function AIMemoryCard({ collapsed }: { collapsed: boolean }) {
     <div className="px-2 pb-2">
       <button
         onClick={() => setOpen(!open)}
-        className="flex items-center justify-between w-full px-2.5 py-2 rounded-md text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors"
+        className="flex items-center justify-between w-full px-2.5 py-2 rounded-md text-[12px] font-medium text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-colors"
       >
         <div className="flex items-center gap-2">
-          <Brain className="h-3.5 w-3.5" />
+          <Brain className="h-3.5 w-3.5" weight="regular" />
           <span>AI Memory</span>
         </div>
-        {open ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+        {open
+          ? <CaretUp className="h-3 w-3" weight="regular" />
+          : <CaretDown className="h-3 w-3" weight="regular" />
+        }
       </button>
       {open && (
         <div className="mt-1 space-y-1 px-2">
           {top3.map((m: any, i: number) => (
             <div
               key={i}
-              className="text-[10px] text-muted-foreground bg-secondary/50 rounded px-2 py-1.5 leading-tight"
+              className="text-[10px] text-[rgba(255,255,255,0.35)] bg-[rgba(255,255,255,0.04)] rounded px-2 py-1.5 leading-tight"
             >
               {typeof m === 'string' ? m : m.insight || JSON.stringify(m)}
             </div>

@@ -1,10 +1,19 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
-  BarChart3, BookOpen, Wallet, LogOut, Sparkles, Settings, BookMarked,
-  Activity, ChevronLeft, ChevronRight, Menu, X,
-} from 'lucide-react';
-import logoImg from '@/assets/logo.svg';
+  ChartLineUp,
+  PresentationChart,
+  Table,
+  Vault,
+  Brain,
+  Compass,
+  Gear,
+  SignOut,
+  CaretLeft,
+  CaretRight,
+  List,
+  X,
+} from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
 import { useOnboarding } from '@/hooks/useOnboarding';
@@ -12,14 +21,30 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
+// ─── EdgeFlow Logomark ───
+// Step-chart shape: unambiguously financial, distinct, works at any size
+function EdgeFlowMark({ size = 20 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
+      <polyline
+        points="2,18 2,11 7,11 7,6 12,6 12,2 18,2"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 const GUIDE_SECTION_IDS = ['philosophy', 'analyst', 'optimizer', 'ai-advisor', 'workflow'];
 
 const baseNavItems = [
-  { title: 'Analytics', path: '/dashboard', icon: BarChart3 },
-  { title: 'Analyst', path: '/analyst', icon: Activity },
-  { title: 'Trades DB', path: '/journal', icon: BookOpen },
-  { title: 'Accounts', path: '/accounts', icon: Wallet },
-  { title: 'AI Advisor', path: '/ai', icon: Sparkles },
+  { title: 'Analytics',   path: '/dashboard', Icon: ChartLineUp },
+  { title: 'Analyst',     path: '/analyst',   Icon: PresentationChart },
+  { title: 'Trades DB',   path: '/journal',   Icon: Table },
+  { title: 'Accounts',    path: '/accounts',  Icon: Vault },
+  { title: 'AI Advisor',  path: '/ai',        Icon: Brain },
 ];
 
 export function AppSidebar() {
@@ -32,12 +57,11 @@ export function AppSidebar() {
   const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
 
   const guideComplete = GUIDE_SECTION_IDS.every(s => guideProgress.includes(s));
-
   const navItems = [
     ...baseNavItems,
     guideComplete
-      ? { title: 'Settings', path: '/profile', icon: Settings }
-      : { title: 'Guide', path: '/guide', icon: BookMarked },
+      ? { title: 'Settings', path: '/profile', Icon: Gear }
+      : { title: 'Guide',    path: '/guide',   Icon: Compass },
   ];
 
   const sidebarWidth = collapsed ? 'w-[72px]' : 'w-[220px]';
@@ -49,14 +73,14 @@ export function AppSidebar() {
         end={item.path === '/'}
         onClick={() => setMobileOpen(false)}
         className={({ isActive }) => cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 relative',
+          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200',
           isActive
             ? 'text-white border-l-2 border-white pl-[10px]'
-            : 'text-[rgba(255,255,255,0.35)] hover:text-[rgba(255,255,255,0.7)] hover:bg-[rgba(255,255,255,0.04)]',
+            : 'text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]',
           collapsed && 'justify-center px-2.5 border-l-0 pl-2.5'
         )}
       >
-        <item.icon className="h-[18px] w-[18px] shrink-0" />
+        <item.Icon className="h-[18px] w-[18px] shrink-0" weight="regular" />
         {!collapsed && <span className="truncate">{item.title}</span>}
       </NavLink>
     );
@@ -65,13 +89,10 @@ export function AppSidebar() {
       return (
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" sideOffset={12}>
-            {item.title}
-          </TooltipContent>
+          <TooltipContent side="right" sideOffset={12}>{item.title}</TooltipContent>
         </Tooltip>
       );
     }
-
     return link;
   };
 
@@ -82,7 +103,7 @@ export function AppSidebar() {
         onClick={() => setMobileOpen(true)}
         className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] lg:hidden"
       >
-        <Menu className="h-5 w-5 text-white" />
+        <List className="h-5 w-5 text-white" weight="regular" />
       </button>
 
       {/* Mobile overlay */}
@@ -103,25 +124,25 @@ export function AppSidebar() {
         )}
         style={{ background: '#0a0a0a' }}
       >
-        {/* Brand header */}
+        {/* Brand */}
         <div className={cn(
           'h-16 flex items-center border-b border-[rgba(255,255,255,0.06)] px-4 shrink-0',
           collapsed ? 'justify-center' : 'gap-3'
         )}>
-          <div className="relative shrink-0">
-            <img src={logoImg} alt="Logo" className="h-8 w-8 rounded-lg" />
-          </div>
+          <span className="text-white shrink-0">
+            <EdgeFlowMark size={20} />
+          </span>
           {!collapsed && (
             <div className="min-w-0">
-              <h1 className="text-sm font-bold tracking-tight leading-none truncate text-white">EDGEFLOW</h1>
-              <p className="text-[9px] font-medium tracking-[0.15em] uppercase mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>Pro Analytics</p>
+              <h1 className="text-[13px] font-bold tracking-[-0.02em] leading-none truncate text-white">EDGEFLOW</h1>
+              <p className="text-[9px] font-medium tracking-[0.15em] uppercase mt-1 text-[rgba(255,255,255,0.25)]">Pro Analytics</p>
             </div>
           )}
           <button
             onClick={() => setMobileOpen(false)}
             className="ml-auto p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.06)] lg:hidden"
           >
-            <X className="h-4 w-4 text-white" />
+            <X className="h-4 w-4 text-white" weight="regular" />
           </button>
         </div>
 
@@ -156,7 +177,7 @@ export function AppSidebar() {
                     onClick={() => signOut()}
                     className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all"
                   >
-                    <LogOut className="h-[18px] w-[18px]" />
+                    <SignOut className="h-[18px] w-[18px]" weight="regular" />
                   </button>
                 </TooltipTrigger>
                 <TooltipContent side="right" sideOffset={12}>Sign Out</TooltipContent>
@@ -166,48 +187,47 @@ export function AppSidebar() {
             <>
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all"
               >
                 <Avatar className="h-7 w-7 shrink-0">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
                   <AvatarFallback className="text-white text-[9px] font-bold" style={{ background: 'rgba(255,255,255,0.08)' }}>{initials}</AvatarFallback>
                 </Avatar>
                 <div className="text-left min-w-0">
-                  <p className="text-xs font-semibold leading-none truncate text-white">{profile?.nickname || 'User'}</p>
-                  <p className="text-[9px] mt-0.5" style={{ color: 'rgba(255,255,255,0.25)' }}>Profile</p>
+                  <p className="text-[12px] font-semibold leading-none truncate text-white">{profile?.nickname || 'User'}</p>
+                  <p className="text-[9px] mt-1 text-[rgba(255,255,255,0.25)]">Profile</p>
                 </div>
               </button>
               <button
                 onClick={() => signOut()}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium transition-all"
-                style={{ color: 'rgba(255,255,255,0.3)' }}
-                onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.6)')}
-                onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.3)')}
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all"
               >
-                <LogOut className="h-[18px] w-[18px] shrink-0" />
+                <SignOut className="h-[18px] w-[18px] shrink-0" weight="regular" />
                 <span>Sign Out</span>
               </button>
             </>
           )}
         </div>
 
-        {/* Collapse toggle - desktop only */}
+        {/* Collapse toggle */}
         <div className="hidden lg:flex border-t border-[rgba(255,255,255,0.06)] p-3">
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
-              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-xs transition-all',
+              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[11px] text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.04)] transition-all',
               collapsed && 'justify-center px-2'
             )}
-            style={{ color: 'rgba(255,255,255,0.25)' }}
           >
-            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+            {collapsed
+              ? <CaretRight className="h-4 w-4" weight="regular" />
+              : <CaretLeft className="h-4 w-4" weight="regular" />
+            }
             {!collapsed && <span>Collapse</span>}
           </button>
         </div>
       </aside>
 
-      {/* Spacer for layout */}
+      {/* Layout spacer */}
       <div className={cn(
         'hidden lg:block shrink-0 transition-all duration-300',
         sidebarWidth
