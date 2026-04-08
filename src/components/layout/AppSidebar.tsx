@@ -6,7 +6,6 @@ import {
   Rows,
   CurrencyDollar,
   Brain,
-  BookOpen,
   GearSix,
   SignOut,
   CaretLeft,
@@ -17,7 +16,6 @@ import {
 } from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
-import { useOnboarding } from '@/hooks/useOnboarding';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 
@@ -36,8 +34,6 @@ function EdgeFlowMark({ size = 20 }: { size?: number }) {
   );
 }
 
-const GUIDE_SECTION_IDS = ['philosophy', 'analyst', 'optimizer', 'ai-advisor', 'workflow'];
-
 const baseNavItems = [
   { title: 'Analytics',  short: 'Stats',    path: '/dashboard', Icon: ChartLineUp },
   { title: 'Analyst',    short: 'Analyst',  path: '/analyst',   Icon: ChartBar },
@@ -51,16 +47,12 @@ export function AppSidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const { signOut } = useAuth();
   const { profile } = useProfile();
-  const { guideProgress } = useOnboarding();
   const navigate = useNavigate();
   const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
 
-  const guideComplete = GUIDE_SECTION_IDS.every(s => guideProgress.includes(s));
   const navItems = [
     ...baseNavItems,
-    guideComplete
-      ? { title: 'Settings', short: 'Settings', path: '/profile', Icon: GearSix }
-      : { title: 'Guide',    short: 'Guide',    path: '/guide',   Icon: BookOpen },
+    { title: 'Settings', short: 'Settings', path: '/profile', Icon: GearSix },
   ];
 
   const sidebarWidth = collapsed ? 'w-[72px]' : 'w-[220px]';

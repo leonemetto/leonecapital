@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TradeForm } from '@/components/trade/TradeForm';
+import { PositionSizeCalc } from '@/components/trade/PositionSizeCalc';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { ArrowLeft } from '@phosphor-icons/react';
 
@@ -22,8 +23,9 @@ const AddTrade = () => {
           <p className="text-xs text-[rgba(255,255,255,0.35)]">Record your trade and track your edge</p>
         </div>
       </div>
-      <div className="max-w-3xl">
+      <div className="max-w-3xl space-y-3">
         <TradeForm onSubmit={addTrade} />
+        <PositionSizeCalc />
       </div>
     </AppLayout>
   );

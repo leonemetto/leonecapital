@@ -7,7 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TradeForm } from './TradeForm';
 import { exportTradesCSV } from '@/lib/analytics';
-import { MagnifyingGlass, DownloadSimple, Trash, PencilSimple, CaretLeft, CaretRight, CaretDown, BookOpen, Plus } from '@phosphor-icons/react';
+import { MagnifyingGlass, DownloadSimple, Trash, PencilSimple, CaretLeft, CaretRight, CaretDown, BookOpen, Plus, Image } from '@phosphor-icons/react';
+import { useSignedUrl } from '@/hooks/useSignedUrl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { useCriteria } from '@/hooks/useCriteria';
@@ -28,6 +29,30 @@ type DateRange = 'all' | 'week' | 'month';
 
 const PAGE_SIZE = 10;
 const CARD = 'rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)]';
+
+function TradeScreenshot({ path }: { path: string }) {
+  const [open, setOpen] = useState(false);
+  const { data: url } = useSignedUrl(path);
+  if (!url) return null;
+  return (
+    <>
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-[rgba(255,255,255,0.3)]">Chart</p>
+        <button onClick={() => setOpen(true)} className="outline-none">
+          <img src={url} alt="chart" className="h-16 w-auto rounded-md border border-[rgba(255,255,255,0.1)] object-cover hover:border-[rgba(255,255,255,0.3)] transition-colors" />
+        </button>
+      </div>
+      {open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm" onClick={() => setOpen(false)}>
+          <div className="relative max-w-5xl max-h-[90vh] w-full mx-4" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setOpen(false)} className="absolute -top-8 right-0 text-[rgba(255,255,255,0.5)] hover:text-white text-xs outline-none">✕ Close</button>
+            <img src={url} alt="chart" className="w-full h-auto max-h-[85vh] object-contain rounded-xl border border-[rgba(255,255,255,0.1)]" />
+          </div>
+        </div>
+      )}
+    </>
+  );
+}
 
 export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
   const [search, setSearch] = useState('');
@@ -331,6 +356,11 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                                 <div className="col-span-2 sm:col-span-3 md:col-span-5">
                                   <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-[rgba(255,255,255,0.3)]">Notes</p>
                                   <p className="text-sm leading-relaxed text-[rgba(255,255,255,0.65)]">{trade.notes}</p>
+                                </div>
+                              )}
+                              {trade.screenshotUrl && (
+                                <div className="col-span-2 sm:col-span-3 md:col-span-5">
+                                  <TradeScreenshot path={trade.screenshotUrl} />
                                 </div>
                               )}
                             </div>

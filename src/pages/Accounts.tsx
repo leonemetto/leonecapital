@@ -22,7 +22,7 @@ function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: s
   const points = useMemo(() => {
     const accountTrades = trades
       .filter(t => t.accountId === accountId)
-      .sort((a, b) => new Date(a.entryDate).getTime() - new Date(b.entryDate).getTime());
+      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     if (accountTrades.length < 2) return null;
     let cum = 0;
     return accountTrades.map(t => { cum += t.pnl; return cum; });

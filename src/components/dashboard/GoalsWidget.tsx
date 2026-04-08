@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useGoals, TraderGoals } from '@/hooks/useGoals';
 import { Trade } from '@/types/trade';
+import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import {
   startOfDay, endOfDay, startOfWeek, endOfWeek,
@@ -95,6 +96,7 @@ export function GoalsWidget({ trades }: Props) {
     if (goals) setDraft({ ...goals });
   }, [goals]);
 
+  const alertedRef = useRef<Record<string, boolean>>({});
   const now = new Date();
   const todayPnl    = periodPnl(trades, startOfDay(now), endOfDay(now));
   const weekPnl     = periodPnl(trades, startOfWeek(now, { weekStartsOn: 1 }), endOfWeek(now, { weekStartsOn: 1 }));
@@ -129,6 +131,19 @@ export function GoalsWidget({ trades }: Props) {
       </div>
     </div>
   );
+
+  // Fire toast alerts for daily loss limit
+  useEffect(() => {
+    if (!goals?.maxDailyLoss || todayPnl >= 0) return;
+    const pct = Math.abs(todayPnl) / goals.maxDailyLoss;
+    if (pct >= 1 && !alertedRef.current['hit']) {
+      alertedRef.current['hit'] = true;
+      toast.error(`Daily loss limit hit — $${Math.abs(todayPnl).toFixed(0)} lost today. Stop trading.`, { duration: 8000 });
+    } else if (pct >= 0.8 && !alertedRef.current['warn']) {
+      alertedRef.current['warn'] = true;
+      toast.warning(`80% of daily loss limit reached — $${Math.abs(todayPnl).toFixed(0)} / $${goals.maxDailyLoss} lost.`, { duration: 6000 });
+    }
+  }, [todayPnl, goals?.maxDailyLoss]);
 
   // Warn if daily loss limit is approaching or hit
   const lossWarning = goals?.maxDailyLoss && todayPnl < 0 && Math.abs(todayPnl) >= goals.maxDailyLoss * 0.8;
