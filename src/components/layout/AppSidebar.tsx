@@ -13,6 +13,7 @@ import {
   CaretRight,
   List,
   X,
+  Plus,
 } from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -116,6 +117,27 @@ export function AppSidebar() {
 
         {/* Navigation */}
         <nav className="flex-1 py-4 px-2 space-y-0.5 overflow-y-auto">
+          {/* Log Trade — primary action */}
+          <NavLink
+            to="/add-trade"
+            onClick={() => setMobileOpen(false)}
+            className={({ isActive }) => cn(
+              'flex transition-all duration-200 outline-none rounded-[24px] mb-2',
+              collapsed
+                ? 'flex-col items-center justify-center gap-1 py-2.5 px-1 bg-white text-black'
+                : 'flex-row items-center gap-2 px-4 py-2.5 bg-white text-black hover:bg-white/90',
+              isActive && 'opacity-90'
+            )}
+          >
+            <Plus className={collapsed ? 'h-[17px] w-[17px] shrink-0' : 'h-4 w-4 shrink-0'} weight="bold" />
+            {collapsed
+              ? <span className="text-[8px] font-bold tracking-[0.04em] leading-none">Log</span>
+              : <span className="text-[13px] font-semibold">Log Trade</span>
+            }
+          </NavLink>
+
+          <div className="pb-1 mb-1 border-b border-[rgba(255,255,255,0.06)]" />
+
           {navItems.map(item => (
             <NavLink
               key={item.path}

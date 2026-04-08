@@ -1,7 +1,6 @@
 import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
 import { useCriteria } from '@/hooks/useCriteria';
-import { Loader2 } from 'lucide-react';
+import { CircleNotch } from '@phosphor-icons/react';
 
 interface TradeChecklistProps {
   checks: Record<string, boolean>;
@@ -13,15 +12,14 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Loader2 className="h-3 w-3 animate-spin" /> Loading checklist...
+      <div className="flex items-center gap-2 text-xs text-[rgba(255,255,255,0.35)]">
+        <CircleNotch className="h-3 w-3 animate-spin" weight="regular" /> Loading checklist...
       </div>
     );
   }
 
   if (activeCriteria.length === 0) return null;
 
-  // Group by category
   const grouped: Record<string, typeof activeCriteria> = {};
   for (const c of activeCriteria) {
     const cat = c.category || 'General';
@@ -39,8 +37,10 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Entry Checklist</Label>
-        <span className={`text-[10px] font-mono font-semibold ${checkedCount === total ? 'text-profit' : 'text-muted-foreground'}`}>
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">
+          Entry Checklist
+        </span>
+        <span className={`text-[10px] font-mono font-semibold ${checkedCount === total && total > 0 ? 'text-white' : 'text-[rgba(255,255,255,0.3)]'}`}>
           {checkedCount}/{total}
         </span>
       </div>
@@ -49,9 +49,9 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
         {Object.entries(grouped).map(([category, items]) => (
           <div key={category}>
             {Object.keys(grouped).length > 1 && (
-              <p className="text-[9px] text-muted-foreground/60 uppercase tracking-widest mb-1.5 ml-0.5">{category}</p>
+              <p className="text-[9px] text-[rgba(255,255,255,0.25)] uppercase tracking-widest mb-1.5 ml-0.5">{category}</p>
             )}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               {items.map(c => (
                 <div key={c.id} className="flex items-center gap-2.5">
                   <Checkbox
@@ -63,7 +63,7 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
                   <label
                     htmlFor={`check-${c.id}`}
                     className={`text-xs cursor-pointer select-none transition-colors ${
-                      checks[c.id] ? 'text-foreground' : 'text-muted-foreground'
+                      checks[c.id] ? 'text-white' : 'text-[rgba(255,255,255,0.45)]'
                     }`}
                   >
                     {c.label}
