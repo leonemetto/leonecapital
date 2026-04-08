@@ -56,11 +56,11 @@ export function PerformanceRadar({ stats }: PerformanceRadarProps) {
             <Radar
               name="Performance"
               dataKey="value"
-              stroke="#00c896"
-              fill="#00c896"
+              stroke="#10b981"
+              fill="#10b981"
               fillOpacity={0.06}
               strokeWidth={1.5}
-              dot={{ r: 2.5, fill: '#00c896', strokeWidth: 0 }}
+              dot={{ r: 2.5, fill: '#10b981', strokeWidth: 0 }}
             />
           </RadarChart>
         </ResponsiveContainer>

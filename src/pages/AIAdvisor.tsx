@@ -310,7 +310,7 @@ export default function AIAdvisor() {
             className="flex items-center justify-between pb-3 border-b border-[rgba(255,255,255,0.07)] mb-1"
           >
             <div className="flex items-center gap-2.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-[#00c896]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-[#10b981]" />
               <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[rgba(255,255,255,0.35)]">
                 AI Advisor
               </span>

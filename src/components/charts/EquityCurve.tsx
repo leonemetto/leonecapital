@@ -35,8 +35,8 @@ export function EquityCurve({ data }: EquityCurveProps) {
           <AreaChart data={data}>
             <defs>
               <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={isPositive ? '#00c896' : '#EF4444'} stopOpacity={0.2} />
-                <stop offset="95%" stopColor={isPositive ? '#00c896' : '#EF4444'} stopOpacity={0} />
+                <stop offset="5%" stopColor={isPositive ? '#10b981' : '#EF4444'} stopOpacity={0.2} />
+                <stop offset="95%" stopColor={isPositive ? '#10b981' : '#EF4444'} stopOpacity={0} />
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="hsl(220, 6%, 10%)" vertical={false} />
@@ -44,7 +44,7 @@ export function EquityCurve({ data }: EquityCurveProps) {
             <YAxis stroke="hsl(220, 6%, 16%)" tick={{ fill: 'hsl(220, 5%, 45%)', fontSize: 10 }} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
             <Tooltip contentStyle={{ backgroundColor: 'hsl(220, 8%, 7%)', border: '1px solid hsl(220, 6%, 12%)', borderRadius: '10px', color: '#eee', fontSize: 11, boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}
               formatter={(value: number) => [`$${value.toFixed(2)}`, 'Balance']} />
-            <Area type="monotone" dataKey="balance" stroke={isPositive ? '#00c896' : '#EF4444'} strokeWidth={1.5} fill="url(#equityGradient)" />
+            <Area type="monotone" dataKey="balance" stroke={isPositive ? '#10b981' : '#EF4444'} strokeWidth={1.5} fill="url(#equityGradient)" />
           </AreaChart>
         </ResponsiveContainer>
       </div>

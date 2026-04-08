@@ -38,7 +38,7 @@ function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: s
   const ys = points.map(v => H - ((v - min) / range) * H);
   const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
   const last = points[points.length - 1];
-  const color = last >= 0 ? '#00c896' : '#f87171';
+  const color = last >= 0 ? '#10b981' : '#f87171';
 
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" aria-hidden>
@@ -282,14 +282,14 @@ const Accounts = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">P&L</p>
-                    <p className={cn('text-[11px] font-bold font-mono leading-none', pnl >= 0 ? 'text-[#00c896]' : 'text-[#f87171]')}>
+                    <p className={cn('text-[11px] font-bold font-mono leading-none', pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
                       {pnl >= 0 ? '+' : ''}{currencySymbol(account.currency)}{Math.abs(pnl).toFixed(0)}
                       <span className="text-[9px] ml-1 opacity-70">({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)</span>
                     </p>
                   </div>
                   <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">Win Rate</p>
-                    <p className={cn('text-[11px] font-bold font-mono leading-none', winRate !== null && winRate >= 50 ? 'text-[#00c896]' : 'text-[rgba(255,255,255,0.5)]')}>
+                    <p className={cn('text-[11px] font-bold font-mono leading-none', winRate !== null && winRate >= 50 ? 'text-[#10b981]' : 'text-[rgba(255,255,255,0.5)]')}>
                       {winRate !== null ? `${winRate}%` : '—'}
                     </p>
                   </div>

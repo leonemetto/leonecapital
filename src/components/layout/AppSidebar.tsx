@@ -2,12 +2,12 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   ChartLineUp,
-  PresentationChart,
-  Table,
-  Vault,
+  ChartBar,
+  Rows,
+  CurrencyDollar,
   Brain,
-  Compass,
-  Gear,
+  BookOpen,
+  GearSix,
   SignOut,
   CaretLeft,
   CaretRight,
@@ -41,9 +41,9 @@ const GUIDE_SECTION_IDS = ['philosophy', 'analyst', 'optimizer', 'ai-advisor', '
 
 const baseNavItems = [
   { title: 'Analytics',   path: '/dashboard', Icon: ChartLineUp },
-  { title: 'Analyst',     path: '/analyst',   Icon: PresentationChart },
-  { title: 'Trades DB',   path: '/journal',   Icon: Table },
-  { title: 'Accounts',    path: '/accounts',  Icon: Vault },
+  { title: 'Analyst',     path: '/analyst',   Icon: ChartBar },
+  { title: 'Trades DB',   path: '/journal',   Icon: Rows },
+  { title: 'Accounts',    path: '/accounts',  Icon: CurrencyDollar },
   { title: 'AI Advisor',  path: '/ai',        Icon: Brain },
 ];
 
@@ -60,11 +60,11 @@ export function AppSidebar() {
   const navItems = [
     ...baseNavItems,
     guideComplete
-      ? { title: 'Settings', path: '/profile', Icon: Gear }
-      : { title: 'Guide',    path: '/guide',   Icon: Compass },
+      ? { title: 'Settings', path: '/profile', Icon: GearSix }
+      : { title: 'Guide',    path: '/guide',   Icon: BookOpen },
   ];
 
-  const sidebarWidth = collapsed ? 'w-[72px]' : 'w-[220px]';
+  const sidebarWidth = collapsed ? 'w-[64px]' : 'w-[220px]';
 
   const NavItem = ({ item }: { item: typeof navItems[0] }) => {
     const link = (
@@ -73,11 +73,11 @@ export function AppSidebar() {
         end={item.path === '/'}
         onClick={() => setMobileOpen(false)}
         className={({ isActive }) => cn(
-          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200',
+          'flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 outline-none',
           isActive
             ? 'text-white border-l-2 border-white pl-[10px]'
             : 'text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)]',
-          collapsed && 'justify-center px-2.5 border-l-0 pl-2.5'
+          collapsed && 'justify-center px-0 border-l-0 pl-0'
         )}
       >
         <item.Icon className="h-[18px] w-[18px] shrink-0" weight="regular" />
@@ -89,7 +89,7 @@ export function AppSidebar() {
       return (
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>{link}</TooltipTrigger>
-          <TooltipContent side="right" sideOffset={12}>{item.title}</TooltipContent>
+          <TooltipContent side="right" sideOffset={16} className="z-[200]">{item.title}</TooltipContent>
         </Tooltip>
       );
     }
@@ -101,7 +101,7 @@ export function AppSidebar() {
       {/* Mobile trigger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] lg:hidden"
+        className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] lg:hidden outline-none"
       >
         <List className="h-5 w-5 text-white" weight="regular" />
       </button>
@@ -117,7 +117,7 @@ export function AppSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 h-screen z-50 flex flex-col transition-all duration-300 ease-out',
+          'fixed top-0 left-0 h-screen z-40 flex flex-col transition-all duration-300 ease-out',
           'border-r border-[rgba(255,255,255,0.06)]',
           sidebarWidth,
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
@@ -140,14 +140,14 @@ export function AppSidebar() {
           )}
           <button
             onClick={() => setMobileOpen(false)}
-            className="ml-auto p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.06)] lg:hidden"
+            className="ml-auto p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.06)] lg:hidden outline-none"
           >
             <X className="h-4 w-4 text-white" weight="regular" />
           </button>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto">
+        <nav className="flex-1 py-4 px-3 space-y-0.5 overflow-y-auto overflow-x-hidden">
           {navItems.map(item => (
             <NavItem key={item.path} item={item} />
           ))}
@@ -161,7 +161,7 @@ export function AppSidebar() {
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => navigate('/profile')}
-                    className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all"
+                    className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
                   >
                     <Avatar className="h-7 w-7">
                       <AvatarImage src={profile?.avatarUrl || undefined} />
@@ -169,25 +169,25 @@ export function AppSidebar() {
                     </Avatar>
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={12}>Profile</TooltipContent>
+                <TooltipContent side="right" sideOffset={16} className="z-[200]">Profile</TooltipContent>
               </Tooltip>
               <Tooltip delayDuration={0}>
                 <TooltipTrigger asChild>
                   <button
                     onClick={() => signOut()}
-                    className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all"
+                    className="flex items-center justify-center w-full p-2.5 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
                   >
                     <SignOut className="h-[18px] w-[18px]" weight="regular" />
                   </button>
                 </TooltipTrigger>
-                <TooltipContent side="right" sideOffset={12}>Sign Out</TooltipContent>
+                <TooltipContent side="right" sideOffset={16} className="z-[200]">Sign Out</TooltipContent>
               </Tooltip>
             </>
           ) : (
             <>
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
               >
                 <Avatar className="h-7 w-7 shrink-0">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
@@ -200,7 +200,7 @@ export function AppSidebar() {
               </button>
               <button
                 onClick={() => signOut()}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
               >
                 <SignOut className="h-[18px] w-[18px] shrink-0" weight="regular" />
                 <span>Sign Out</span>
@@ -214,7 +214,7 @@ export function AppSidebar() {
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
-              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[11px] text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.04)] transition-all',
+              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[11px] text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none',
               collapsed && 'justify-center px-2'
             )}
           >

@@ -53,7 +53,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
 
   const lastBal = data.length > 0 ? data[data.length - 1].balance : startingBalance;
   const isPositive = lastBal >= startingBalance;
-  const lineColor = isPositive ? '#00c896' : '#f87171';
+  const lineColor = isPositive ? '#10b981' : '#f87171';
   const isEmpty = data.length === 0;
 
   const pills: { key: Period; label: string }[] = [

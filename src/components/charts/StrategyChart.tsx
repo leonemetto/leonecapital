@@ -29,7 +29,7 @@ export function StrategyChart({ data }: StrategyChartProps) {
               formatter={(value: number, _name: string, props: any) => [`$${value.toFixed(2)} | WR: ${props.payload.winRate}% | ${props.payload.total} trades`, 'P&L']} />
             <Bar dataKey="pnl" radius={[0, 4, 4, 0]} maxBarSize={20}>
               {data.map((entry, i) => (
-                <Cell key={i} fill={entry.pnl >= 0 ? '#00c896' : '#EF4444'} />
+                <Cell key={i} fill={entry.pnl >= 0 ? '#10b981' : '#EF4444'} />
               ))}
             </Bar>
           </BarChart>

@@ -20,9 +20,9 @@ function pnlIntensity(pnl: number, maxAbs: number): string {
   if (pnl === 0) return 'transparent';
   const ratio = Math.min(Math.abs(pnl) / Math.max(maxAbs, 1), 1);
   if (pnl > 0) {
-    if (ratio > 0.6) return 'rgba(0,200,150,0.6)';
-    if (ratio > 0.3) return 'rgba(0,200,150,0.35)';
-    return 'rgba(0,200,150,0.15)';
+    if (ratio > 0.6) return 'rgba(16,185,129,0.6)';
+    if (ratio > 0.3) return 'rgba(16,185,129,0.35)';
+    return 'rgba(16,185,129,0.15)';
   }
   if (ratio > 0.6) return 'rgba(248,113,113,0.6)';
   if (ratio > 0.3) return 'rgba(248,113,113,0.35)';
@@ -120,7 +120,7 @@ export function HeatMapCalendar({ trades }: Props) {
                         {data && (
                           <span className={cn(
                             'text-[9px] font-mono font-bold tabular-nums leading-none self-end',
-                            data.pnl > 0 ? 'text-[#00c896]' : data.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]'
+                            data.pnl > 0 ? 'text-[#10b981]' : data.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]'
                           )}>
                             {data.pnl >= 0 ? '+' : ''}{fmtPnl(data.pnl)}
                           </span>
@@ -144,10 +144,10 @@ export function HeatMapCalendar({ trades }: Props) {
         {/* Summary strip */}
         <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[rgba(255,255,255,0.05)]">
           {[
-            { label: 'Month P&L', value: (monthStats.totalPnl >= 0 ? '+' : '') + fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? '#00c896' : '#f87171' },
-            { label: 'Win Days',  value: String(monthStats.winDays),  color: '#00c896' },
+            { label: 'Month P&L', value: (monthStats.totalPnl >= 0 ? '+' : '') + fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? '#10b981' : '#f87171' },
+            { label: 'Win Days',  value: String(monthStats.winDays),  color: '#10b981' },
             { label: 'Loss Days', value: String(monthStats.lossDays), color: '#f87171' },
-            { label: 'Best Day',  value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: '#00c896' },
+            { label: 'Best Day',  value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: '#10b981' },
             { label: 'Worst',     value: monthStats.worstDay < 0 ? fmtPnl(monthStats.worstDay) : '—', color: '#f87171' },
           ].map(s => (
             <div key={s.label} className="flex flex-col gap-0.5 flex-1 px-2 py-1.5 rounded-md bg-[rgba(255,255,255,0.02)]">

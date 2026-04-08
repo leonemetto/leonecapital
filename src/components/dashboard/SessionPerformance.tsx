@@ -9,7 +9,7 @@ interface Props { trades: Trade[] }
  * Maps win rate (0–100) to a single solid color:
  *   0%  → #f87171 (red)
  *   50% → #f59e0b (amber)
- *   100%→ #00c896 (green)
+ *   100%→ #10b981 (green)
  */
 function winRateColor(winRate: number): string {
   const ratio = Math.max(0, Math.min(winRate, 100)) / 100;
