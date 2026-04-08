@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo } from 'react'; // refreshed
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
@@ -10,7 +10,9 @@ import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Send, Bot, User, Sparkles, Trash2, Lock, PlusCircle } from 'lucide-react';
+import {
+  PaperPlaneTilt, Brain, UserCircle, Trash, Lock, Plus,
+} from '@phosphor-icons/react';
 import { AnimatedAssistantMessage } from '@/components/ai/AnimatedAssistantMessage';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -75,11 +77,31 @@ const SUGGESTIONS = [
   "What does my best trading day look like?",
 ];
 
+// Subtle abstract data-visualization decoration for the idle state
+function DataDecoration() {
+  const bars = [4, 9, 6, 14, 10, 16, 8, 12, 5, 11, 7, 13, 9, 15, 6];
+  return (
+    <svg width="120" height="32" viewBox="0 0 120 32" fill="none" aria-hidden>
+      {bars.map((h, i) => (
+        <rect
+          key={i}
+          x={i * 8 + 1}
+          y={32 - h}
+          width={5}
+          height={h}
+          rx={1.5}
+          fill="white"
+          opacity={0.06 + (h / 16) * 0.08}
+        />
+      ))}
+    </svg>
+  );
+}
+
 export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
   const { session } = useAuth();
-  const userId = session?.user?.id ?? '';
   const { traderProfile } = useTraderProfile();
   const { activeCriteria } = useCriteria();
   const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
@@ -242,32 +264,32 @@ export default function AIAdvisor() {
     }
   };
 
-  // Trade count gate
+  // ─── Gate state ───
   if (trades.length < TRADE_GATE) {
     return (
       <AppLayout>
         <div className="max-w-md mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
-          <div className="p-4 rounded-2xl" style={{ background: 'rgba(255,255,255,0.04)', border: '0.5px solid rgba(255,255,255,0.07)' }}>
-            <Lock className="h-10 w-10" style={{ color: 'rgba(255,255,255,0.3)' }} />
+          <div className="p-4 rounded-2xl bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]">
+            <Lock className="h-10 w-10 text-[rgba(255,255,255,0.3)]" weight="regular" />
           </div>
           <div>
             <h2 className="text-[22px] font-bold text-white tracking-tight mb-2">Your AI advisor needs more data</h2>
-            <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            <p className="text-sm leading-relaxed text-[rgba(255,255,255,0.45)]">
               Log at least {TRADE_GATE} trades before your AI advisor can give you meaningful insights. Right now there isn't enough data to detect patterns.
             </p>
           </div>
           <div className="w-full max-w-xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.4)' }}>{trades.length}/{TRADE_GATE} trades logged</span>
-              <span className="text-[11px] font-mono" style={{ color: 'rgba(255,255,255,0.25)' }}>{TRADE_GATE - trades.length} remaining</span>
+              <span className="text-[11px] font-mono text-[rgba(255,255,255,0.4)]">{trades.length}/{TRADE_GATE} trades logged</span>
+              <span className="text-[11px] font-mono text-[rgba(255,255,255,0.25)]">{TRADE_GATE - trades.length} remaining</span>
             </div>
-            <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="h-1 rounded-full overflow-hidden bg-[rgba(255,255,255,0.06)]">
               <div className="h-full rounded-full bg-white/40 transition-all" style={{ width: `${(trades.length / TRADE_GATE) * 100}%` }} />
             </div>
           </div>
           <Link to="/add-trade">
-            <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
-              <PlusCircle className="h-3.5 w-3.5" /> Log a Trade →
+            <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px] font-semibold">
+              <Plus className="h-3.5 w-3.5" weight="bold" /> Log a Trade
             </Button>
           </Link>
         </div>
@@ -275,114 +297,117 @@ export default function AIAdvisor() {
     );
   }
 
+  // ─── Main chat ───
   return (
     <AppLayout>
       <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-120px)]">
-        {/* Header */}
+
+        {/* Header — only shown when chat has messages */}
         {messages.length > 0 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-between pb-3 border-b border-border/50 mb-1"
+            className="flex items-center justify-between pb-3 border-b border-[rgba(255,255,255,0.07)] mb-1"
           >
             <div className="flex items-center gap-2.5">
-              <div className="h-2 w-2 rounded-full bg-primary animate-pulse-glow" />
-              <span className="text-[11px] font-bold tracking-widest uppercase text-muted-foreground">
+              <div className="h-1.5 w-1.5 rounded-full bg-[#00c896]" />
+              <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-[rgba(255,255,255,0.35)]">
                 AI Advisor
               </span>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
+            <button
               onClick={clearChat}
-              className="text-[10px] tracking-wider uppercase text-muted-foreground/60 hover:text-destructive h-7 px-2.5 gap-1.5"
+              className="flex items-center gap-1.5 text-[10px] tracking-wider uppercase text-[rgba(255,255,255,0.3)] hover:text-[#f87171] transition-colors px-2 py-1 rounded"
             >
-              <Trash2 className="h-3 w-3" />
+              <Trash className="h-3 w-3" weight="regular" />
               Clear
-            </Button>
+            </button>
           </motion.div>
         )}
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-5 py-5 px-1 scrollbar-none [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+        <div className="flex-1 overflow-y-auto space-y-5 py-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <AnimatePresence initial={false}>
+
+            {/* Idle / empty state */}
             {messages.length === 0 && (
               <motion.div
                 key="empty"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.5, ease: 'easeOut' }}
-                className="flex flex-col items-center justify-center h-full text-center gap-6"
+                exit={{ opacity: 0, y: -8 }}
+                transition={{ duration: 0.4, ease: 'easeOut' }}
+                className="flex flex-col items-center justify-center h-full text-center gap-7"
               >
+                {/* Abstract data decoration */}
                 <motion.div
-                  initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.4 }}
-                  className="relative"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.1, duration: 0.6 }}
                 >
-                  <div className="absolute inset-0 rounded-2xl bg-primary/20 blur-xl scale-150" />
-                  <div className="relative p-4 rounded-2xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10">
-                    <Sparkles className="h-10 w-10 text-primary" />
-                  </div>
+                  <DataDecoration />
                 </motion.div>
+
+                {/* Title */}
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2, duration: 0.4 }}
+                  transition={{ delay: 0.15, duration: 0.4 }}
+                  className="space-y-2"
                 >
-                  <h2 className="text-2xl font-black tracking-tight mb-2">AI Trade Advisor</h2>
-                  <p className="text-sm text-muted-foreground/70 max-w-md leading-relaxed">
-                    Your personal trading analyst. Ask anything about your performance — I'll surface patterns, risks, and actionable insights from your data.
+                  <h2 className="text-[28px] font-bold text-white tracking-[-0.03em] leading-tight">
+                    AI Trade Advisor
+                  </h2>
+                  <p className="text-sm text-[rgba(255,255,255,0.4)] max-w-sm leading-relaxed">
+                    Your personal trading analyst. Ask anything about your performance — patterns, risks, and actionable insights from your data.
                   </p>
                 </motion.div>
+
+                {/* Suggestion pills */}
                 <motion.div
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35, duration: 0.4 }}
-                  className="flex flex-wrap gap-2 justify-center mt-1"
+                  transition={{ delay: 0.25, duration: 0.4 }}
+                  className="flex flex-wrap gap-2 justify-center"
                 >
                   {SUGGESTIONS.map((s, i) => (
-                    <motion.div
+                    <motion.button
                       key={s}
-                      initial={{ opacity: 0, scale: 0.95 }}
+                      initial={{ opacity: 0, scale: 0.96 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.4 + i * 0.06 }}
+                      transition={{ delay: 0.3 + i * 0.05 }}
+                      onClick={() => send(s)}
+                      className="text-[12px] px-3.5 py-2 rounded-full border border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.5)] hover:text-white hover:border-[rgba(255,255,255,0.25)] hover:bg-[rgba(255,255,255,0.04)] transition-all"
                     >
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="text-xs border-border/60 bg-card/50 backdrop-blur-sm hover:bg-primary/5 hover:border-primary/30 hover:text-primary transition-all duration-200"
-                        onClick={() => send(s)}
-                      >
-                        {s}
-                      </Button>
-                    </motion.div>
+                      {s}
+                    </motion.button>
                   ))}
                 </motion.div>
               </motion.div>
             )}
 
+            {/* Messages */}
             {messages.map((msg) => (
               <motion.div
                 key={msg.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
+                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
                 className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
               >
+                {/* Assistant avatar */}
                 {msg.role === 'assistant' && (
-                  <div className="shrink-0 h-8 w-8 rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 border border-primary/10 flex items-center justify-center mt-0.5">
-                    <Bot className="h-4 w-4 text-primary" />
+                  <div className="shrink-0 h-8 w-8 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center mt-0.5">
+                    <Brain className="h-4 w-4 text-[rgba(255,255,255,0.5)]" weight="regular" />
                   </div>
                 )}
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    msg.role === 'user'
-                      ? 'bg-primary text-primary-foreground shadow-lg shadow-primary/10'
-                      : 'glass-card'
-                  }`}
-                >
+
+                {/* Bubble */}
+                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-white text-black font-medium'
+                    : 'bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] text-[rgba(255,255,255,0.85)]'
+                }`}>
                   {msg.role === 'assistant' ? (
                     <AnimatedAssistantMessage
                       content={msg.content}
@@ -390,9 +415,11 @@ export default function AIAdvisor() {
                     />
                   ) : msg.content}
                 </div>
+
+                {/* User avatar */}
                 {msg.role === 'user' && (
-                  <div className="shrink-0 h-8 w-8 rounded-xl bg-muted/80 border border-border/50 flex items-center justify-center mt-0.5">
-                    <User className="h-4 w-4 text-muted-foreground" />
+                  <div className="shrink-0 h-8 w-8 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] flex items-center justify-center mt-0.5">
+                    <UserCircle className="h-4 w-4 text-[rgba(255,255,255,0.4)]" weight="regular" />
                   </div>
                 )}
               </motion.div>
@@ -402,31 +429,30 @@ export default function AIAdvisor() {
         </div>
 
         {/* Input */}
-        <div className="pt-4 pb-2">
+        <div className="pt-3 pb-2">
           <form
             onSubmit={e => { e.preventDefault(); send(input); }}
             className="relative flex items-end gap-2"
           >
-            <div className="flex-1 relative">
+            <div className="flex-1">
               <Textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
                 placeholder="Ask about your trading performance..."
-                className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-xl bg-card/80 backdrop-blur-sm border-border/60 focus:border-primary/40 focus:ring-primary/20 pr-4 py-3.5 transition-all duration-200"
+                className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-xl bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] focus:border-[rgba(255,255,255,0.2)] focus:ring-0 pr-4 py-3.5 text-white placeholder:text-[rgba(255,255,255,0.25)] transition-colors"
                 rows={1}
               />
             </div>
-            <Button
+            <button
               type="submit"
-              size="icon"
               disabled={!input.trim() || isLoading}
-              className="shrink-0 h-[48px] w-[48px] rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 transition-all duration-200 disabled:shadow-none"
+              className="shrink-0 h-[48px] w-[48px] rounded-xl bg-white hover:bg-white/90 text-black flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
-              <Send className="h-4 w-4" />
-            </Button>
+              <PaperPlaneTilt className="h-4 w-4" weight="fill" />
+            </button>
           </form>
-          <p className="text-[10px] text-center mt-2" style={{ color: 'rgba(255,255,255,0.2)' }}>
+          <p className="text-[10px] text-center mt-2 text-[rgba(255,255,255,0.18)]">
             AI analysis is based on your logged trades only. Log more trades for more accurate insights.
           </p>
         </div>
