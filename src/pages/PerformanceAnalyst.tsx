@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import {
-  Activity, Warning, ChartBar, Brain, Funnel, ShieldCheck, TrendDown, Lightning,
+  Pulse, Warning, ChartBar, Brain, Funnel, ShieldCheck, TrendDown, Lightning,
 } from '@phosphor-icons/react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -367,7 +367,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
         onClick={() => runSimulationWithValues()}
         className="gap-1.5 text-xs bg-white text-black hover:bg-white/90 rounded-[24px] font-semibold"
       >
-        <Activity className="h-3 w-3" /> Run Simulation
+        <Pulse className="h-3 w-3" weight="bold" /> Run Simulation
       </Button>
 
       {result && (
