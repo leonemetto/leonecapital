@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { AnimatedWord } from '@/components/ui/animated-hero';
@@ -401,93 +401,75 @@ function AppCarousel() {
   );
 }
 
-/* ─── Sticky scroll showcase ─── */
-function FeatureShowcase() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start start', 'end end'] });
-  const [current, setCurrent] = useState(0);
-
-  const features = [
-    { title: 'Every trade, fully analyzed.',   desc: 'Log in 30 seconds. EdgeFlow breaks down every trade by instrument, session, emotion, and strategy so you see exactly where you win and where you bleed.', Icon: ChartBar },
-    { title: 'Your edge lives in the data.',    desc: 'The Performance Analyst surfaces your best setups, worst habits, and the exact combinations costing you money. No spreadsheet does this.', Icon: Lightning },
-    { title: 'AI that knows your trading.',     desc: 'Not generic trading advice — AI trained on YOUR data. Your patterns. Your leaks. What to stop doing and what to do more of.', Icon: Brain },
-    { title: 'Simulate before you change.',     desc: 'Apply filters — "only London, only followed plan, confidence ≥4" — and instantly see how your equity curve would have changed.', Icon: TrendUp },
-  ];
-
-  const bars = features.map((_, i) => {
-    const s = i / features.length;
-    const e = (i + 1) / features.length;
-    return useTransform(scrollYProgress, [s, e], [0, 1]);
-  });
-
-  const activeIndex = useTransform(scrollYProgress,
-    features.map((_, i) => i / features.length),
-    features.map((_, i) => i)
-  );
-
-  useEffect(() => activeIndex.on('change', v => setCurrent(Math.min(Math.floor(v + 0.1), features.length - 1))), [activeIndex]);
-
-  const screensInOrder = [MockDashboard, MockAnalyst, MockAI, MockTrades];
-
+/* ─── Feature row ─── */
+function FeatureRow({
+  title, desc, tag, Icon, Screen, flip, index,
+}: {
+  title: string; desc: string; tag: string;
+  Icon: React.ElementType; Screen: React.ElementType;
+  flip?: boolean; index: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-100px' });
   return (
-    <div ref={containerRef} style={{ height: `${features.length * 100}vh` }}>
-      <div className="sticky top-0 h-screen flex items-center overflow-hidden">
-        <div className="max-w-6xl mx-auto px-6 w-full grid md:grid-cols-2 gap-20 items-center">
-          {/* Left */}
-          <div className="space-y-10">
-            {features.map((f, i) => {
-              const isActive = current === i;
-              return (
-                <motion.div key={i} animate={{ opacity: isActive ? 1 : 0.2 }} transition={{ duration: 0.5 }}>
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className={cn('w-9 h-9 rounded-xl border flex items-center justify-center transition-all duration-500',
-                      isActive ? 'bg-[#10b981] border-[#10b981]' : 'bg-[rgba(255,255,255,0.03)] border-[rgba(255,255,255,0.08)]')}>
-                      <f.Icon className={cn('h-4 w-4', isActive ? 'text-black' : 'text-[rgba(255,255,255,0.4)]')} weight="regular" />
-                    </div>
-                    <div className="flex-1 h-px bg-[rgba(255,255,255,0.06)] overflow-hidden rounded-full">
-                      <motion.div className="h-full bg-[#10b981] rounded-full origin-left" style={{ scaleX: bars[i] }} />
-                    </div>
-                  </div>
-                  <h3 className={cn('text-[20px] font-bold tracking-[-0.5px] mb-2 transition-colors duration-300',
-                    isActive ? 'text-white' : 'text-[rgba(255,255,255,0.25)]')}>
-                    {f.title}
-                  </h3>
-                  <AnimatePresence>
-                    {isActive && (
-                      <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.35 }} className="text-[rgba(255,255,255,0.5)] text-[14px] leading-relaxed overflow-hidden">
-                        {f.desc}
-                      </motion.p>
-                    )}
-                  </AnimatePresence>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Right: screen */}
-          <div className="relative hidden md:block">
-            <div className="absolute -inset-6 rounded-3xl opacity-20 blur-3xl pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.5) 0%, transparent 70%)' }} />
-            <div className="relative rounded-2xl border border-[rgba(255,255,255,0.1)] overflow-hidden" style={{ background: '#050505' }}>
-              <div className="flex items-center gap-1.5 px-4 py-3 border-b border-[rgba(255,255,255,0.06)]">
-                {[0,1,2].map(i=><div key={i} className="w-2.5 h-2.5 rounded-full bg-[rgba(255,255,255,0.1)]"/>)}
-                <span className="ml-2 text-[10px] text-[rgba(255,255,255,0.2)]">leone.capital</span>
-              </div>
-              <AnimatePresence mode="wait">
-                <motion.div key={current}
-                  initial={{ opacity: 0, y: 16, filter: 'blur(8px)' }}
-                  animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                  exit={{ opacity: 0, y: -16, filter: 'blur(8px)' }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  style={{ height: 380 }}>
-                  {React.createElement(screensInOrder[current])}
-                </motion.div>
-              </AnimatePresence>
-            </div>
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 48 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.75, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        'grid md:grid-cols-2 gap-12 lg:gap-20 items-center py-20 border-b border-[rgba(255,255,255,0.05)]',
+        flip ? 'md:[&>*:first-child]:order-2' : ''
+      )}>
+      {/* Text */}
+      <div>
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(16,185,129,0.2)] bg-[rgba(16,185,129,0.06)] mb-6">
+          <Icon className="h-3 w-3 text-[#10b981]" weight="fill" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#10b981]">{tag}</span>
+        </div>
+        <h3 className="text-[28px] md:text-[34px] font-black tracking-[-1.5px] text-white leading-[1.1] mb-5">
+          {title}
+        </h3>
+        <p className="text-[rgba(255,255,255,0.45)] text-[15px] leading-relaxed mb-8 max-w-md">
+          {desc}
+        </p>
+        <div className="flex items-center gap-2 text-[#10b981] text-[13px] font-semibold">
+          <span>Feature {index + 1} of 4</span>
+          <div className="flex gap-1">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={cn('h-1 rounded-full transition-all', i === index ? 'w-6 bg-[#10b981]' : 'w-2 bg-[rgba(255,255,255,0.12)]')} />
+            ))}
           </div>
         </div>
       </div>
+      {/* Mockup */}
+      <div className="relative hidden md:block">
+        <div className="absolute -inset-8 rounded-3xl blur-3xl opacity-15 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.6) 0%, transparent 70%)' }} />
+        <div className="relative rounded-2xl border border-[rgba(255,255,255,0.09)] overflow-hidden shadow-2xl" style={{ background: '#050505' }}>
+          <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[rgba(255,255,255,0.06)]">
+            {[0,1,2].map(i=><div key={i} className="w-2 h-2 rounded-full bg-[rgba(255,255,255,0.1)]"/>)}
+            <span className="ml-2 text-[10px] text-[rgba(255,255,255,0.18)]">leone.capital</span>
+          </div>
+          <div style={{ height: 340 }}>
+            <Screen />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Feature Showcase ─── */
+function FeatureShowcase() {
+  const rows = [
+    { title: 'Every trade, fully analyzed.',  tag: 'Trade Log',          desc: 'Log in 30 seconds. EdgeFlow breaks down every trade by instrument, session, emotion, and strategy so you see exactly where you win and where you bleed.', Icon: ChartBar,  Screen: MockDashboard, flip: false },
+    { title: 'Your edge lives in the data.',  tag: 'Performance Analyst', desc: 'The Performance Analyst surfaces your best setups, worst habits, and the exact combinations costing you money. No spreadsheet does this.',               Icon: Lightning, Screen: MockAnalyst,   flip: true  },
+    { title: 'AI that knows your trading.',   tag: 'AI Advisor',          desc: 'Not generic trading advice — AI trained on YOUR data. Your patterns. Your leaks. What to stop doing and what to do more of.',                               Icon: Brain,     Screen: MockAI,        flip: false },
+    { title: 'Simulate before you change.',   tag: 'What-If Simulator',   desc: 'Apply filters — "only London, only followed plan, confidence ≥4" — and instantly see how your equity curve would have changed.',                            Icon: TrendUp,   Screen: MockTrades,    flip: true  },
+  ];
+  return (
+    <div className="max-w-6xl mx-auto px-6">
+      {rows.map((r, i) => <FeatureRow key={i} index={i} {...r} />)}
     </div>
   );
 }
@@ -666,13 +648,13 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── STICKY FEATURE SHOWCASE ── */}
-      <section id="features" className="border-t border-[rgba(255,255,255,0.06)]">
-        <div className="max-w-6xl mx-auto px-6 pt-20 pb-6">
+      {/* ── FEATURE SHOWCASE ── */}
+      <section id="features" className="border-t border-[rgba(255,255,255,0.06)] py-10">
+        <div className="max-w-6xl mx-auto px-6 pb-4">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">How It Works</p>
             <h2 className="text-white font-black tracking-[-2px]" style={{fontSize:'clamp(32px,5vw,54px)'}}>
-              Scroll to discover.
+              Built for serious traders.
             </h2>
           </Reveal>
         </div>
