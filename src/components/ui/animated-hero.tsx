@@ -29,7 +29,7 @@ export function AnimatedWord({ words }: { words: string[] }) {
       {words.map((word, i) => (
         <motion.span
           key={i}
-          className="absolute font-black"
+          className="absolute inset-0 flex items-center justify-center font-black"
           style={{
             background: "linear-gradient(135deg,#10b981 0%,#34d399 50%,#6ee7b7 100%)",
             WebkitBackgroundClip: "text",
