@@ -163,8 +163,8 @@ serve(async (req) => {
     const body = await req.json();
     validateRequest(body);
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const systemPrompt = buildSystemPrompt(
       body.tradesSummary || "No trades data available.",
@@ -173,54 +173,88 @@ serve(async (req) => {
       body.criteriaDefinitions || []
     );
 
-    const messages: Message[] = [
-      { role: "system", content: systemPrompt },
-      ...body.messages.slice(-20).map((m: any) => ({
-        role: m.role as "user" | "assistant",
-        content: m.content,
-      })),
-    ];
+    const anthropicMessages = body.messages.slice(-20).map((m: any) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    }));
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-3-flash-preview",
-          messages,
-          stream: true,
-          max_tokens: 1024,
-        }),
-      }
-    );
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 1024,
+        stream: true,
+        system: systemPrompt,
+        messages: anthropicMessages,
+      }),
+    });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Anthropic API error:", response.status, errorText);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI credits depleted. Please add credits to continue." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
       return new Response(JSON.stringify({ error: "AI service temporarily unavailable." }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    return new Response(response.body, {
-      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    // Translate Anthropic SSE → OpenAI-compatible SSE so the client needs no changes.
+    // Anthropic emits: content_block_delta events with delta.text
+    // Client expects: data: {"choices":[{"delta":{"content":"..."}}]} + data: [DONE]
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
+
+    (async () => {
+      try {
+        const reader = response.body!.getReader();
+        const decoder = new TextDecoder();
+        let buf = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buf += decoder.decode(value, { stream: true });
+
+          let newline: number;
+          while ((newline = buf.indexOf("\n")) !== -1) {
+            const line = buf.slice(0, newline).replace(/\r$/, "");
+            buf = buf.slice(newline + 1);
+
+            if (!line.startsWith("data: ")) continue;
+            const json = line.slice(6).trim();
+            if (!json) continue;
+
+            try {
+              const evt = JSON.parse(json);
+              if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta" && evt.delta.text) {
+                const chunk = JSON.stringify({ choices: [{ delta: { content: evt.delta.text } }] });
+                await writer.write(encoder.encode(`data: ${chunk}\n\n`));
+              } else if (evt.type === "message_stop") {
+                await writer.write(encoder.encode("data: [DONE]\n\n"));
+              }
+            } catch { /* skip malformed lines */ }
+          }
+        }
+        await writer.write(encoder.encode("data: [DONE]\n\n"));
+      } finally {
+        writer.close();
+      }
+    })();
+
+    return new Response(readable, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
     });
   } catch (e) {
     console.error("trade-advisor error:", e);

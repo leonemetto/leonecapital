@@ -38,36 +38,27 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not configured");
 
     // Take last 4 messages for context
     const recent = conversation.slice(-4);
     const convoText = recent.map((m: any) => `${m.role}: ${m.content}`).join("\n");
 
-    const response = await fetch(
-      "https://ai.gateway.lovable.dev/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${LOVABLE_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "google/gemini-2.5-flash-lite",
-          messages: [
-            {
-              role: "system",
-              content:
-                "Extract exactly ONE key behavioral trading insight from this conversation. The insight must be 10 words or less. Focus on patterns like: emotional triggers, rule violations, risk management habits, session preferences, or recurring mistakes. Return ONLY the insight text, nothing else. If no clear insight exists, return 'No clear insight'.",
-            },
-            { role: "user", content: convoText },
-          ],
-          max_tokens: 50,
-          temperature: 0.3,
-        }),
-      }
-    );
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "claude-haiku-4-5-20251001",
+        max_tokens: 50,
+        system: "Extract exactly ONE key behavioral trading insight from this conversation. The insight must be 10 words or less. Focus on patterns like: emotional triggers, rule violations, risk management habits, session preferences, or recurring mistakes. Return ONLY the insight text, nothing else. If no clear insight exists, return 'No clear insight'.",
+        messages: [{ role: "user", content: convoText }],
+      }),
+    });
 
     if (!response.ok) {
       console.error("Insight extraction failed:", response.status);
@@ -77,7 +68,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const insight = data.choices?.[0]?.message?.content?.trim();
+    const insight = data.content?.[0]?.text?.trim();
 
     if (!insight || insight === "No clear insight" || insight.length > 100) {
       return new Response(JSON.stringify({ ok: true, skipped: true }), {
