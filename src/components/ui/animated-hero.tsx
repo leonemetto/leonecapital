@@ -15,33 +15,43 @@ export function AnimatedWord({ words }: { words: string[] }) {
     return () => clearTimeout(id);
   }, [index, words]);
 
+  const longest = words.reduce((a, b) => (a.length >= b.length ? a : b));
+
   return (
-    <span className="relative inline-flex justify-center align-bottom">
-      {/* invisible spacer sized to the longest word so the container never clips */}
-      <span aria-hidden className="invisible" style={{
-        background: "linear-gradient(135deg,#10b981 0%,#34d399 50%,#6ee7b7 100%)",
-        WebkitBackgroundClip: "text",
-        WebkitTextFillColor: "transparent",
-        backgroundClip: "text",
-      }}>
-        {words.reduce((a, b) => (a.length >= b.length ? a : b))}
+    <span
+      className="relative inline-block overflow-hidden"
+      style={{ verticalAlign: "bottom", height: "1.06em" }}
+    >
+      {/* invisible spacer — sets container width to longest word, never clips */}
+      <span
+        aria-hidden
+        className="invisible whitespace-nowrap font-black"
+        style={{
+          background: "linear-gradient(135deg,#10b981 0%,#34d399 50%,#6ee7b7 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+        }}
+      >
+        {longest}
       </span>
+
       {words.map((word, i) => (
         <motion.span
           key={i}
-          className="absolute inset-0 flex items-center justify-center font-black"
+          className="absolute inset-0 flex items-center justify-center whitespace-nowrap font-black"
           style={{
             background: "linear-gradient(135deg,#10b981 0%,#34d399 50%,#6ee7b7 100%)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",
           }}
-          initial={{ opacity: 0, y: -60 }}
+          initial={{ opacity: 0, y: "-100%" }}
           transition={{ type: "spring", stiffness: 60, damping: 18 }}
           animate={
             index === i
-              ? { y: 0, opacity: 1 }
-              : { y: index > i ? -80 : 80, opacity: 0 }
+              ? { y: "0%", opacity: 1 }
+              : { y: index > i ? "-100%" : "100%", opacity: 0 }
           }
         >
           {word}
@@ -57,7 +67,7 @@ export function AnimatedWord({ words }: { words: string[] }) {
  */
 export function AnimatedHero({ onCta }: { onCta?: () => void }) {
   const words = useMemo(
-    () => ["consistent", "profitable", "disciplined", "data-driven", "systematic"],
+    () => ["consistent", "profitable", "disciplined", "systematic", "unstoppable"],
     []
   );
 

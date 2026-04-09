@@ -306,20 +306,22 @@ function AppCarousel() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const carouselRef = useRef(null);
+  const inView = useInView(carouselRef, { margin: '-10%' });
   const total = SCREENS.length;
 
   const go = useCallback((i: number) => setActive(((i % total) + total) % total), [total]);
 
   useEffect(() => {
-    if (paused) return;
+    if (paused || !inView) return;
     intervalRef.current = setInterval(() => go(active + 1), 4000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [active, paused, go]);
+  }, [active, paused, inView, go]);
 
   const { Screen, label, sub } = SCREENS[active];
 
   return (
-    <div onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+    <div ref={carouselRef} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
       {/* Tab pills */}
       <div className="flex flex-wrap gap-2 justify-center mb-10">
         {SCREENS.map((s, i) => (
@@ -600,7 +602,7 @@ export default function Landing() {
               className="font-black leading-[1.06] tracking-[-3px] mb-6 text-white"
               style={{fontSize:'clamp(44px,7vw,80px)'}}>
               Become a more<br/>
-              <AnimatedWord words={['consistent','profitable','disciplined','data-driven','systematic']}/>
+              <AnimatedWord words={['consistent','profitable','disciplined','systematic','unstoppable']}/>
               <span className="text-white"> trader.</span>
             </motion.h1>
             {/* Sub */}
