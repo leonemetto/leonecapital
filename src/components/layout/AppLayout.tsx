@@ -1,5 +1,4 @@
 import { AppSidebar } from './AppSidebar';
-import { FlickeringGrid } from '@/components/ui/flickering-grid';
 import { SandboxBanner } from '@/components/onboarding/SandboxBanner';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 
@@ -13,15 +12,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   const isDemoSelected = selectedAccount?.type === 'demo';
 
   return (
-    <div className="relative min-h-screen bg-background overflow-hidden flex [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-      <FlickeringGrid
-        className="pointer-events-none fixed inset-0 z-0 [mask-image:radial-gradient(ellipse_at_center,transparent_10%,black)]"
-        squareSize={4}
-        gridGap={6}
-        color="hsl(0, 0%, 100%)"
-        maxOpacity={0.25}
-        flickerChance={0.3}
-      />
+    <div className="relative min-h-screen overflow-hidden flex [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" style={{ background: '#000000' }}>
       <AppSidebar />
       <div className="relative z-10 flex-1 min-w-0">
         {isDemoSelected && <SandboxBanner />}
