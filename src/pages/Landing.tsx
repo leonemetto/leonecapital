@@ -7,7 +7,7 @@ import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import {
   ArrowRight, Brain, Lightning,
   CheckCircle, X, List, CaretDown,
-  TrendUp, ShieldCheck, Pulse, ArrowLeft, ChartBar,
+  TrendUp, ShieldCheck, ArrowLeft, ChartBar,
 } from '@phosphor-icons/react';
 
 /* ─── Animated word (opacity crossfade, no layout shift) ─── */
@@ -38,8 +38,15 @@ function AnimatedWord({ words, color = '#4ade80' }: { words: string[]; color?: s
 function EdgeFlowMark({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
-      <polyline points="2,18 2,11 7,11 7,6 12,6 12,2 18,2"
-        stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Vertical spine */}
+      <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      {/* Top bar */}
+      <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      {/* Middle bar — shorter, ends in upward tick */}
+      <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      {/* Bottom bar */}
+      <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
     </svg>
   );
 }
@@ -594,9 +601,13 @@ export default function Landing() {
           <div className="px-6 pt-20 pb-4">
             {/* Badge */}
             <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}}
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-[rgba(16,185,129,0.3)] bg-[rgba(16,185,129,0.08)] mb-8">
-              <Pulse className="h-3 w-3 text-[#10b981]" weight="fill"/>
-              <span className="text-[11px] font-medium text-[#10b981] tracking-wide">AI-Powered Trading Journal</span>
+              className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full mb-8"
+              style={{ background:'rgba(255,255,255,0.06)', border:'0.5px solid rgba(255,255,255,0.12)' }}>
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ade80] opacity-60"/>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#4ade80]"/>
+              </span>
+              <span className="text-[11px] font-medium text-[rgba(255,255,255,0.55)] tracking-[0.06em]">AI-powered trading journal</span>
             </motion.div>
             {/* Headline */}
             <motion.h1 initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:0.75,delay:0.08,ease:[0.22,1,0.36,1]}}
