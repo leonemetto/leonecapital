@@ -4,6 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, useInView, AnimatePresence, useScroll, useTransform } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
+import { AnimatedWord } from '@/components/ui/animated-hero';
 import {
   ArrowRight, Brain, Target, Lightning,
   CheckCircle, X, List, CaretDown,
@@ -614,12 +615,11 @@ export default function Landing() {
             </motion.div>
             {/* Headline */}
             <motion.h1 initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:0.75,delay:0.08,ease:[0.22,1,0.36,1]}}
-              className="font-black leading-[1.03] tracking-[-3px] mb-6 text-white"
+              className="font-black leading-[1.06] tracking-[-3px] mb-6 text-white"
               style={{fontSize:'clamp(44px,7vw,80px)'}}>
-              Stop trading blind.<br/>
-              <span style={{background:'linear-gradient(135deg,#10b981 0%,#34d399 50%,#6ee7b7 100%)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>
-                Find your edge.
-              </span>
+              Become a more<br/>
+              <AnimatedWord words={['consistent','profitable','disciplined','data-driven','systematic']}/>
+              <span className="text-white"> trader.</span>
             </motion.h1>
             {/* Sub */}
             <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.18,ease:[0.22,1,0.36,1]}}
