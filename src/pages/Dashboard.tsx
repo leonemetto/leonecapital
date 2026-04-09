@@ -6,7 +6,6 @@ import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
 import { SessionPerformance } from '@/components/dashboard/SessionPerformance';
 import { RecentTrades } from '@/components/dashboard/RecentTrades';
 import { DailyJournal } from '@/components/dashboard/DailyJournal';
-import { GoalsWidget } from '@/components/dashboard/GoalsWidget';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -246,11 +245,6 @@ const Dashboard = () => {
       {/* Stat Bar */}
       <div className="mb-4">
         <StatBar stats={stats} trades={filteredTrades} />
-      </div>
-
-      {/* Goals */}
-      <div className="mb-4">
-        <GoalsWidget trades={filteredTrades} />
       </div>
 
       {/* Equity Curve */}

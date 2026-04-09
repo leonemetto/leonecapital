@@ -83,7 +83,7 @@ export function AppSidebar() {
           sidebarWidth,
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',
         )}
-        style={{ background: '#0a0a0a' }}
+        style={{ background: '#000000' }}
       >
         {/* Brand */}
         <div className={cn(

@@ -136,7 +136,7 @@
 
 @layer utilities {
   .font-mono {
-    font-family: 'JetBrains Mono', 'Courier New', monospace;
+    font-family: 'Roboto Mono', 'Courier New', monospace;
     font-variant-numeric: tabular-nums;
     font-feature-settings: 'tnum';
   }

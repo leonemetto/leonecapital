@@ -56,6 +56,15 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   const lineColor = isPositive ? '#10b981' : '#f87171';
   const isEmpty = data.length === 0;
 
+  const yDomain = useMemo(() => {
+    if (data.length === 0) return ['auto', 'auto'] as ['auto', 'auto'];
+    const vals = data.map(d => d.balance);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    const pad = (max - min) * 0.15 || 50;
+    return [Math.floor(min - pad), Math.ceil(max + pad)] as [number, number];
+  }, [data]);
+
   const pills: { key: Period; label: string }[] = [
     { key: 'daily', label: 'Daily' },
     { key: 'weekly', label: 'Weekly' },
@@ -84,7 +93,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         </div>
       </div>
 
-      <div className="h-[220px]">
+      <div className="h-[160px]">
         {isEmpty ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
             <svg width="100%" height="60" className="opacity-20">
@@ -111,6 +120,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               />
               <YAxis
                 orientation="right"
+                domain={yDomain}
                 tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `$${v}`}
