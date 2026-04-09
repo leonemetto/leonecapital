@@ -27,14 +27,20 @@ Target: $2,000/month from paying traders globally
 - Write clear commit messages
 
 ## Database Tables
-- profiles (user profiles, onboarding_completed)
-- accounts (trading accounts per user)
-- trades (all trade logs, incl. screenshot_url)
-- trader_profiles (trading style, rules)
-- criteria_settings (pre-trade checklist items)
-- trade_verifications (checklist completions per trade)
-- daily_journals (session notes, mood, key lesson — one per user per date)
+- profiles (user profiles, onboarding_completed, nickname, avatar_url, guide_progress)
+- accounts (trading accounts per user — name, type, starting_balance, current_balance, currency)
+- trades (all trade logs — 20+ fields incl. screenshot_url, r_multiple, emotional_state, followed_plan)
+- trader_profiles (trading style, rules, behavioral_memory JSONB array auto-populated by AI)
+- criteria_settings (pre-trade checklist items — label, category, is_active, sort_order)
+- trade_verifications (checklist completions per trade — checks JSONB map of criteriaId → boolean)
+- daily_journals (session notes, mood 1-5, key lesson — unique per user per date)
 - trader_goals (daily/weekly/monthly P&L targets + max daily loss)
+
+## Storage Buckets
+- avatars (public) — user profile pictures, path: {user_id}/{filename}
+- trade-screenshots (private) — trade chart images, path: {user_id}/{trade_id}.{ext}
+  - Signed URLs expire after 1 hour
+  - RLS: user can only access their own files
 
 ## Design System — STRICT RULES
 ### Colors
@@ -87,7 +93,7 @@ Target: $2,000/month from paying traders globally
 
 ## Pages & Status
 - /dashboard     — Analytics dashboard ✅ fully redesigned
-- /analyst       — Performance Analyst ✅ (was already solid, left as-is)
+- /analyst       — Performance Analytic ✅ (renamed from Analyst)
 - /journal       — Trades DB ✅ summary stats added
 - /accounts      — Trading Accounts ✅ (sparkline fixed)
 - /add-trade     — Log Trade ✅ collapsible advanced fields
@@ -95,16 +101,28 @@ Target: $2,000/month from paying traders globally
 - /profile       — Settings ✅ (always accessible from sidebar)
 - /guide         — Platform Guide ✅
 - /auth          — Login/Signup ✅
-- /auth/callback — Email confirmation ✅
+- /auth/callback — Email confirmation + OAuth redirect ✅
 - /reset-password — Password reset ✅
 - /onboarding   — 4-step onboarding flow ✅
+- /             — Landing page ✅ (public marketing page)
+
+## Sidebar Nav Labels (current)
+- Dashboard → /dashboard (was "Analytics")
+- Analytic → /analyst (was "Analyst")
+- Trades DB → /journal
+- Accounts → /accounts
+- AI Advisor → /ai
+- Trading Plan → /trading-plan (criteria/checklist management)
+- Settings → /profile
 
 ## Features Complete
-- ✅ Auth (signup, signin, reset password)
+- ✅ Auth (signup, signin, reset password, Google OAuth)
+- ✅ MFA/2FA — TOTP setup via QR code, verification on login
 - ✅ Email delivery via Resend
-- ✅ 4-step onboarding flow
-- ✅ Dashboard — equity curve, heatmap calendar, session performance bars, stat bar, recent trades
-- ✅ AI Advisor gated behind 10 trades
+- ✅ 4-step onboarding flow (nickname → account → checklist → first trade)
+- ✅ Dashboard — equity curve, heatmap calendar, session performance bars, stat bar, recent trades, daily journal widget
+- ✅ AI Advisor gated behind 10 trades, powered by Gemini 2.0 Flash (free)
+- ✅ AI behavioral memory — extract-insight edge function appends insights to trader_profiles after each chat
 - ✅ Supabase migration (own project)
 - ✅ Vercel deployment + custom domain leone.capital
 - ✅ Phosphor icons throughout (replaced all Lucide)
@@ -113,13 +131,147 @@ Target: $2,000/month from paying traders globally
 - ✅ Trade screenshot upload — attach chart image, stored in Supabase Storage
 - ✅ Screenshot viewer — camera icon in Recent Trades opens full-screen overlay
 - ✅ Screenshot in Trades DB — thumbnail visible in expanded trade row
-- ✅ Session Journal — mood selector, session notes, key lesson, 14-day history panel
+- ✅ Session Journal — mood selector (1-5), session notes, key lesson, 14-day history panel
 - ✅ P&L Goals widget — daily/weekly/monthly targets with live progress bars
 - ✅ Drawdown alerts — toast warning at 80%, error toast at 100% of daily loss limit
 - ✅ Position size calculator — on Log Trade page, auto-reads account balance
 - ✅ Journal page summary stats bar (trades, win rate, P&L, avg R)
 - ✅ Sidebar Settings always visible (removed guide-completion gate)
 - ✅ Accounts sparkline fixed
+- ✅ Multi-account support — filter dashboard/analytics by account
+- ✅ Demo data — 15 sample trades generated for new users, deletable from settings
+- ✅ Trader behavioral profile — style, instruments, sessions, goals, mistakes, rules, mental triggers
+- ✅ Entry checklist — custom criteria with category, active/inactive toggle, compliance tracking
+- ✅ Avatar upload — profile picture stored in Supabase avatars bucket
+- ✅ Theme toggle — light/dark mode (next-themes)
+- ✅ Landing page — hero with animated word cycling, ContainerScroll 3D tilt, carousel, feature rows, testimonials, pricing, FAQ
+
+## Trade Form — All Fields
+### Always Visible (required)
+- Date (calendar picker)
+- Instrument (creatable select — user can add custom)
+- Direction (long/short toggle)
+- Outcome (win/loss/breakeven)
+- P&L (auto-signed based on outcome)
+- Account (select, required if >1 account)
+
+### Advanced (collapsible)
+- Strategy (creatable select)
+- Session (London, New York, Asian, Overlap, Off-hours)
+- R-Multiple
+- Risk %
+- HTF Bias (Bullish/Bearish/Neutral)
+- Emotional State (1-5 slider)
+- Confidence Level (1-5 slider)
+- Time In Trade (minutes)
+- Followed Plan (yes/no)
+- Notes (textarea)
+- Screenshot (file upload with preview + clear)
+
+### Checklist (shown when criteria exist)
+- All active criteria as checkboxes
+- Auto-checks all if "Followed Plan: Yes"
+- Saves to trade_verifications table
+
+## Dashboard Widgets
+1. Greeting header — time-based (morning/afternoon/evening) + nickname
+2. Account filter — switch between all accounts or specific account
+3. Entry Checklist button — opens sheet with active criteria, link to customize
+4. Daily Review button — navigates to AI with today's trade context pre-injected
+5. Log Trade button — quick entry
+6. StatBar — Win rate, Net P&L, Profit Factor, Avg R, Max Drawdown (with 7-day sparklines)
+7. Equity Curve — area chart, daily/weekly/monthly toggle
+8. Heat Map Calendar — P&L by day, month navigation, monthly stats
+9. Session Performance — win rate bars per session, best session highlighted
+10. Recent Trades — latest trades table with P&L color coding
+11. Daily Journal — mood (1-5 emoji), notes, key lesson, save, 14-day history
+
+## Performance Analytic Page — Sections
+1. Expectancy tables (sortable, color-coded) by:
+   - Instrument, Direction, Strategy, Session, HTF Bias, Plan Adherence
+   - Columns: name, trade count, win %, avg R, expectancy, net P&L
+   - Lightning button → simulate "what if I removed this filter?"
+2. Behavioral alerts panel:
+   - Revenge trading detection (multiple trades after loss same day)
+   - Overtrading (days with 2x+ average daily volume)
+   - Loss clustering (consecutive losing trades/days)
+   - Emotional correlation (emotional state vs win rate)
+   - Plan violation impact (win rate when followed vs violated)
+3. Risk status — current drawdown, streak, daily P&L trend
+4. Account selector — focus analysis on one account
+5. Leak diagnostic — human-readable explanation for negative-expectancy segments
+
+## AI Advisor — How It Works
+- Gate: requires 10+ trades (shows X/10 progress bar)
+- Edge function: supabase/functions/trade-advisor/index.ts
+- Model: Gemini 2.0 Flash via Google AI Studio (free tier)
+- Personality: senior risk manager / performance coach, direct, data-driven, no fluff
+- Context sent per message:
+  - Last 50 trades with all fields
+  - Aggregated stats (win rate, P&L, profit factor, etc.)
+  - Checklist compliance analytics
+  - Trader profile (style, rules, instruments, sessions, behavioral memory)
+  - Criteria definitions
+- Streaming: SSE, translated from Gemini format to OpenAI-compatible for client
+- Chat stored in sessionStorage (cleared on browser close)
+- Max 10 messages per session (auto-trims)
+- Suggestion pills: quick prompts for common questions
+- Daily Review: Dashboard button pre-injects today's trade context
+
+## AI Behavioral Memory (extract-insight)
+- Edge function: supabase/functions/extract-insight/index.ts
+- Model: Gemini 2.0 Flash
+- Triggered: after each AI chat response (async, fire-and-forget)
+- Extracts ONE insight ≤10 words about behavioral patterns
+- Appended to trader_profiles.behavioral_memory (JSONB array)
+- Keeps last 20 insights
+- Used in future AI sessions as additional context
+
+## Edge Functions (supabase/functions/)
+- trade-advisor — streaming chat with Gemini 2.0 Flash, requires GEMINI_API_KEY secret
+- extract-insight — behavioral insight extraction, requires GEMINI_API_KEY secret
+
+## Supabase Secrets Required
+- GEMINI_API_KEY — Google AI Studio API key (free tier)
+- SUPABASE_URL — auto-set by Supabase
+- SUPABASE_SERVICE_ROLE_KEY — auto-set by Supabase
+
+## Key Analytics Functions (src/lib/analytics.ts)
+- calculateAnalytics(trades) — 15+ metrics: winRate, netPnl, profitFactor, expectancy, avgR, maxDrawdown, currentStreak
+- getExpectancyByField(trades, field) — breakdown by instrument/direction/strategy/session/bias
+- getExpectancyByPlanAdherence(trades) — followed vs violated stats
+- detectBehavioralPatterns(trades) — revenge trading, overtrading, clustering, emotional, post-loss, plan-deviation
+- simulateFilter(trades, field, value) — what-if filter analysis
+- getCurrentRiskStatus(trades) — drawdown %, streak, daily trend
+- getLeakDiagnostic(field, key, expectancy, winRate) — human-readable leak explanation
+- getDailyPnl(trades) — map of date → {pnl, tradeCount}
+
+## Onboarding Flow (4 steps)
+1. Nickname — trader's display name
+2. Account Setup — name, type (live/demo/prop), starting balance, currency (USD/EUR/GBP/KES)
+3. Entry Checklist — configure pre-trade criteria (defaults: HTF FVG, POI, CISD/IFVG)
+4. First Trade — optional first trade to initialize portfolio
+- Sets profiles.onboarding_completed = true on finish
+- Demo data option: generates 15 realistic sample trades
+
+## Auth Flows
+- Email/password signup → email confirmation → onboarding
+- Email/password login → optional MFA (TOTP 6-digit)
+- Google OAuth → /auth/callback → dashboard or onboarding
+- Forgot password → email link → /reset-password
+- MFA enrollment: Settings → Set Up 2FA → QR code → verify code → active
+- MFA login: after password → TOTP screen → verify → dashboard
+
+## Profile Settings Page
+- Nickname edit + save
+- Avatar upload (Supabase storage)
+- Password change
+- 2FA/MFA setup and unenroll
+- Theme toggle (light/dark)
+- Trader profile: style, instruments, sessions, goals, mistakes, rules, risk/trade, mental triggers, notes
+- Behavioral memory (read-only, AI-populated)
+- Goals: daily/weekly/monthly targets, max daily loss
+- Demo data deletion
 
 ## Supabase SQL — Run These Manually (CLI not authenticated)
 All migrations are in supabase/migrations/ but must be applied via dashboard SQL editor.
@@ -129,11 +281,11 @@ Pending if not yet run:
 3. trader_goals table + RLS
 
 ## Task List — DO THESE IN ORDER
-- [ ] Add Google Sign In
+- [x] Add Google Sign In ✅
+- [x] Landing page complete redesign ✅
+- [x] Redesign Performance Analyst page ✅
 - [ ] Payment integration (Lemon Squeezy for international, Intasend for Kenya M-Pesa)
-- [ ] Landing page complete redesign
 - [ ] Weekly email digest (Supabase Edge Function + Resend)
-- [ ] Redesign Performance Analyst page (already functional, needs visual polish)
 
 ## Payments Plan (when ready)
 - Kenya users: Intasend (M-Pesa)
