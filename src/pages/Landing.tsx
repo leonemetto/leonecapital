@@ -4,12 +4,35 @@ import { supabase } from '@/integrations/supabase/client';
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
-import { AnimatedWord } from '@/components/ui/animated-hero';
 import {
-  ArrowRight, Brain, Target, Lightning,
+  ArrowRight, Brain, Lightning,
   CheckCircle, X, List, CaretDown,
-  TrendUp, ShieldCheck, Pulse, ArrowLeft, ChartLine, ChartBar,
+  TrendUp, ShieldCheck, Pulse, ArrowLeft, ChartBar,
 } from '@phosphor-icons/react';
+
+/* ─── Animated word (opacity crossfade, no layout shift) ─── */
+function AnimatedWord({ words, color = '#4ade80' }: { words: string[]; color?: string }) {
+  const [index, setIndex] = useState(0);
+  const longest = words.reduce((a, b) => (a.length >= b.length ? a : b));
+  useEffect(() => {
+    const t = setInterval(() => setIndex(i => (i + 1) % words.length), 2500);
+    return () => clearInterval(t);
+  }, [words.length]);
+  return (
+    <span style={{ position: 'relative', display: 'inline-block' }}>
+      {/* hidden spacer — fixes width to longest word, never clips */}
+      <span style={{ visibility: 'hidden', fontWeight: 900 }}>{longest}</span>
+      <AnimatePresence mode="wait">
+        <motion.span key={index}
+          style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, whiteSpace: 'nowrap', color }}
+          initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          transition={{ duration: 0.4 }}>
+          {words[index]}
+        </motion.span>
+      </AnimatePresence>
+    </span>
+  );
+}
 
 /* ─── Logo ─── */
 function EdgeFlowMark({ size = 18 }: { size?: number }) {
@@ -35,21 +58,6 @@ function Reveal({ children, delay = 0, className = '' }: { children: React.React
   );
 }
 
-/* ─── Counter ─── */
-function useCountUp(target: number, inView: boolean) {
-  const [v, setV] = useState(0);
-  useEffect(() => {
-    if (!inView) return;
-    const t0 = performance.now();
-    const step = (now: number) => {
-      const p = Math.min((now - t0) / 1600, 1);
-      setV(Math.floor((1 - Math.pow(1 - p, 3)) * target));
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  }, [inView, target]);
-  return v;
-}
 
 /* ══════════════════════════════════════
    APP SCREEN MOCKUPS — full-size
@@ -424,21 +432,17 @@ function FeatureRow({
       )}>
       {/* Text */}
       <div>
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[rgba(16,185,129,0.2)] bg-[rgba(16,185,129,0.06)] mb-6">
-          <Icon className="h-3 w-3 text-[#10b981]" weight="fill" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[#10b981]">{tag}</span>
-        </div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[rgba(255,255,255,0.35)] mb-6">{tag}</p>
         <h3 className="text-[28px] md:text-[34px] font-black tracking-[-1.5px] text-white leading-[1.1] mb-5">
           {title}
         </h3>
         <p className="text-[rgba(255,255,255,0.45)] text-[15px] leading-relaxed mb-8 max-w-md">
           {desc}
         </p>
-        <div className="flex items-center gap-2 text-[#10b981] text-[13px] font-semibold">
-          <span>Feature {index + 1} of 4</span>
+        <div className="flex items-center gap-2">
           <div className="flex gap-1">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className={cn('h-1 rounded-full transition-all', i === index ? 'w-6 bg-[#10b981]' : 'w-2 bg-[rgba(255,255,255,0.12)]')} />
+              <div key={i} className={cn('h-1 rounded-full transition-all', i === index ? 'w-6 bg-[rgba(255,255,255,0.9)]' : 'w-2 bg-[rgba(255,255,255,0.2)]')} />
             ))}
           </div>
         </div>
@@ -464,10 +468,10 @@ function FeatureRow({
 /* ─── Feature Showcase ─── */
 function FeatureShowcase() {
   const rows = [
-    { title: 'Every trade, fully analyzed.',  tag: 'Trade Log',          desc: 'Log in 30 seconds. EdgeFlow breaks down every trade by instrument, session, emotion, and strategy so you see exactly where you win and where you bleed.', Icon: ChartBar,  Screen: MockDashboard, flip: false },
-    { title: 'Your edge lives in the data.',  tag: 'Performance Analyst', desc: 'The Performance Analyst surfaces your best setups, worst habits, and the exact combinations costing you money. No spreadsheet does this.',               Icon: Lightning, Screen: MockAnalyst,   flip: true  },
-    { title: 'AI that knows your trading.',   tag: 'AI Advisor',          desc: 'Not generic trading advice — AI trained on YOUR data. Your patterns. Your leaks. What to stop doing and what to do more of.',                               Icon: Brain,     Screen: MockAI,        flip: false },
-    { title: 'Simulate before you change.',   tag: 'What-If Simulator',   desc: 'Apply filters — "only London, only followed plan, confidence ≥4" — and instantly see how your equity curve would have changed.',                            Icon: TrendUp,   Screen: MockTrades,    flip: true  },
+    { title: 'Log in 30 seconds. Understand in seconds more.', tag: 'Trade Log', desc: 'Most traders have a gut feeling about what\'s working. EdgeFlow gives you the actual numbers — broken down by instrument, session, emotion, and strategy. Gut feeling vs data. Data wins.', Icon: ChartBar, Screen: MockDashboard, flip: false },
+    { title: 'Find the exact leaks costing you money.', tag: 'Performance Analyst', desc: 'EdgeFlow segments every trade by session, setup, emotion, and direction — then flags which combinations are draining your account. One insight from this page pays for years of subscription.', Icon: Lightning, Screen: MockAnalyst, flip: true },
+    { title: 'An analyst who has read every trade you\'ve ever taken.', tag: 'AI Advisor', desc: 'Ask it anything. It answers using your actual trade history — not generic advice. "Which session should I cut?" "Why do I keep losing on Fridays?" "What does my best trade look like?" It knows because it\'s read every entry.', Icon: Brain, Screen: MockAI, flip: false },
+    { title: 'Before you change anything — see the numbers.', tag: 'What-If Simulator', desc: 'What if you only traded London session? What if you skipped every low-confidence day? What if you cut your worst instrument entirely? Run the simulation. See the P&L difference. Then decide.', Icon: TrendUp, Screen: MockTrades, flip: true },
   ];
   return (
     <div className="max-w-6xl mx-auto px-6">
@@ -476,26 +480,23 @@ function FeatureShowcase() {
   );
 }
 
-/* ─── Stats ─── */
-function StatsBar() {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-80px' });
-  const traders = useCountUp(2400, inView);
-  const trades  = useCountUp(186000, inView);
+/* ─── Feature strip (replaces fake stats bar) ─── */
+function FeatureStrip() {
+  const items = [
+    '15+ data points per trade',
+    'Session & emotion tracking',
+    'Leak detection engine',
+    'What-If simulator',
+    'AI trade advisor',
+  ];
   return (
-    <div ref={ref} className="border-y border-[rgba(255,255,255,0.06)] py-12 px-6"
-      style={{ background: 'linear-gradient(180deg, rgba(16,185,129,0.04) 0%, transparent 100%)' }}>
-      <div className="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8">
-        {[
-          { value: `${traders.toLocaleString()}+`, label: 'Active traders' },
-          { value: `${trades.toLocaleString()}+`,  label: 'Trades analyzed' },
-          { value: '$4.2M+',                        label: 'P&L tracked' },
-          { value: '68%',                           label: 'Avg win rate lift' },
-        ].map(s => (
-          <div key={s.label} className="text-center">
-            <p className="text-[32px] font-black font-mono text-white tracking-[-0.04em]">{s.value}</p>
-            <p className="text-[12px] text-[rgba(255,255,255,0.35)] mt-1">{s.label}</p>
-          </div>
+    <div className="py-8 px-6">
+      <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+        {items.map((item, i) => (
+          <React.Fragment key={item}>
+            <span className="text-[13px] text-[rgba(255,255,255,0.35)]">{item}</span>
+            {i < items.length - 1 && <span className="text-[rgba(255,255,255,0.15)]">·</span>}
+          </React.Fragment>
         ))}
       </div>
     </div>
@@ -504,13 +505,13 @@ function StatsBar() {
 
 /* ─── Pricing ─── */
 const plans = [
-  { name:'Free',  price:'$0',  period:'',    sub:'Get started with no commitment.',        cta:'Start for Free', featured:false,
+  { name:'Free',  price:'$0',  period:'',    sub:'Start logging. See what the data shows.',       cta:'Start for Free', featured:false,
     features:['Up to 50 trades/month','Equity curve & calendar','Win/loss breakdown','1 trading account','Session journal'],
     missing:['AI Trade Advisor','Leak Detection','What-If Simulator'] },
-  { name:'Pro',   price:'$12', period:'/mo', sub:'For serious traders building an edge.',  cta:'Start Pro',      featured:true,
-    features:['Unlimited trades','Full analytics suite','AI Trade Advisor','Leak Detection','What-If Simulator','Up to 3 accounts','Weekly AI digest','Pre-trade checklist'],
+  { name:'Pro',   price:'$12', period:'/mo', sub:'For traders ready to stop guessing.',           cta:'Start Pro',      featured:true,
+    features:['Unlimited trades','Full analytics suite','AI Trade Advisor','Leak Detection','What-If Simulator','Up to 3 accounts','Pre-trade checklist'],
     missing:[] },
-  { name:'Elite', price:'$24', period:'/mo', sub:'For prop traders and professionals.',    cta:'Start Elite',    featured:false,
+  { name:'Elite', price:'$24', period:'/mo', sub:'For professionals who trade for a living.',     cta:'Start Elite',    featured:false,
     features:['Everything in Pro','Unlimited accounts','Prop firm tracking','CSV & PDF exports','Priority support','Early access'],
     missing:[] },
 ];
@@ -602,13 +603,13 @@ export default function Landing() {
               className="font-black leading-[1.06] tracking-[-3px] mb-6 text-white"
               style={{fontSize:'clamp(44px,7vw,80px)'}}>
               Become a more<br/>
-              <AnimatedWord words={['consistent','profitable','disciplined','systematic','unstoppable']}/>
+              <AnimatedWord words={['unstoppable','profitable','consistent','disciplined','data-driven']} color="#4ade80"/>
               <span className="text-white"> trader.</span>
             </motion.h1>
             {/* Sub */}
             <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.18,ease:[0.22,1,0.36,1]}}
               className="text-[rgba(255,255,255,0.45)] text-[17px] max-w-xl mx-auto leading-relaxed mb-10">
-              EdgeFlow analyzes every trade — surfacing the patterns, leaks, and emotional triggers costing you money.
+              Most traders lose because they repeat the same mistakes without knowing it. EdgeFlow shows you exactly what's costing you — by session, setup, emotion, and pattern.
             </motion.p>
             {/* CTAs */}
             <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.26,ease:[0.22,1,0.36,1]}}
@@ -623,7 +624,7 @@ export default function Landing() {
             </motion.div>
             <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.5}}
               className="text-[12px] text-[rgba(255,255,255,0.2)]">
-              ✓ Free plan &nbsp;·&nbsp; ✓ No credit card &nbsp;·&nbsp; ✓ Cancel anytime
+              Free to start &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Takes 30 seconds to set up
             </motion.p>
           </div>
         }
@@ -631,11 +632,11 @@ export default function Landing() {
         <MockDashboard />
       </ContainerScroll>
 
-      {/* ── STATS ── */}
-      <StatsBar />
+      {/* ── FEATURE STRIP ── */}
+      <FeatureStrip />
 
       {/* ── APP CAROUSEL ── */}
-      <section id="see-the-app" className="py-28 px-6 border-t border-[rgba(255,255,255,0.06)]">
+      <section id="see-the-app" className="py-16 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-16">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">The App</p>
@@ -674,16 +675,17 @@ export default function Landing() {
           </Reveal>
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              {name:'Alex M.',  type:'Forex Trader',  init:'AM', q:'I was hemorrhaging money every Friday. EdgeFlow flagged it in under 5 minutes. Win rate jumped 14% that month.'},
-              {name:'Sarah K.', type:'Crypto Trader', init:'SK', q:"It's like having a coach who has watched every single trade I've ever taken. The AI pattern detection is frighteningly accurate."},
-              {name:'James R.', type:'Futures Trader',init:'JR', q:"The What-If tool showed me I was giving back 40% of profits on revenge trades. That insight paid for years of subscription."},
+              {name:'Alex M.',  type:'Forex Trader',  init:'AM', q:'I knew NY session felt off. EdgeFlow showed me I was 0% win rate on Fridays in NY — 23 straight losses. Cut it immediately. Next month was my best month in a year.'},
+              {name:'Sarah K.', type:'Crypto Trader', init:'SK', q:'The emotional state breakdown broke me. I lose $340 on average when my mood is below 3/5. That\'s not a feeling anymore — that\'s data. I just don\'t trade those days.'},
+              {name:'James R.', type:'Futures Trader',init:'JR', q:'I used the What-If tool to filter out every trade where I didn\'t follow my plan. My simulated P&L was 3x my actual P&L. That\'s how much discipline was costing me.'},
             ].map((t,i)=>(
               <Reveal key={t.name} delay={0.1*i}>
-                <div className="rounded-2xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)] p-7 h-full flex flex-col hover:border-[rgba(16,185,129,0.2)] transition-colors duration-500">
-                  <div className="flex gap-1 mb-5">{[...Array(5)].map((_,i)=><span key={i} className="text-[#10b981] text-sm">★</span>)}</div>
-                  <p className="text-[rgba(255,255,255,0.55)] text-[14px] leading-relaxed flex-1 mb-6">"{t.q}"</p>
+                <div className="rounded-2xl p-7 h-full flex flex-col"
+                  style={{ background: 'rgba(255,255,255,0.03)', border: '0.5px solid rgba(255,255,255,0.08)' }}>
+                  <div className="flex gap-1 mb-5">{[...Array(5)].map((_,j)=><span key={j} className="text-[#f59e0b] text-sm">★</span>)}</div>
+                  <p className="text-[rgba(255,255,255,0.65)] text-[14px] leading-relaxed flex-1 mb-6">"{t.q}"</p>
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-full bg-[rgba(16,185,129,0.08)] border border-[rgba(16,185,129,0.2)] flex items-center justify-center text-[#10b981] font-bold text-[11px]">{t.init}</div>
+                    <div className="w-9 h-9 rounded-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] flex items-center justify-center text-white font-bold text-[11px]">{t.init}</div>
                     <div>
                       <p className="text-white text-[13px] font-semibold">{t.name}</p>
                       <p className="text-[rgba(255,255,255,0.3)] text-[11px]">{t.type}</p>
@@ -720,7 +722,7 @@ export default function Landing() {
                   <div className="mb-6">
                     <p className="text-[11px] font-bold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.35)] mb-3">{plan.name}</p>
                     <div className="flex items-baseline gap-1 mb-2">
-                      <span className={cn('text-[36px] font-black tracking-[-2px]', plan.featured?'text-[#10b981]':'text-white')}>{plan.price}</span>
+                      <span className="text-[36px] font-black tracking-[-2px] text-white">{plan.price}</span>
                       {plan.period&&<span className="text-[14px] text-[rgba(255,255,255,0.4)]">{plan.period}</span>}
                     </div>
                     <p className="text-[13px] text-[rgba(255,255,255,0.4)]">{plan.sub}</p>
@@ -790,7 +792,7 @@ export default function Landing() {
               Your edge is in the data.<br/>Go find it.
             </h2>
             <p className="text-[rgba(255,255,255,0.4)] text-[16px] mb-10 leading-relaxed">
-              Join traders using EdgeFlow to finally understand their performance and fix what's costing them.
+              You already have the data from every trade you've taken. EdgeFlow just shows you what it means.
             </p>
             <button onClick={()=>navigate('/auth')}
               className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#10b981] text-black text-[15px] font-bold hover:bg-[#0ea572] active:scale-95 transition-all">
