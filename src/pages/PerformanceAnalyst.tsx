@@ -488,7 +488,7 @@ const PerformanceAnalyst = () => {
           <div className="p-4 rounded-2xl bg-[rgba(255,255,255,0.04)] mb-6 border border-[rgba(255,255,255,0.07)]">
             <ChartBar className="h-10 w-10 text-[rgba(255,255,255,0.3)]" weight="regular" />
           </div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px] mb-2">Performance Analyst</h1>
+          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px] mb-2">Performance Analytic</h1>
           <p className="text-[14px] text-[rgba(255,255,255,0.35)]">Log your first trade to unlock deep analytics.</p>
         </div>
       </AppLayout>
@@ -501,7 +501,7 @@ const PerformanceAnalyst = () => {
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Performance Analyst</h1>
+          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Performance Analytic</h1>
           <p className="text-[13px] text-[rgba(255,255,255,0.35)] mt-1">
             Identify leaks, find your edge, simulate improvements
           </p>
