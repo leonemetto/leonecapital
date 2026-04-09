@@ -38,27 +38,25 @@ serve(async (req) => {
       });
     }
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY not configured");
 
     // Take last 4 messages for context
     const recent = conversation.slice(-4);
     const convoText = recent.map((m: any) => `${m.role}: ${m.content}`).join("\n");
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 50,
-        system: "Extract exactly ONE key behavioral trading insight from this conversation. The insight must be 10 words or less. Focus on patterns like: emotional triggers, rule violations, risk management habits, session preferences, or recurring mistakes. Return ONLY the insight text, nothing else. If no clear insight exists, return 'No clear insight'.",
-        messages: [{ role: "user", content: convoText }],
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: "Extract exactly ONE key behavioral trading insight from this conversation. The insight must be 10 words or less. Focus on patterns like: emotional triggers, rule violations, risk management habits, session preferences, or recurring mistakes. Return ONLY the insight text, nothing else. If no clear insight exists, return 'No clear insight'." }] },
+          contents: [{ role: "user", parts: [{ text: convoText }] }],
+          generationConfig: { maxOutputTokens: 50, temperature: 0.3 },
+        }),
+      }
+    );
 
     if (!response.ok) {
       console.error("Insight extraction failed:", response.status);
@@ -68,7 +66,7 @@ serve(async (req) => {
     }
 
     const data = await response.json();
-    const insight = data.content?.[0]?.text?.trim();
+    const insight = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
 
     if (!insight || insight === "No clear insight" || insight.length > 100) {
       return new Response(JSON.stringify({ ok: true, skipped: true }), {

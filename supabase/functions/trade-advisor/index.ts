@@ -163,8 +163,8 @@ serve(async (req) => {
     const body = await req.json();
     validateRequest(body);
 
-    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
-    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
 
     const systemPrompt = buildSystemPrompt(
       body.tradesSummary || "No trades data available.",
@@ -173,44 +173,42 @@ serve(async (req) => {
       body.criteriaDefinitions || []
     );
 
-    const anthropicMessages = body.messages.slice(-20).map((m: any) => ({
-      role: m.role as "user" | "assistant",
-      content: m.content,
+    // Gemini uses "model" instead of "assistant"
+    const geminiContents = body.messages.slice(-20).map((m: any) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
     }));
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-        "content-type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 1024,
-        stream: true,
-        system: systemPrompt,
-        messages: anthropicMessages,
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: geminiContents,
+          generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Anthropic API error:", response.status, errorText);
+      console.error("Gemini API error:", response.status, errorText);
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      return new Response(JSON.stringify({ error: "AI service temporarily unavailable." }), {
+      return new Response(JSON.stringify({ error: `Gemini error ${response.status}: ${errorText}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Translate Anthropic SSE → OpenAI-compatible SSE so the client needs no changes.
-    // Anthropic emits: content_block_delta events with delta.text
+    // Translate Gemini SSE → OpenAI-compatible SSE so the client needs no changes.
+    // Gemini emits: data: {"candidates":[{"content":{"parts":[{"text":"..."}]}}]}
     // Client expects: data: {"choices":[{"delta":{"content":"..."}}]} + data: [DONE]
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
@@ -238,11 +236,10 @@ serve(async (req) => {
 
             try {
               const evt = JSON.parse(json);
-              if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta" && evt.delta.text) {
-                const chunk = JSON.stringify({ choices: [{ delta: { content: evt.delta.text } }] });
+              const text = evt.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                const chunk = JSON.stringify({ choices: [{ delta: { content: text } }] });
                 await writer.write(encoder.encode(`data: ${chunk}\n\n`));
-              } else if (evt.type === "message_stop") {
-                await writer.write(encoder.encode("data: [DONE]\n\n"));
               }
             } catch { /* skip malformed lines */ }
           }
