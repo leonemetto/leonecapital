@@ -16,9 +16,16 @@ export function AnimatedWord({ words }: { words: string[] }) {
   }, [index, words]);
 
   return (
-    <span className="relative inline-flex justify-center overflow-hidden align-bottom"
-      style={{ minWidth: "1ch" }}>
-      &nbsp;
+    <span className="relative inline-flex justify-center align-bottom">
+      {/* invisible spacer sized to the longest word so the container never clips */}
+      <span aria-hidden className="invisible" style={{
+        background: "linear-gradient(135deg,#10b981 0%,#34d399 50%,#6ee7b7 100%)",
+        WebkitBackgroundClip: "text",
+        WebkitTextFillColor: "transparent",
+        backgroundClip: "text",
+      }}>
+        {words.reduce((a, b) => (a.length >= b.length ? a : b))}
+      </span>
       {words.map((word, i) => (
         <motion.span
           key={i}
