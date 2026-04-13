@@ -1,7 +1,7 @@
 project_id = "aepmcmfidvkdjjgjvkkw"
 
 [functions.trade-advisor]
-verify_jwt = false
+verify_jwt = true
 
 [functions.extract-insight]
-verify_jwt = false
+verify_jwt = true

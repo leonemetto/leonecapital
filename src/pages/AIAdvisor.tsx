@@ -166,7 +166,7 @@ export default function AIAdvisor() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({
           messages: messagesForApi,
@@ -257,7 +257,7 @@ export default function AIAdvisor() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token ?? import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session?.access_token}`,
         },
         body: JSON.stringify({ conversation: convoForInsight }),
       }).catch(() => {});
