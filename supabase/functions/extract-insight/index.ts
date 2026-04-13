@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const ALLOWED_ORIGINS = ["https://leone.capital", "http://localhost:8080", "http://localhost:5173"];
+const ALLOWED_ORIGINS = ["https://leone.capital", "https://www.leone.capital", "http://localhost:8080", "http://localhost:5173"];
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") || "";
