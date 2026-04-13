@@ -519,7 +519,7 @@ const plans = [
     features:['Unlimited trades','Full analytics suite','AI Trade Advisor','Leak Detection','What-If Simulator','Up to 3 accounts','Pre-trade checklist'],
     missing:[] },
   { name:'Elite', price:'$24', period:'/mo', sub:'For professionals who trade for a living.',     cta:'Start Elite',    featured:false,
-    features:['Everything in Pro','Unlimited accounts','CSV export','Priority support','Early access to new features'],
+    features:['Everything in Pro','Unlimited accounts','CSV export','Priority support','Early access'],
     missing:[] },
 ];
 

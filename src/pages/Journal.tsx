@@ -6,28 +6,7 @@ import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Funnel, DownloadSimple } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
-
-function exportCSV(trades: any[], accounts: any[]) {
-  const accountMap = new Map(accounts.map((a: any) => [a.id, a.name]));
-  const headers = ['Date','Instrument','Direction','Outcome','P&L','Account','Strategy','Session','R-Multiple','Risk %','HTF Bias','Emotional State','Confidence','Time In Trade (min)','Followed Plan','Notes'];
-  const rows = trades.map(t => [
-    t.date, t.instrument, t.direction, t.outcome, t.pnl,
-    t.accountId ? (accountMap.get(t.accountId) || '') : '',
-    t.strategy || '', t.session || '',
-    t.rMultiple ?? '', t.riskPercent ?? '', t.htfBias || '',
-    t.emotionalState ?? '', t.confidenceLevel ?? '', t.timeInTrade ?? '',
-    t.followedPlan == null ? '' : t.followedPlan ? 'Yes' : 'No',
-    t.notes ? `"${t.notes.replace(/"/g, '""')}"` : '',
-  ]);
-  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `trades-${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
+import { exportTradesCSV } from '@/lib/analytics';
 
 const Journal = () => {
   const { trades, updateTrade, deleteTrade } = useSharedTrades();
@@ -74,7 +53,7 @@ const Journal = () => {
           )}
           {filteredTrades.length > 0 && (
             <button
-              onClick={() => exportCSV(filteredTrades, accounts)}
+              onClick={() => exportTradesCSV(filteredTrades)}
               className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
             >
               <DownloadSimple className="h-3.5 w-3.5" weight="regular" />
