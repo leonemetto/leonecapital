@@ -513,20 +513,20 @@ function FeatureStrip() {
 /* ─── Pricing ─── */
 const plans = [
   { name:'Free',  price:'$0',  period:'',    sub:'Start logging. See what the data shows.',       cta:'Start for Free', featured:false,
-    features:['Up to 50 trades/month','Equity curve & calendar','Win/loss breakdown','1 trading account','Session journal'],
+    features:['Unlimited trades','Equity curve & calendar','Win/loss breakdown','1 trading account','Session journal'],
     missing:['AI Trade Advisor','Leak Detection','What-If Simulator'] },
   { name:'Pro',   price:'$12', period:'/mo', sub:'For traders ready to stop guessing.',           cta:'Start Pro',      featured:true,
     features:['Unlimited trades','Full analytics suite','AI Trade Advisor','Leak Detection','What-If Simulator','Up to 3 accounts','Pre-trade checklist'],
     missing:[] },
   { name:'Elite', price:'$24', period:'/mo', sub:'For professionals who trade for a living.',     cta:'Start Elite',    featured:false,
-    features:['Everything in Pro','Unlimited accounts','Prop firm tracking','CSV & PDF exports','Priority support','Early access'],
+    features:['Everything in Pro','Unlimited accounts','CSV export','Priority support','Early access to new features'],
     missing:[] },
 ];
 
 /* ─── FAQ ─── */
 const faqData = [
   { q:'Do I need trading experience?', a:"Not at all. Whether you've been trading 2 weeks or 10 years, EdgeFlow adapts to your data and gives you insights relevant to your exact level." },
-  { q:'Is EdgeFlow free to use?', a:'Yes. The free plan gives full access to core features with up to 50 trades per month — no credit card required. Upgrade when ready.' },
+  { q:'Is EdgeFlow free to use?', a:'Yes. The free plan gives full access to core features with no trade limit — no credit card required. Upgrade when ready.' },
   { q:'What markets does EdgeFlow support?', a:'Forex, crypto, futures, stocks, indices, and commodities. If you can trade it, you can journal and analyze it.' },
   { q:'How is this different from a spreadsheet?', a:'A spreadsheet shows you numbers. EdgeFlow shows you WHY. Pattern detection, leak surfacing, and personalized recommendations based on your actual data.' },
   { q:'Is my trading data secure?', a:'Completely. All data is encrypted via Supabase. Your data is never shared, sold, or used for any other purpose.' },
@@ -679,9 +679,9 @@ export default function Landing() {
       <section className="py-28 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-6xl mx-auto">
           <Reveal>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">Trusted By Traders</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">What Traders Discover</p>
             <h2 className="text-white font-black tracking-[-2px] mb-16" style={{fontSize:'clamp(32px,5vw,54px)'}}>
-              Real traders. Real results.
+              The patterns traders find.
             </h2>
           </Reveal>
           <div className="grid md:grid-cols-3 gap-4">

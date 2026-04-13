@@ -4,8 +4,30 @@ import { TradeTable } from '@/components/trade/TradeTable';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Funnel } from '@phosphor-icons/react';
+import { Funnel, DownloadSimple } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+
+function exportCSV(trades: any[], accounts: any[]) {
+  const accountMap = new Map(accounts.map((a: any) => [a.id, a.name]));
+  const headers = ['Date','Instrument','Direction','Outcome','P&L','Account','Strategy','Session','R-Multiple','Risk %','HTF Bias','Emotional State','Confidence','Time In Trade (min)','Followed Plan','Notes'];
+  const rows = trades.map(t => [
+    t.date, t.instrument, t.direction, t.outcome, t.pnl,
+    t.accountId ? (accountMap.get(t.accountId) || '') : '',
+    t.strategy || '', t.session || '',
+    t.rMultiple ?? '', t.riskPercent ?? '', t.htfBias || '',
+    t.emotionalState ?? '', t.confidenceLevel ?? '', t.timeInTrade ?? '',
+    t.followedPlan == null ? '' : t.followedPlan ? 'Yes' : 'No',
+    t.notes ? `"${t.notes.replace(/"/g, '""')}"` : '',
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `trades-${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 const Journal = () => {
   const { trades, updateTrade, deleteTrade } = useSharedTrades();
@@ -33,22 +55,33 @@ const Journal = () => {
           <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Trades DB</h1>
           <p className="text-xs text-[rgba(255,255,255,0.3)]">Your complete trade history</p>
         </div>
-        {accounts.length > 1 && (
-          <div className="flex items-center gap-2">
-            <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
-            <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-              <SelectTrigger className="w-[180px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
-                <SelectValue placeholder="All Accounts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Accounts</SelectItem>
-                {accounts.map(a => (
-                  <SelectItem key={a.id} value={a.id}>{a.name} ({a.type})</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        )}
+        <div className="flex items-center gap-2">
+          {accounts.length > 1 && (
+            <>
+              <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+              <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
+                <SelectTrigger className="w-[180px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+                  <SelectValue placeholder="All Accounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Accounts</SelectItem>
+                  {accounts.map(a => (
+                    <SelectItem key={a.id} value={a.id}>{a.name} ({a.type})</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+          {filteredTrades.length > 0 && (
+            <button
+              onClick={() => exportCSV(filteredTrades, accounts)}
+              className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+            >
+              <DownloadSimple className="h-3.5 w-3.5" weight="regular" />
+              Export CSV
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Summary stats */}

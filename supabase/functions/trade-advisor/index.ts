@@ -210,7 +210,7 @@ serve(async (req) => {
 
     if (!response || !response.ok) {
       if (response?.status === 429) {
-        return new Response(JSON.stringify({ error: "AI is temporarily busy. Please wait 30 seconds and try again." }), {
+        return new Response(JSON.stringify({ error: `Rate limited: ${lastError}` }), {
           status: 429,
           headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
