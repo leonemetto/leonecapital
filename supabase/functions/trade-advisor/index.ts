@@ -184,29 +184,37 @@ serve(async (req) => {
       parts: [{ text: m.content }],
     }));
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          system_instruction: { parts: [{ text: systemPrompt }] },
-          contents: geminiContents,
-          generationConfig: { maxOutputTokens: 1024, temperature: 0.7 },
-        }),
-      }
-    );
+    // Retry up to 3 times on 429 with exponential backoff
+    let response: Response | null = null;
+    let lastError = "";
+    for (let attempt = 0; attempt < 3; attempt++) {
+      if (attempt > 0) await new Promise(r => setTimeout(r, 1500 * attempt));
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            system_instruction: { parts: [{ text: systemPrompt }] },
+            contents: geminiContents,
+            generationConfig: { maxOutputTokens: 800, temperature: 0.7 },
+          }),
+        }
+      );
+      if (response.ok) break;
+      lastError = await response.text();
+      console.error(`Gemini attempt ${attempt + 1} failed:`, response.status, lastError);
+      if (response.status !== 429) break; // only retry on rate limit
+    }
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
+    if (!response || !response.ok) {
+      if (response?.status === 429) {
+        return new Response(JSON.stringify({ error: "AI is temporarily busy. Please wait 30 seconds and try again." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      return new Response(JSON.stringify({ error: `Gemini error ${response.status}: ${errorText}` }), {
+      return new Response(JSON.stringify({ error: `Gemini error ${response?.status}: ${lastError}` }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

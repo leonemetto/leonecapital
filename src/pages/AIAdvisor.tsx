@@ -171,7 +171,7 @@ export default function AIAdvisor() {
         body: JSON.stringify({
           messages: messagesForApi,
           tradesSummary,
-          recentTrades: trades.slice(0, 50).map(t => ({
+          recentTrades: trades.slice(0, 25).map(t => ({
             date: t.date, instrument: t.instrument, direction: t.direction,
             strategy: t.strategy, session: t.session, outcome: t.outcome, pnl: t.pnl, notes: t.notes,
             rMultiple: t.rMultiple ?? null, riskPercent: t.riskPercent ?? null,
