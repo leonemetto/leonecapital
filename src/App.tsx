@@ -16,6 +16,7 @@ import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
 import { NicknamePrompt } from "@/components/NicknamePrompt";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import * as Sentry from '@sentry/react';
 import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
@@ -138,6 +139,13 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
 }
 
 const App = () => (
+  <Sentry.ErrorBoundary fallback={
+    <div style={{ minHeight: '100vh', background: '#0a0a0a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16, color: 'white', fontFamily: 'Inter, sans-serif' }}>
+      <p style={{ fontSize: 18, fontWeight: 700 }}>Something went wrong.</p>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>The error has been reported. Please refresh the page.</p>
+      <button onClick={() => window.location.reload()} style={{ marginTop: 8, padding: '10px 24px', background: '#fff', color: '#000', borderRadius: 24, fontWeight: 600, fontSize: 13, border: 'none', cursor: 'pointer' }}>Refresh</button>
+    </div>
+  }>
   <QueryClientProvider client={queryClient}>
     <ThemeProvider>
       <TooltipProvider>
@@ -179,6 +187,9 @@ const App = () => (
       </TooltipProvider>
     </ThemeProvider>
   </QueryClientProvider>
+);
+
+  </Sentry.ErrorBoundary>
 );
 
 export default App;
