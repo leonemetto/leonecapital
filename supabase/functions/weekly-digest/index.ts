@@ -157,7 +157,19 @@ function buildEmailHtml(nickname: string, stats: WeekStats, insight: string, wee
 </html>`;
 }
 
-serve(async () => {
+const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
+
+serve(async (req) => {
+  // Verify caller is Supabase cron or an authorized admin
+  const authHeader = req.headers.get("Authorization") ?? "";
+  const incomingSecret = authHeader.replace("Bearer ", "").trim();
+  if (!CRON_SECRET || incomingSecret !== CRON_SECRET) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
     const { data: authData } = await supabase.auth.admin.listUsers();

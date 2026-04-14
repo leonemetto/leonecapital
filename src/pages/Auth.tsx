@@ -398,7 +398,7 @@ export default function Auth() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••"
                 required
-                minLength={6}
+                minLength={8}
                 className="mt-1 bg-secondary border-border h-9"
               />
             </div>

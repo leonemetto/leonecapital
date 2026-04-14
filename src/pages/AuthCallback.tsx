@@ -63,7 +63,9 @@ export default function AuthCallback() {
           return;
         }
 
-        const next = params.get('next') ?? '/dashboard';
+        // Only allow relative paths — prevent open redirect to external sites
+        const rawNext = params.get('next') ?? '/dashboard';
+        const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/dashboard';
         navigate(next, { replace: true });
       } catch (err: any) {
         setError(err.message ?? 'Authentication failed. Please try again.');

@@ -228,9 +228,21 @@ export default function ProfileSettings() {
     const file = e.target.files?.[0];
     if (!file || !user) return;
 
+    // Validate MIME type and size before upload (prevents SVG XSS and oversized uploads)
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      toast.error('Only JPEG, PNG, WebP, or GIF images are allowed');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image must be under 5 MB');
+      return;
+    }
+
     setUploadingAvatar(true);
     try {
-      const ext = file.name.split('.').pop();
+      const extMap: Record<string, string> = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/webp': 'webp', 'image/gif': 'gif' };
+      const ext = extMap[file.type] ?? 'jpg';
       const path = `${user.id}/avatar.${ext}`;
 
       const { error: uploadError } = await supabase.storage
@@ -255,8 +267,8 @@ export default function ProfileSettings() {
   };
 
   const handlePasswordChange = async () => {
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (newPassword.length < 8) {
+      toast.error('Password must be at least 8 characters');
       return;
     }
     if (newPassword !== confirmPassword) {
@@ -341,7 +353,7 @@ export default function ProfileSettings() {
           </div>
           <div>
             <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">New Password</Label>
-            <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" minLength={6} className="mt-1 bg-secondary border-border h-9" />
+            <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" minLength={8} className="mt-1 bg-secondary border-border h-9" />
           </div>
           <div>
             <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confirm Password</Label>
