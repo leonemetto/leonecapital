@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Activity } from 'lucide-react';
+import { Lightning } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 
@@ -33,6 +33,10 @@ export default function AuthCallback() {
       }
 
       try {
+        // Sign out any existing session first — prevents one user's confirmation
+        // link from hijacking another user's session in the same browser
+        await supabase.auth.signOut();
+
         if (code) {
           // PKCE flow — exchange the one-time code for a session
           const { error } = await supabase.auth.exchangeCodeForSession(code);
@@ -75,10 +79,10 @@ export default function AuthCallback() {
         <DottedSurface />
         <div className="w-full max-w-sm relative z-10 text-center space-y-4">
           <div className="flex items-center gap-3 justify-center mb-8">
-            <Activity className="h-6 w-6 text-primary" />
+            <Lightning className="h-6 w-6 text-white" weight="fill" />
             <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
           </div>
-          <div className="glass-card p-6 space-y-4">
+          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] rounded-xl p-6 space-y-4">
             <h2 className="text-lg font-bold text-destructive">Link Invalid or Expired</h2>
             <p className="text-xs text-muted-foreground">{error}</p>
             <Button className="w-full" onClick={() => navigate('/auth', { replace: true })}>
@@ -95,7 +99,7 @@ export default function AuthCallback() {
       <DottedSurface />
       <div className="relative z-10 text-center space-y-3">
         <div className="flex items-center gap-3 justify-center">
-          <Activity className="h-6 w-6 text-primary" />
+          <Lightning className="h-6 w-6 text-white" weight="fill" />
           <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
         </div>
         <p className="text-sm text-muted-foreground">Verifying your email…</p>

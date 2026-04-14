@@ -531,14 +531,21 @@ export function getDailyPnl(trades: Trade[]) {
 }
 
 export function exportTradesCSV(trades: Trade[]) {
+  // Quote any field that contains commas, quotes, or newlines to prevent column misalignment on re-import
+  const q = (v: string | number | null | undefined): string => {
+    if (v == null || v === '') return '';
+    const s = String(v);
+    return s.includes(',') || s.includes('"') || s.includes('\n') ? `"${s.replace(/"/g, '""')}"` : s;
+  };
   const headers = ['Date', 'Instrument', 'Direction', 'Strategy', 'Session', 'P&L ($)', 'R-Multiple', 'Risk %', 'HTF Bias', 'Emotional State', 'Confidence', 'Time (min)', 'Followed Plan', 'Outcome', 'Notes'];
   const rows = trades.map(t => [
-    t.date, t.instrument, t.direction, t.strategy, t.session,
-    t.pnl, t.rMultiple ?? '', t.riskPercent ?? '', t.htfBias ?? '',
+    q(t.date), q(t.instrument), q(t.direction), q(t.strategy), q(t.session),
+    t.pnl,
+    t.rMultiple ?? '', t.riskPercent ?? '', q(t.htfBias ?? ''),
     t.emotionalState ?? '', t.confidenceLevel ?? '', t.timeInTrade ?? '',
     t.followedPlan != null ? (t.followedPlan ? 'Yes' : 'No') : '',
-    t.outcome,
-    `"${(t.notes || '').replace(/"/g, '""')}"`,
+    q(t.outcome),
+    q(t.notes ?? ''),
   ]);
   const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });

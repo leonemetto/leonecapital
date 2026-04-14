@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
@@ -121,6 +121,13 @@ export default function ImportTrades() {
 
   const [template, setTemplate] = useState<keyof typeof TEMPLATES>('edgeflow');
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+
+  // Default to the first account so imported trades are always assigned
+  useEffect(() => {
+    if (accounts.length > 0 && !selectedAccountId) {
+      setSelectedAccountId(accounts[0].id);
+    }
+  }, [accounts]);
   const [rows, setRows] = useState<Record<string, string>[]>([]);
   const [fileName, setFileName] = useState('');
   const [preview, setPreview] = useState<Array<{ parsed: Partial<TradeFormData> | null; raw: Record<string, string> }>>([]);
@@ -244,16 +251,10 @@ export default function ImportTrades() {
             </div>
 
             {/* Step 2 — Account */}
-            {accounts.length > 1 && (
+            {accounts.length > 0 && (
               <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">2. Assign to Account (optional)</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">2. Assign to Account</p>
                 <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setSelectedAccountId('')}
-                    className={cn('px-3 py-1.5 rounded-full text-xs border transition-all', !selectedAccountId ? 'border-white/30 text-white' : 'border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.4)]')}
-                  >
-                    Unassigned
-                  </button>
                   {accounts.map((a) => (
                     <button
                       key={a.id}
@@ -269,7 +270,7 @@ export default function ImportTrades() {
 
             {/* Step 3 — Upload */}
             <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">{accounts.length > 1 ? '3' : '2'}. Upload CSV File</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">3. Upload CSV File</p>
               <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }} />
               {!fileName ? (
                 <button

@@ -101,7 +101,7 @@ function DataDecoration() {
 export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
-  const { session } = useAuth();
+  const { session, loading: authLoading } = useAuth();
   const { traderProfile } = useTraderProfile();
   const { activeCriteria } = useCriteria();
   const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
@@ -125,13 +125,14 @@ export default function AIAdvisor() {
   useEffect(() => { try { sessionStorage.setItem('ai-advisor-chat', JSON.stringify(messages)); } catch {} }, [messages]);
 
   useEffect(() => {
+    if (authLoading) return; // wait until session is confirmed
     const state = location.state as { prompt?: string; extraContext?: string } | null;
     if (state?.prompt && !hasHandledNavState.current) {
       hasHandledNavState.current = true;
       window.history.replaceState({}, '');
       send(state.prompt, state.extraContext);
     }
-  }, [location.state]);
+  }, [location.state, authLoading, session]);
 
   const clearChat = () => {
     setMessages([]);
@@ -256,7 +257,7 @@ export default function AIAdvisor() {
     streamingIdRef.current = null;
     setIsLoading(false);
 
-    if (assistantSoFar.length > 20) {
+    if (assistantSoFar.length > 20 && session?.access_token) {
       const convoForInsight = [...allMessages, { role: 'assistant', content: assistantSoFar }]
         .map(m => ({ role: m.role, content: m.content }));
       fetch(INSIGHT_URL, {

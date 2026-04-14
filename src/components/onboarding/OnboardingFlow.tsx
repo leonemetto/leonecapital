@@ -23,9 +23,9 @@ interface Props {
 }
 
 /* ─────────────────────────────────────────────────────── constants */
-const DEFAULT_CHECKLIST = ['HTF FVG', 'POI', 'CISD/IFVG'];
+const DEFAULT_CHECKLIST: string[] = [];
 const SESSIONS: TSession[] = ['London', 'New York', 'Asian', 'London/NY Overlap'];
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'KES'];
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF'];
 const TOTAL_STEPS = 4;
 
 /* ─────────────────────────────────────────────────────── sub-components */
@@ -288,20 +288,20 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
       <div className="text-center">
         <img src={logoImg} alt="EdgeFlow" className="h-12 w-12 rounded-2xl mx-auto mb-5" />
         <h1 className="text-[22px] font-black tracking-tight mb-2">
-          Welcome to EdgeFlow, {nickname}
+          Your trades are lying to you, {nickname}.
         </h1>
         <p className="text-[13px] text-[rgba(255,255,255,0.4)] leading-relaxed">
-          Before you start, understand what this tool is built to do.
+          Not intentionally — but without data, you're running on gut feeling. EdgeFlow turns every trade into evidence.
         </p>
       </div>
 
       <div className="space-y-3">
         <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <Database className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
+          <Activity className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-white mb-0.5">The Truth Machine</p>
+            <p className="text-[13px] font-semibold text-white mb-0.5">Find your actual edge</p>
             <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
-              Every trade you log becomes data. Every pattern in that data becomes a signal.
+              Not what you think works. What the data proves works — by instrument, session, and setup.
             </p>
           </div>
         </div>
@@ -309,9 +309,9 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
           <BarChart2 className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-white mb-0.5">No Opinions, Only Data</p>
+            <p className="text-[13px] font-semibold text-white mb-0.5">Cut the leaks</p>
             <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
-              EdgeFlow doesn't care how you felt about a trade. It cares whether it made money over time.
+              Most traders lose 20–40% to avoidable patterns. EdgeFlow shows you exactly which ones are costing you.
             </p>
           </div>
         </div>
@@ -319,16 +319,16 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
           <Brain className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-white mb-0.5">Your Edge is Quantifiable</p>
+            <p className="text-[13px] font-semibold text-white mb-0.5">Trade the same way every time</p>
             <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
-              A real edge is a measurable statistical advantage. EdgeFlow helps you prove or disprove every strategy you trade.
+              Consistency beats brilliance. EdgeFlow makes your consistency measurable — and improvable.
             </p>
           </div>
         </div>
       </div>
 
       <GreenButton onClick={() => setStep(2)}>
-        I understand, let's build my edge →
+        Let's build my edge →
       </GreenButton>
     </div>
   );
@@ -453,7 +453,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
           <Input
             value={newItem}
             onChange={e => setNewItem(e.target.value)}
-            placeholder="Add a criteria…"
+            placeholder="e.g. HTF trend clear, POI identified, risk defined…"
             className="bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] h-9 text-sm"
             onKeyDown={e => {
               if (e.key === 'Enter' && newItem.trim()) {
@@ -571,14 +571,16 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         Log Trade &amp; Enter EdgeFlow →
       </GreenButton>
 
-      <button
-        type="button"
-        onClick={() => handleStep4(true)}
-        disabled={saving}
-        className="w-full text-center text-[12px] text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.5)] underline underline-offset-2 transition-colors"
-      >
-        Skip for now, I'll log later
-      </button>
+      <div className="pt-1 border-t border-[rgba(255,255,255,0.06)]">
+        <button
+          type="button"
+          onClick={() => handleStep4(true)}
+          disabled={saving}
+          className="w-full text-center text-[13px] text-[rgba(255,255,255,0.5)] hover:text-white underline underline-offset-2 transition-colors pt-3"
+        >
+          Skip for now, I'll log trades later
+        </button>
+      </div>
     </div>
   );
 

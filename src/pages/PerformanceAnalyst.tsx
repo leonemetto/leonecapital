@@ -319,7 +319,9 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
           <p className="text-[13px] font-semibold text-white">Strategy Optimizer</p>
         </div>
         <p className="text-[12px] text-[rgba(255,255,255,0.35)]">
-          Apply filters to see what your performance looks like if you only took certain setups
+          Apply filters to see what your performance looks like if you only took certain setups.
+          The <span className="text-white">solid green line</span> is your filtered portfolio — the <span className="text-[rgba(255,255,255,0.4)]">dashed line</span> is your full history.
+          If the green line finishes higher, that filter improves your results — consider trading only those conditions.
         </p>
       </div>
 
@@ -608,7 +610,7 @@ const PerformanceAnalyst = () => {
             Expectancy Breakdown
           </p>
           <p className="text-[11px] text-[rgba(255,255,255,0.2)]">
-            Click ⚡ on any row to simulate it
+            Click ⚡ on any row to see how your equity curve looks if you removed that setup from your trading
           </p>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
