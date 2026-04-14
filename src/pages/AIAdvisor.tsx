@@ -161,12 +161,18 @@ export default function AIAdvisor() {
       };
     }
 
+    if (!session?.access_token) {
+      setMessages(prev => trimMessages([...prev, { role: 'assistant', content: '⚠️ Session expired. Please refresh the page and sign in again.', id: assistantId }]));
+      setIsLoading(false);
+      return;
+    }
+
     try {
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
           messages: messagesForApi,
@@ -257,7 +263,7 @@ export default function AIAdvisor() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session?.access_token}`,
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ conversation: convoForInsight }),
       }).catch(() => {});

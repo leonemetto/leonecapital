@@ -13,6 +13,17 @@ function getCorsHeaders(req: Request) {
   };
 }
 
+// Per-user rate limit: max 50 insight extractions per hour
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+function checkRateLimit(userId: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(userId);
+  if (!entry || now > entry.resetAt) { rateLimitMap.set(userId, { count: 1, resetAt: now + 3600000 }); return true; }
+  if (entry.count >= 50) return false;
+  entry.count++;
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: getCorsHeaders(req) });
@@ -21,7 +32,12 @@ serve(async (req) => {
   try {
     // Extract user from JWT
     const authHeader = req.headers.get("Authorization") || "";
-    const token = authHeader.replace("Bearer ", "");
+    const token = authHeader.replace("Bearer ", "").trim();
+    if (!token) {
+      return new Response(JSON.stringify({ error: "Unauthorized" }), {
+        status: 401, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -32,6 +48,12 @@ serve(async (req) => {
     if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
+        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
+    if (!checkRateLimit(user.id)) {
+      return new Response(JSON.stringify({ ok: true, skipped: true }), {
         headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
     }
