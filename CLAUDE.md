@@ -9,9 +9,14 @@ Target: $2,000/month from paying traders globally
 - UI: shadcn/ui + Tailwind CSS
 - Router: React Router DOM
 - Data: TanStack Query
-- Database: Supabase
-- Hosting: Vercel
+- Database: Supabase (project: aepmcmfidvkdjjgjvkkw)
+- Hosting: Vercel (auto-deploys on push to main)
 - Domain: leone.capital
+- Error monitoring: Sentry (production only)
+- Emails: Resend (noreply@leone.capital)
+- Icons: Phosphor Icons (no Lucide)
+- Fonts: Inter (sans) + Roboto Mono (all numbers)
+- Note: NO Lovable dependencies — fully standalone codebase
 
 ## Infrastructure
 - GitHub: github.com/leonemetto/leonecapital
@@ -100,6 +105,7 @@ Target: $2,000/month from paying traders globally
 - /ai            — AI Advisor, gated behind 10 trades ✅
 - /profile       — Settings ✅ (always accessible from sidebar)
 - /guide         — Platform Guide ✅
+- /import-trades — CSV/broker import ✅ (EdgeFlow, MT4/MT5, generic formats)
 - /auth          — Login/Signup ✅
 - /auth/callback — Email confirmation + OAuth redirect ✅
 - /reset-password — Password reset ✅
@@ -145,6 +151,11 @@ Target: $2,000/month from paying traders globally
 - ✅ Avatar upload — profile picture stored in Supabase avatars bucket
 - ✅ Theme toggle — light/dark mode (next-themes)
 - ✅ Landing page — hero with animated word cycling, ContainerScroll 3D tilt, carousel, feature rows, testimonials, pricing, FAQ
+- ✅ CSV/broker import — supports EdgeFlow, MT4/MT5, and generic CSV formats with live preview
+- ✅ PDF export — dark-themed performance report via jsPDF (summary + session/strategy breakdown + trade list)
+- ✅ Re-engagement emails — day-3 and day-7 inactivity emails via Resend (pg_cron: 0 8 * * *)
+- ✅ Weekly AI digest — Monday performance email with Gemini insight (pg_cron: 0 7 * * 1)
+- ✅ Sentry error monitoring — production only, PII stripped, DSN in Vercel env vars
 
 ## Trade Form — All Fields
 ### Always Visible (required)
@@ -230,9 +241,12 @@ Target: $2,000/month from paying traders globally
 ## Edge Functions (supabase/functions/)
 - trade-advisor — streaming chat with Gemini 2.0 Flash, requires GEMINI_API_KEY secret
 - extract-insight — behavioral insight extraction, requires GEMINI_API_KEY secret
+- re-engagement — daily email to users inactive 3 or 7 days, requires RESEND_API_KEY secret
+- weekly-digest — Monday email to users who traded last 7 days, requires GEMINI_API_KEY + RESEND_API_KEY
 
 ## Supabase Secrets Required
 - GEMINI_API_KEY — Google AI Studio API key (free tier)
+- RESEND_API_KEY — Resend email API key (noreply@leone.capital)
 - SUPABASE_URL — auto-set by Supabase
 - SUPABASE_SERVICE_ROLE_KEY — auto-set by Supabase
 
@@ -314,9 +328,8 @@ Pending if not yet run:
 
 ### INFRASTRUCTURE
 - [ ] Upgrade Supabase to Pro ($25/mo) — free tier 1GB storage won't handle screenshots at scale
-- [ ] Activate re-engagement cron — Supabase dashboard → Edge Functions → re-engagement → add cron: 0 8 * * *
-- [ ] Activate weekly digest cron — Supabase dashboard → Edge Functions → weekly-digest → add cron: 0 7 * * 1
-- [ ] Add RESEND_API_KEY secret to Supabase edge functions (needed for emails)
+- [x] Cron jobs active — re-engagement (0 8 * * *) and weekly-digest (0 7 * * 1) confirmed running ✅
+- [x] RESEND_API_KEY secret set in Supabase edge functions ✅
 
 ### MONETISATION — Last step
 - [ ] Payment integration — Lemon Squeezy (international cards)
