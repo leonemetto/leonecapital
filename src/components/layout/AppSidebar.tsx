@@ -13,6 +13,7 @@ import {
   List,
   X,
   Plus,
+  ClipboardText,
 } from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -39,7 +40,8 @@ const baseNavItems = [
   { title: 'Analytic',   short: 'Analytic', path: '/analyst',   Icon: ChartBar },
   { title: 'Trades DB',  short: 'Trades',   path: '/journal',   Icon: Rows },
   { title: 'Accounts',   short: 'Accounts', path: '/accounts',  Icon: CurrencyDollar },
-  { title: 'AI Advisor', short: 'AI',       path: '/ai',        Icon: Brain },
+  { title: 'AI Advisor',    short: 'AI',      path: '/ai',            Icon: Brain },
+  { title: 'Trading Plan',  short: 'Plan',    path: '/trading-plan',  Icon: ClipboardText },
 ];
 
 export function AppSidebar() {

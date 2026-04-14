@@ -76,7 +76,7 @@ function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) return <Navigate to="/" replace />;
+  if (!user) return <Navigate to="/auth" replace />;
 
   if (mfaRequired && mfaFactorId) {
     return (
