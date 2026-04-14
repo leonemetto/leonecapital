@@ -20,6 +20,13 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
+const getGreeting = () => {
+  const hour = new Date().getHours();
+  if (hour < 12) return 'Good morning';
+  if (hour < 17) return 'Good afternoon';
+  return 'Good evening';
+};
+
 const Dashboard = () => {
   const { trades, addTrade } = useSharedTrades();
   const { accounts } = useSharedAccounts();
@@ -95,7 +102,7 @@ const Dashboard = () => {
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
-          <h1 className="text-xl font-semibold mb-1">Hey, {profile?.nickname || 'Trader'}</h1>
+          <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
           <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Add a trading account to get started.</p>
           <Link to="/accounts">
             <Button size="sm" className="gap-1.5"><Wallet className="h-3.5 w-3.5" weight="regular" /> Add Account</Button>
@@ -111,7 +118,7 @@ const Dashboard = () => {
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <ChartBar className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
-          <h1 className="text-xl font-semibold mb-1">Hey, {profile?.nickname || 'Trader'}</h1>
+          <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
           <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Log your first trade to unlock analytics.</p>
           <div className="flex gap-3">
             <Link to="/add-trade">
@@ -133,7 +140,7 @@ const Dashboard = () => {
       {/* Header row */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Hey, {profile?.nickname || 'Trader'}</h1>
+          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
           <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Here's your trading overview</p>
         </div>
         <div className="flex items-center gap-2">
