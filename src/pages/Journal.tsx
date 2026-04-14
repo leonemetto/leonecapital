@@ -1,14 +1,17 @@
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { TradeTable } from '@/components/trade/TradeTable';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Funnel, DownloadSimple } from '@phosphor-icons/react';
+import { Funnel, DownloadSimple, UploadSimple, FilePdf } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { exportTradesCSV } from '@/lib/analytics';
+import { exportTradePDF } from '@/lib/pdfExport';
 
 const Journal = () => {
+  const navigate = useNavigate();
   const { trades, updateTrade, deleteTrade } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
@@ -51,14 +54,30 @@ const Journal = () => {
               </Select>
             </>
           )}
+          <button
+            onClick={() => navigate('/import-trades')}
+            className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+          >
+            <UploadSimple className="h-3.5 w-3.5" weight="regular" />
+            Import
+          </button>
           {filteredTrades.length > 0 && (
-            <button
-              onClick={() => exportTradesCSV(filteredTrades)}
-              className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
-            >
-              <DownloadSimple className="h-3.5 w-3.5" weight="regular" />
-              Export CSV
-            </button>
+            <>
+              <button
+                onClick={() => exportTradesCSV(filteredTrades)}
+                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+              >
+                <DownloadSimple className="h-3.5 w-3.5" weight="regular" />
+                CSV
+              </button>
+              <button
+                onClick={() => exportTradePDF(filteredTrades)}
+                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+              >
+                <FilePdf className="h-3.5 w-3.5" weight="regular" />
+                PDF
+              </button>
+            </>
           )}
         </div>
       </div>

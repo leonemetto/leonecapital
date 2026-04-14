@@ -29,6 +29,7 @@ import Guide from "./pages/Guide";
 import Auth from "./pages/Auth";
 import AuthCallback from "./pages/AuthCallback";
 import Landing from "./pages/Landing";
+import ImportTrades from "./pages/ImportTrades";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -162,6 +163,7 @@ const App = () => (
                           <Route path="/ai" element={<AIAdvisor />} />
                           <Route path="/analyst" element={<PerformanceAnalyst />} />
                           <Route path="/profile" element={<ProfileSettings />} />
+                          <Route path="/import-trades" element={<ImportTrades />} />
                           <Route path="/trading-plan" element={<TradingPlan />} />
                           <Route path="/guide" element={<Guide />} />
                           <Route path="*" element={<NotFound />} />
