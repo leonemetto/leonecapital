@@ -292,35 +292,40 @@ Pending if not yet run:
 - [x] Fix .env committed to git + add to .gitignore ✅
 - [x] npm audit fix (8 vulnerabilities) ✅
 
-### SECURITY — Fix before charging money
-- [ ] BFG Repo-Cleaner: scrub .env from git history (keys still visible in old commits)
-- [ ] Rotate Supabase anon key (exposed in git history — rotation alone is not enough without BFG)
-- [ ] Fix AIAdvisor.tsx session fallback — currently falls back to anon key if session is null (src/pages/AIAdvisor.tsx line ~169)
-- [ ] Enable JWT verification on edge functions — currently deployed with --no-verify-jwt
-- [ ] Add per-user rate limiting to AI edge functions (prevent one user exhausting Gemini quota)
-- [ ] Verify all Supabase tables have RLS enabled with explicit user_id policies
+### SECURITY ✅ ALL DONE
+- [x] Rotate Supabase anon key ✅
+- [x] Fix AIAdvisor.tsx session fallback ✅
+- [x] JWT verification on edge functions ✅
+- [x] Per-user rate limiting on AI edge functions ✅
+- [x] All Supabase tables have RLS + user_id policies ✅
+- [x] trader_profiles FK constraint added ✅
 
-### BRAND & SEO
-- [ ] Replace /public placeholder assets — favicon.ico, apple-touch-icon.png, manifest.json (still Lovable defaults)
-- [ ] Update page <title> and meta tags — should be "Leone Capital | EdgeFlow — Professional Trading Journal"
-- [ ] Submit to Google Search Console + request indexing via URL Inspection Tool
+### BRAND & SEO ✅ ALL DONE
+- [x] New EdgeFlow favicon + apple-touch-icon + manifest.json ✅
+- [x] Page title + meta tags updated to leone.capital ✅
+- [x] Google Search Console verified + indexed ✅
 
-### MONETISATION — Cannot charge money without these
+### FEATURES ✅ ALL DONE
+- [x] Re-engagement emails (day 3 + day 7) ✅
+- [x] Weekly AI digest email ✅
+- [x] CSV/broker import (EdgeFlow, MT4/MT5, generic) ✅
+- [x] PDF export (performance report) ✅
+- [x] Error monitoring — Sentry ✅ (add VITE_SENTRY_DSN to Vercel env vars)
+
+### INFRASTRUCTURE
+- [ ] Upgrade Supabase to Pro ($25/mo) — free tier 1GB storage won't handle screenshots at scale
+- [ ] Activate re-engagement cron — Supabase dashboard → Edge Functions → re-engagement → add cron: 0 8 * * *
+- [ ] Activate weekly digest cron — Supabase dashboard → Edge Functions → weekly-digest → add cron: 0 7 * * 1
+- [ ] Add RESEND_API_KEY secret to Supabase edge functions (needed for emails)
+
+### MONETISATION — Last step
 - [ ] Payment integration — Lemon Squeezy (international cards)
 - [ ] Payment integration — Intasend (Kenya M-Pesa)
 - [ ] subscriptions table in Supabase + tier enforcement (free/pro/elite feature gating)
 - [ ] Upgrade prompts / paywall screens for gated features
-- [ ] Upgrade Supabase plan to Pro ($25/mo) before launch — free tier storage won't handle screenshot uploads at scale
-
-### RETENTION
-- [ ] Re-engagement emails — day 3 + day 7 inactivity triggers (Supabase cron + Resend)
-- [ ] Weekly AI digest email (Supabase Edge Function + Resend)
 
 ### GROWTH (post-launch)
-- [ ] Broker/CSV import — #1 adoption barrier per audit; manual entry kills conversion
 - [ ] Real prop firm mode — challenge phase tracking, per-phase drawdown limits
-- [ ] PDF export — white-label performance reports (jsPDF or React-PDF)
-- [ ] Error monitoring — Sentry or equivalent (bugs in production currently invisible)
 - [ ] Mobile app / PWA
 
 ## Payments Plan (when ready)
