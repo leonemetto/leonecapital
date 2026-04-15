@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { motion, useInView, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import {
@@ -55,6 +55,10 @@ function EdgeFlowMark({ size = 18 }: { size?: number }) {
 function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const prefersReducedMotion = useReducedMotion();
+  if (prefersReducedMotion) {
+    return <div ref={ref} className={className}>{children}</div>;
+  }
   return (
     <motion.div ref={ref} className={className}
       initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
