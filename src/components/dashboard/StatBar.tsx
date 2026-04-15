@@ -93,7 +93,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
 
         return (
           <div key={cfg.key} className="flex-1 flex items-center">
-            <div className="flex-1 py-3 px-4 flex flex-col items-center">
+            <div className="flex-1 py-2 px-3 flex flex-col items-center">
               <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)]">
                 {cfg.label}
               </span>
@@ -103,7 +103,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
               {cfg.key === 'netPnl' && <MicroSparkline values={sparklines} />}
             </div>
             {i < stats_config.length - 1 && (
-              <div className="w-px h-12 bg-[rgba(255,255,255,0.08)]" />
+              <div className="w-px h-8 bg-[rgba(255,255,255,0.08)]" />
             )}
           </div>
         );
