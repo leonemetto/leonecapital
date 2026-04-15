@@ -1,4 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -25,7 +39,7 @@
     --border: 220 14% 88%;
     --input: 220 14% 88%;
     --ring: 160 84% 39%;
-    --radius: 1rem;
+    --radius: 0.375rem;
     --profit: 160 84% 39%;
     --loss: 0 84% 55%;
     --chart-1: 160 84% 39%;
@@ -68,8 +82,8 @@
     --accent-foreground: 0 0% 93%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 225 8% 14%;
-    --input: 225 8% 14%;
+    --border: 225 8% 10%;
+    --input: 225 8% 10%;
     --ring: 160 84% 39%;
     --profit: 160 84% 39%;
     --loss: 0 84% 58%;
@@ -104,15 +118,15 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-family: 'Geist', system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv02';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -136,9 +150,13 @@
 
 @layer utilities {
   .font-mono {
-    font-family: 'Roboto Mono', 'Courier New', monospace;
+    font-family: 'Geist Mono', 'Courier New', monospace;
     font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum';
+    font-feature-settings: 'tnum', 'ss01', 'zero';
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
   }
 
   /* ─── Liquid Glass System ─── */
