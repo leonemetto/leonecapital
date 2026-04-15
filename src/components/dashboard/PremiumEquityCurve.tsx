@@ -72,10 +72,10 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   ];
 
   return (
-    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6">
+    <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-5 px-6">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-[rgba(255,255,255,0.4)]">Equity Curve</span>
-        <div className="flex gap-0.5 bg-[rgba(255,255,255,0.05)] rounded-lg p-0.5">
+        <span className="text-sm text-gray-600 font-medium">Equity Curve</span>
+        <div className="flex gap-0.5 bg-gray-100 rounded-lg p-0.5">
           {pills.map(p => (
             <button
               key={p.key}
@@ -83,8 +83,8 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               className={cn(
                 'px-3 py-1 text-xs rounded-md transition-all',
                 period === p.key
-                  ? 'bg-white text-black font-semibold'
-                  : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.5)]'
+                  ? 'bg-gray-900 text-white font-semibold'
+                  : 'text-gray-500 hover:text-gray-700'
               )}
             >
               {p.label}
@@ -97,9 +97,9 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         {isEmpty ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
             <svg width="100%" height="60" className="opacity-20">
-              <line x1="0" y1="30" x2="100%" y2="30" stroke="white" strokeDasharray="6 4" strokeWidth="1" />
+              <line x1="0" y1="30" x2="100%" y2="30" stroke="#9CA3AF" strokeDasharray="6 4" strokeWidth="1" />
             </svg>
-            <span className="text-sm text-[rgba(255,255,255,0.25)]">Your equity curve will appear here</span>
+            <span className="text-sm text-gray-400">Your equity curve will appear here</span>
             <Link to="/add-trade" className="text-xs font-semibold text-background bg-profit hover:bg-profit/90 px-4 py-2 rounded-full transition-colors">
               Log Trade →
             </Link>
@@ -115,25 +115,26 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               </defs>
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
+                tick={{ fill: '#9CA3AF', fontSize: 10 }}
                 tickLine={false} axisLine={false}
               />
               <YAxis
                 orientation="right"
                 domain={yDomain}
-                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
+                tick={{ fill: '#9CA3AF', fontSize: 10 }}
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `$${v}`}
               />
-              <ReferenceLine y={startingBalance} stroke="rgba(255,255,255,0.06)" />
+              <ReferenceLine y={startingBalance} stroke="#E5E7EB" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(0,0%,6%)',
-                  border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '20px',
-                  color: '#fff',
+                  backgroundColor: '#fff',
+                  border: '1px solid #E5E7EB',
+                  borderRadius: '8px',
+                  color: '#111827',
                   fontSize: 11,
                   padding: '6px 14px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
                 }}
                 formatter={(value: number) => [`$${value.toFixed(2)}`, 'Balance']}
               />

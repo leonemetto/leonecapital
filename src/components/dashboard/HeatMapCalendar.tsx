@@ -71,15 +71,15 @@ export function HeatMapCalendar({ trades }: Props) {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6">
+      <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-5 px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setCurrentMonth(p => subMonths(p, 1))} className="p-1.5 rounded-md text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <button onClick={() => setCurrentMonth(p => subMonths(p, 1))} className="p-1.5 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all">
               <CaretLeft className="h-3.5 w-3.5" weight="bold" />
             </button>
-            <span className="text-[13px] font-semibold min-w-[120px] text-center tracking-[-0.01em]">{format(currentMonth, 'MMMM yyyy')}</span>
-            <button onClick={() => setCurrentMonth(p => addMonths(p, 1))} className="p-1.5 rounded-md text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+            <span className="text-[13px] font-semibold min-w-[120px] text-center tracking-[-0.01em] text-gray-900">{format(currentMonth, 'MMMM yyyy')}</span>
+            <button onClick={() => setCurrentMonth(p => addMonths(p, 1))} className="p-1.5 rounded-md text-gray-500 hover:text-gray-900 hover:bg-gray-100 transition-all">
               <CaretRight className="h-3.5 w-3.5" weight="bold" />
             </button>
           </div>
@@ -88,7 +88,7 @@ export function HeatMapCalendar({ trades }: Props) {
         {/* Weekday headers */}
         <div className="grid grid-cols-5 gap-1 mb-1">
           {WEEKDAYS.map(d => (
-            <div key={d} className="text-center text-[10px] font-medium text-[rgba(255,255,255,0.25)] uppercase tracking-widest py-1">
+            <div key={d} className="text-center text-[10px] font-medium text-gray-400 uppercase tracking-widest py-1">
               {d}
             </div>
           ))}
@@ -107,20 +107,20 @@ export function HeatMapCalendar({ trades }: Props) {
                   <Tooltip key={di}>
                     <TooltipTrigger asChild>
                       <div
-                        className="min-h-[56px] rounded-lg p-2 flex flex-col justify-between transition-all hover:ring-1 hover:ring-[rgba(255,255,255,0.12)] cursor-default"
+                        className="min-h-[56px] rounded-lg p-2 flex flex-col justify-between transition-all hover:ring-1 hover:ring-gray-200 cursor-default"
                         style={{
-                          backgroundColor: data ? pnlIntensity(data.pnl, maxAbsPnl) : 'rgba(255,255,255,0.02)',
-                          border: '0.5px solid rgba(255,255,255,0.05)',
+                          backgroundColor: data ? pnlIntensity(data.pnl, maxAbsPnl) : '#F9FAFB',
+                          border: '0.5px solid #F3F4F6',
                         }}
                       >
                         <span className={cn(
                           'text-[10px] font-medium tabular-nums leading-none',
-                          data ? 'text-[rgba(255,255,255,0.6)]' : 'text-[rgba(255,255,255,0.2)]'
+                          data ? 'text-gray-700' : 'text-gray-300'
                         )}>{format(day, 'd')}</span>
                         {data && (
                           <span className={cn(
                             'text-[9px] font-mono font-bold tabular-nums leading-none self-end',
-                            data.pnl > 0 ? 'text-[#10b981]' : data.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]'
+                            data.pnl > 0 ? 'text-[#10b981]' : data.pnl < 0 ? 'text-[#f87171]' : 'text-gray-400'
                           )}>
                             {data.pnl >= 0 ? '+' : ''}{fmtPnl(data.pnl)}
                           </span>
@@ -142,7 +142,7 @@ export function HeatMapCalendar({ trades }: Props) {
         </div>
 
         {/* Summary strip */}
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[rgba(255,255,255,0.05)]">
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-gray-100">
           {[
             { label: 'Month P&L', value: (monthStats.totalPnl >= 0 ? '+' : '') + fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? '#10b981' : '#f87171' },
             { label: 'Win Days',  value: String(monthStats.winDays),  color: '#10b981' },
@@ -150,8 +150,8 @@ export function HeatMapCalendar({ trades }: Props) {
             { label: 'Best Day',  value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: '#10b981' },
             { label: 'Worst',     value: monthStats.worstDay < 0 ? fmtPnl(monthStats.worstDay) : '—', color: '#f87171' },
           ].map(s => (
-            <div key={s.label} className="flex flex-col gap-0.5 flex-1 px-2 py-1.5 rounded-md bg-[rgba(255,255,255,0.02)]">
-              <span className="text-[9px] font-medium text-[rgba(255,255,255,0.25)] uppercase tracking-[0.08em] leading-none">{s.label}</span>
+            <div key={s.label} className="flex flex-col gap-0.5 flex-1 px-2 py-1.5 rounded-md bg-gray-50">
+              <span className="text-[9px] font-medium text-gray-400 uppercase tracking-[0.08em] leading-none">{s.label}</span>
               <span className="text-[11px] font-bold font-mono tabular-nums leading-none" style={{ color: s.color }}>{s.value}</span>
             </div>
           ))}
