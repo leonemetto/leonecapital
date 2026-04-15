@@ -611,8 +611,8 @@ export default function Landing() {
               className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full mb-8"
               style={{ background:'rgba(255,255,255,0.06)', border:'0.5px solid rgba(255,255,255,0.12)' }}>
               <span className="relative flex h-1.5 w-1.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#4ade80] opacity-60"/>
-                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#4ade80]"/>
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-60"/>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10b981]"/>
               </span>
               <span className="text-[11px] font-medium text-[rgba(255,255,255,0.55)] tracking-[0.06em]">AI-powered trading journal</span>
             </motion.div>
