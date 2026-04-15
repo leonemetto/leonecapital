@@ -16,16 +16,17 @@ interface Props { trades: Trade[] }
 const WEEKDAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
 
 function pnlIntensity(pnl: number, maxAbs: number): string {
+  // Zero P&L (breakeven days) and no-trade days stay transparent
   if (pnl === 0) return 'transparent';
   const ratio = Math.min(Math.abs(pnl) / Math.max(maxAbs, 1), 1);
   if (pnl > 0) {
-    if (ratio > 0.6) return 'rgba(16,185,129,0.5)';
-    if (ratio > 0.3) return 'rgba(16,185,129,0.28)';
-    return 'rgba(16,185,129,0.12)';
+    if (ratio > 0.6) return 'rgba(16,185,129,0.6)';
+    if (ratio > 0.3) return 'rgba(16,185,129,0.35)';
+    return 'rgba(16,185,129,0.15)';
   }
-  if (ratio > 0.6) return 'rgba(248,113,113,0.5)';
-  if (ratio > 0.3) return 'rgba(248,113,113,0.28)';
-  return 'rgba(248,113,113,0.12)';
+  if (ratio > 0.6) return 'rgba(248,113,113,0.6)';
+  if (ratio > 0.3) return 'rgba(248,113,113,0.35)';
+  return 'rgba(248,113,113,0.15)';
 }
 
 export function HeatMapCalendar({ trades }: Props) {
@@ -70,15 +71,15 @@ export function HeatMapCalendar({ trades }: Props) {
 
   return (
     <TooltipProvider delayDuration={200}>
-      <div className="p-5 px-6">
+      <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <button onClick={() => setCurrentMonth(p => subMonths(p, 1))} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
+            <button onClick={() => setCurrentMonth(p => subMonths(p, 1))} className="p-1.5 rounded-md text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
               <CaretLeft className="h-3.5 w-3.5" weight="bold" />
             </button>
-            <span className="text-[13px] font-semibold min-w-[120px] text-center tracking-[-0.01em] text-foreground">{format(currentMonth, 'MMMM yyyy')}</span>
-            <button onClick={() => setCurrentMonth(p => addMonths(p, 1))} className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-all">
+            <span className="text-[13px] font-semibold min-w-[120px] text-center tracking-[-0.01em]">{format(currentMonth, 'MMMM yyyy')}</span>
+            <button onClick={() => setCurrentMonth(p => addMonths(p, 1))} className="p-1.5 rounded-md text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
               <CaretRight className="h-3.5 w-3.5" weight="bold" />
             </button>
           </div>
@@ -87,7 +88,7 @@ export function HeatMapCalendar({ trades }: Props) {
         {/* Weekday headers */}
         <div className="grid grid-cols-5 gap-1 mb-1">
           {WEEKDAYS.map(d => (
-            <div key={d} className="text-center text-[10px] font-medium text-muted-foreground/60 uppercase tracking-widest py-1">
+            <div key={d} className="text-center text-[10px] font-medium text-[rgba(255,255,255,0.25)] uppercase tracking-widest py-1">
               {d}
             </div>
           ))}
@@ -106,20 +107,20 @@ export function HeatMapCalendar({ trades }: Props) {
                   <Tooltip key={di}>
                     <TooltipTrigger asChild>
                       <div
-                        className="min-h-[56px] rounded-lg p-2 flex flex-col justify-between transition-all hover:ring-1 hover:ring-border cursor-default"
+                        className="min-h-[56px] rounded-lg p-2 flex flex-col justify-between transition-all hover:ring-1 hover:ring-[rgba(255,255,255,0.12)] cursor-default"
                         style={{
-                          backgroundColor: data ? pnlIntensity(data.pnl, maxAbsPnl) : 'hsl(var(--muted) / 0.5)',
-                          border: '1px solid hsl(var(--border) / 0.6)',
+                          backgroundColor: data ? pnlIntensity(data.pnl, maxAbsPnl) : 'rgba(255,255,255,0.02)',
+                          border: '0.5px solid rgba(255,255,255,0.05)',
                         }}
                       >
                         <span className={cn(
                           'text-[10px] font-medium tabular-nums leading-none',
-                          data ? 'text-foreground/70' : 'text-muted-foreground/50'
+                          data ? 'text-[rgba(255,255,255,0.6)]' : 'text-[rgba(255,255,255,0.2)]'
                         )}>{format(day, 'd')}</span>
                         {data && (
                           <span className={cn(
                             'text-[9px] font-mono font-bold tabular-nums leading-none self-end',
-                            data.pnl > 0 ? 'text-profit' : data.pnl < 0 ? 'text-loss' : 'text-muted-foreground'
+                            data.pnl > 0 ? 'text-[#10b981]' : data.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]'
                           )}>
                             {data.pnl >= 0 ? '+' : ''}{fmtPnl(data.pnl)}
                           </span>
@@ -141,17 +142,17 @@ export function HeatMapCalendar({ trades }: Props) {
         </div>
 
         {/* Summary strip */}
-        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border/50">
+        <div className="flex items-center gap-2 mt-4 pt-3 border-t border-[rgba(255,255,255,0.05)]">
           {[
-            { label: 'Month P&L', value: (monthStats.totalPnl >= 0 ? '+' : '') + fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? 'text-profit' : 'text-loss' },
-            { label: 'Win Days',  value: String(monthStats.winDays),  color: 'text-profit' },
-            { label: 'Loss Days', value: String(monthStats.lossDays), color: 'text-loss' },
-            { label: 'Best Day',  value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: 'text-profit' },
-            { label: 'Worst',     value: monthStats.worstDay < 0 ? fmtPnl(monthStats.worstDay) : '—', color: 'text-loss' },
+            { label: 'Month P&L', value: (monthStats.totalPnl >= 0 ? '+' : '') + fmtPnl(monthStats.totalPnl), color: monthStats.totalPnl >= 0 ? '#10b981' : '#f87171' },
+            { label: 'Win Days',  value: String(monthStats.winDays),  color: '#10b981' },
+            { label: 'Loss Days', value: String(monthStats.lossDays), color: '#f87171' },
+            { label: 'Best Day',  value: monthStats.bestDay > 0 ? `+${fmtPnl(monthStats.bestDay)}` : '—', color: '#10b981' },
+            { label: 'Worst',     value: monthStats.worstDay < 0 ? fmtPnl(monthStats.worstDay) : '—', color: '#f87171' },
           ].map(s => (
-            <div key={s.label} className="flex flex-col gap-0.5 flex-1 px-2 py-1.5 rounded-md bg-muted/50">
-              <span className="text-[9px] font-medium text-muted-foreground/60 uppercase tracking-[0.08em] leading-none">{s.label}</span>
-              <span className={cn('text-[11px] font-bold font-mono tabular-nums leading-none', s.color)}>{s.value}</span>
+            <div key={s.label} className="flex flex-col gap-0.5 flex-1 px-2 py-1.5 rounded-md bg-[rgba(255,255,255,0.02)]">
+              <span className="text-[9px] font-medium text-[rgba(255,255,255,0.25)] uppercase tracking-[0.08em] leading-none">{s.label}</span>
+              <span className="text-[11px] font-bold font-mono tabular-nums leading-none" style={{ color: s.color }}>{s.value}</span>
             </div>
           ))}
         </div>

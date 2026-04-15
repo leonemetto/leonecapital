@@ -9,7 +9,7 @@ interface StatBarProps {
   trades: Trade[];
 }
 
-// null = no trades that day (muted), 0 = breakeven (muted), positive = green, negative = red
+// null = no trades that day (grey), 0 = breakeven (grey), positive = green, negative = red
 function MicroSparkline({ values }: { values: (number | null)[] }) {
   const numericValues = values.filter((v): v is number => v !== null && v !== 0);
   const max = Math.max(...numericValues.map(Math.abs), 1);
@@ -18,6 +18,7 @@ function MicroSparkline({ values }: { values: (number | null)[] }) {
     <svg width={40} height={16} className="mt-1">
       {values.map((v, i) => {
         if (v === null || v === 0) {
+          // Grey stub for no-trade days and breakeven days
           return (
             <rect
               key={i}
@@ -26,8 +27,7 @@ function MicroSparkline({ values }: { values: (number | null)[] }) {
               width={4}
               rx={1}
               height={2}
-              fill="currentColor"
-              className="text-muted-foreground/25"
+              fill="rgba(255,255,255,0.18)"
             />
           );
         }
@@ -40,8 +40,8 @@ function MicroSparkline({ values }: { values: (number | null)[] }) {
             width={4}
             rx={1}
             height={h}
-            fill={v > 0 ? 'hsl(var(--profit))' : 'hsl(var(--loss))'}
-            opacity={0.8}
+            fill={v > 0 ? '#10b981' : '#f87171'}
+            opacity={0.85}
           />
         );
       })}
@@ -58,7 +58,7 @@ const stats_config = [
 ] as const;
 
 export function StatBar({ stats, trades }: StatBarProps) {
-  // Build a true 7-day window ending today; missing days get null (muted)
+  // Build a true 7-day window ending today; missing days get null (grey)
   const sparklines = useMemo(() => {
     const dailyPnl = getDailyPnl(trades);
     const today = new Date();
@@ -80,20 +80,21 @@ export function StatBar({ stats, trades }: StatBarProps) {
   };
 
   return (
-    <div className="flex items-stretch rounded-xl bg-card border border-border/60">
+    <div className="flex items-stretch rounded-[10px] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
       {stats_config.map((cfg, i) => {
         const v = values[cfg.key];
         let valueColor = 'text-foreground';
         if (cfg.color === 'pnl') {
           valueColor = v > 0 ? 'text-profit' : v < 0 ? 'text-loss' : 'text-foreground';
         } else if (cfg.color === 'dd') {
+          // Only red when there is an actual drawdown; white/neutral at $0
           valueColor = v > 0 ? 'text-loss' : 'text-foreground';
         }
 
         return (
           <div key={cfg.key} className="flex-1 flex items-center">
             <div className="flex-1 py-3 px-4 flex flex-col items-center">
-              <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground">
+              <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)]">
                 {cfg.label}
               </span>
               <span className={cn('text-[28px] leading-tight font-bold font-mono tabular-nums', valueColor)}>
@@ -102,7 +103,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
               {cfg.key === 'netPnl' && <MicroSparkline values={sparklines} />}
             </div>
             {i < stats_config.length - 1 && (
-              <div className="w-px h-10 bg-border/60" />
+              <div className="w-px h-12 bg-[rgba(255,255,255,0.08)]" />
             )}
           </div>
         );

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
-  XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine, CartesianGrid,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine,
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import { Trade } from '@/types/trade';
@@ -53,7 +53,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
 
   const lastBal = data.length > 0 ? data[data.length - 1].balance : startingBalance;
   const isPositive = lastBal >= startingBalance;
-  const lineColor = isPositive ? 'hsl(var(--profit))' : 'hsl(var(--loss))';
+  const lineColor = isPositive ? '#10b981' : '#f87171';
   const isEmpty = data.length === 0;
 
   const yDomain = useMemo(() => {
@@ -72,10 +72,10 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   ];
 
   return (
-    <div className="p-5 px-6">
+    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm font-medium text-muted-foreground">Equity Curve</span>
-        <div className="flex gap-0.5 bg-muted rounded-lg p-0.5">
+        <span className="text-sm text-[rgba(255,255,255,0.4)]">Equity Curve</span>
+        <div className="flex gap-0.5 bg-[rgba(255,255,255,0.05)] rounded-lg p-0.5">
           {pills.map(p => (
             <button
               key={p.key}
@@ -83,8 +83,8 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               className={cn(
                 'px-3 py-1 text-xs rounded-md transition-all',
                 period === p.key
-                  ? 'bg-background text-foreground font-semibold shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'bg-white text-black font-semibold'
+                  : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.5)]'
               )}
             >
               {p.label}
@@ -93,13 +93,13 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         </div>
       </div>
 
-      <div className="h-[180px]">
+      <div className="h-[160px]">
         {isEmpty ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
             <svg width="100%" height="60" className="opacity-20">
-              <line x1="0" y1="30" x2="100%" y2="30" stroke="currentColor" strokeDasharray="6 4" strokeWidth="1" className="text-muted-foreground" />
+              <line x1="0" y1="30" x2="100%" y2="30" stroke="white" strokeDasharray="6 4" strokeWidth="1" />
             </svg>
-            <span className="text-sm text-muted-foreground/60">Your equity curve will appear here</span>
+            <span className="text-sm text-[rgba(255,255,255,0.25)]">Your equity curve will appear here</span>
             <Link to="/add-trade" className="text-xs font-semibold text-background bg-profit hover:bg-profit/90 px-4 py-2 rounded-full transition-colors">
               Log Trade →
             </Link>
@@ -109,30 +109,29 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={lineColor} stopOpacity={0.12} />
+                  <stop offset="5%" stopColor={lineColor} stopOpacity={0.08} />
                   <stop offset="95%" stopColor={lineColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="1 4" stroke="hsl(var(--border))" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 tickLine={false} axisLine={false}
               />
               <YAxis
                 orientation="right"
                 domain={yDomain}
-                tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 11 }}
+                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `$${v}`}
               />
-              <ReferenceLine y={startingBalance} stroke="hsl(var(--border))" strokeDasharray="4 4" />
+              <ReferenceLine y={startingBalance} stroke="rgba(255,255,255,0.06)" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(var(--popover))',
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '8px',
-                  color: 'hsl(var(--popover-foreground))',
+                  backgroundColor: 'hsl(0,0%,6%)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  borderRadius: '20px',
+                  color: '#fff',
                   fontSize: 11,
                   padding: '6px 14px',
                 }}
@@ -142,7 +141,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
                 type="monotone"
                 dataKey="balance"
                 stroke={lineColor}
-                strokeWidth={2}
+                strokeWidth={1.5}
                 fill="url(#eqGrad)"
                 dot={false}
               />

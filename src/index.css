@@ -1,45 +1,68 @@
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Variable.woff2') format('woff2');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Off-white light theme */
-    --background: 40 15% 97%;
-    --foreground: 220 25% 10%;
+    --background: 220 14% 96%;
+    --foreground: 220 20% 10%;
     --card: 0 0% 100%;
-    --card-foreground: 220 25% 10%;
+    --card-foreground: 220 20% 10%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 25% 10%;
-    --primary: 152 62% 38%;
+    --popover-foreground: 220 20% 10%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 95%;
+    --secondary: 220 14% 92%;
     --secondary-foreground: 220 10% 30%;
-    --muted: 220 12% 95%;
-    --muted-foreground: 220 8% 52%;
-    --accent: 152 30% 93%;
-    --accent-foreground: 152 50% 22%;
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 8% 46%;
+    --accent: 165 40% 92%;
+    --accent-foreground: 165 50% 25%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 220 14% 91%;
-    --input: 220 14% 91%;
-    --ring: 152 62% 38%;
+    --border: 220 14% 88%;
+    --input: 220 14% 88%;
+    --ring: 160 84% 39%;
     --radius: 0.375rem;
-    --profit: 152 62% 38%;
-    --loss: 0 80% 55%;
-    --chart-1: 152 62% 38%;
-    --chart-2: 0 80% 55%;
+    --profit: 160 84% 39%;
+    --loss: 0 84% 55%;
+    --chart-1: 160 84% 39%;
+    --chart-2: 0 84% 55%;
     --chart-3: 45 90% 45%;
     --chart-4: 200 70% 45%;
     --chart-5: 280 60% 50%;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 220 8% 45%;
-    --sidebar-primary: 152 62% 38%;
+    --sidebar-background: 220 14% 97%;
+    --sidebar-foreground: 220 8% 40%;
+    --sidebar-primary: 160 84% 39%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 12% 96%;
+    --sidebar-accent: 220 14% 94%;
     --sidebar-accent-foreground: 220 10% 20%;
-    --sidebar-border: 220 14% 92%;
-    --sidebar-ring: 152 62% 38%;
+    --sidebar-border: 220 14% 90%;
+    --sidebar-ring: 160 84% 39%;
+
+    /* Liquid glass tokens */
+    --glass-bg: 0 0% 100% / 0.55;
+    --glass-border: 0 0% 100% / 0.6;
+    --glass-highlight: 0 0% 100% / 0.8;
+    --glass-shadow: 220 30% 20% / 0.08;
+    --glass-blur: 24px;
+    --glass-shimmer: 0 0% 100% / 0.15;
   }
 
   .dark {
@@ -50,7 +73,7 @@
     --card-foreground: 0 0% 92%;
     --popover: 150 14% 5%;
     --popover-foreground: 0 0% 92%;
-    --primary: 152 62% 38%;
+    --primary: 160 84% 39%;
     --primary-foreground: 0 0% 2%;
     --secondary: 150 10% 9%;
     --secondary-foreground: 0 0% 78%;
@@ -60,24 +83,32 @@
     --accent-foreground: 0 0% 92%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 150 10% 12%;
-    --input: 150 10% 12%;
-    --ring: 152 62% 38%;
-    --profit: 152 62% 38%;
+    --border: 150 10% 8%;
+    --input: 150 10% 8%;
+    --ring: 160 84% 39%;
+    --profit: 160 84% 39%;
     --loss: 0 84% 58%;
-    --chart-1: 152 62% 38%;
+    --chart-1: 160 84% 39%;
     --chart-2: 0 84% 58%;
     --chart-3: 45 90% 50%;
     --chart-4: 200 70% 50%;
     --chart-5: 280 60% 55%;
     --sidebar-background: 150 20% 3%;
     --sidebar-foreground: 0 0% 58%;
-    --sidebar-primary: 152 62% 38%;
+    --sidebar-primary: 160 84% 39%;
     --sidebar-primary-foreground: 0 0% 2%;
     --sidebar-accent: 150 10% 7%;
     --sidebar-accent-foreground: 0 0% 85%;
     --sidebar-border: 150 10% 8%;
-    --sidebar-ring: 152 62% 38%;
+    --sidebar-ring: 160 84% 39%;
+
+    /* Liquid glass tokens — dark */
+    --glass-bg: 0 0% 100% / 0.02;
+    --glass-border: 0 0% 100% / 0.07;
+    --glass-highlight: 0 0% 100% / 0.08;
+    --glass-shadow: 0 0% 0% / 0.25;
+    --glass-blur: 28px;
+    --glass-shimmer: 0 0% 100% / 0.04;
   }
 }
 
@@ -88,14 +119,15 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', system-ui, sans-serif;
+    font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv02';
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Geist', system-ui, sans-serif;
     font-weight: 700;
     letter-spacing: -0.02em;
   }
@@ -119,17 +151,105 @@
 
 @layer utilities {
   .font-mono {
-    font-family: 'Roboto Mono', monospace;
+    font-family: 'Geist Mono', 'Courier New', monospace;
     font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum', 'ss01';
+    font-feature-settings: 'tnum', 'ss01', 'zero';
   }
 
   .tabular-nums {
-    font-variant-numeric: tabular-lining;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ─── Liquid Glass System ─── */
+  .glass-card {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+    border: 0.5px solid hsl(var(--glass-border));
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 0.5px hsl(var(--glass-highlight)) inset,
+      0 1px 0 0 hsl(var(--glass-highlight)) inset,
+      0 4px 16px -2px hsl(var(--glass-shadow)),
+      0 12px 40px -8px hsl(var(--glass-shadow));
+  }
+
+  .glass-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      hsl(var(--glass-shimmer)) 0%,
+      transparent 40%,
+      transparent 60%,
+      hsl(var(--glass-shimmer)) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glass-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .glass-card-elevated {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(1.8);
+    -webkit-backdrop-filter: blur(calc(var(--glass-blur) * 1.5)) saturate(1.8);
+    border: 1px solid hsl(var(--glass-border));
+    border-radius: var(--radius);
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 0 0.5px hsl(var(--glass-highlight)) inset,
+      0 1px 0 0 hsl(var(--glass-highlight)) inset,
+      0 8px 32px -4px hsl(var(--glass-shadow)),
+      0 20px 60px -12px hsl(var(--glass-shadow));
+  }
+
+  .glass-card-elevated::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(
+      120deg,
+      hsl(0 0% 100% / 0.1) 0%,
+      transparent 35%,
+      transparent 65%,
+      hsl(0 0% 100% / 0.05) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glass-card-elevated > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* Liquid glass nav bar */
+  .glass-nav {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(32px) saturate(1.8);
+    -webkit-backdrop-filter: blur(32px) saturate(1.8);
+    border-bottom: 1px solid hsl(var(--glass-border));
+    box-shadow:
+      0 1px 0 0 hsl(var(--glass-highlight)) inset,
+      0 4px 24px -4px hsl(var(--glass-shadow));
   }
 
   .label-text {
     @apply text-[10px] uppercase tracking-[0.12em] text-muted-foreground/60 font-semibold;
+  }
+
+  .tabular-nums {
+    font-variant-numeric: tabular-lining;
   }
 
   .text-profit {
@@ -160,7 +280,18 @@
     box-shadow: 0 0 24px -6px hsl(var(--primary) / 0.25);
   }
 
+  .hover-glow:hover {
+    box-shadow: 0 0 24px -6px hsl(var(--primary) / 0.12);
+  }
+
   .section-label {
     @apply text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 font-bold;
+  }
+
+  .terminal-grid {
+    background-image: 
+      linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
+    background-size: 40px 40px;
   }
 }
