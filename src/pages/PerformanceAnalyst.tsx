@@ -35,11 +35,19 @@ function ExpectancyTable({
   field?: string;
   onSimulate?: (key: string, field: string) => void;
 }) {
-  if (data.length === 0) return null;
+  // Filter out rows with unknown/insufficient data and fewer than 2 trades
+  const cleanData = data.filter(r =>
+    r.key !== 'Unknown' &&
+    r.key !== '' &&
+    r.key !== 'undefined' &&
+    r.trades >= 2
+  );
+  if (cleanData.length === 0) return null;
 
-  const maxAbsExpectancy = Math.max(...data.map(r => Math.abs(r.expectancy)), 0.001);
-  const maxExp = Math.max(...data.map(r => r.expectancy));
-  const minExp = Math.min(...data.map(r => r.expectancy));
+  const maxAbsExpectancy = Math.max(...cleanData.map(r => Math.abs(r.expectancy)), 0.001);
+  const maxAbsPnl = Math.max(...cleanData.map(r => Math.abs(r.pnl)), 1);
+  const maxExp = Math.max(...cleanData.map(r => r.expectancy));
+  const minExp = Math.min(...cleanData.map(r => r.expectancy));
 
   return (
     <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] overflow-hidden">
@@ -60,11 +68,12 @@ function ExpectancyTable({
         </div>
 
         {/* Rows */}
-        {data.map(row => {
+        {cleanData.map(row => {
           const isLeak = row.expectancy < 0;
-          const isBest = data.length > 1 && row.expectancy === maxExp && maxExp > 0;
-          const isWorst = data.length > 1 && row.expectancy === minExp && minExp < 0;
+          const isBest = cleanData.length > 1 && row.expectancy === maxExp && maxExp > 0;
+          const isWorst = cleanData.length > 1 && row.expectancy === minExp && minExp < 0;
           const barWidth = Math.min((Math.abs(row.expectancy) / maxAbsExpectancy) * 100, 100);
+          const pnlIntensity = Math.min(Math.abs(row.pnl) / maxAbsPnl, 1);
 
           return (
             <div
@@ -118,9 +127,21 @@ function ExpectancyTable({
                 </span>
               </div>
 
-              <span className={cn('text-right text-[12px] font-mono', row.pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
-                ${row.pnl}
-              </span>
+              <div className="relative flex items-center justify-end">
+                <div
+                  className="absolute inset-0 rounded-sm"
+                  style={{
+                    background: row.pnl > 0
+                      ? `rgba(16,185,129,${(pnlIntensity * 0.18).toFixed(2)})`
+                      : row.pnl < 0
+                      ? `rgba(248,113,113,${(pnlIntensity * 0.18).toFixed(2)})`
+                      : 'transparent',
+                  }}
+                />
+                <span className={cn('relative z-10 text-right text-[12px] font-mono pr-1', row.pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+                  ${row.pnl}
+                </span>
+              </div>
 
               <div className="flex justify-end">
                 {onSimulate && field && (
@@ -145,7 +166,7 @@ function ExpectancyTable({
 }
 
 // ─── Behavioral Alerts ───
-function BehavioralAlerts({ insights, tradeCount }: { insights: BehavioralInsight[]; tradeCount: number }) {
+function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: BehavioralInsight[]; tradeCount: number; onSimulate?: (key: string, field: string) => void }) {
   const THRESHOLD = 20;
 
   if (tradeCount < THRESHOLD) {
@@ -200,7 +221,7 @@ function BehavioralAlerts({ insights, tradeCount }: { insights: BehavioralInsigh
             className={cn('rounded-xl border bg-[rgba(255,255,255,0.02)] px-5 py-4', cfg.border)}
           >
             <div className="flex items-start gap-4">
-              <div className={cn('w-2 h-2 rounded-full mt-1.5 shrink-0', cfg.dot)} />
+              <div className={cn('w-0.5 h-full min-h-[2.5rem] rounded-full shrink-0 self-stretch', cfg.dot)} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
                   <p className="text-[13px] font-medium text-[rgba(255,255,255,0.85)] leading-snug">{insight.message}</p>
@@ -209,6 +230,19 @@ function BehavioralAlerts({ insights, tradeCount }: { insights: BehavioralInsigh
                   </span>
                 </div>
                 <p className="text-[11px] text-[rgba(255,255,255,0.3)] font-mono mt-1.5">{insight.stat}</p>
+                {insight.severity === 'high' && onSimulate && (
+                  <button
+                    onClick={() => {
+                      // Map behavioral type to a simulate field where applicable
+                      if (insight.type === 'plan-deviation') onSimulate('No', 'followedPlan');
+                      else if (insight.type === 'emotional') onSimulate('1', 'emotionalState');
+                    }}
+                    className="mt-2.5 flex items-center gap-1.5 text-[10px] font-semibold text-[rgba(255,255,255,0.4)] hover:text-white border border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.25)] rounded-full px-3 py-1 transition-all"
+                  >
+                    <Lightning className="h-2.5 w-2.5" weight="bold" />
+                    Simulate removing this from your trading
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -600,7 +634,7 @@ const PerformanceAnalyst = () => {
             </span>
           )}
         </div>
-        <BehavioralAlerts insights={behavioral} tradeCount={filteredTrades.length} />
+        <BehavioralAlerts insights={behavioral} tradeCount={filteredTrades.length} onSimulate={handleSimulate} />
       </div>
 
       {/* ── Expectancy Breakdown ── */}
