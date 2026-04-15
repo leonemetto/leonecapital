@@ -42,12 +42,22 @@ const btn = (active: boolean, variant: 'neutral' | 'loss' | 'be' = 'neutral') =>
     : 'bg-transparent border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.4)] hover:text-white hover:border-[rgba(255,255,255,0.25)]'
 );
 
+// Detect trading session from local hour
+function detectSession(): string {
+  const h = new Date().getUTCHours();
+  if (h >= 2 && h < 9)  return 'Asian';
+  if (h >= 7 && h < 12) return 'London';
+  if (h >= 12 && h < 17) return 'New York';
+  if (h >= 11 && h < 14) return 'Overlap';
+  return '';
+}
+
 const defaults = {
   date: new Date().toISOString().slice(0, 10),
   instrument: '',
   direction: 'long' as const,
   strategy: '',
-  session: '',
+  session: detectSession(),
   outcome: 'win' as const,
   pnl: '',
   rMultiple: '',
