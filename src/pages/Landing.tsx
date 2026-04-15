@@ -3,37 +3,14 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { motion, useInView, useReducedMotion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import {
   ArrowRight, Brain, Lightning,
   CheckCircle, X, List, CaretDown,
   TrendUp, ShieldCheck, ArrowLeft, ChartBar,
 } from '@phosphor-icons/react';
 
-/* ─── Ambient animated blob ─── */
-function AmbientBlob({ color = 'rgba(16,185,129,0.18)', size = 600, x = '50%', y = '50%', blur = 80, duration = 14 }: {
-  color?: string; size?: number; x?: string; y?: string; blur?: number; duration?: number;
-}) {
-  const prefersReducedMotion = useReducedMotion();
-  return (
-    <motion.div
-      className="absolute rounded-full pointer-events-none"
-      style={{
-        width: size, height: size,
-        left: x, top: y,
-        transform: 'translate(-50%, -50%)',
-        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
-        filter: `blur(${blur}px)`,
-      }}
-      animate={prefersReducedMotion ? {} : {
-        x: [0, 30, -20, 10, 0],
-        y: [0, -20, 15, -10, 0],
-      }}
-      transition={{ duration, repeat: Infinity, ease: 'easeInOut' }}
-    />
-  );
-}
-
-/* ─── Animated word ─── */
+/* ─── Animated word (opacity crossfade, no layout shift) ─── */
 function AnimatedWord({ words, color = '#10b981' }: { words: string[]; color?: string }) {
   const [index, setIndex] = useState(0);
   const longest = words.reduce((a, b) => (a.length >= b.length ? a : b));
@@ -43,6 +20,7 @@ function AnimatedWord({ words, color = '#10b981' }: { words: string[]; color?: s
   }, [words.length]);
   return (
     <span style={{ position: 'relative', display: 'inline-block' }}>
+      {/* hidden spacer — fixes width to longest word, never clips */}
       <span style={{ visibility: 'hidden', fontWeight: 900 }}>{longest}</span>
       <AnimatePresence mode="wait">
         <motion.span key={index}
@@ -56,14 +34,18 @@ function AnimatedWord({ words, color = '#10b981' }: { words: string[]; color?: s
   );
 }
 
-/* ─── Logo mark ─── */
+/* ─── Logo ─── */
 function EdgeFlowMark({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
+      {/* Vertical spine */}
       <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      {/* Top bar */}
       <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      {/* Middle bar — shorter, ends in upward tick */}
       <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
       <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+      {/* Bottom bar */}
       <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
     </svg>
   );
@@ -74,7 +56,9 @@ function Reveal({ children, delay = 0, className = '' }: { children: React.React
   const ref = useRef(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
   const prefersReducedMotion = useReducedMotion();
-  if (prefersReducedMotion) return <div ref={ref} className={className}>{children}</div>;
+  if (prefersReducedMotion) {
+    return <div ref={ref} className={className}>{children}</div>;
+  }
   return (
     <motion.div ref={ref} className={className}
       initial={{ opacity: 0, y: 28, filter: 'blur(8px)' }}
@@ -85,36 +69,24 @@ function Reveal({ children, delay = 0, className = '' }: { children: React.React
   );
 }
 
-/* ─── Browser frame wrapper ─── */
-function BrowserFrame({ children, url = 'leone.capital', height = 480 }: { children: React.ReactNode; url?: string; height?: number }) {
-  return (
-    <div className="rounded-2xl border border-[rgba(255,255,255,0.1)] overflow-hidden shadow-2xl" style={{ background: '#050505' }}>
-      <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[rgba(255,255,255,0.07)]">
-        <div className="w-3 h-3 rounded-full bg-[rgba(255,255,255,0.1)]" />
-        <div className="w-3 h-3 rounded-full bg-[rgba(255,255,255,0.1)]" />
-        <div className="w-3 h-3 rounded-full bg-[rgba(255,255,255,0.1)]" />
-        <div className="mx-4 flex-1 h-6 rounded-md bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] flex items-center px-3">
-          <span className="text-[10px] text-[rgba(255,255,255,0.2)]">{url}</span>
-        </div>
-      </div>
-      <div style={{ height }}>{children}</div>
-    </div>
-  );
-}
 
-/* ══════════════════════════
-   SCREEN MOCKUPS
-   ══════════════════════════ */
+/* ══════════════════════════════════════
+   APP SCREEN MOCKUPS — full-size
+   ══════════════════════════════════════ */
+
 function MockDashboard() {
   return (
     <div className="w-full h-full bg-black flex overflow-hidden">
+      {/* Sidebar */}
       <div className="w-14 bg-black border-r border-[rgba(255,255,255,0.06)] flex flex-col items-center py-5 gap-4 shrink-0">
         <div className="text-white mb-2"><EdgeFlowMark size={16} /></div>
         {[true,false,false,false,false].map((a,i) => (
           <div key={i} className={cn('w-8 h-1.5 rounded-full', a ? 'bg-white' : 'bg-[rgba(255,255,255,0.1)]')} />
         ))}
       </div>
+      {/* Content */}
       <div className="flex-1 p-6 overflow-hidden">
+        {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
             <p className="text-white font-bold text-sm">Good morning, Trader</p>
@@ -125,6 +97,7 @@ function MockDashboard() {
             <div className="px-3 py-1.5 rounded-full bg-white text-black text-[10px] font-bold">+ Log Trade</div>
           </div>
         </div>
+        {/* Stats */}
         <div className="grid grid-cols-4 gap-3 mb-5">
           {[
             { l:'Total P&L',  v:'+$14,230', c:'text-[#10b981]' },
@@ -138,11 +111,12 @@ function MockDashboard() {
             </div>
           ))}
         </div>
+        {/* Equity curve */}
         <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-[10px] text-[rgba(255,255,255,0.4)] uppercase tracking-wider font-semibold">Equity Curve</p>
             <div className="flex gap-1">
-              {['Daily','Weekly','Monthly'].map((p,i) => (
+              {['Daily','Weekly','Monthly'].map((p,i)=>(
                 <span key={p} className={cn('text-[9px] px-2 py-0.5 rounded-md', i===0?'bg-white text-black font-bold':'text-[rgba(255,255,255,0.3)]')}>{p}</span>
               ))}
             </div>
@@ -157,6 +131,7 @@ function MockDashboard() {
             ))}
           </svg>
         </div>
+        {/* Bottom 2 col */}
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-4">
             <p className="text-[9px] text-[rgba(255,255,255,0.3)] uppercase tracking-wider mb-3">Recent Trades</p>
@@ -198,6 +173,7 @@ function MockAnalyst() {
           <p className="text-[rgba(255,255,255,0.35)] text-[11px]">Identify leaks, find your edge, simulate improvements</p>
         </div>
       </div>
+      {/* Risk bar */}
       <div className="rounded-xl border border-[rgba(16,185,129,0.2)] bg-[rgba(16,185,129,0.04)] px-5 py-3 flex items-center gap-4 mb-5">
         <ShieldCheck className="h-5 w-5 text-[#10b981]" weight="regular"/>
         <div>
@@ -205,6 +181,7 @@ function MockAnalyst() {
           <p className="text-[11px] text-[rgba(255,255,255,0.5)]">No major drawdown detected. Trading within normal parameters.</p>
         </div>
       </div>
+      {/* Key metrics */}
       <div className="grid grid-cols-4 gap-3 mb-5">
         {[['+0.42R','R-Expectancy','text-[#10b981]'],['+2.1R','Avg Win','text-[#10b981]'],['-0.9R','Avg Loss','text-[#f87171]'],['$420','Max Drawdown','text-[#f87171]']].map(([v,l,c])=>(
           <div key={l} className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] px-4 py-3">
@@ -213,6 +190,7 @@ function MockAnalyst() {
           </div>
         ))}
       </div>
+      {/* Tables */}
       <div className="grid grid-cols-2 gap-3 flex-1">
         {[['By Instrument',[['XAUUSD','18','72%','+0.68R',true],['NQ','12','50%','+0.12R',true],['EUR/USD','8','38%','-0.34R',false]]],
           ['By Session',[['London','14','74%','+0.82R',true],['New York','10','48%','+0.11R',true],['Asia','6','33%','-0.41R',false]]]
@@ -249,6 +227,7 @@ function MockTrades() {
         </div>
         <div className="px-4 py-1.5 rounded-full bg-white text-black text-[11px] font-bold">+ Log Trade</div>
       </div>
+      {/* Stats bar */}
       <div className="flex rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] mb-4">
         {[['38','Total Trades','text-white'],['68%','Win Rate','text-[#10b981]'],['$14,230','Net P&L','text-[#10b981]'],['+2.4R','Avg R','text-white']].map((s,i,a)=>(
           <div key={s[0]} className={cn('flex-1 py-3 px-4 flex flex-col items-center',i<a.length-1&&'border-r border-[rgba(255,255,255,0.06)]')}>
@@ -257,11 +236,13 @@ function MockTrades() {
           </div>
         ))}
       </div>
+      {/* Column headers */}
       <div className="grid grid-cols-6 px-4 py-2 mb-1">
         {['Instrument','Date','Direction','Session','P&L','Outcome'].map(h=>(
           <p key={h} className="text-[9px] font-semibold uppercase tracking-wider text-[rgba(255,255,255,0.2)]">{h}</p>
         ))}
       </div>
+      {/* Rows */}
       <div className="flex-1 rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] overflow-hidden">
         {[
           ['XAUUSD','Apr 09','Long','London','+$340','win'],
@@ -331,7 +312,7 @@ function MockAI() {
   );
 }
 
-/* ─── Carousel ─── */
+/* ─── Carousel Screens ─── */
 const SCREENS = [
   { id: 'dashboard', label: 'Analytics Dashboard', sub: 'Equity curve, stat bar, session performance and recent trades — all in one view.', Screen: MockDashboard },
   { id: 'analyst',   label: 'Performance Analyst', sub: 'Expectancy breakdown by instrument, session, emotion — find your exact leaks.', Screen: MockAnalyst },
@@ -339,6 +320,7 @@ const SCREENS = [
   { id: 'ai',        label: 'AI Trade Advisor',    sub: 'Personalized insights based on YOUR trading data — not generic advice.', Screen: MockAI },
 ];
 
+/* ─── Auto-scrolling Carousel ─── */
 function AppCarousel() {
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -346,6 +328,7 @@ function AppCarousel() {
   const carouselRef = useRef(null);
   const inView = useInView(carouselRef, { margin: '-10%' });
   const total = SCREENS.length;
+
   const go = useCallback((i: number) => setActive(((i % total) + total) % total), [total]);
 
   useEffect(() => {
@@ -358,6 +341,7 @@ function AppCarousel() {
 
   return (
     <div ref={carouselRef} onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)}>
+      {/* Tab pills */}
       <div className="flex flex-wrap gap-2 justify-center mb-10">
         {SCREENS.map((s, i) => (
           <button key={s.id} onClick={() => { go(i); setPaused(true); }}
@@ -370,23 +354,46 @@ function AppCarousel() {
           </button>
         ))}
       </div>
+
+      {/* Screen window */}
       <div className="relative max-w-5xl mx-auto">
-        <div className="absolute -inset-12 rounded-3xl pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(16,185,129,0.18) 0%, transparent 70%)' }} />
-        <div className="relative">
-          <BrowserFrame url={`leone.capital — ${label}`}>
-            <AnimatePresence mode="wait">
-              <motion.div key={active}
-                initial={{ opacity: 0, x: 30, filter: 'blur(6px)' }}
-                animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
-                exit={{ opacity: 0, x: -30, filter: 'blur(6px)' }}
-                transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-                className="h-full">
-                <Screen />
-              </motion.div>
-            </AnimatePresence>
-          </BrowserFrame>
+        {/* Glow */}
+        <div className="absolute -inset-8 rounded-3xl opacity-20 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse at center, rgba(16,185,129,0.4) 0%, transparent 65%)' }} />
+
+        <div className="relative rounded-2xl border border-[rgba(255,255,255,0.1)] overflow-hidden shadow-2xl"
+          style={{ background: '#050505' }}>
+          {/* Chrome bar */}
+          <div className="flex items-center gap-2 px-5 py-3.5 border-b border-[rgba(255,255,255,0.07)]">
+            <div className="w-3 h-3 rounded-full bg-[rgba(255,255,255,0.1)]" />
+            <div className="w-3 h-3 rounded-full bg-[rgba(255,255,255,0.1)]" />
+            <div className="w-3 h-3 rounded-full bg-[rgba(255,255,255,0.1)]" />
+            <div className="mx-4 flex-1 h-6 rounded-md bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.06)] flex items-center px-3">
+              <span className="text-[10px] text-[rgba(255,255,255,0.2)]">leone.capital — {label}</span>
+            </div>
+            {/* Auto-scroll progress bar */}
+            <div className="w-16 h-1 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+              {!paused && (
+                <motion.div key={active} className="h-full bg-[#10b981] rounded-full"
+                  initial={{ width: '0%' }} animate={{ width: '100%' }}
+                  transition={{ duration: 4, ease: 'linear' }} />
+              )}
+            </div>
+          </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div key={active}
+              initial={{ opacity: 0, x: 30, filter: 'blur(6px)' }}
+              animate={{ opacity: 1, x: 0, filter: 'blur(0px)' }}
+              exit={{ opacity: 0, x: -30, filter: 'blur(6px)' }}
+              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              style={{ height: 480 }}>
+              <Screen />
+            </motion.div>
+          </AnimatePresence>
         </div>
+
+        {/* Arrows */}
         {[{dir:'left',fn:()=>go(active-1),Icon:ArrowLeft},{dir:'right',fn:()=>go(active+1),Icon:ArrowRight}].map(({dir,fn,Icon})=>(
           <button key={dir} onClick={()=>{fn();setPaused(true);}}
             className={cn(
@@ -397,6 +404,8 @@ function AppCarousel() {
           </button>
         ))}
       </div>
+
+      {/* Caption + dots */}
       <div className="text-center mt-8">
         <motion.p key={`l-${active}`} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}
           className="text-[17px] font-semibold text-white mb-1.5">{label}</motion.p>
@@ -416,6 +425,98 @@ function AppCarousel() {
   );
 }
 
+/* ─── Feature row ─── */
+function FeatureRow({
+  title, desc, tag, Icon, Screen, flip, index,
+}: {
+  title: string; desc: string; tag: string;
+  Icon: React.ElementType; Screen: React.ElementType;
+  flip?: boolean; index: number;
+}) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-100px' });
+  return (
+    <motion.div ref={ref}
+      initial={{ opacity: 0, y: 48 }}
+      animate={inView ? { opacity: 1, y: 0 } : {}}
+      transition={{ duration: 0.75, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
+      className={cn(
+        'grid md:grid-cols-2 gap-12 lg:gap-20 items-center py-20 border-b border-[rgba(255,255,255,0.05)]',
+        flip ? 'md:[&>*:first-child]:order-2' : ''
+      )}>
+      {/* Text */}
+      <div>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[rgba(255,255,255,0.35)] mb-6">{tag}</p>
+        <h3 className="text-[28px] md:text-[34px] font-black tracking-[-1.5px] text-white leading-[1.1] mb-5">
+          {title}
+        </h3>
+        <p className="text-[rgba(255,255,255,0.45)] text-[15px] leading-relaxed mb-8 max-w-md">
+          {desc}
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={cn('h-1 rounded-full transition-all', i === index ? 'w-6 bg-[rgba(255,255,255,0.9)]' : 'w-2 bg-[rgba(255,255,255,0.2)]')} />
+            ))}
+          </div>
+        </div>
+      </div>
+      {/* Mockup */}
+      <div className="relative hidden md:block">
+        <div className="absolute -inset-8 rounded-3xl blur-3xl opacity-15 pointer-events-none"
+          style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.6) 0%, transparent 70%)' }} />
+        <div className="relative rounded-2xl border border-[rgba(255,255,255,0.09)] overflow-hidden shadow-2xl" style={{ background: '#050505' }}>
+          <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-[rgba(255,255,255,0.06)]">
+            {[0,1,2].map(i=><div key={i} className="w-2 h-2 rounded-full bg-[rgba(255,255,255,0.1)]"/>)}
+            <span className="ml-2 text-[10px] text-[rgba(255,255,255,0.18)]">leone.capital</span>
+          </div>
+          <div style={{ height: 340 }}>
+            <Screen />
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+/* ─── Feature Showcase ─── */
+function FeatureShowcase() {
+  const rows = [
+    { title: 'Log in 30 seconds. Understand in seconds more.', tag: 'Trade Log', desc: 'Most traders have a gut feeling about what\'s working. EdgeFlow gives you the actual numbers — broken down by instrument, session, emotion, and strategy. Gut feeling vs data. Data wins.', Icon: ChartBar, Screen: MockDashboard, flip: false },
+    { title: 'Find the exact leaks costing you money.', tag: 'Performance Analyst', desc: 'EdgeFlow segments every trade by session, setup, emotion, and direction — then flags which combinations are draining your account. One insight from this page pays for years of subscription.', Icon: Lightning, Screen: MockAnalyst, flip: true },
+    { title: 'An analyst who has read every trade you\'ve ever taken.', tag: 'AI Advisor', desc: 'Ask it anything. It answers using your actual trade history — not generic advice. "Which session should I cut?" "Why do I keep losing on Fridays?" "What does my best trade look like?" It knows because it\'s read every entry.', Icon: Brain, Screen: MockAI, flip: false },
+    { title: 'Before you change anything — see the numbers.', tag: 'What-If Simulator', desc: 'What if you only traded London session? What if you skipped every low-confidence day? What if you cut your worst instrument entirely? Run the simulation. See the P&L difference. Then decide.', Icon: TrendUp, Screen: MockTrades, flip: true },
+  ];
+  return (
+    <div className="max-w-6xl mx-auto px-6">
+      {rows.map((r, i) => <FeatureRow key={i} index={i} {...r} />)}
+    </div>
+  );
+}
+
+/* ─── Feature strip (replaces fake stats bar) ─── */
+function FeatureStrip() {
+  const items = [
+    '15+ data points per trade',
+    'Session & emotion tracking',
+    'Leak detection engine',
+    'What-If simulator',
+    'AI trade advisor',
+  ];
+  return (
+    <div className="py-8 px-6">
+      <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-x-3 gap-y-2">
+        {items.map((item, i) => (
+          <React.Fragment key={item}>
+            <span className="text-[13px] text-[rgba(255,255,255,0.35)]">{item}</span>
+            {i < items.length - 1 && <span className="text-[rgba(255,255,255,0.15)]">·</span>}
+          </React.Fragment>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 /* ─── Pricing ─── */
 const plans = [
   { name:'Free',  price:'$0',  period:'',    sub:'Start logging. See what the data shows.',       cta:'Start for Free', featured:false,
@@ -429,6 +530,7 @@ const plans = [
     missing:[] },
 ];
 
+/* ─── FAQ ─── */
 const faqData = [
   { q:'Do I need trading experience?', a:"Not at all. Whether you've been trading 2 weeks or 10 years, EdgeFlow adapts to your data and gives you insights relevant to your exact level." },
   { q:'Is EdgeFlow free to use?', a:'Yes. The free plan gives full access to core features with no trade limit — no credit card required. Upgrade when ready.' },
@@ -459,11 +561,11 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ background: '#040804' }}>
+    <div className="min-h-screen text-white overflow-x-hidden" style={{ background: '#000', fontFamily:"'Inter',system-ui,sans-serif" }}>
 
       {/* ── NAVBAR ── */}
       <nav className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-500',
-        scrolled ? 'bg-[rgba(3,3,3,0.92)] backdrop-blur-2xl border-b border-[rgba(255,255,255,0.07)]' : 'bg-transparent')}>
+        scrolled ? 'bg-black/90 backdrop-blur-2xl border-b border-[rgba(255,255,255,0.07)]' : 'bg-transparent')}>
         <div className="max-w-6xl mx-auto flex items-center justify-between px-6 h-16">
           <a href="/" className="flex items-center gap-2.5 text-white">
             <span className="text-[#10b981]"><EdgeFlowMark size={18}/></span>
@@ -500,124 +602,60 @@ export default function Landing() {
         </AnimatePresence>
       </nav>
 
-      {/* ── HERO ── */}
-      <section className="relative min-h-screen flex flex-col items-center justify-start pt-36 pb-0 px-6 overflow-hidden">
-        {/* Cinema dark gradient base */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(160deg, #0a0f0a 0%, #040804 40%, #020303 100%)' }} />
-        {/* Animated ambient blobs */}
-        <AmbientBlob color="rgba(16,185,129,0.14)" size={700} x="55%" y="60%" blur={100} duration={16} />
-        <AmbientBlob color="rgba(16,185,129,0.07)" size={500} x="25%" y="40%" blur={80} duration={20} />
-        <AmbientBlob color="rgba(16,185,129,0.06)" size={400} x="80%" y="30%" blur={90} duration={18} />
-        {/* Subtle dot grid */}
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
-
-        {/* Badge */}
-        <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}}
-          className="relative inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full mb-8"
-          style={{ background:'rgba(255,255,255,0.05)', border:'0.5px solid rgba(255,255,255,0.12)' }}>
-          <span className="relative flex h-1.5 w-1.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-60"/>
-            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10b981]"/>
-          </span>
-          <span className="text-[11px] font-medium text-[rgba(255,255,255,0.55)] tracking-[0.06em]">AI-powered trading journal</span>
-        </motion.div>
-
-        {/* Headline */}
-        <motion.h1 initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:0.75,delay:0.08,ease:[0.22,1,0.36,1]}}
-          className="relative font-black leading-[1.06] tracking-[-3px] mb-6 text-white text-center"
-          style={{fontSize:'clamp(44px,7vw,80px)'}}>
-          Become a more<br/>
-          <AnimatedWord words={['unstoppable','profitable','consistent','disciplined','data-driven']} color="#10b981"/>
-          <span className="text-white"> trader.</span>
-        </motion.h1>
-
-        {/* Subhead */}
-        <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.18,ease:[0.22,1,0.36,1]}}
-          className="relative text-[rgba(255,255,255,0.45)] text-[17px] max-w-xl mx-auto leading-relaxed mb-10 text-center">
-          Most traders lose because they repeat the same mistakes without knowing it. EdgeFlow shows you exactly what's costing you — by session, setup, emotion, and pattern.
-        </motion.p>
-
-        {/* CTAs */}
-        <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.26,ease:[0.22,1,0.36,1]}}
-          className="relative flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-          <div className="relative">
-            <div className="absolute inset-0 rounded-full blur-xl opacity-50 pointer-events-none" style={{ background: 'rgba(16,185,129,0.35)' }} />
-            <button onClick={()=>navigate('/auth')}
-              className="relative w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-bold hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/40"
-              style={{ transition: 'all 200ms cubic-bezier(0.16,1,0.3,1)' }}>
-              Start Free — No Card Needed <ArrowRight className="h-4 w-4" weight="bold"/>
-            </button>
+      {/* ── HERO with 3D scroll ── */}
+      <ContainerScroll
+        titleComponent={
+          <div className="px-6 pt-20 pb-4">
+            {/* Badge */}
+            <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}}
+              className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full mb-8"
+              style={{ background:'rgba(255,255,255,0.06)', border:'0.5px solid rgba(255,255,255,0.12)' }}>
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#10b981] opacity-60"/>
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-[#10b981]"/>
+              </span>
+              <span className="text-[11px] font-medium text-[rgba(255,255,255,0.55)] tracking-[0.06em]">AI-powered trading journal</span>
+            </motion.div>
+            {/* Headline */}
+            <motion.h1 initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} transition={{duration:0.75,delay:0.08,ease:[0.22,1,0.36,1]}}
+              className="font-black leading-[1.06] tracking-[-3px] mb-6 text-white"
+              style={{fontSize:'clamp(44px,7vw,80px)'}}>
+              Become a more<br/>
+              <AnimatedWord words={['unstoppable','profitable','consistent','disciplined','data-driven']} color="#10b981"/>
+              <span className="text-white"> trader.</span>
+            </motion.h1>
+            {/* Sub */}
+            <motion.p initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.7,delay:0.18,ease:[0.22,1,0.36,1]}}
+              className="text-[rgba(255,255,255,0.45)] text-[17px] max-w-xl mx-auto leading-relaxed mb-10">
+              Most traders lose because they repeat the same mistakes without knowing it. EdgeFlow shows you exactly what's costing you — by session, setup, emotion, and pattern.
+            </motion.p>
+            {/* CTAs */}
+            <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.26,ease:[0.22,1,0.36,1]}}
+              className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
+              <button onClick={()=>navigate('/auth')}
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-bold hover:bg-white/90 active:scale-95 transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/40">
+                Start Free — No Card Needed <ArrowRight className="h-4 w-4" weight="bold"/>
+              </button>
+              <a href="#see-the-app" className="text-[rgba(255,255,255,0.4)] text-[14px] py-3 px-4 hover:text-white transition-colors">
+                See the app ↓
+              </a>
+            </motion.div>
+            <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.5}}
+              className="text-[12px] text-[rgba(255,255,255,0.2)]">
+              Free to start &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Takes 30 seconds to set up
+            </motion.p>
           </div>
-          <a href="#see-the-app" className="text-[rgba(255,255,255,0.32)] text-[14px] py-3 px-4 hover:text-white transition-colors">
-            See the app ↓
-          </a>
-        </motion.div>
-        <motion.p initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.5}}
-          className="relative text-[12px] text-[rgba(255,255,255,0.18)] mb-16 text-center">
-          Free to start &nbsp;·&nbsp; No credit card &nbsp;·&nbsp; Takes 30 seconds to set up
-        </motion.p>
-
-        {/* Product mockup */}
-        <motion.div initial={{opacity:0,y:48}} animate={{opacity:1,y:0}} transition={{duration:0.9,delay:0.35,ease:[0.22,1,0.36,1]}}
-          className="relative w-full max-w-5xl mx-auto">
-          <BrowserFrame url="leone.capital — Dashboard" height={500}>
-            <MockDashboard />
-          </BrowserFrame>
-        </motion.div>
-      </section>
+        }
+      >
+        <MockDashboard />
+      </ContainerScroll>
 
       {/* ── FEATURE STRIP ── */}
-      <div className="py-10 px-6 border-t border-[rgba(255,255,255,0.05)]">
-        <div className="max-w-5xl mx-auto flex flex-wrap items-center justify-center gap-x-4 gap-y-2">
-          {['15+ data points per trade','Session & emotion tracking','Leak detection engine','What-If simulator','AI trade advisor'].map((item, i, arr) => (
-            <React.Fragment key={item}>
-              <span className="text-[13px] text-[rgba(255,255,255,0.3)]">{item}</span>
-              {i < arr.length - 1 && <span className="text-[rgba(255,255,255,0.1)]">·</span>}
-            </React.Fragment>
-          ))}
-        </div>
-      </div>
-
-      {/* ── FEATURE SECTIONS ── */}
-      <section id="features">
-        {[
-          {
-            tag: 'Trade Log',
-            title: 'Log in 30 seconds.\nUnderstand in seconds more.',
-            desc: "Most traders have a gut feeling about what's working. EdgeFlow gives you the actual numbers — broken down by instrument, session, emotion, and strategy. Gut feeling vs data. Data wins.",
-            Screen: MockDashboard,
-            flip: false,
-          },
-          {
-            tag: 'Performance Analyst',
-            title: 'Find the exact leaks\ncosting you money.',
-            desc: 'EdgeFlow segments every trade by session, setup, emotion, and direction — then flags which combinations are draining your account. One insight from this page pays for years of subscription.',
-            Screen: MockAnalyst,
-            flip: true,
-          },
-          {
-            tag: 'AI Advisor',
-            title: "An analyst who has read\nevery trade you've ever taken.",
-            desc: "Ask it anything. It answers using your actual trade history — not generic advice. Which session should I cut? Why do I keep losing on Fridays? It knows because it reads every entry.",
-            Screen: MockAI,
-            flip: false,
-          },
-          {
-            tag: 'What-If Simulator',
-            title: 'Before you change anything —\nsee the numbers.',
-            desc: 'What if you only traded London session? What if you skipped every low-confidence day? Run the simulation. See the P&L difference. Then decide.',
-            Screen: MockTrades,
-            flip: true,
-          },
-        ].map((row, i) => (
-          <FeatureSection key={i} {...row} />
-        ))}
-      </section>
+      <FeatureStrip />
 
       {/* ── APP CAROUSEL ── */}
-      <section id="see-the-app" className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.04)]">
-        <AmbientBlob color="rgba(16,185,129,0.1)" size={600} x="70%" y="50%" blur={100} duration={18} />
-        <div className="relative max-w-6xl mx-auto">
+      <section id="see-the-app" className="py-16 px-6 border-t border-[rgba(255,255,255,0.06)]">
+        <div className="max-w-6xl mx-auto">
           <Reveal className="text-center mb-16">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">The App</p>
             <h2 className="text-white font-black tracking-[-2px] mb-4" style={{fontSize:'clamp(32px,5vw,54px)'}}>
@@ -631,10 +669,22 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* ── FEATURE SHOWCASE ── */}
+      <section id="features" className="border-t border-[rgba(255,255,255,0.06)] py-10">
+        <div className="max-w-6xl mx-auto px-6 pb-4">
+          <Reveal>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">How It Works</p>
+            <h2 className="text-white font-black tracking-[-2px]" style={{fontSize:'clamp(32px,5vw,54px)'}}>
+              Built for serious traders.
+            </h2>
+          </Reveal>
+        </div>
+        <FeatureShowcase />
+      </section>
+
       {/* ── TESTIMONIALS ── */}
-      <section className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.04)]">
-        <AmbientBlob color="rgba(16,185,129,0.08)" size={500} x="85%" y="70%" blur={90} duration={22} />
-        <div className="relative max-w-6xl mx-auto">
+      <section className="py-28 px-6 border-t border-[rgba(255,255,255,0.06)]">
+        <div className="max-w-6xl mx-auto">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">What Traders Discover</p>
             <h2 className="text-white font-black tracking-[-2px] mb-16" style={{fontSize:'clamp(32px,5vw,54px)'}}>
@@ -643,9 +693,9 @@ export default function Landing() {
           </Reveal>
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              {name:'Alex M.',  type:'Forex Trader',  init:'AM', q:"I knew NY session felt off. EdgeFlow showed me I was 0% win rate on Fridays in NY — 23 straight losses. Cut it immediately. Next month was my best month in a year."},
-              {name:'Sarah K.', type:'Crypto Trader', init:'SK', q:"The emotional state breakdown broke me. I lose $340 on average when my mood is below 3/5. That's not a feeling anymore — that's data. I just don't trade those days."},
-              {name:'James R.', type:'Futures Trader',init:'JR', q:"I used the What-If tool to filter out every trade where I didn't follow my plan. My simulated P&L was 3x my actual P&L. That's how much discipline was costing me."},
+              {name:'Alex M.',  type:'Forex Trader',  init:'AM', q:'I knew NY session felt off. EdgeFlow showed me I was 0% win rate on Fridays in NY — 23 straight losses. Cut it immediately. Next month was my best month in a year.'},
+              {name:'Sarah K.', type:'Crypto Trader', init:'SK', q:'The emotional state breakdown broke me. I lose $340 on average when my mood is below 3/5. That\'s not a feeling anymore — that\'s data. I just don\'t trade those days.'},
+              {name:'James R.', type:'Futures Trader',init:'JR', q:'I used the What-If tool to filter out every trade where I didn\'t follow my plan. My simulated P&L was 3x my actual P&L. That\'s how much discipline was costing me.'},
             ].map((t,i)=>(
               <Reveal key={t.name} delay={0.1*i}>
                 <div className="rounded-2xl p-7 h-full flex flex-col"
@@ -663,14 +713,13 @@ export default function Landing() {
               </Reveal>
             ))}
           </div>
-          <p className="text-[rgba(255,255,255,0.12)] text-[11px] mt-6 text-center">Testimonials are illustrative examples. Individual results vary.</p>
+          <p className="text-[rgba(255,255,255,0.15)] text-[11px] mt-6 text-center">Testimonials are illustrative examples. Individual results vary.</p>
         </div>
       </section>
 
       {/* ── PRICING ── */}
-      <section id="pricing" className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.04)]">
-        <AmbientBlob color="rgba(16,185,129,0.09)" size={550} x="50%" y="20%" blur={100} duration={20} />
-        <div className="relative max-w-6xl mx-auto">
+      <section id="pricing" className="py-28 px-6 border-t border-[rgba(255,255,255,0.06)]">
+        <div className="max-w-6xl mx-auto">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">Simple Pricing</p>
             <h2 className="text-white font-black tracking-[-2px] mb-3" style={{fontSize:'clamp(32px,5vw,54px)'}}>Invest in your edge.</h2>
@@ -681,7 +730,7 @@ export default function Landing() {
               <Reveal key={plan.name} delay={0.1*i}>
                 <div className={cn('rounded-2xl border p-7 h-full flex flex-col relative',
                   plan.featured
-                    ? 'border-[rgba(16,185,129,0.4)] bg-[rgba(16,185,129,0.04)]'
+                    ? 'border-[#10b981] bg-[rgba(16,185,129,0.04)]'
                     : 'border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.02)]')}>
                   {plan.featured&&(
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -697,7 +746,8 @@ export default function Landing() {
                     <p className="text-[13px] text-[rgba(255,255,255,0.4)]">{plan.sub}</p>
                   </div>
                   <button onClick={()=>navigate('/auth')}
-                    className="w-full py-3 rounded-full text-[14px] font-bold mb-6 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/40 bg-white text-black hover:bg-white/90">
+                    className={cn('w-full py-3 rounded-full text-[14px] font-bold mb-6 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/40',
+                      'bg-white text-black hover:bg-white/90')}>
                     {plan.cta}
                   </button>
                   <div className="flex-1 space-y-3">
@@ -722,7 +772,7 @@ export default function Landing() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" className="py-28 px-6 border-t border-[rgba(255,255,255,0.04)]">
+      <section id="faq" className="py-28 px-6 border-t border-[rgba(255,255,255,0.06)]">
         <div className="max-w-3xl mx-auto">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">FAQ</p>
@@ -749,11 +799,10 @@ export default function Landing() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="relative py-36 px-6 border-t border-[rgba(255,255,255,0.04)] overflow-hidden">
-        <AmbientBlob color="rgba(16,185,129,0.15)" size={600} x="50%" y="50%" blur={100} duration={15} />
-        <AmbientBlob color="rgba(16,185,129,0.06)" size={400} x="30%" y="60%" blur={80} duration={19} />
+      <section className="py-28 px-6 border-t border-[rgba(255,255,255,0.06)]"
+        style={{background:'linear-gradient(180deg, rgba(16,185,129,0.05) 0%, transparent 100%)'}}>
         <Reveal>
-          <div className="relative max-w-2xl mx-auto text-center">
+          <div className="max-w-2xl mx-auto text-center">
             <div className="w-14 h-14 rounded-2xl bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.2)] flex items-center justify-center mx-auto mb-8">
               <ShieldCheck className="h-7 w-7 text-[#10b981]" weight="regular"/>
             </div>
@@ -772,101 +821,21 @@ export default function Landing() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="border-t border-[rgba(255,255,255,0.06)] px-6 py-14">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between gap-10 mb-12">
-            {/* Brand */}
-            <div className="max-w-xs">
-              <div className="flex items-center gap-2.5 mb-4">
-                <span className="text-[#10b981]"><EdgeFlowMark size={16}/></span>
-                <span className="text-[13px] font-bold text-white tracking-[-0.02em]">EDGEFLOW</span>
-              </div>
-              <p className="text-[13px] text-[rgba(255,255,255,0.3)] leading-relaxed">
-                The AI-powered trading journal that shows you exactly what's costing you money.
-              </p>
-            </div>
-            {/* Links */}
-            <div className="flex gap-16">
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.25)] mb-4">Product</p>
-                <div className="flex flex-col gap-2.5">
-                  {[['See the App','#see-the-app'],['Features','#features'],['Pricing','#pricing'],['FAQ','#faq']].map(([l,h])=>(
-                    <a key={l} href={h} className="text-[13px] text-[rgba(255,255,255,0.35)] hover:text-white transition-colors">{l}</a>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.25)] mb-4">Account</p>
-                <div className="flex flex-col gap-2.5">
-                  <button onClick={()=>navigate('/auth')} className="text-[13px] text-[rgba(255,255,255,0.35)] hover:text-white transition-colors text-left">Sign In</button>
-                  <button onClick={()=>navigate('/auth')} className="text-[13px] text-[rgba(255,255,255,0.35)] hover:text-white transition-colors text-left">Get Started Free</button>
-                </div>
-              </div>
-            </div>
+      <footer className="border-t border-[rgba(255,255,255,0.06)] px-6 py-10">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-2.5">
+            <span className="text-[#10b981]"><EdgeFlowMark size={16}/></span>
+            <span className="text-[13px] font-bold text-white tracking-[-0.02em]">EDGEFLOW</span>
           </div>
-          <div className="border-t border-[rgba(255,255,255,0.05)] pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
-            <p className="text-[11px] text-[rgba(255,255,255,0.2)]">© {new Date().getFullYear()} EdgeFlow. All rights reserved.</p>
-            <p className="text-[11px] text-[rgba(255,255,255,0.15)]">leone.capital</p>
+          <div className="flex items-center gap-6">
+            {[['See the App','#see-the-app'],['Pricing','#pricing'],['FAQ','#faq']].map(([l,h])=>(
+              <a key={l} href={h} className="text-[12px] text-[rgba(255,255,255,0.3)] hover:text-white transition-colors">{l}</a>
+            ))}
+            <button onClick={()=>navigate('/auth')} className="text-[12px] text-[rgba(255,255,255,0.3)] hover:text-white transition-colors">Sign In</button>
           </div>
+          <p className="text-[11px] text-[rgba(255,255,255,0.2)]">© {new Date().getFullYear()} EdgeFlow. All rights reserved.</p>
         </div>
       </footer>
-
     </div>
-  );
-}
-
-/* ─── Feature Section ─── */
-function FeatureSection({
-  tag, title, desc, Screen, flip,
-}: {
-  tag: string; title: string; desc: string;
-  Screen: React.ElementType; flip?: boolean;
-}) {
-  const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-100px' });
-  return (
-    <motion.div ref={ref}
-      initial={{ opacity: 0, y: 48 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      className="relative border-t border-[rgba(255,255,255,0.04)] overflow-hidden">
-      {/* Ambient blob per section */}
-      <AmbientBlob
-        color="rgba(16,185,129,0.09)"
-        size={450}
-        x={flip ? '20%' : '80%'}
-        y="50%"
-        blur={90}
-        duration={17}
-      />
-      <div className={cn('relative max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16 lg:gap-24 items-center',
-        flip ? 'md:[&>*:first-child]:order-2' : '')}>
-        {/* Text */}
-        <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#10b981] mb-5">{tag}</p>
-          <h3 className="text-[30px] md:text-[38px] font-black tracking-[-1.5px] text-white leading-[1.08] mb-5 whitespace-pre-line">
-            {title}
-          </h3>
-          <p className="text-[rgba(255,255,255,0.38)] text-[15px] leading-[1.7] max-w-md">
-            {desc}
-          </p>
-        </div>
-        {/* Mockup */}
-        <div className="relative hidden md:block">
-          {/* Glow halo behind mockup */}
-          <div className="absolute -inset-8 rounded-3xl pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.12) 0%, transparent 65%)' }} />
-          {/* Outer ring */}
-          <div className="relative rounded-2xl p-px"
-            style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(255,255,255,0.04) 50%, rgba(16,185,129,0.08) 100%)' }}>
-            <div className="rounded-2xl overflow-hidden" style={{ background: '#040804' }}>
-              <BrowserFrame height={330}>
-                <Screen />
-              </BrowserFrame>
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
   );
 }
