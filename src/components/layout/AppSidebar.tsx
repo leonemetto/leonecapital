@@ -64,7 +64,7 @@ export function AppSidebar() {
       {/* Mobile trigger */}
       <button
         onClick={() => setMobileOpen(true)}
-        className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] lg:hidden outline-none"
+        className="fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.08)] lg:hidden outline-none focus-visible:ring-2 focus-visible:ring-white/40"
       >
         <List className="h-5 w-5 text-white" weight="regular" />
       </button>
@@ -103,7 +103,7 @@ export function AppSidebar() {
           )}
           <button
             onClick={() => setMobileOpen(false)}
-            className="ml-auto p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.06)] lg:hidden outline-none"
+            className="ml-auto p-1.5 rounded-lg hover:bg-[rgba(255,255,255,0.06)] lg:hidden outline-none focus-visible:ring-2 focus-visible:ring-white/40"
           >
             <X className="h-4 w-4 text-white" weight="regular" />
           </button>
@@ -116,7 +116,7 @@ export function AppSidebar() {
             to="/add-trade"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) => cn(
-              'flex transition-all duration-200 outline-none rounded-[24px] mb-2',
+              'flex transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-[24px] mb-2',
               collapsed
                 ? 'flex-col items-center justify-center gap-1 py-2.5 px-1 bg-white text-black'
                 : 'flex-row items-center gap-2 px-4 py-2.5 bg-white text-black hover:bg-white/90',
@@ -139,7 +139,7 @@ export function AppSidebar() {
               end={item.path === '/'}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) => cn(
-                'flex transition-all duration-200 outline-none rounded-lg',
+                'flex transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-lg',
                 collapsed
                   ? 'flex-col items-center justify-center gap-1 py-2.5 px-1'
                   : 'flex-row items-center gap-3 px-3 py-2.5',
@@ -168,7 +168,7 @@ export function AppSidebar() {
             <>
               <button
                 onClick={() => navigate('/profile')}
-                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <Avatar className="h-6 w-6">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
@@ -178,7 +178,7 @@ export function AppSidebar() {
               </button>
               <button
                 onClick={() => signOut()}
-                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <SignOut className="h-[17px] w-[17px]" weight="regular" />
                 <span className="text-[8px] font-medium tracking-[0.04em] opacity-60">Sign Out</span>
@@ -188,7 +188,7 @@ export function AppSidebar() {
             <>
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <Avatar className="h-7 w-7 shrink-0">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
@@ -201,7 +201,7 @@ export function AppSidebar() {
               </button>
               <button
                 onClick={() => signOut()}
-                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none"
+                className="flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-[13px] font-medium text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40"
               >
                 <SignOut className="h-[18px] w-[18px] shrink-0" weight="regular" />
                 <span>Sign Out</span>
@@ -215,7 +215,7 @@ export function AppSidebar() {
           <button
             onClick={() => setCollapsed(!collapsed)}
             className={cn(
-              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[11px] text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none',
+              'flex items-center gap-2 w-full px-3 py-2 rounded-lg text-[11px] text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.5)] hover:bg-[rgba(255,255,255,0.04)] transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40',
               collapsed && 'justify-center px-2'
             )}
           >
