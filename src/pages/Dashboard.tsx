@@ -5,7 +5,6 @@ import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
 import { SessionPerformance } from '@/components/dashboard/SessionPerformance';
 import { RecentTrades } from '@/components/dashboard/RecentTrades';
-import { DailyJournal } from '@/components/dashboard/DailyJournal';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -265,8 +264,6 @@ const Dashboard = () => {
         <RecentTrades trades={filteredTrades} />
       </div>
 
-      {/* Daily Session Journal */}
-      <DailyJournal />
     </AppLayout>
   );
 };
