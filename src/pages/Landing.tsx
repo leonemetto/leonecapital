@@ -571,7 +571,7 @@ export default function Landing() {
           </div>
           <div className="hidden md:flex items-center gap-3">
             <button onClick={()=>navigate('/auth')} className="text-[13px] text-[rgba(255,255,255,0.4)] hover:text-white transition-colors px-3 py-2">Sign In</button>
-            <button onClick={()=>navigate('/auth')} className="px-5 py-2.5 rounded-full bg-[#10b981] text-black text-[13px] font-bold hover:bg-[#0ea572] active:scale-95 transition-all">Get Started Free</button>
+            <button onClick={()=>navigate('/auth')} className="px-5 py-2.5 rounded-full bg-white text-black text-[13px] font-bold hover:bg-white/90 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-white/40">Get Started Free</button>
           </div>
           <button onClick={()=>setMobileOpen(!mobileOpen)} className="md:hidden text-[rgba(255,255,255,0.6)] outline-none">
             {mobileOpen?<X className="h-5 w-5" weight="regular"/>:<List className="h-5 w-5" weight="regular"/>}
@@ -587,7 +587,7 @@ export default function Landing() {
                 ))}
                 <div className="pt-3 flex flex-col gap-2">
                   <button onClick={()=>navigate('/auth')} className="text-[rgba(255,255,255,0.4)] py-2 text-left text-[14px]">Sign In</button>
-                  <button onClick={()=>navigate('/auth')} className="w-full py-3 rounded-full bg-[#10b981] text-black text-[14px] font-bold">Get Started Free</button>
+                  <button onClick={()=>navigate('/auth')} className="w-full py-3 rounded-full bg-white text-black text-[14px] font-bold hover:bg-white/90">Get Started Free</button>
                 </div>
               </div>
             </motion.div>
@@ -626,7 +626,7 @@ export default function Landing() {
             <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.26,ease:[0.22,1,0.36,1]}}
               className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-6">
               <button onClick={()=>navigate('/auth')}
-                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-[#10b981] text-black text-[15px] font-bold hover:bg-[#0ea572] active:scale-95 transition-all flex items-center justify-center gap-2">
+                className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-bold hover:bg-white/90 active:scale-95 transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/40">
                 Start Free — No Card Needed <ArrowRight className="h-4 w-4" weight="bold"/>
               </button>
               <a href="#see-the-app" className="text-[rgba(255,255,255,0.4)] text-[14px] py-3 px-4 hover:text-white transition-colors">
@@ -739,8 +739,8 @@ export default function Landing() {
                     <p className="text-[13px] text-[rgba(255,255,255,0.4)]">{plan.sub}</p>
                   </div>
                   <button onClick={()=>navigate('/auth')}
-                    className={cn('w-full py-3 rounded-full text-[14px] font-bold mb-6 transition-all active:scale-95',
-                      plan.featured?'bg-[#10b981] text-black hover:bg-[#0ea572]':'bg-white text-black hover:bg-white/90')}>
+                    className={cn('w-full py-3 rounded-full text-[14px] font-bold mb-6 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-white/40',
+                      'bg-white text-black hover:bg-white/90')}>
                     {plan.cta}
                   </button>
                   <div className="flex-1 space-y-3">
@@ -806,7 +806,7 @@ export default function Landing() {
               You already have the data from every trade you've taken. EdgeFlow just shows you what it means.
             </p>
             <button onClick={()=>navigate('/auth')}
-              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-[#10b981] text-black text-[15px] font-bold hover:bg-[#0ea572] active:scale-95 transition-all">
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-black text-[15px] font-bold hover:bg-white/90 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-white/40">
               Start Free — No Card Needed <ArrowRight className="h-4 w-4" weight="bold"/>
             </button>
           </div>
