@@ -279,26 +279,32 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                         {trade.pnl >= 0 ? '+' : ''}{trade.pnl.toFixed(2)}
                       </td>
                       <td className="p-3 text-center">
-                        <span className={cn(
-                          'text-[9px] font-bold px-1.5 py-0.5 rounded uppercase',
-                          trade.outcome === 'win'
-                            ? 'bg-[rgba(16,185,129,0.12)] text-[#10b981]'
-                            : trade.outcome === 'loss'
-                            ? 'bg-[rgba(248,113,113,0.12)] text-[#f87171]'
-                            : 'bg-[rgba(255,255,255,0.07)] text-[rgba(255,255,255,0.5)]'
-                        )}>
-                          {trade.outcome === 'breakeven' ? 'BE' : trade.outcome}
-                        </span>
+                        <div className="flex items-center justify-center gap-1.5">
+                          <span className={cn(
+                            'w-0.5 h-3.5 rounded-full shrink-0',
+                            trade.outcome === 'win' ? 'bg-[#10b981]' : trade.outcome === 'loss' ? 'bg-[#f87171]' : 'bg-[rgba(255,255,255,0.2)]'
+                          )} />
+                          <span className={cn(
+                            'text-[11px] font-medium uppercase',
+                            trade.outcome === 'win' ? 'text-[#10b981]' : trade.outcome === 'loss' ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.4)]'
+                          )}>
+                            {trade.outcome === 'breakeven' ? 'BE' : trade.outcome}
+                          </span>
+                        </div>
                       </td>
                       {hasCriteria && (
-                        <td className="p-3 text-center hidden md:table-cell">
-                          {!checklistChecked ? (
-                            <span className="text-[11px] font-mono font-semibold text-[#f87171]">{0}/{total}</span>
-                          ) : checked === total ? (
-                            <span className="text-[11px] font-mono font-semibold text-[#10b981]">{checked}/{total}</span>
-                          ) : (
-                            <span className="text-[11px] font-mono font-semibold text-amber-400">{checked}/{total}</span>
-                          )}
+                        <td className="p-3 hidden md:table-cell">
+                          <div className="flex items-center justify-center gap-[3px]">
+                            {activeCriteria.map((c, idx) => {
+                              const filled = checklistChecked && checks[c.id];
+                              return (
+                                <span key={idx} className={cn(
+                                  'w-1.5 h-1.5 rounded-full transition-colors',
+                                  filled ? 'bg-[#10b981]' : checklistChecked ? 'bg-[rgba(255,255,255,0.12)]' : 'bg-[rgba(248,113,113,0.3)]'
+                                )} />
+                              );
+                            })}
+                          </div>
                         </td>
                       )}
                       <td className="p-3 text-right">
