@@ -100,9 +100,9 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
+          <Wallet className="h-8 w-8 text-muted-foreground mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Add a trading account to get started.</p>
+          <p className="text-xs text-muted-foreground mb-5">Add a trading account to get started.</p>
           <Link to="/accounts">
             <Button size="sm" className="gap-1.5"><Wallet className="h-3.5 w-3.5" weight="regular" /> Add Account</Button>
           </Link>
@@ -116,9 +116,9 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <ChartBar className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
+          <ChartBar className="h-8 w-8 text-muted-foreground mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Log your first trade to unlock analytics.</p>
+          <p className="text-xs text-muted-foreground mb-5">Log your first trade to unlock analytics.</p>
           <div className="flex gap-3">
             <Link to="/add-trade">
               <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
@@ -139,16 +139,16 @@ const Dashboard = () => {
       {/* Header row */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Here's your trading overview</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
+          <p className="text-xs text-muted-foreground">Here's your trading overview</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Account filter — only show when multiple accounts */}
           {accounts.length > 1 && (
             <>
-              <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+              <Funnel className="h-3.5 w-3.5 text-muted-foreground" weight="regular" />
               <Select value={selectedAccountId} onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}>
-                <SelectTrigger className="w-[160px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+                <SelectTrigger className="w-[160px] h-8 text-xs bg-transparent">
                   <SelectValue placeholder="All Accounts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -164,11 +164,11 @@ const Dashboard = () => {
           {/* Entry Checklist */}
           <Sheet>
             <SheetTrigger asChild>
-              <button className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none">
+              <button className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border rounded-[24px] hover:text-foreground hover:border-foreground/30 transition-colors outline-none">
                 <ClipboardText className="h-3.5 w-3.5" weight="regular" />
                 Checklist
                 {!criteriaLoading && activeCriteria.length > 0 && (
-                  <span className="text-[9px] bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
+                  <span className="text-[9px] bg-muted px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
                 )}
               </button>
             </SheetTrigger>
@@ -182,7 +182,7 @@ const Dashboard = () => {
                 <p className="text-xs text-muted-foreground">Loading...</p>
               ) : activeCriteria.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                  <ClipboardText className="h-6 w-6 text-[rgba(255,255,255,0.3)]" weight="regular" />
+                  <ClipboardText className="h-6 w-6 text-muted-foreground" weight="regular" />
                   <p className="text-sm font-medium">No checklist yet</p>
                   <Link to="/trading-plan">
                     <Button size="sm" variant="outline" className="gap-1.5 text-xs mt-1">
@@ -201,10 +201,10 @@ const Dashboard = () => {
                     }
                     return Object.entries(grouped).map(([category, items]) => (
                       <div key={category}>
-                        <p className="text-[9px] text-[rgba(255,255,255,0.35)] uppercase tracking-widest mb-2">{category}</p>
+                        <p className="text-[9px] text-muted-foreground/60 uppercase tracking-widest mb-2">{category}</p>
                         <div className="space-y-2">
                           {items.map(c => (
-                            <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
+                            <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/50 border border-border/50">
                               <CheckFat className="h-3.5 w-3.5 text-profit shrink-0" weight="fill" />
                               <span className="text-xs">{c.label}</span>
                             </div>
@@ -213,7 +213,7 @@ const Dashboard = () => {
                       </div>
                     ));
                   })()}
-                  <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
+                  <div className="pt-2 border-t border-border/50">
                     <Link to="/trading-plan">
                       <Button variant="ghost" size="sm" className="w-full gap-1.5 text-xs justify-start">
                         <Gear className="h-3.5 w-3.5" weight="regular" /> Customize Checklist
@@ -228,14 +228,14 @@ const Dashboard = () => {
           {/* Daily Review */}
           <button
             onClick={handleDailyReview}
-            className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none"
+            className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border rounded-[24px] hover:text-foreground hover:border-foreground/30 transition-colors outline-none"
           >
             <NotePencil className="h-3.5 w-3.5" weight="regular" />
             Daily Review
           </button>
           <Link
             to="/add-trade"
-            className="h-8 px-4 text-xs font-semibold text-black bg-white hover:bg-white/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
+            className="h-8 px-4 text-xs font-semibold text-background bg-foreground hover:bg-foreground/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
           >
             <Plus className="h-3.5 w-3.5" weight="bold" />
             Log Trade
@@ -249,19 +249,23 @@ const Dashboard = () => {
       </div>
 
       {/* Equity Curve */}
-      <div className="mb-4">
+      <div className="mb-4 rounded-xl bg-card border border-border/60">
         <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
       {/* Heat Map Calendar */}
-      <div className="mb-4">
+      <div className="mb-4 rounded-xl bg-card border border-border/60">
         <HeatMapCalendar trades={filteredTrades} />
       </div>
 
       {/* Two Column Bottom */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
-        <SessionPerformance trades={filteredTrades} />
-        <RecentTrades trades={filteredTrades} />
+        <div className="rounded-xl bg-card border border-border/60">
+          <SessionPerformance trades={filteredTrades} />
+        </div>
+        <div className="rounded-xl bg-card border border-border/60">
+          <RecentTrades trades={filteredTrades} />
+        </div>
       </div>
 
     </AppLayout>

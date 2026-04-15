@@ -30,10 +30,10 @@ export function SessionPerformance({ trades }: Props) {
   );
 
   return (
-    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6 h-full flex flex-col">
+    <div className="p-5 px-6 h-full flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground">
           Session Performance
         </span>
         {sessions.length > 0 && (
@@ -50,16 +50,16 @@ export function SessionPerformance({ trades }: Props) {
         {sessions.map(s => {
           const color = winRateColor(s.winRate);
           return (
-            <div key={s.session} className="py-2.5 border-b border-[rgba(255,255,255,0.04)] last:border-0">
+            <div key={s.session} className="py-2.5 border-b border-border/40 last:border-0">
               <div className="flex items-center gap-3 mb-1.5">
                 <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                  <span className="text-[13px] font-semibold text-white truncate">{s.session}</span>
+                  <span className="text-[13px] font-semibold text-foreground truncate">{s.session}</span>
                   {s.session === bestKey && (
                     <Trophy className="h-3 w-3 text-[#f59e0b] shrink-0" weight="fill" />
                   )}
                 </div>
                 <div className="flex items-center gap-3 shrink-0">
-                  <span className="text-[10px] text-[rgba(255,255,255,0.3)] font-mono tabular-nums">
+                  <span className="text-[10px] text-muted-foreground font-mono tabular-nums">
                     {s.wins}W / {s.losses}L
                   </span>
                   <span
@@ -70,7 +70,7 @@ export function SessionPerformance({ trades }: Props) {
                   </span>
                 </div>
               </div>
-              <div className="h-1 rounded-full bg-[rgba(255,255,255,0.05)] overflow-hidden">
+              <div className="h-1 rounded-full bg-muted overflow-hidden">
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{ width: `${s.winRate}%`, background: color }}
@@ -80,7 +80,7 @@ export function SessionPerformance({ trades }: Props) {
           );
         })}
         {sessions.length === 0 && (
-          <p className="text-xs text-[rgba(255,255,255,0.25)] text-center py-8">No session data yet</p>
+          <p className="text-xs text-muted-foreground/60 text-center py-8">No session data yet</p>
         )}
       </div>
     </div>
