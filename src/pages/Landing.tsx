@@ -397,7 +397,7 @@ function AppCarousel() {
         {[{dir:'left',fn:()=>go(active-1),Icon:ArrowLeft},{dir:'right',fn:()=>go(active+1),Icon:ArrowRight}].map(({dir,fn,Icon})=>(
           <button key={dir} onClick={()=>{fn();setPaused(true);}}
             className={cn(
-              'absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-[rgba(255,255,255,0.12)] bg-black/80 backdrop-blur flex items-center justify-center text-[rgba(255,255,255,0.5)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-all outline-none hidden md:flex',
+              'absolute top-1/2 -translate-y-1/2 w-11 h-11 rounded-full border border-[rgba(255,255,255,0.12)] bg-black/80 backdrop-blur flex items-center justify-center text-[rgba(255,255,255,0.5)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-all outline-none focus-visible:ring-2 focus-visible:ring-white/40 hidden md:flex',
               dir==='left'?'-translate-x-14 left-0':'translate-x-14 right-0'
             )}>
             <Icon className="h-4 w-4" weight="bold"/>
@@ -414,7 +414,10 @@ function AppCarousel() {
         <div className="flex gap-2 justify-center mt-5">
           {SCREENS.map((_,i)=>(
             <button key={i} onClick={()=>{go(i);setPaused(true);}}
-              className={cn('rounded-full transition-all duration-300', i===active?'w-8 h-2 bg-[#10b981]':'w-2 h-2 bg-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.4)]')}/>
+              aria-label={`Go to slide ${i+1}`}
+              className="flex items-center justify-center w-11 h-11 outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-full">
+              <span className={cn('rounded-full transition-all duration-300', i===active?'w-8 h-2 bg-[#10b981]':'w-2 h-2 bg-[rgba(255,255,255,0.2)] hover:bg-[rgba(255,255,255,0.4)]')}/>
+            </button>
           ))}
         </div>
       </div>
@@ -570,14 +573,14 @@ export default function Landing() {
           </a>
           <div className="hidden md:flex items-center gap-8">
             {[['See the App','#see-the-app'],['Features','#features'],['Pricing','#pricing'],['FAQ','#faq']].map(([l,h])=>(
-              <a key={l} href={h} className="text-[13px] text-[rgba(255,255,255,0.4)] hover:text-white transition-colors">{l}</a>
+              <a key={l} href={h} className="text-[13px] text-[rgba(255,255,255,0.4)] hover:text-white transition-colors py-3 focus-visible:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/30 rounded">{l}</a>
             ))}
           </div>
           <div className="hidden md:flex items-center gap-3">
             <button onClick={()=>navigate('/auth')} className="text-[13px] text-[rgba(255,255,255,0.4)] hover:text-white transition-colors px-3 py-2">Sign In</button>
             <button onClick={()=>navigate('/auth')} className="px-5 py-2.5 rounded-full bg-white text-black text-[13px] font-bold hover:bg-white/90 active:scale-95 transition-all focus-visible:ring-2 focus-visible:ring-white/40">Get Started Free</button>
           </div>
-          <button onClick={()=>setMobileOpen(!mobileOpen)} className="md:hidden text-[rgba(255,255,255,0.6)] outline-none">
+          <button onClick={()=>setMobileOpen(!mobileOpen)} className="md:hidden text-[rgba(255,255,255,0.6)] p-2 rounded-lg focus-visible:ring-2 focus-visible:ring-white/40 outline-none">
             {mobileOpen?<X className="h-5 w-5" weight="regular"/>:<List className="h-5 w-5" weight="regular"/>}
           </button>
         </div>
@@ -778,7 +781,7 @@ export default function Landing() {
           {faqData.map((item,i)=>(
             <Reveal key={i} delay={0.05*i}>
               <div className="border-b border-[rgba(255,255,255,0.06)]">
-                <button onClick={()=>setOpenFaq(openFaq===i?null:i)} className="w-full flex items-center justify-between py-5 text-left gap-4 outline-none">
+                <button onClick={()=>setOpenFaq(openFaq===i?null:i)} className="w-full flex items-center justify-between py-5 text-left gap-4 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-white/30 rounded-lg">
                   <span className="text-[15px] font-medium text-white">{item.q}</span>
                   <CaretDown className={cn('h-4 w-4 text-[rgba(255,255,255,0.3)] shrink-0 transition-transform duration-300',openFaq===i&&'rotate-180')} weight="bold"/>
                 </button>
