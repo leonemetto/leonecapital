@@ -1,7 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatBar } from '@/components/dashboard/StatBar';
-import { HeroBalance } from '@/components/dashboard/HeroBalance';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
 import { SessionPerformance } from '@/components/dashboard/SessionPerformance';
@@ -137,17 +136,12 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* Hero Balance */}
-      <HeroBalance
-        nickname={profile?.nickname || 'Trader'}
-        stats={stats}
-        trades={filteredTrades}
-        accounts={accounts}
-        selectedAccountId={selectedAccountId}
-      />
-
-      {/* Actions row */}
+      {/* Header row */}
       <div className="flex items-center justify-between mb-4">
+        <div>
+          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
+          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Here's your trading overview</p>
+        </div>
         <div className="flex items-center gap-2">
           {/* Account filter — only show when multiple accounts */}
           {accounts.length > 1 && (
@@ -166,9 +160,7 @@ const Dashboard = () => {
               </Select>
             </>
           )}
-        </div>
 
-        <div className="flex items-center gap-2">
           {/* Entry Checklist */}
           <Sheet>
             <SheetTrigger asChild>
@@ -252,22 +244,22 @@ const Dashboard = () => {
       </div>
 
       {/* Stat Bar */}
-      <div className="mb-3">
+      <div className="mb-4">
         <StatBar stats={stats} trades={filteredTrades} />
       </div>
 
       {/* Equity Curve */}
-      <div className="mb-3">
+      <div className="mb-4">
         <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
       {/* Heat Map Calendar */}
-      <div className="mb-3">
+      <div className="mb-4">
         <HeatMapCalendar trades={filteredTrades} />
       </div>
 
       {/* Two Column Bottom */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mb-3">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
         <SessionPerformance trades={filteredTrades} />
         <RecentTrades trades={filteredTrades} />
       </div>

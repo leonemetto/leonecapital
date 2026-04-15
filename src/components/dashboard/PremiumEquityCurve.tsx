@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
-  XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine, CartesianGrid,
+  XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine,
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import { Trade } from '@/types/trade';
@@ -72,7 +72,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   ];
 
   return (
-    <div className="relative rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-4 px-5">
+    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6">
       <div className="flex items-center justify-between mb-4">
         <span className="text-sm text-[rgba(255,255,255,0.4)]">Equity Curve</span>
         <div className="flex gap-0.5 bg-[rgba(255,255,255,0.05)] rounded-lg p-0.5">
@@ -93,14 +93,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         </div>
       </div>
 
-      {!isEmpty && (
-        <div className="absolute top-4 right-5 text-right pointer-events-none">
-          <p className="text-[9px] uppercase tracking-[0.1em] text-[rgba(255,255,255,0.25)]">Equity</p>
-          <p className="text-[17px] font-bold font-mono text-white">${lastBal.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-        </div>
-      )}
-
-      <div className="h-[200px]">
+      <div className="h-[160px]">
         {isEmpty ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
             <svg width="100%" height="60" className="opacity-20">
@@ -116,20 +109,19 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
             <AreaChart data={data}>
               <defs>
                 <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={lineColor} stopOpacity={0.14} />
+                  <stop offset="5%" stopColor={lineColor} stopOpacity={0.08} />
                   <stop offset="95%" stopColor={lineColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="1 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11 }}
+                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 tickLine={false} axisLine={false}
               />
               <YAxis
                 orientation="right"
                 domain={yDomain}
-                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11 }}
+                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 10 }}
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `$${v}`}
               />
@@ -138,7 +130,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
                 contentStyle={{
                   backgroundColor: 'hsl(0,0%,6%)',
                   border: '1px solid rgba(255,255,255,0.1)',
-                  borderRadius: '6px',
+                  borderRadius: '20px',
                   color: '#fff',
                   fontSize: 11,
                   padding: '6px 14px',
@@ -149,7 +141,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
                 type="monotone"
                 dataKey="balance"
                 stroke={lineColor}
-                strokeWidth={2}
+                strokeWidth={1.5}
                 fill="url(#eqGrad)"
                 dot={false}
               />
