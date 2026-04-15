@@ -14,7 +14,7 @@ export function AppLayout({ children }: AppLayoutProps) {
   return (
     <div className="relative min-h-screen overflow-hidden flex [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" style={{ background: '#000000' }}>
       <AppSidebar />
-      <div className="relative z-10 flex-1 min-w-0 bg-[#F7F8FA]">
+      <div className="relative z-10 flex-1 min-w-0">
         {isDemoSelected && <SandboxBanner />}
         <main className="max-w-[1600px] mx-auto p-5 md:p-6 lg:p-8 pt-16 lg:pt-8">
           {children}

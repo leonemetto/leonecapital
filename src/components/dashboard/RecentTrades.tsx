@@ -75,10 +75,10 @@ export function RecentTrades({ trades }: Props) {
         <ScreenshotViewer path={viewingScreenshot} onClose={() => setViewingScreenshot(null)} />
       )}
 
-      <div className="rounded-xl bg-white border border-gray-100 shadow-sm p-5 px-6 h-full flex flex-col">
+      <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 px-6 h-full flex flex-col">
         {/* Title + filter pills */}
         <div className="flex items-center justify-between mb-1">
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-500">Recent Trades</span>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">Recent Trades</span>
           {!isEmpty && (
             <div className="flex gap-1">
               {PILLS.map(p => (
@@ -88,8 +88,8 @@ export function RecentTrades({ trades }: Props) {
                   className={cn(
                     'text-[10px] px-[10px] py-[4px] rounded-[20px] border transition-colors outline-none',
                     filter === p.key
-                      ? 'bg-gray-900 text-white border-transparent font-semibold'
-                      : 'bg-transparent text-gray-500 border-gray-200 hover:text-gray-700'
+                      ? 'bg-white text-black border-transparent font-semibold'
+                      : 'bg-transparent text-[rgba(255,255,255,0.4)] border-[rgba(255,255,255,0.15)] hover:text-[rgba(255,255,255,0.65)]'
                   )}
                 >
                   {p.label}
@@ -109,12 +109,12 @@ export function RecentTrades({ trades }: Props) {
                   <Skeleton className="h-3 w-12 ml-auto" />
                 </div>
               ))}
-              <p className="text-xs text-gray-400 text-center pt-2">
+              <p className="text-xs text-[rgba(255,255,255,0.25)] text-center pt-2">
                 No trades yet — log your first trade to see insights
               </p>
             </div>
           ) : recent.length === 0 ? (
-            <p className="text-xs text-gray-400 text-center py-8">
+            <p className="text-xs text-[rgba(255,255,255,0.25)] text-center py-8">
               No {filter === 'win' ? 'winning' : 'losing'} trades yet
             </p>
           ) : (
@@ -124,7 +124,7 @@ export function RecentTrades({ trades }: Props) {
                   <div className="flex items-center gap-2 py-2.5">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-[13px] font-semibold text-gray-900">{t.instrument}</span>
+                        <span className="text-[13px] font-semibold text-white">{t.instrument}</span>
                         <span className={cn(
                           'text-[9px] font-bold px-1.5 py-0.5 rounded-full',
                           t.direction === 'long' ? 'bg-[rgba(16,185,129,0.15)] text-[#10b981]' : 'bg-[rgba(248,113,113,0.15)] text-[#f87171]'
@@ -132,12 +132,12 @@ export function RecentTrades({ trades }: Props) {
                           {t.direction === 'long' ? 'L' : 'S'}
                         </span>
                         {t.session && (
-                          <span className="text-[10px] text-gray-400">{t.session}</span>
+                          <span className="text-[10px] text-[rgba(255,255,255,0.3)]">{t.session}</span>
                         )}
                         {t.screenshotUrl && (
                           <button
                             onClick={() => setViewingScreenshot(t.screenshotUrl!)}
-                            className="flex items-center gap-0.5 text-gray-400 hover:text-gray-700 transition-colors outline-none"
+                            className="flex items-center gap-0.5 text-[rgba(255,255,255,0.35)] hover:text-[rgba(255,255,255,0.7)] transition-colors outline-none"
                             title="View chart screenshot"
                           >
                             <Camera className="h-3 w-3" weight="regular" />
@@ -145,17 +145,17 @@ export function RecentTrades({ trades }: Props) {
                         )}
                       </div>
                       {t.strategy && (
-                        <span className="text-[10px] text-gray-400">{t.strategy}</span>
+                        <span className="text-[10px] text-[rgba(255,255,255,0.3)]">{t.strategy}</span>
                       )}
                     </div>
                     <span className={cn(
                       'text-[13px] font-bold font-mono tabular-nums',
-                      t.pnl > 0 ? 'text-[#10b981]' : t.pnl < 0 ? 'text-[#f87171]' : 'text-gray-900'
+                      t.pnl > 0 ? 'text-[#10b981]' : t.pnl < 0 ? 'text-[#f87171]' : 'text-white'
                     )}>
                       {t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}
                     </span>
                   </div>
-                  {i < recent.length - 1 && <div className="h-px bg-gray-100" />}
+                  {i < recent.length - 1 && <div className="h-px bg-[rgba(255,255,255,0.05)]" />}
                 </div>
               ))}
             </div>
@@ -163,7 +163,7 @@ export function RecentTrades({ trades }: Props) {
         </div>
 
         {!isEmpty && (
-          <Link to="/journal" className="text-[11px] text-gray-400 hover:text-gray-600 self-end mt-3 transition-colors">
+          <Link to="/journal" className="text-[11px] text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.5)] self-end mt-3 transition-colors">
             View all →
           </Link>
         )}

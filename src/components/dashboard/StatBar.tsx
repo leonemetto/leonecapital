@@ -27,7 +27,7 @@ function MicroSparkline({ values }: { values: (number | null)[] }) {
               width={4}
               rx={1}
               height={2}
-              fill="rgba(0,0,0,0.12)"
+              fill="rgba(255,255,255,0.18)"
             />
           );
         }
@@ -80,21 +80,21 @@ export function StatBar({ stats, trades }: StatBarProps) {
   };
 
   return (
-    <div className="flex items-stretch rounded-[10px] bg-white border border-gray-100 shadow-sm">
+    <div className="flex items-stretch rounded-[10px] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
       {stats_config.map((cfg, i) => {
         const v = values[cfg.key];
-        let valueColor = 'text-gray-900';
+        let valueColor = 'text-foreground';
         if (cfg.color === 'pnl') {
-          valueColor = v > 0 ? 'text-profit' : v < 0 ? 'text-loss' : 'text-gray-900';
+          valueColor = v > 0 ? 'text-profit' : v < 0 ? 'text-loss' : 'text-foreground';
         } else if (cfg.color === 'dd') {
           // Only red when there is an actual drawdown; white/neutral at $0
-          valueColor = v > 0 ? 'text-loss' : 'text-gray-900';
+          valueColor = v > 0 ? 'text-loss' : 'text-foreground';
         }
 
         return (
           <div key={cfg.key} className="flex-1 flex items-center">
             <div className="flex-1 py-3 px-4 flex flex-col items-center">
-              <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-gray-500">
+              <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)]">
                 {cfg.label}
               </span>
               <span className={cn('text-[28px] leading-tight font-bold font-mono tabular-nums', valueColor)}>
@@ -103,7 +103,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
               {cfg.key === 'netPnl' && <MicroSparkline values={sparklines} />}
             </div>
             {i < stats_config.length - 1 && (
-              <div className="w-px h-12 bg-gray-100" />
+              <div className="w-px h-12 bg-[rgba(255,255,255,0.08)]" />
             )}
           </div>
         );
