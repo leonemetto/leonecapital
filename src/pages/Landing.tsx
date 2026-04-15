@@ -11,7 +11,7 @@ import {
 } from '@phosphor-icons/react';
 
 /* ─── Animated word (opacity crossfade, no layout shift) ─── */
-function AnimatedWord({ words, color = '#4ade80' }: { words: string[]; color?: string }) {
+function AnimatedWord({ words, color = '#10b981' }: { words: string[]; color?: string }) {
   const [index, setIndex] = useState(0);
   const longest = words.reduce((a, b) => (a.length >= b.length ? a : b));
   useEffect(() => {
@@ -614,7 +614,7 @@ export default function Landing() {
               className="font-black leading-[1.06] tracking-[-3px] mb-6 text-white"
               style={{fontSize:'clamp(44px,7vw,80px)'}}>
               Become a more<br/>
-              <AnimatedWord words={['unstoppable','profitable','consistent','disciplined','data-driven']} color="#4ade80"/>
+              <AnimatedWord words={['unstoppable','profitable','consistent','disciplined','data-driven']} color="#10b981"/>
               <span className="text-white"> trader.</span>
             </motion.h1>
             {/* Sub */}
