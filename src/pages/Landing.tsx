@@ -568,7 +568,7 @@ export default function Landing() {
           {
             tag: 'AI Advisor',
             title: "An analyst who has read\nevery trade you've ever taken.",
-            desc: "Ask it anything. It answers using your actual trade history — not generic advice. "Which session should I cut?" "Why do I keep losing on Fridays?" It knows because it's read every entry.",
+            desc: "Ask it anything. It answers using your actual trade history — not generic advice. Which session should I cut? Why do I keep losing on Fridays? It knows because it reads every entry.",
             Screen: MockAI,
             flip: false,
           },
