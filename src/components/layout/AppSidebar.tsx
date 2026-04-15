@@ -116,11 +116,11 @@ export function AppSidebar() {
             to="/add-trade"
             onClick={() => setMobileOpen(false)}
             className={({ isActive }) => cn(
-              'flex transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/40 rounded-[24px] mb-2',
+              'flex transition-all duration-200 outline-none focus-visible:ring-2 focus-visible:ring-white/20 rounded-[24px] mb-2',
               collapsed
-                ? 'flex-col items-center justify-center gap-1 py-2.5 px-1 bg-white text-black'
-                : 'flex-row items-center gap-2 px-4 py-2.5 bg-white text-black hover:bg-white/90',
-              isActive && 'opacity-90'
+                ? 'flex-col items-center justify-center gap-1 py-2.5 px-1 border border-[rgba(255,255,255,0.18)] text-[rgba(255,255,255,0.7)] hover:text-white hover:border-[rgba(255,255,255,0.35)]'
+                : 'flex-row items-center gap-2 px-4 py-2.5 border border-[rgba(255,255,255,0.18)] text-[rgba(255,255,255,0.8)] hover:text-white hover:border-[rgba(255,255,255,0.35)]',
+              isActive && 'border-white/50 text-white'
             )}
           >
             <Plus className={collapsed ? 'h-[17px] w-[17px] shrink-0' : 'h-4 w-4 shrink-0'} weight="bold" />
