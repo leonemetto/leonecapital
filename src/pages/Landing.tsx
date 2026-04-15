@@ -9,6 +9,30 @@ import {
   TrendUp, ShieldCheck, ArrowLeft, ChartBar,
 } from '@phosphor-icons/react';
 
+/* ─── Ambient animated blob ─── */
+function AmbientBlob({ color = 'rgba(16,185,129,0.18)', size = 600, x = '50%', y = '50%', blur = 80, duration = 14 }: {
+  color?: string; size?: number; x?: string; y?: string; blur?: number; duration?: number;
+}) {
+  const prefersReducedMotion = useReducedMotion();
+  return (
+    <motion.div
+      className="absolute rounded-full pointer-events-none"
+      style={{
+        width: size, height: size,
+        left: x, top: y,
+        transform: 'translate(-50%, -50%)',
+        background: `radial-gradient(circle, ${color} 0%, transparent 70%)`,
+        filter: `blur(${blur}px)`,
+      }}
+      animate={prefersReducedMotion ? {} : {
+        x: [0, 30, -20, 10, 0],
+        y: [0, -20, 15, -10, 0],
+      }}
+      transition={{ duration, repeat: Infinity, ease: 'easeInOut' }}
+    />
+  );
+}
+
 /* ─── Animated word ─── */
 function AnimatedWord({ words, color = '#10b981' }: { words: string[]; color?: string }) {
   const [index, setIndex] = useState(0);
@@ -435,7 +459,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen text-white overflow-x-hidden" style={{ background: '#030303' }}>
+    <div className="min-h-screen text-white overflow-x-hidden" style={{ background: '#040804' }}>
 
       {/* ── NAVBAR ── */}
       <nav className={cn('fixed top-0 left-0 right-0 z-50 transition-all duration-500',
@@ -478,12 +502,14 @@ export default function Landing() {
 
       {/* ── HERO ── */}
       <section className="relative min-h-screen flex flex-col items-center justify-start pt-36 pb-0 px-6 overflow-hidden">
-        {/* Ambient glow — bottom center */}
-        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[900px] h-[600px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 50% 100%, rgba(16,185,129,0.22) 0%, rgba(16,185,129,0.06) 35%, transparent 70%)' }} />
-        {/* Faint grid */}
-        <div className="absolute inset-0 pointer-events-none opacity-[0.025]"
-          style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '60px 60px' }} />
+        {/* Cinema dark gradient base */}
+        <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(160deg, #0a0f0a 0%, #040804 40%, #020303 100%)' }} />
+        {/* Animated ambient blobs */}
+        <AmbientBlob color="rgba(16,185,129,0.14)" size={700} x="55%" y="60%" blur={100} duration={16} />
+        <AmbientBlob color="rgba(16,185,129,0.07)" size={500} x="25%" y="40%" blur={80} duration={20} />
+        <AmbientBlob color="rgba(16,185,129,0.06)" size={400} x="80%" y="30%" blur={90} duration={18} />
+        {/* Subtle dot grid */}
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(rgba(255,255,255,0.06) 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
 
         {/* Badge */}
         <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,ease:[0.22,1,0.36,1]}}
@@ -514,11 +540,15 @@ export default function Landing() {
         {/* CTAs */}
         <motion.div initial={{opacity:0,y:16}} animate={{opacity:1,y:0}} transition={{duration:0.6,delay:0.26,ease:[0.22,1,0.36,1]}}
           className="relative flex flex-col sm:flex-row items-center justify-center gap-3 mb-4">
-          <button onClick={()=>navigate('/auth')}
-            className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-bold hover:bg-white/90 active:scale-95 transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/40">
-            Start Free — No Card Needed <ArrowRight className="h-4 w-4" weight="bold"/>
-          </button>
-          <a href="#see-the-app" className="text-[rgba(255,255,255,0.35)] text-[14px] py-3 px-4 hover:text-white transition-colors">
+          <div className="relative">
+            <div className="absolute inset-0 rounded-full blur-xl opacity-50 pointer-events-none" style={{ background: 'rgba(16,185,129,0.35)' }} />
+            <button onClick={()=>navigate('/auth')}
+              className="relative w-full sm:w-auto px-8 py-3.5 rounded-full bg-white text-black text-[15px] font-bold hover:bg-white/90 active:scale-[0.97] transition-all flex items-center justify-center gap-2 focus-visible:ring-2 focus-visible:ring-white/40"
+              style={{ transition: 'all 200ms cubic-bezier(0.16,1,0.3,1)' }}>
+              Start Free — No Card Needed <ArrowRight className="h-4 w-4" weight="bold"/>
+            </button>
+          </div>
+          <a href="#see-the-app" className="text-[rgba(255,255,255,0.32)] text-[14px] py-3 px-4 hover:text-white transition-colors">
             See the app ↓
           </a>
         </motion.div>
@@ -585,9 +615,8 @@ export default function Landing() {
       </section>
 
       {/* ── APP CAROUSEL ── */}
-      <section id="see-the-app" className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.05)]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.12) 0%, transparent 65%)' }} />
+      <section id="see-the-app" className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.04)]">
+        <AmbientBlob color="rgba(16,185,129,0.1)" size={600} x="70%" y="50%" blur={100} duration={18} />
         <div className="relative max-w-6xl mx-auto">
           <Reveal className="text-center mb-16">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">The App</p>
@@ -603,9 +632,8 @@ export default function Landing() {
       </section>
 
       {/* ── TESTIMONIALS ── */}
-      <section className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.05)]">
-        <div className="absolute bottom-0 right-0 w-[600px] h-[400px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 100% 100%, rgba(16,185,129,0.08) 0%, transparent 65%)' }} />
+      <section className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.04)]">
+        <AmbientBlob color="rgba(16,185,129,0.08)" size={500} x="85%" y="70%" blur={90} duration={22} />
         <div className="relative max-w-6xl mx-auto">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">What Traders Discover</p>
@@ -640,9 +668,8 @@ export default function Landing() {
       </section>
 
       {/* ── PRICING ── */}
-      <section id="pricing" className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.05)]">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.1) 0%, transparent 65%)' }} />
+      <section id="pricing" className="relative py-28 px-6 overflow-hidden border-t border-[rgba(255,255,255,0.04)]">
+        <AmbientBlob color="rgba(16,185,129,0.09)" size={550} x="50%" y="20%" blur={100} duration={20} />
         <div className="relative max-w-6xl mx-auto">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">Simple Pricing</p>
@@ -695,7 +722,7 @@ export default function Landing() {
       </section>
 
       {/* ── FAQ ── */}
-      <section id="faq" className="py-28 px-6 border-t border-[rgba(255,255,255,0.05)]">
+      <section id="faq" className="py-28 px-6 border-t border-[rgba(255,255,255,0.04)]">
         <div className="max-w-3xl mx-auto">
           <Reveal>
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#10b981] mb-4">FAQ</p>
@@ -722,9 +749,9 @@ export default function Landing() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="relative py-36 px-6 border-t border-[rgba(255,255,255,0.05)] overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none"
-          style={{ background: 'radial-gradient(ellipse 60% 70% at 50% 50%, rgba(16,185,129,0.14) 0%, transparent 65%)' }} />
+      <section className="relative py-36 px-6 border-t border-[rgba(255,255,255,0.04)] overflow-hidden">
+        <AmbientBlob color="rgba(16,185,129,0.15)" size={600} x="50%" y="50%" blur={100} duration={15} />
+        <AmbientBlob color="rgba(16,185,129,0.06)" size={400} x="30%" y="60%" blur={80} duration={19} />
         <Reveal>
           <div className="relative max-w-2xl mx-auto text-center">
             <div className="w-14 h-14 rounded-2xl bg-[rgba(16,185,129,0.1)] border border-[rgba(16,185,129,0.2)] flex items-center justify-center mx-auto mb-8">
@@ -801,32 +828,42 @@ function FeatureSection({
     <motion.div ref={ref}
       initial={{ opacity: 0, y: 48 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
-      className="relative border-t border-[rgba(255,255,255,0.05)] overflow-hidden">
-      {/* Section glow */}
-      <div className={cn('absolute top-0 w-[500px] h-[400px] pointer-events-none',
-        flip ? 'left-0' : 'right-0')}
-        style={{ background: `radial-gradient(ellipse at ${flip?'0%':'100%'} 30%, rgba(16,185,129,0.1) 0%, transparent 65%)` }} />
-      <div className={cn('relative max-w-6xl mx-auto px-6 py-20 grid md:grid-cols-2 gap-12 lg:gap-20 items-center',
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="relative border-t border-[rgba(255,255,255,0.04)] overflow-hidden">
+      {/* Ambient blob per section */}
+      <AmbientBlob
+        color="rgba(16,185,129,0.09)"
+        size={450}
+        x={flip ? '20%' : '80%'}
+        y="50%"
+        blur={90}
+        duration={17}
+      />
+      <div className={cn('relative max-w-6xl mx-auto px-6 py-24 grid md:grid-cols-2 gap-16 lg:gap-24 items-center',
         flip ? 'md:[&>*:first-child]:order-2' : '')}>
         {/* Text */}
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-[rgba(255,255,255,0.3)] mb-6">{tag}</p>
-          <h3 className="text-[28px] md:text-[36px] font-black tracking-[-1.5px] text-white leading-[1.1] mb-5 whitespace-pre-line">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#10b981] mb-5">{tag}</p>
+          <h3 className="text-[30px] md:text-[38px] font-black tracking-[-1.5px] text-white leading-[1.08] mb-5 whitespace-pre-line">
             {title}
           </h3>
-          <p className="text-[rgba(255,255,255,0.4)] text-[15px] leading-relaxed max-w-md">
+          <p className="text-[rgba(255,255,255,0.38)] text-[15px] leading-[1.7] max-w-md">
             {desc}
           </p>
         </div>
         {/* Mockup */}
         <div className="relative hidden md:block">
-          <div className="absolute -inset-6 rounded-3xl blur-2xl opacity-20 pointer-events-none"
-            style={{ background: 'radial-gradient(ellipse, rgba(16,185,129,0.5) 0%, transparent 70%)' }} />
-          <div className="relative">
-            <BrowserFrame height={320}>
-              <Screen />
-            </BrowserFrame>
+          {/* Glow halo behind mockup */}
+          <div className="absolute -inset-8 rounded-3xl pointer-events-none"
+            style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.12) 0%, transparent 65%)' }} />
+          {/* Outer ring */}
+          <div className="relative rounded-2xl p-px"
+            style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2) 0%, rgba(255,255,255,0.04) 50%, rgba(16,185,129,0.08) 100%)' }}>
+            <div className="rounded-2xl overflow-hidden" style={{ background: '#040804' }}>
+              <BrowserFrame height={330}>
+                <Screen />
+              </BrowserFrame>
+            </div>
           </div>
         </div>
       </div>

@@ -66,24 +66,25 @@
   }
 
   .dark {
-    --background: 0 0% 0%;
-    --foreground: 0 0% 93%;
-    --card: 225 10% 8%;
-    --card-foreground: 0 0% 93%;
-    --popover: 225 10% 8%;
-    --popover-foreground: 0 0% 93%;
+    /* Cinema dark — very deep near-black with faint green warmth */
+    --background: 150 18% 2%;
+    --foreground: 0 0% 92%;
+    --card: 150 14% 5%;
+    --card-foreground: 0 0% 92%;
+    --popover: 150 14% 5%;
+    --popover-foreground: 0 0% 92%;
     --primary: 160 84% 39%;
     --primary-foreground: 0 0% 2%;
-    --secondary: 225 8% 12%;
-    --secondary-foreground: 0 0% 80%;
-    --muted: 225 8% 14%;
-    --muted-foreground: 225 6% 50%;
-    --accent: 165 40% 18%;
-    --accent-foreground: 0 0% 93%;
+    --secondary: 150 10% 9%;
+    --secondary-foreground: 0 0% 78%;
+    --muted: 150 8% 11%;
+    --muted-foreground: 220 5% 47%;
+    --accent: 160 40% 14%;
+    --accent-foreground: 0 0% 92%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
-    --border: 225 8% 10%;
-    --input: 225 8% 10%;
+    --border: 150 10% 8%;
+    --input: 150 10% 8%;
     --ring: 160 84% 39%;
     --profit: 160 84% 39%;
     --loss: 0 84% 58%;
@@ -92,13 +93,13 @@
     --chart-3: 45 90% 50%;
     --chart-4: 200 70% 50%;
     --chart-5: 280 60% 55%;
-    --sidebar-background: 225 12% 4%;
-    --sidebar-foreground: 0 0% 65%;
+    --sidebar-background: 150 20% 3%;
+    --sidebar-foreground: 0 0% 58%;
     --sidebar-primary: 160 84% 39%;
     --sidebar-primary-foreground: 0 0% 2%;
-    --sidebar-accent: 225 8% 10%;
+    --sidebar-accent: 150 10% 7%;
     --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 225 8% 12%;
+    --sidebar-border: 150 10% 8%;
     --sidebar-ring: 160 84% 39%;
 
     /* Liquid glass tokens — dark */
