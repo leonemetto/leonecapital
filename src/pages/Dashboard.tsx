@@ -1,5 +1,6 @@
 import { useMemo, useState, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { HeroBalance } from '@/components/dashboard/HeroBalance';
 import { StatBar } from '@/components/dashboard/StatBar';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
@@ -19,12 +20,6 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
-const getGreeting = () => {
-  const hour = new Date().getHours();
-  if (hour < 12) return 'Good morning';
-  if (hour < 17) return 'Good afternoon';
-  return 'Good evening';
-};
 
 const Dashboard = () => {
   const { trades, addTrade } = useSharedTrades();
@@ -136,130 +131,135 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* Header row */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs" style={{ color: 'rgba(255,255,255,0.3)' }}>Here's your trading overview</p>
-        </div>
-        <div className="flex items-center gap-2">
-          {/* Account filter — only show when multiple accounts */}
-          {accounts.length > 1 && (
-            <>
-              <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
-              <Select value={selectedAccountId} onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}>
-                <SelectTrigger className="w-[160px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
-                  <SelectValue placeholder="All Accounts" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="__all__">All Accounts</SelectItem>
-                  {accounts.map(a => (
-                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </>
-          )}
+      {/* Hero Balance */}
+      <HeroBalance
+        nickname={profile?.nickname || 'Trader'}
+        stats={stats}
+        trades={filteredTrades}
+        accounts={accounts}
+        selectedAccountId={selectedAccountId}
+      />
 
-          {/* Entry Checklist */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none">
-                <ClipboardText className="h-3.5 w-3.5" weight="regular" />
-                Checklist
-                {!criteriaLoading && activeCriteria.length > 0 && (
-                  <span className="text-[9px] bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
-                )}
-              </button>
-            </SheetTrigger>
-            <SheetContent className="w-80 sm:w-96">
-              <SheetHeader className="mb-5">
-                <SheetTitle className="flex items-center gap-2 text-sm">
-                  <CheckFat className="h-4 w-4 text-profit" weight="fill" /> Entry Checklist
-                </SheetTitle>
-              </SheetHeader>
-              {criteriaLoading ? (
-                <p className="text-xs text-muted-foreground">Loading...</p>
-              ) : activeCriteria.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                  <ClipboardText className="h-6 w-6 text-[rgba(255,255,255,0.3)]" weight="regular" />
-                  <p className="text-sm font-medium">No checklist yet</p>
+      {/* Action row */}
+      <div className="flex items-center gap-2 mb-3">
+        {/* Account filter — only show when multiple accounts */}
+        {accounts.length > 1 && (
+          <>
+            <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+            <Select value={selectedAccountId} onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}>
+              <SelectTrigger className="w-[160px] h-7 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+                <SelectValue placeholder="All Accounts" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="__all__">All Accounts</SelectItem>
+                {accounts.map(a => (
+                  <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </>
+        )}
+
+        <div className="flex-1" />
+
+        {/* Entry Checklist */}
+        <Sheet>
+          <SheetTrigger asChild>
+            <button className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none">
+              <ClipboardText className="h-3.5 w-3.5" weight="regular" />
+              Checklist
+              {!criteriaLoading && activeCriteria.length > 0 && (
+                <span className="text-[9px] bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
+              )}
+            </button>
+          </SheetTrigger>
+          <SheetContent className="w-80 sm:w-96">
+            <SheetHeader className="mb-5">
+              <SheetTitle className="flex items-center gap-2 text-sm">
+                <CheckFat className="h-4 w-4 text-profit" weight="fill" /> Entry Checklist
+              </SheetTitle>
+            </SheetHeader>
+            {criteriaLoading ? (
+              <p className="text-xs text-muted-foreground">Loading...</p>
+            ) : activeCriteria.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
+                <ClipboardText className="h-6 w-6 text-[rgba(255,255,255,0.3)]" weight="regular" />
+                <p className="text-sm font-medium">No checklist yet</p>
+                <Link to="/trading-plan">
+                  <Button size="sm" variant="outline" className="gap-1.5 text-xs mt-1">
+                    <Gear className="h-3.5 w-3.5" weight="regular" /> Set Up Checklist
+                  </Button>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {(() => {
+                  const grouped: Record<string, typeof activeCriteria> = {};
+                  for (const c of activeCriteria) {
+                    const cat = c.category || 'General';
+                    if (!grouped[cat]) grouped[cat] = [];
+                    grouped[cat].push(c);
+                  }
+                  return Object.entries(grouped).map(([category, items]) => (
+                    <div key={category}>
+                      <p className="text-[9px] text-[rgba(255,255,255,0.35)] uppercase tracking-widest mb-2">{category}</p>
+                      <div className="space-y-2">
+                        {items.map(c => (
+                          <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
+                            <CheckFat className="h-3.5 w-3.5 text-profit shrink-0" weight="fill" />
+                            <span className="text-xs">{c.label}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ));
+                })()}
+                <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
                   <Link to="/trading-plan">
-                    <Button size="sm" variant="outline" className="gap-1.5 text-xs mt-1">
-                      <Gear className="h-3.5 w-3.5" weight="regular" /> Set Up Checklist
+                    <Button variant="ghost" size="sm" className="w-full gap-1.5 text-xs justify-start">
+                      <Gear className="h-3.5 w-3.5" weight="regular" /> Customize Checklist
                     </Button>
                   </Link>
                 </div>
-              ) : (
-                <div className="space-y-4">
-                  {(() => {
-                    const grouped: Record<string, typeof activeCriteria> = {};
-                    for (const c of activeCriteria) {
-                      const cat = c.category || 'General';
-                      if (!grouped[cat]) grouped[cat] = [];
-                      grouped[cat].push(c);
-                    }
-                    return Object.entries(grouped).map(([category, items]) => (
-                      <div key={category}>
-                        <p className="text-[9px] text-[rgba(255,255,255,0.35)] uppercase tracking-widest mb-2">{category}</p>
-                        <div className="space-y-2">
-                          {items.map(c => (
-                            <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
-                              <CheckFat className="h-3.5 w-3.5 text-profit shrink-0" weight="fill" />
-                              <span className="text-xs">{c.label}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ));
-                  })()}
-                  <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
-                    <Link to="/trading-plan">
-                      <Button variant="ghost" size="sm" className="w-full gap-1.5 text-xs justify-start">
-                        <Gear className="h-3.5 w-3.5" weight="regular" /> Customize Checklist
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </SheetContent>
-          </Sheet>
+              </div>
+            )}
+          </SheetContent>
+        </Sheet>
 
-          {/* Daily Review */}
-          <button
-            onClick={handleDailyReview}
-            className="h-8 px-3.5 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none"
-          >
-            <NotePencil className="h-3.5 w-3.5" weight="regular" />
-            Daily Review
-          </button>
-          <Link
-            to="/add-trade"
-            className="h-8 px-4 text-xs font-semibold text-black bg-white hover:bg-white/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
-          >
-            <Plus className="h-3.5 w-3.5" weight="bold" />
-            Log Trade
-          </Link>
-        </div>
+        {/* Daily Review */}
+        <button
+          onClick={handleDailyReview}
+          className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none"
+        >
+          <NotePencil className="h-3.5 w-3.5" weight="regular" />
+          Daily Review
+        </button>
+        <Link
+          to="/add-trade"
+          className="h-7 px-3.5 text-xs font-semibold text-black bg-white hover:bg-white/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
+        >
+          <Plus className="h-3.5 w-3.5" weight="bold" />
+          Log Trade
+        </Link>
       </div>
 
       {/* Stat Bar */}
-      <div className="mb-4">
+      <div className="mb-3">
         <StatBar stats={stats} trades={filteredTrades} />
       </div>
 
       {/* Equity Curve */}
-      <div className="mb-4">
+      <div className="mb-3">
         <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
       {/* Heat Map Calendar */}
-      <div className="mb-4">
+      <div className="mb-3">
         <HeatMapCalendar trades={filteredTrades} />
       </div>
 
       {/* Two Column Bottom */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
         <SessionPerformance trades={filteredTrades} />
         <RecentTrades trades={filteredTrades} />
       </div>
