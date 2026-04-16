@@ -271,7 +271,7 @@ const Accounts = () => {
                 <div className="flex items-end justify-between mb-3">
                   <div>
                     <span className={FIELD_LABEL}>Current Balance</span>
-                    <p className="text-[22px] font-bold font-mono tracking-[-0.03em] text-white mt-0.5 leading-none">
+                    <p className="text-[22px] font-mono text-white mt-0.5 leading-none metric-number">
                       {currencySymbol(account.currency)}{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -282,14 +282,14 @@ const Accounts = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">P&L</p>
-                    <p className={cn('text-[11px] font-bold font-mono leading-none', pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+                    <p className={cn('text-[11px] font-mono leading-none metric-number', pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
                       {pnl >= 0 ? '+' : ''}{currencySymbol(account.currency)}{Math.abs(pnl).toFixed(0)}
-                      <span className="text-[9px] ml-1 opacity-70">({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)</span>
+                      <span className="text-[9px] ml-1 opacity-70 font-normal" style={{ letterSpacing: 'normal' }}>({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)</span>
                     </p>
                   </div>
                   <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">Win Rate</p>
-                    <p className={cn('text-[11px] font-bold font-mono leading-none', winRate !== null && winRate >= 50 ? 'text-[#10b981]' : 'text-[rgba(255,255,255,0.5)]')}>
+                    <p className={cn('text-[11px] font-mono leading-none metric-number', winRate !== null && winRate >= 50 ? 'text-[#10b981]' : 'text-[rgba(255,255,255,0.5)]')}>
                       {winRate !== null ? `${winRate}%` : '—'}
                     </p>
                   </div>

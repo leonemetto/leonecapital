@@ -149,7 +149,7 @@ export function RecentTrades({ trades }: Props) {
                       )}
                     </div>
                     <span className={cn(
-                      'text-[13px] font-bold font-mono tabular-nums',
+                      'text-[13px] font-mono tabular-nums metric-number',
                       t.pnl > 0 ? 'text-[#10b981]' : t.pnl < 0 ? 'text-[#f87171]' : 'text-white'
                     )}>
                       {t.pnl >= 0 ? '+' : ''}${t.pnl.toFixed(2)}

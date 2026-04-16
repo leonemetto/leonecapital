@@ -121,6 +121,7 @@
     @apply bg-background text-foreground antialiased;
     font-family: 'Geist', system-ui, sans-serif;
     font-feature-settings: 'ss01', 'ss02', 'cv01', 'cv02';
+    font-variant-numeric: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -152,12 +153,20 @@
 @layer utilities {
   .font-mono {
     font-family: 'Geist Mono', 'Courier New', monospace;
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum', 'ss01', 'zero';
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on;
   }
 
   .tabular-nums {
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  /* Premium financial number style */
+  .metric-number {
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' on, 'lnum' on;
   }
 
   /* ─── Liquid Glass System ─── */
