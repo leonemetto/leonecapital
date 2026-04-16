@@ -97,7 +97,7 @@ export function StatBar({ stats, trades }: StatBarProps) {
               <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)]">
                 {cfg.label}
               </span>
-              <span className={cn('text-[28px] leading-tight font-mono tabular-nums metric-number', valueColor)}>
+              <span className={cn('text-[28px] leading-tight metric-number', valueColor)}>
                 {cfg.format(v)}
               </span>
               {cfg.key === 'netPnl' && <MicroSparkline values={sparklines} />}

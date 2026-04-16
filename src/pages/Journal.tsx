@@ -94,7 +94,7 @@ const Journal = () => {
             <div key={s.label} className="flex-1 flex items-center">
               <div className="flex-1 py-3 px-4 flex flex-col items-center">
                 <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)]">{s.label}</span>
-                <span className={cn('text-[22px] leading-tight font-mono tabular-nums metric-number', s.color)}>{s.value}</span>
+                <span className={cn('text-[22px] leading-tight metric-number', s.color)}>{s.value}</span>
               </div>
               {i < arr.length - 1 && <div className="w-px h-10 bg-[rgba(255,255,255,0.08)]" />}
             </div>

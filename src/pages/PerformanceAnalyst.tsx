@@ -108,11 +108,11 @@ function ExpectancyTable({
 
               <span className="text-right text-[12px] font-mono text-[rgba(255,255,255,0.3)]">{row.trades}</span>
 
-              <span className={cn('text-right text-[12px] font-mono metric-number', row.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+              <span className={cn('text-right text-[12px] metric-number', row.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f87171]')}>
                 {row.winRate}%
               </span>
 
-              <span className={cn('text-right text-[12px] font-mono metric-number', (row.avgR ?? 0) >= 0 ? 'text-[rgba(255,255,255,0.6)]' : 'text-[#f87171]')}>
+              <span className={cn('text-right text-[12px] metric-number', (row.avgR ?? 0) >= 0 ? 'text-[rgba(255,255,255,0.6)]' : 'text-[#f87171]')}>
                 {row.avgR || '—'}
               </span>
 
@@ -122,7 +122,7 @@ function ExpectancyTable({
                   className={cn('absolute inset-y-0 right-0 rounded-sm opacity-[0.12]', row.expectancy > 0 ? 'bg-[#10b981]' : row.expectancy < 0 ? 'bg-[#f87171]' : '')}
                   style={{ width: `${barWidth}%` }}
                 />
-                <span className={cn('relative z-10 text-[12px] font-mono metric-number', row.expectancy > 0 ? 'text-[#10b981]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]')}>
+                <span className={cn('relative z-10 text-[12px] metric-number', row.expectancy > 0 ? 'text-[#10b981]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]')}>
                   {row.expectancy}
                 </span>
               </div>
@@ -138,7 +138,7 @@ function ExpectancyTable({
                       : 'transparent',
                   }}
                 />
-                <span className={cn('relative z-10 text-right text-[12px] font-mono pr-1 metric-number', row.pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+                <span className={cn('relative z-10 text-right text-[12px] pr-1 metric-number', row.pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
                   ${row.pnl}
                 </span>
               </div>
@@ -430,7 +430,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
                     {m.badge && <Lightning className="h-3 w-3 text-[#10b981]" />}
                   </div>
                   <p className="text-[11px] text-[rgba(255,255,255,0.2)] line-through font-mono mb-1">{m.orig}</p>
-                  <p className="text-[20px] font-mono text-white leading-none metric-number">{m.filt}</p>
+                  <p className="text-[20px] text-white leading-none metric-number">{m.filt}</p>
                 </div>
               ))}
             </div>
@@ -612,7 +612,7 @@ const PerformanceAnalyst = () => {
                 </p>
                 {s.badge && <Lightning className="h-3.5 w-3.5 text-[#10b981]" weight="fill" />}
               </div>
-              <p className={cn('text-[32px] font-mono leading-none mb-2 metric-number', s.color)}>
+              <p className={cn('text-[32px] leading-none mb-2 metric-number', s.color)}>
                 {s.value}
               </p>
               <p className="text-[11px] text-[rgba(255,255,255,0.25)]">{s.sub}</p>
