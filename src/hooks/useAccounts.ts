@@ -12,6 +12,12 @@ function rowToAccount(r: any): TradingAccount {
     currentBalance: Number(r.current_balance),
     currency: r.currency,
     createdAt: r.created_at,
+    challengeSize: r.challenge_size != null ? Number(r.challenge_size) : undefined,
+    profitTargetPct: r.profit_target_pct != null ? Number(r.profit_target_pct) : undefined,
+    maxDailyDdPct: r.max_daily_dd_pct != null ? Number(r.max_daily_dd_pct) : undefined,
+    maxTotalDdPct: r.max_total_dd_pct != null ? Number(r.max_total_dd_pct) : undefined,
+    trailingDrawdown: r.trailing_drawdown ?? false,
+    challengeStartDate: r.challenge_start_date ?? undefined,
   };
 }
 
@@ -42,6 +48,14 @@ export function useAccounts() {
       starting_balance: form.startingBalance,
       current_balance: form.currentBalance,
       currency: form.currency,
+      ...(form.type === 'prop' ? {
+        challenge_size: form.challengeSize ?? null,
+        profit_target_pct: form.profitTargetPct ?? null,
+        max_daily_dd_pct: form.maxDailyDdPct ?? null,
+        max_total_dd_pct: form.maxTotalDdPct ?? null,
+        trailing_drawdown: form.trailingDrawdown ?? false,
+        challenge_start_date: form.challengeStartDate ?? null,
+      } : {}),
     }).select().single();
 
     if (error) throw error;
@@ -56,6 +70,12 @@ export function useAccounts() {
     if (form.startingBalance !== undefined) updates.starting_balance = form.startingBalance;
     if (form.currentBalance !== undefined) updates.current_balance = form.currentBalance;
     if (form.currency !== undefined) updates.currency = form.currency;
+    if (form.challengeSize !== undefined) updates.challenge_size = form.challengeSize;
+    if (form.profitTargetPct !== undefined) updates.profit_target_pct = form.profitTargetPct;
+    if (form.maxDailyDdPct !== undefined) updates.max_daily_dd_pct = form.maxDailyDdPct;
+    if (form.maxTotalDdPct !== undefined) updates.max_total_dd_pct = form.maxTotalDdPct;
+    if (form.trailingDrawdown !== undefined) updates.trailing_drawdown = form.trailingDrawdown;
+    if (form.challengeStartDate !== undefined) updates.challenge_start_date = form.challengeStartDate;
 
     const { error } = await supabase.from('accounts').update(updates).eq('id', id);
     if (error) throw error;

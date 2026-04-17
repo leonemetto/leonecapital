@@ -68,7 +68,7 @@ const Accounts = () => {
     name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD',
   });
 
-  const update = (key: string, value: string | number) => setForm(prev => ({ ...prev, [key]: value }));
+  const update = (key: string, value: string | number | boolean) => setForm(prev => ({ ...prev, [key]: value }));
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +76,9 @@ const Accounts = () => {
     try {
       await addAccount(form);
       toast.success('Account created!');
-      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD' });
+      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD',
+        challengeSize: undefined, profitTargetPct: undefined, maxDailyDdPct: undefined,
+        maxTotalDdPct: undefined, trailingDrawdown: false, challengeStartDate: undefined });
       setOpen(false);
     } catch (err: any) {
       toast.error(err.message || 'Failed to create account');
@@ -162,6 +164,77 @@ const Accounts = () => {
                   className={cn(FIELD_INPUT, 'font-mono')}
                 />
               </div>
+
+              {/* Prop firm challenge config */}
+              {form.type === 'prop' && (
+                <div className="space-y-3 pt-2 border-t border-[rgba(255,255,255,0.07)]">
+                  <p className="text-[10px] uppercase tracking-[0.1em] text-amber-300/70 font-semibold">Challenge Settings</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label className={FIELD_LABEL}>Account Size ($)</Label>
+                      <Input
+                        type="number" step="any"
+                        value={form.challengeSize || ''}
+                        onChange={e => update('challengeSize', parseFloat(e.target.value) || 0)}
+                        placeholder="e.g. 100000"
+                        className={cn(FIELD_INPUT, 'font-mono')}
+                      />
+                    </div>
+                    <div>
+                      <Label className={FIELD_LABEL}>Profit Target (%)</Label>
+                      <Input
+                        type="number" step="0.1"
+                        value={form.profitTargetPct || ''}
+                        onChange={e => update('profitTargetPct', parseFloat(e.target.value) || 0)}
+                        placeholder="e.g. 10"
+                        className={cn(FIELD_INPUT, 'font-mono')}
+                      />
+                    </div>
+                    <div>
+                      <Label className={FIELD_LABEL}>Max Daily DD (%)</Label>
+                      <Input
+                        type="number" step="0.1"
+                        value={form.maxDailyDdPct || ''}
+                        onChange={e => update('maxDailyDdPct', parseFloat(e.target.value) || 0)}
+                        placeholder="e.g. 5"
+                        className={cn(FIELD_INPUT, 'font-mono')}
+                      />
+                    </div>
+                    <div>
+                      <Label className={FIELD_LABEL}>Max Total DD (%)</Label>
+                      <Input
+                        type="number" step="0.1"
+                        value={form.maxTotalDdPct || ''}
+                        onChange={e => update('maxTotalDdPct', parseFloat(e.target.value) || 0)}
+                        placeholder="e.g. 10"
+                        className={cn(FIELD_INPUT, 'font-mono')}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className={FIELD_LABEL}>Challenge Start Date</Label>
+                    <Input
+                      type="date"
+                      value={form.challengeStartDate || ''}
+                      onChange={e => update('challengeStartDate', e.target.value)}
+                      className={cn(FIELD_INPUT, 'font-mono')}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
+                    <input
+                      type="checkbox"
+                      id="trailing-dd"
+                      checked={form.trailingDrawdown ?? false}
+                      onChange={e => update('trailingDrawdown', e.target.checked)}
+                      className="h-3.5 w-3.5 accent-amber-400"
+                    />
+                    <label htmlFor="trailing-dd" className="text-xs text-[rgba(255,255,255,0.7)] cursor-pointer">
+                      Trailing drawdown (from equity high watermark) — used by FTMO, Apex, etc.
+                    </label>
+                  </div>
+                </div>
+              )}
+
               <Button type="submit" size="sm" className="w-full gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px] font-semibold">
                 <Wallet className="h-3.5 w-3.5" weight="bold" /> Create Account
               </Button>

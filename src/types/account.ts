@@ -6,6 +6,13 @@ export interface TradingAccount {
   currentBalance: number;
   currency: string;
   createdAt: string;
+  // Prop firm challenge fields (only used when type === 'prop')
+  challengeSize?: number;
+  profitTargetPct?: number;
+  maxDailyDdPct?: number;
+  maxTotalDdPct?: number;
+  trailingDrawdown?: boolean;
+  challengeStartDate?: string;
 }
 
 export type AccountFormData = Omit<TradingAccount, 'id' | 'createdAt'>;

@@ -6,17 +6,16 @@ import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
 import { SessionPerformance } from '@/components/dashboard/SessionPerformance';
 import { RecentTrades } from '@/components/dashboard/RecentTrades';
+import { PropFirmCard } from '@/components/dashboard/PropFirmCard';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
-import { useCriteria } from '@/hooks/useCriteria';
 import { toast } from 'sonner';
 import { calculateAnalytics } from '@/lib/analytics';
-import { Wallet, ChartBar, Plus, NotePencil, Funnel, ClipboardText, CheckFat, Gear } from '@phosphor-icons/react';
+import { Wallet, ChartBar, Plus, NotePencil, Funnel } from '@phosphor-icons/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
@@ -36,7 +35,6 @@ const Dashboard = () => {
     return localStorage.getItem('dashboard_account_filter') ?? '__all__';
   });
   const [loadingDemo, setLoadingDemo] = useState(false);
-  const { activeCriteria, isLoading: criteriaLoading } = useCriteria();
 
   const filteredTrades = useMemo(
     () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
@@ -50,6 +48,13 @@ const Dashboard = () => {
       return accounts.reduce((sum, a) => sum + (a.startingBalance ?? 0), 0);
     }
     return accounts.find(a => a.id === selectedAccountId)?.startingBalance ?? 0;
+  }, [accounts, selectedAccountId]);
+
+  // Prop firm — show card when a single prop account is selected
+  const selectedPropAccount = useMemo(() => {
+    if (selectedAccountId === '__all__') return null;
+    const acct = accounts.find(a => a.id === selectedAccountId);
+    return acct?.type === 'prop' ? acct : null;
   }, [accounts, selectedAccountId]);
 
   const handleDailyReview = () => {
@@ -148,7 +153,6 @@ const Dashboard = () => {
 
       {/* Action row */}
       <div className="flex items-center gap-2 mb-3">
-        {/* Account filter — only show when multiple accounts */}
         {accounts.length > 1 && (
           <>
             <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
@@ -165,74 +169,7 @@ const Dashboard = () => {
             </Select>
           </>
         )}
-
         <div className="flex-1" />
-
-        {/* Entry Checklist */}
-        <Sheet>
-          <SheetTrigger asChild>
-            <button className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none">
-              <ClipboardText className="h-3.5 w-3.5" weight="regular" />
-              Checklist
-              {!criteriaLoading && activeCriteria.length > 0 && (
-                <span className="text-[9px] bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 rounded-full font-mono">{activeCriteria.length}</span>
-              )}
-            </button>
-          </SheetTrigger>
-          <SheetContent className="w-80 sm:w-96">
-            <SheetHeader className="mb-5">
-              <SheetTitle className="flex items-center gap-2 text-sm">
-                <CheckFat className="h-4 w-4 text-profit" weight="fill" /> Entry Checklist
-              </SheetTitle>
-            </SheetHeader>
-            {criteriaLoading ? (
-              <p className="text-xs text-muted-foreground">Loading...</p>
-            ) : activeCriteria.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-12 text-center gap-3">
-                <ClipboardText className="h-6 w-6 text-[rgba(255,255,255,0.3)]" weight="regular" />
-                <p className="text-sm font-medium">No checklist yet</p>
-                <Link to="/trading-plan">
-                  <Button size="sm" variant="outline" className="gap-1.5 text-xs mt-1">
-                    <Gear className="h-3.5 w-3.5" weight="regular" /> Set Up Checklist
-                  </Button>
-                </Link>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {(() => {
-                  const grouped: Record<string, typeof activeCriteria> = {};
-                  for (const c of activeCriteria) {
-                    const cat = c.category || 'General';
-                    if (!grouped[cat]) grouped[cat] = [];
-                    grouped[cat].push(c);
-                  }
-                  return Object.entries(grouped).map(([category, items]) => (
-                    <div key={category}>
-                      <p className="text-[9px] text-[rgba(255,255,255,0.35)] uppercase tracking-widest mb-2">{category}</p>
-                      <div className="space-y-2">
-                        {items.map(c => (
-                          <div key={c.id} className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
-                            <CheckFat className="h-3.5 w-3.5 text-profit shrink-0" weight="fill" />
-                            <span className="text-xs">{c.label}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ));
-                })()}
-                <div className="pt-2 border-t border-[rgba(255,255,255,0.05)]">
-                  <Link to="/trading-plan">
-                    <Button variant="ghost" size="sm" className="w-full gap-1.5 text-xs justify-start">
-                      <Gear className="h-3.5 w-3.5" weight="regular" /> Customize Checklist
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            )}
-          </SheetContent>
-        </Sheet>
-
-        {/* Daily Review */}
         <button
           onClick={handleDailyReview}
           className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none"
@@ -248,6 +185,13 @@ const Dashboard = () => {
           Log Trade
         </Link>
       </div>
+
+      {/* Prop Firm Challenge Card — only when a prop account is selected */}
+      {selectedPropAccount && (
+        <div className="mb-3">
+          <PropFirmCard account={selectedPropAccount} trades={filteredTrades} />
+        </div>
+      )}
 
       {/* Stat Bar */}
       <div className="mb-3">
