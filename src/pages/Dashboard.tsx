@@ -1,12 +1,12 @@
 import { useMemo, useState, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { HeroBalance } from '@/components/dashboard/HeroBalance';
-import { StatBar } from '@/components/dashboard/StatBar';
+import { StatCards } from '@/components/dashboard/StatCards';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
-import { SessionPerformance } from '@/components/dashboard/SessionPerformance';
 import { RecentTrades } from '@/components/dashboard/RecentTrades';
 import { PropFirmCard } from '@/components/dashboard/PropFirmCard';
+import { DashboardRail } from '@/components/dashboard/DashboardRail';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -16,7 +16,6 @@ import { Wallet, ChartBar, Plus, NotePencil, Funnel } from '@phosphor-icons/reac
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 const getGreeting = () => {
@@ -50,7 +49,6 @@ const Dashboard = () => {
     return accounts.find(a => a.id === selectedAccountId)?.startingBalance ?? 0;
   }, [accounts, selectedAccountId]);
 
-  // Prop firm — show card when a single prop account is selected
   const selectedPropAccount = useMemo(() => {
     if (selectedAccountId === '__all__') return null;
     const acct = accounts.find(a => a.id === selectedAccountId);
@@ -106,9 +104,9 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
+          <Wallet className="h-8 w-8 text-muted-foreground/30 mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Add a trading account to get started.</p>
+          <p className="text-xs text-muted-foreground mb-5">Add a trading account to get started.</p>
           <Link to="/accounts">
             <Button size="sm" className="gap-1.5"><Wallet className="h-3.5 w-3.5" weight="regular" /> Add Account</Button>
           </Link>
@@ -122,12 +120,12 @@ const Dashboard = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <ChartBar className="h-8 w-8 text-[rgba(255,255,255,0.3)] mb-4" weight="regular" />
+          <ChartBar className="h-8 w-8 text-muted-foreground/30 mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.35)] mb-5">Log your first trade to unlock analytics.</p>
+          <p className="text-xs text-muted-foreground mb-5">Log your first trade to unlock analytics.</p>
           <div className="flex gap-3">
             <Link to="/add-trade">
-              <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
+              <Button size="sm" className="gap-1.5 rounded-[24px]">
                 <Plus className="h-3.5 w-3.5" weight="bold" /> Log First Trade
               </Button>
             </Link>
@@ -140,8 +138,18 @@ const Dashboard = () => {
     );
   }
 
+  const rail = (
+    <DashboardRail
+      trades={filteredTrades}
+      stats={stats}
+      accounts={accounts}
+      selectedAccountId={selectedAccountId}
+      selectedPropAccount={selectedPropAccount}
+    />
+  );
+
   return (
-    <AppLayout>
+    <AppLayout rail={rail}>
       {/* Hero Balance */}
       <HeroBalance
         nickname={profile?.nickname || 'Trader'}
@@ -152,12 +160,12 @@ const Dashboard = () => {
       />
 
       {/* Action row */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         {accounts.length > 1 && (
           <>
-            <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+            <Funnel className="h-3.5 w-3.5 text-muted-foreground/40" weight="regular" />
             <Select value={selectedAccountId} onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}>
-              <SelectTrigger className="w-[160px] h-7 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+              <SelectTrigger className="w-[160px] h-7 text-xs">
                 <SelectValue placeholder="All Accounts" />
               </SelectTrigger>
               <SelectContent>
@@ -172,48 +180,46 @@ const Dashboard = () => {
         <div className="flex-1" />
         <button
           onClick={handleDailyReview}
-          className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-[rgba(255,255,255,0.5)] border border-[rgba(255,255,255,0.12)] rounded-[24px] hover:text-white hover:border-[rgba(255,255,255,0.25)] transition-colors outline-none"
+          className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border rounded-[24px] hover:text-foreground hover:border-foreground/25 transition-colors outline-none"
         >
           <NotePencil className="h-3.5 w-3.5" weight="regular" />
           Daily Review
         </button>
         <Link
           to="/add-trade"
-          className="h-7 px-3.5 text-xs font-semibold text-black bg-white hover:bg-white/90 rounded-[24px] flex items-center gap-1.5 transition-colors"
+          className="h-7 px-3.5 text-xs font-semibold text-background bg-foreground hover:opacity-80 rounded-[24px] flex items-center gap-1.5 transition-opacity"
         >
           <Plus className="h-3.5 w-3.5" weight="bold" />
           Log Trade
         </Link>
       </div>
 
-      {/* Prop Firm Challenge Card — only when a prop account is selected */}
+      {/* Prop Firm Challenge Card */}
       {selectedPropAccount && (
-        <div className="mb-3">
+        <div className="mb-4">
           <PropFirmCard account={selectedPropAccount} trades={filteredTrades} />
         </div>
       )}
 
-      {/* Stat Bar */}
-      <div className="mb-3">
-        <StatBar stats={stats} trades={filteredTrades} />
+      {/* Stat Cards */}
+      <div className="mb-4">
+        <StatCards stats={stats} trades={filteredTrades} />
       </div>
 
       {/* Equity Curve */}
-      <div className="mb-3">
+      <div className="mb-4">
         <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
       {/* Heat Map Calendar */}
-      <div className="mb-3">
+      <div className="mb-4">
         <HeatMapCalendar trades={filteredTrades} />
       </div>
 
-      {/* Two Column Bottom */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-3">
-        <SessionPerformance trades={filteredTrades} />
+      {/* Recent Trades */}
+      <div className="mb-4">
         <RecentTrades trades={filteredTrades} />
       </div>
-
     </AppLayout>
   );
 };
