@@ -1,8 +1,8 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { TradingAccount } from '@/types/account';
 import { Trade } from '@/types/trade';
 import { cn } from '@/lib/utils';
-import { Trophy, Warning, TrendDown, CalendarCheck } from '@phosphor-icons/react';
+import { Trophy, Warning, TrendDown, CalendarCheck, CaretDown, CaretUp } from '@phosphor-icons/react';
 
 interface Props {
   account: TradingAccount;
@@ -22,6 +22,7 @@ function ProgressBar({ value, max, color }: { value: number; max: number; color:
 }
 
 export function PropFirmCard({ account, trades }: Props) {
+  const [expanded, setExpanded] = useState(false);
   const accountTrades = useMemo(
     () => trades.filter(t => t.accountId === account.id),
     [trades, account.id]
@@ -107,8 +108,60 @@ export function PropFirmCard({ account, trades }: Props) {
 
   const fmt = (v: number) => v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
+  const profitBarPct = Math.min(Math.max(profitPct, 0), 100);
+  const ddBarPct = Math.min(Math.max(totalDdPct, 0), 100);
+
   return (
-    <div className="rounded-xl bg-card border border-border p-5">
+    <div className="rounded-xl bg-card border border-border">
+      {/* Compact summary row — always visible */}
+      <button
+        onClick={() => setExpanded(v => !v)}
+        className="w-full flex items-center gap-4 text-left outline-none"
+        style={{ padding: '12px 20px' }}
+      >
+        <div className="shrink-0">
+          <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/50">Prop Challenge</p>
+          <p className="text-[13px] font-semibold text-foreground leading-tight mt-0.5">{account.name}</p>
+        </div>
+
+        {/* Profit progress mini */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] text-muted-foreground/50 font-mono">Profit</span>
+            <span className={cn('text-[11px] font-mono font-semibold', netPnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+              {netPnl >= 0 ? '+' : '-'}${fmt(Math.abs(netPnl))} / ${fmt(profitTarget)}
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: profitBarPct + '%', backgroundColor: profitColor }} />
+          </div>
+        </div>
+
+        {/* DD mini */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] text-muted-foreground/50 font-mono">DD</span>
+            <span className={cn('text-[11px] font-mono font-semibold', totalDdPct >= 80 ? 'text-[#f87171]' : 'text-muted-foreground/70')}>
+              {totalDdPct.toFixed(0)}%
+            </span>
+          </div>
+          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: ddBarPct + '%', backgroundColor: totalDdColor }} />
+          </div>
+        </div>
+
+        <span className="text-[10px] font-semibold uppercase tracking-wide px-2 py-0.5 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/20 shrink-0">
+          {trailingDrawdown ? 'Trail' : 'Static'}
+        </span>
+        {expanded
+          ? <CaretUp className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" weight="bold" />
+          : <CaretDown className="h-3.5 w-3.5 text-muted-foreground/40 shrink-0" weight="bold" />
+        }
+      </button>
+
+      {/* Expanded detail — hidden by default */}
+      {expanded && (
+      <div className="border-t border-border p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
@@ -229,6 +282,8 @@ export function PropFirmCard({ account, trades }: Props) {
           {trailingDrawdown ? 'Trailing drawdown from equity high' : 'Static drawdown from start balance'}
         </p>
       </div>
+      </div>
+      )}
     </div>
   );
 }

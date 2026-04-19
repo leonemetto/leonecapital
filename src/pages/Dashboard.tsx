@@ -3,16 +3,14 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
-import { RecentTrades } from '@/components/dashboard/RecentTrades';
 import { PropFirmCard } from '@/components/dashboard/PropFirmCard';
 import { DashboardRail } from '@/components/dashboard/DashboardRail';
-import { TopLeaks } from '@/components/dashboard/TopLeaks';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { calculateAnalytics, getExpectancyByField } from '@/lib/analytics';
-import { Wallet, ChartBar, Plus, NotePencil, Funnel, MagnifyingGlass, Bell } from '@phosphor-icons/react';
+import { Wallet, ChartBar, Plus, NotePencil, Funnel, Warning } from '@phosphor-icons/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -25,6 +23,53 @@ const getGreeting = () => {
   if (hour < 17) return 'Good afternoon';
   return 'Good evening';
 };
+
+function LeakTeaser({ trades }: { trades: { instrument: string; pnl: number; outcome: string; session?: string }[] }) {
+  const summary = useMemo(() => {
+    if (trades.length < 3) return null;
+    const byInstrument = getExpectancyByField(trades as any, 'instrument');
+    const bySession = getExpectancyByField(trades as any, 'session');
+    const combined = [...byInstrument, ...bySession]
+      .filter(s => s.expectancy < 0 && s.total >= 3 && s.pnl < 0)
+      .sort((a, b) => a.pnl - b.pnl)
+      .slice(0, 5);
+    if (combined.length === 0) return null;
+    const impact = combined.reduce((s, l) => s + l.pnl, 0);
+    const criticalCount = combined.filter(l => l.expectancy < -80).length;
+    return { count: combined.length, impact, criticalCount };
+  }, [trades]);
+
+  if (!summary) return null;
+
+  return (
+    <Link
+      to="/analyst"
+      className="flex items-center gap-3 rounded-[10px] border transition-colors hover:border-[color-mix(in_oklab,var(--ef-neg)_35%,transparent)]"
+      style={{
+        padding: '10px 16px',
+        background: 'var(--ef-neg-wash)',
+        border: '1px solid color-mix(in oklab, var(--ef-neg) 20%, transparent)',
+        textDecoration: 'none',
+      }}
+    >
+      <Warning size={14} weight="fill" style={{ color: 'var(--ef-neg)', flexShrink: 0 }} />
+      <span style={{ fontSize: 13, color: 'var(--ef-ink-2)', flex: 1 }}>
+        <span style={{ fontWeight: 600, color: 'var(--ef-neg)' }}>{summary.count} active leak{summary.count !== 1 ? 's' : ''}</span>
+        {summary.criticalCount > 0 && (
+          <span className="font-mono" style={{ fontSize: 11, marginLeft: 6, color: 'var(--ef-neg)', background: 'var(--ef-neg-wash)', padding: '1px 6px', borderRadius: 4, border: '1px solid color-mix(in oklab, var(--ef-neg) 25%, transparent)' }}>
+            {summary.criticalCount} critical
+          </span>
+        )}
+        <span className="font-mono" style={{ marginLeft: 8, color: 'var(--ef-ink-3)', fontSize: 12 }}>
+          −${Math.abs(summary.impact).toLocaleString(undefined, { maximumFractionDigits: 0 })} impact detected
+        </span>
+      </span>
+      <span className="font-mono" style={{ fontSize: 11.5, color: 'var(--ef-ink-3)', flexShrink: 0 }}>
+        View analysis →
+      </span>
+    </Link>
+  );
+}
 
 function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: number; outcome: string }[] }) {
   const pairs = useMemo(() => {
@@ -311,13 +356,14 @@ const Dashboard = () => {
         <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
-      {/* Equity Curve + Leak Detection */}
-      <div
-        className="grid"
-        style={{ gridTemplateColumns: '1.55fr 1fr', gap: 14, marginBottom: 14 }}
-      >
+      {/* Equity Curve — full width */}
+      <div style={{ marginBottom: 8 }}>
         <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
-        <TopLeaks trades={filteredTrades} />
+      </div>
+
+      {/* Leak teaser banner */}
+      <div style={{ marginBottom: 14 }}>
+        <LeakTeaser trades={filteredTrades} />
       </div>
 
       {/* Heat Map Calendar + Instrument Performance */}
@@ -327,11 +373,6 @@ const Dashboard = () => {
       >
         <HeatMapCalendar trades={filteredTrades} />
         <InstrumentPerformance trades={filteredTrades} />
-      </div>
-
-      {/* Recent Trades */}
-      <div style={{ marginBottom: 14 }}>
-        <RecentTrades trades={filteredTrades} />
       </div>
     </AppLayout>
   );
