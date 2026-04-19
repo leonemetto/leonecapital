@@ -34,15 +34,15 @@ const Journal = () => {
     <AppLayout>
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Trades DB</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.3)]">Your complete trade history</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Trades DB</h1>
+          <p className="text-xs text-muted-foreground/60">Your complete trade history</p>
         </div>
         <div className="flex items-center gap-2">
           {accounts.length > 1 && (
             <>
-              <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+              <Funnel className="h-3.5 w-3.5 text-muted-foreground/60" weight="regular" />
               <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-                <SelectTrigger className="w-[180px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+                <SelectTrigger className="w-[180px] h-8 text-xs">
                   <SelectValue placeholder="All Accounts" />
                 </SelectTrigger>
                 <SelectContent>
@@ -56,7 +56,7 @@ const Journal = () => {
           )}
           <button
             onClick={() => navigate('/import-trades')}
-            className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+            className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 transition-colors"
           >
             <UploadSimple className="h-3.5 w-3.5" weight="regular" />
             Import
@@ -65,14 +65,14 @@ const Journal = () => {
             <>
               <button
                 onClick={() => exportTradesCSV(filteredTrades)}
-                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 transition-colors"
               >
                 <DownloadSimple className="h-3.5 w-3.5" weight="regular" />
                 CSV
               </button>
               <button
                 onClick={() => exportTradePDF(filteredTrades)}
-                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-[rgba(255,255,255,0.15)] text-[rgba(255,255,255,0.6)] hover:text-white hover:border-[rgba(255,255,255,0.3)] transition-colors"
+                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 transition-colors"
               >
                 <FilePdf className="h-3.5 w-3.5" weight="regular" />
                 PDF
@@ -84,19 +84,19 @@ const Journal = () => {
 
       {/* Summary stats */}
       {stats && (
-        <div className="flex items-stretch rounded-[10px] bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] mb-4">
+        <div className="flex items-stretch rounded-[10px] bg-card border border-border mb-4">
           {[
-            { label: 'Total Trades', value: stats.total, color: 'text-white' },
+            { label: 'Total Trades', value: stats.total, color: 'text-foreground' },
             { label: 'Win Rate', value: `${stats.winRate}%`, color: stats.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f87171]' },
             { label: 'Net P&L', value: `${stats.netPnl >= 0 ? '+' : ''}$${stats.netPnl.toFixed(0)}`, color: stats.netPnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]' },
-            { label: 'Avg R', value: filteredTrades.some(t => t.rMultiple != null) ? `${stats.avgR >= 0 ? '+' : ''}${stats.avgR.toFixed(2)}R` : '—', color: stats.avgR >= 0 ? 'text-white' : 'text-[#f87171]' },
+            { label: 'Avg R', value: filteredTrades.some(t => t.rMultiple != null) ? `${stats.avgR >= 0 ? '+' : ''}${stats.avgR.toFixed(2)}R` : '—', color: stats.avgR >= 0 ? 'text-foreground' : 'text-[#f87171]' },
           ].map((s, i, arr) => (
             <div key={s.label} className="flex-1 flex items-center">
               <div className="flex-1 py-3 px-4 flex flex-col items-center">
-                <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)]">{s.label}</span>
+                <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground/60">{s.label}</span>
                 <span className={cn('text-[22px] leading-tight metric-number', s.color)}>{s.value}</span>
               </div>
-              {i < arr.length - 1 && <div className="w-px h-10 bg-[rgba(255,255,255,0.08)]" />}
+              {i < arr.length - 1 && <div className="w-px h-10 bg-border" />}
             </div>
           ))}
         </div>

@@ -48,9 +48,9 @@ function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: s
   );
 }
 
-const CARD = 'rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)]';
-const FIELD_LABEL = 'text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]';
-const FIELD_INPUT = 'mt-1 bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] h-9 placeholder:text-[rgba(255,255,255,0.2)]';
+const CARD = 'rounded-xl bg-card border border-border';
+const FIELD_LABEL = 'text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60';
+const FIELD_INPUT = 'mt-1 h-9';
 
 const BADGE_STYLES: Record<string, string> = {
   live: 'bg-white text-black',

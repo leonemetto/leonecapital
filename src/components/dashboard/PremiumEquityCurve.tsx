@@ -72,10 +72,10 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   ];
 
   return (
-    <div className="relative rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-4 px-5">
+    <div className="relative rounded-xl bg-card border border-border p-4 px-5">
       <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-[rgba(255,255,255,0.4)]">Equity Curve</span>
-        <div className="flex gap-0.5 bg-[rgba(255,255,255,0.05)] rounded-lg p-0.5">
+        <span className="text-sm text-muted-foreground">Equity Curve</span>
+        <div className="flex gap-0.5 bg-muted rounded-lg p-0.5">
           {pills.map(p => (
             <button
               key={p.key}
@@ -83,8 +83,8 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               className={cn(
                 'px-3 py-1 text-xs rounded-md transition-all',
                 period === p.key
-                  ? 'bg-white text-black font-semibold'
-                  : 'text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.5)]'
+                  ? 'bg-foreground text-background font-semibold'
+                  : 'text-muted-foreground/60 hover:text-muted-foreground'
               )}
             >
               {p.label}
@@ -96,8 +96,8 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
       {/* Annotated balance overlay */}
       {!isEmpty && (
         <div className="absolute top-4 right-5 text-right pointer-events-none">
-          <p className="text-[9px] uppercase tracking-[0.1em] text-[rgba(255,255,255,0.25)]">Equity</p>
-          <p className="text-[17px] leading-tight metric-number text-white">${lastBal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+          <p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground/50">Equity</p>
+          <p className="text-[17px] leading-tight metric-number text-foreground">${lastBal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
         </div>
       )}
 
@@ -105,9 +105,9 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         {isEmpty ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
             <svg width="100%" height="60" className="opacity-20">
-              <line x1="0" y1="30" x2="100%" y2="30" stroke="white" strokeDasharray="6 4" strokeWidth="1" />
+              <line x1="0" y1="30" x2="100%" y2="30" stroke="currentColor" strokeDasharray="6 4" strokeWidth="1" />
             </svg>
-            <span className="text-sm text-[rgba(255,255,255,0.25)]">Your equity curve will appear here</span>
+            <span className="text-sm text-muted-foreground/50">Your equity curve will appear here</span>
             <Link to="/add-trade" className="text-xs font-semibold text-background bg-profit hover:bg-profit/90 px-4 py-2 rounded-full transition-colors">
               Log Trade →
             </Link>
@@ -121,26 +121,26 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
                   <stop offset="95%" stopColor={lineColor} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="1 4" stroke="rgba(255,255,255,0.04)" vertical={false} />
+              <CartesianGrid strokeDasharray="1 4" stroke="var(--ef-line)" vertical={false} />
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11 }}
+                tick={{ fill: 'var(--ef-ink-4)', fontSize: 11 }}
                 tickLine={false} axisLine={false}
               />
               <YAxis
                 orientation="right"
                 domain={yDomain}
-                tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 11 }}
+                tick={{ fill: 'var(--ef-ink-4)', fontSize: 11 }}
                 tickLine={false} axisLine={false}
                 tickFormatter={v => `$${v}`}
               />
-              <ReferenceLine y={startingBalance} stroke="rgba(255,255,255,0.06)" />
+              <ReferenceLine y={startingBalance} stroke="var(--ef-line)" />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'hsl(0,0%,6%)',
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  backgroundColor: 'var(--ef-bg-elev)',
+                  border: '1px solid var(--ef-line)',
                   borderRadius: '6px',
-                  color: '#fff',
+                  color: 'var(--ef-ink)',
                   fontSize: 11,
                   padding: '6px 14px',
                 }}

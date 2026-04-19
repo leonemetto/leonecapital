@@ -28,7 +28,7 @@ type DirectionFilter = 'all' | 'long' | 'short';
 type DateRange = 'all' | 'week' | 'month';
 
 const PAGE_SIZE = 10;
-const CARD = 'rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)]';
+const CARD = 'rounded-xl bg-card border border-border';
 
 function TradeScreenshot({ path }: { path: string }) {
   const [open, setOpen] = useState(false);
@@ -37,9 +37,9 @@ function TradeScreenshot({ path }: { path: string }) {
   return (
     <>
       <div>
-        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-[rgba(255,255,255,0.3)]">Chart</p>
+        <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">Chart</p>
         <button onClick={() => setOpen(true)} className="outline-none">
-          <img src={url} alt="chart" className="h-16 w-auto rounded-md border border-[rgba(255,255,255,0.1)] object-cover hover:border-[rgba(255,255,255,0.3)] transition-colors" />
+          <img src={url} alt="chart" className="h-16 w-auto rounded-md border border-border object-cover hover:border-foreground/30 transition-colors" />
         </button>
       </div>
       {open && (
@@ -113,7 +113,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
       onClick={() => toggleSort(field)}
       className={cn(
         'flex items-center gap-1 text-[10px] uppercase tracking-[0.08em] font-semibold transition-colors',
-        sortField === field ? 'text-white' : 'text-[rgba(255,255,255,0.3)] hover:text-white'
+        sortField === field ? 'text-foreground' : 'text-muted-foreground/60 hover:text-foreground'
       )}
     >
       {children}
@@ -136,17 +136,17 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
     cn(
       'px-3 py-1 rounded-full text-[11px] font-medium border transition-all',
       active
-        ? 'bg-white text-black border-transparent'
-        : 'bg-transparent border-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.45)] hover:border-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.7)]'
+        ? 'bg-foreground text-background border-transparent'
+        : 'bg-transparent border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground'
     );
 
   // Empty state
   if (trades.length === 0) {
     return (
       <div className={cn(CARD, 'flex flex-col items-center justify-center py-20 text-center')}>
-        <BookOpen className="h-8 w-8 mb-4 text-[rgba(255,255,255,0.2)]" weight="regular" />
-        <p className="text-base font-semibold text-white mb-1">No trades logged yet</p>
-        <p className="text-xs text-[rgba(255,255,255,0.35)] mb-6">Start building your edge by logging your first trade.</p>
+        <BookOpen className="h-8 w-8 mb-4 text-muted-foreground/30" weight="regular" />
+        <p className="text-base font-semibold text-foreground mb-1">No trades logged yet</p>
+        <p className="text-xs text-muted-foreground/60 mb-6">Start building your edge by logging your first trade.</p>
         <Link to="/add-trade">
           <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
             <Plus className="h-3.5 w-3.5" weight="bold" /> Log your first trade →
@@ -161,16 +161,16 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-2 mb-2">
         <div className="relative flex-1">
-          <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+          <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50" weight="regular" />
           <Input
             value={search}
             onChange={e => { setSearch(e.target.value); resetPage(); }}
             placeholder="Search instrument, strategy, notes..."
-            className="pl-8 bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] h-8 text-sm placeholder:text-[rgba(255,255,255,0.25)]"
+            className="pl-8 h-8 text-sm"
           />
         </div>
         <Select value={dateRange} onValueChange={(v: DateRange) => { setDateRange(v); resetPage(); }}>
-          <SelectTrigger className="w-[130px] bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] h-8 text-xs">
+          <SelectTrigger className="w-[130px] h-8 text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -185,7 +185,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
           variant="outline"
           size="sm"
           onClick={() => exportTradesCSV(trades)}
-          className="gap-1 h-8 text-xs border-[rgba(255,255,255,0.15)] bg-transparent hover:bg-[rgba(255,255,255,0.06)] rounded-full"
+          className="gap-1 h-8 text-xs rounded-full"
         >
           <DownloadSimple className="h-3 w-3" weight="regular" /> CSV
         </Button>
@@ -198,7 +198,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
             {v === 'all' ? 'All' : v === 'breakeven' ? 'BE' : v.charAt(0).toUpperCase() + v.slice(1)}
           </button>
         ))}
-        <span className="text-[rgba(255,255,255,0.12)] text-xs px-1">|</span>
+        <span className="text-border text-xs px-1">|</span>
         {(['all', 'long', 'short'] as DirectionFilter[]).map(v => (
           <button key={v} onClick={() => { setDirectionFilter(v); resetPage(); }} className={filterPill(directionFilter === v)}>
             {v === 'all' ? 'All Dirs' : v.charAt(0).toUpperCase() + v.slice(1)}
@@ -211,25 +211,25 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-[rgba(255,255,255,0.07)]">
+              <tr className="border-b border-border">
                 <th className="text-left p-3"><SortHeader field="date">Date</SortHeader></th>
                 <th className="text-left p-3"><SortHeader field="instrument">Pair</SortHeader></th>
                 <th className="text-left p-3 hidden md:table-cell">
-                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]">Dir</span>
+                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60">Dir</span>
                 </th>
                 <th className="text-left p-3 hidden lg:table-cell">
-                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]">Strategy</span>
+                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60">Strategy</span>
                 </th>
                 <th className="text-left p-3 hidden lg:table-cell">
-                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]">Session</span>
+                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60">Session</span>
                 </th>
                 <th className="text-right p-3"><SortHeader field="pnl">P&amp;L</SortHeader></th>
                 <th className="text-center p-3">
-                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]">Result</span>
+                  <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60">Result</span>
                 </th>
                 {hasCriteria && (
                   <th className="text-center p-3 hidden md:table-cell">
-                    <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-[rgba(255,255,255,0.3)]">Checklist</span>
+                    <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60">Checklist</span>
                   </th>
                 )}
                 <th className="text-right p-3 w-16" />
@@ -238,7 +238,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
             <tbody>
               {paged.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="text-center py-10 text-sm text-[rgba(255,255,255,0.35)]">
+                  <td colSpan={9} className="text-center py-10 text-sm text-muted-foreground/60">
                     No matches for current filters
                   </td>
                 </tr>
@@ -254,27 +254,27 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                     <tr
                       key={trade.id}
                       onClick={(e) => toggleExpand(trade.id, e)}
-                      className="border-b border-[rgba(255,255,255,0.04)] hover:bg-[rgba(255,255,255,0.02)] transition-colors cursor-pointer"
+                      className="border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer"
                     >
-                      <td className="p-3 text-[13px] font-mono whitespace-nowrap text-[rgba(255,255,255,0.7)]">
+                      <td className="p-3 text-[13px] font-mono whitespace-nowrap text-muted-foreground">
                         {new Date(trade.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </td>
-                      <td className="p-3 text-[13px] font-semibold text-white">{trade.instrument}</td>
+                      <td className="p-3 text-[13px] font-semibold text-foreground">{trade.instrument}</td>
                       <td className="p-3 hidden md:table-cell">
                         <span className={cn(
                           'text-[10px] font-bold px-1.5 py-0.5 rounded',
                           trade.direction === 'long'
-                            ? 'bg-[rgba(255,255,255,0.1)] text-white'
-                            : 'bg-[rgba(255,255,255,0.05)] text-[rgba(255,255,255,0.5)]'
+                            ? 'bg-muted text-foreground'
+                            : 'bg-muted/50 text-muted-foreground'
                         )}>
                           {trade.direction === 'long' ? 'L' : 'S'}
                         </span>
                       </td>
-                      <td className="p-3 text-[13px] hidden lg:table-cell text-[rgba(255,255,255,0.7)]">{trade.strategy}</td>
-                      <td className="p-3 text-[13px] hidden lg:table-cell text-[rgba(255,255,255,0.7)]">{trade.session}</td>
+                      <td className="p-3 text-[13px] hidden lg:table-cell text-muted-foreground">{trade.strategy}</td>
+                      <td className="p-3 text-[13px] hidden lg:table-cell text-muted-foreground">{trade.session}</td>
                       <td className={cn(
                         'p-3 text-right text-[13px] font-mono font-bold',
-                        trade.pnl > 0 ? 'text-[#10b981]' : trade.pnl < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.7)]'
+                        trade.pnl > 0 ? 'text-[#10b981]' : trade.pnl < 0 ? 'text-[#f87171]' : 'text-muted-foreground'
                       )}>
                         {trade.pnl >= 0 ? '+' : ''}{trade.pnl.toFixed(2)}
                       </td>
@@ -282,11 +282,11 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                         <div className="flex items-center justify-center gap-1.5">
                           <span className={cn(
                             'w-0.5 h-3.5 rounded-full shrink-0',
-                            trade.outcome === 'win' ? 'bg-[#10b981]' : trade.outcome === 'loss' ? 'bg-[#f87171]' : 'bg-[rgba(255,255,255,0.2)]'
+                            trade.outcome === 'win' ? 'bg-[#10b981]' : trade.outcome === 'loss' ? 'bg-[#f87171]' : 'bg-muted-foreground/30'
                           )} />
                           <span className={cn(
                             'text-[11px] font-medium uppercase',
-                            trade.outcome === 'win' ? 'text-[#10b981]' : trade.outcome === 'loss' ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.4)]'
+                            trade.outcome === 'win' ? 'text-[#10b981]' : trade.outcome === 'loss' ? 'text-[#f87171]' : 'text-muted-foreground'
                           )}>
                             {trade.outcome === 'breakeven' ? 'BE' : trade.outcome}
                           </span>
@@ -300,7 +300,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                               return (
                                 <span key={idx} className={cn(
                                   'w-1.5 h-1.5 rounded-full transition-colors',
-                                  filled ? 'bg-[#10b981]' : checklistChecked ? 'bg-[rgba(255,255,255,0.12)]' : 'bg-[rgba(248,113,113,0.3)]'
+                                  filled ? 'bg-[#10b981]' : checklistChecked ? 'bg-muted-foreground/20' : 'bg-[rgba(248,113,113,0.3)]'
                                 )} />
                               );
                             })}
@@ -311,17 +311,17 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                         <div className="flex items-center gap-0.5 justify-end">
                           <button
                             onClick={(e) => { e.stopPropagation(); setEditTrade(trade); }}
-                            className="p-1 rounded text-[rgba(255,255,255,0.3)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-colors"
+                            className="p-1 rounded text-muted-foreground/60 hover:text-foreground hover:bg-muted transition-colors"
                           >
                             <PencilSimple className="h-3 w-3" weight="regular" />
                           </button>
                           <button
                             onClick={(e) => { e.stopPropagation(); setDeletingId(trade.id); }}
-                            className="p-1 rounded text-[rgba(255,255,255,0.3)] hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+                            className="p-1 rounded text-muted-foreground/60 hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
                           >
                             <Trash className="h-3 w-3" weight="regular" />
                           </button>
-                          <CaretDown className={cn('h-3.5 w-3.5 text-[rgba(255,255,255,0.25)] transition-transform', isExpanded && 'rotate-180')} weight="regular" />
+                          <CaretDown className={cn('h-3.5 w-3.5 text-muted-foreground/50 transition-transform', isExpanded && 'rotate-180')} weight="regular" />
                         </div>
                       </td>
                     </tr>
@@ -335,7 +335,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                           transition={{ duration: 0.15 }}
                         >
                           <td colSpan={9} className="px-4 pb-4 pt-0">
-                            <div className="rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.06)]">
+                            <div className="rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 bg-muted/30 border border-border">
                               {[
                                 {
                                   label: 'R-Multiple',
@@ -354,14 +354,14 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                                 { label: 'Plan Followed', value: trade.followedPlan == null ? '—' : trade.followedPlan ? 'Yes' : 'No', color: 'text-white' },
                               ].map(({ label, value, color }) => (
                                 <div key={label}>
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-[rgba(255,255,255,0.3)]">{label}</p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">{label}</p>
                                   <p className={cn('text-sm font-bold font-mono', color)}>{value}</p>
                                 </div>
                               ))}
                               {trade.notes && (
                                 <div className="col-span-2 sm:col-span-3 md:col-span-5">
-                                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-[rgba(255,255,255,0.3)]">Notes</p>
-                                  <p className="text-sm leading-relaxed text-[rgba(255,255,255,0.65)]">{trade.notes}</p>
+                                  <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">Notes</p>
+                                  <p className="text-sm leading-relaxed text-foreground/80">{trade.notes}</p>
                                 </div>
                               )}
                               {trade.screenshotUrl && (
@@ -382,22 +382,22 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
         </div>
 
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-3 py-2.5 border-t border-[rgba(255,255,255,0.07)]">
-            <span className="text-[10px] text-[rgba(255,255,255,0.35)]">
+          <div className="flex items-center justify-between px-3 py-2.5 border-t border-border">
+            <span className="text-[10px] text-muted-foreground/60">
               {filtered.length} trades · Page {page + 1}/{totalPages}
             </span>
             <div className="flex gap-0.5">
               <button
                 onClick={() => setPage(p => Math.max(0, p - 1))}
                 disabled={page === 0}
-                className="p-1 rounded text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] disabled:opacity-25 transition-colors"
+                className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-25 transition-colors"
               >
                 <CaretLeft className="h-3.5 w-3.5" weight="regular" />
               </button>
               <button
                 onClick={() => setPage(p => Math.min(totalPages - 1, p + 1))}
                 disabled={page >= totalPages - 1}
-                className="p-1 rounded text-[rgba(255,255,255,0.4)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] disabled:opacity-25 transition-colors"
+                className="p-1 rounded text-muted-foreground hover:text-foreground hover:bg-muted disabled:opacity-25 transition-colors"
               >
                 <CaretRight className="h-3.5 w-3.5" weight="regular" />
               </button>
@@ -408,7 +408,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
 
       {/* Edit Dialog */}
       <Dialog open={!!editTrade} onOpenChange={() => setEditTrade(null)}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-[#0e0e0e] border-[rgba(255,255,255,0.1)]">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-white">Edit Trade</DialogTitle>
           </DialogHeader>
@@ -425,13 +425,13 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
 
       {/* Delete Confirmation */}
       <Dialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
-        <DialogContent className="max-w-sm bg-[#0e0e0e] border-[rgba(255,255,255,0.1)]">
+        <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle className="text-white">Delete Trade</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-[rgba(255,255,255,0.45)]">This cannot be undone.</p>
+          <p className="text-sm text-muted-foreground">This cannot be undone.</p>
           <div className="flex gap-2 justify-end mt-3">
-            <Button variant="ghost" size="sm" onClick={() => setDeletingId(null)} className="text-[rgba(255,255,255,0.5)] hover:text-white">Cancel</Button>
+            <Button variant="ghost" size="sm" onClick={() => setDeletingId(null)}>Cancel</Button>
             <Button size="sm" onClick={() => deletingId && confirmDelete(deletingId)} className="bg-[#f87171] hover:bg-[#f87171]/90 text-black font-semibold rounded-[24px]">Delete</Button>
           </div>
         </DialogContent>

@@ -12,7 +12,7 @@ interface Props {
 function ProgressBar({ value, max, color }: { value: number; max: number; color: string }) {
   const pct = Math.min(Math.max((value / max) * 100, 0), 100);
   return (
-    <div className="h-1.5 w-full rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+    <div className="h-1.5 w-full rounded-full bg-muted overflow-hidden">
       <div
         className="h-full rounded-full transition-all duration-500"
         style={{ width: `${pct}%`, backgroundColor: color }}
@@ -108,12 +108,12 @@ export function PropFirmCard({ account, trades }: Props) {
   const fmt = (v: number) => v.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
   return (
-    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
+    <div className="rounded-xl bg-card border border-border p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <p className="text-[10px] uppercase tracking-[0.1em] text-[rgba(255,255,255,0.3)] mb-0.5">Prop Challenge</p>
-          <p className="text-sm font-semibold text-white">{account.name}</p>
+          <p className="text-[10px] uppercase tracking-[0.1em] text-muted-foreground/50 mb-0.5">Prop Challenge</p>
+          <p className="text-sm font-semibold text-foreground">{account.name}</p>
         </div>
         <span className="text-[10px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/20">
           {trailingDrawdown ? 'Trailing DD' : 'Static DD'}
@@ -124,34 +124,34 @@ export function PropFirmCard({ account, trades }: Props) {
       <div className="grid grid-cols-2 gap-3 mb-4">
 
         {/* Profit Target */}
-        <div className="rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3">
+        <div className="rounded-lg bg-muted/40 border border-border p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Trophy className="h-3 w-3 text-[rgba(255,255,255,0.3)]" weight="fill" />
-            <span className="text-[10px] uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">Profit Target</span>
+            <Trophy className="h-3 w-3 text-muted-foreground/50" weight="fill" />
+            <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/60">Profit Target</span>
           </div>
           <div className="flex items-baseline justify-between mb-2">
             <span className={cn('text-[22px] leading-none metric-number', netPnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
               {netPnl >= 0 ? '+' : '-'}${fmt(Math.abs(netPnl))}
             </span>
-            <span className="text-[11px] text-[rgba(255,255,255,0.3)]">/ ${fmt(profitTarget)}</span>
+            <span className="text-[11px] text-muted-foreground/50">/ ${fmt(profitTarget)}</span>
           </div>
           <ProgressBar value={Math.max(netPnl, 0)} max={profitTarget} color={profitColor} />
-          <p className="text-[10px] text-[rgba(255,255,255,0.3)] mt-1.5">
+          <p className="text-[10px] text-muted-foreground/60 mt-1.5">
             {profitPct >= 100 ? '🎯 Target reached!' : `${Math.max(profitPct, 0).toFixed(1)}% of ${profitTargetPct}% goal`}
           </p>
         </div>
 
         {/* Daily Drawdown */}
-        <div className="rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3">
+        <div className="rounded-lg bg-muted/40 border border-border p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <Warning className="h-3 w-3 text-[rgba(255,255,255,0.3)]" weight="fill" />
-            <span className="text-[10px] uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">Daily Drawdown</span>
+            <Warning className="h-3 w-3 text-muted-foreground/50" weight="fill" />
+            <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/60">Daily Drawdown</span>
           </div>
           <div className="flex items-baseline justify-between mb-2">
-            <span className={cn('text-[22px] leading-none metric-number', dailyPnl >= 0 ? 'text-white' : 'text-[#f87171]')}>
+            <span className={cn('text-[22px] leading-none metric-number', dailyPnl >= 0 ? 'text-foreground' : 'text-[#f87171]')}>
               {dailyPnl >= 0 ? '+' : '-'}${fmt(Math.abs(dailyPnl))}
             </span>
-            <span className="text-[11px] text-[rgba(255,255,255,0.3)]">/ -${fmt(maxDailyLoss)}</span>
+            <span className="text-[11px] text-muted-foreground/50">/ -${fmt(maxDailyLoss)}</span>
           </div>
           <ProgressBar value={Math.abs(Math.min(dailyPnl, 0))} max={maxDailyLoss} color={dailyDdColor} />
           <p className="text-[10px] mt-1.5" style={{ color: dailyDdColor }}>
@@ -160,18 +160,18 @@ export function PropFirmCard({ account, trades }: Props) {
         </div>
 
         {/* Max Drawdown (static or trailing) */}
-        <div className="rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3">
+        <div className="rounded-lg bg-muted/40 border border-border p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <TrendDown className="h-3 w-3 text-[rgba(255,255,255,0.3)]" weight="fill" />
-            <span className="text-[10px] uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">
+            <TrendDown className="h-3 w-3 text-muted-foreground/50" weight="fill" />
+            <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/60">
               {trailingDrawdown ? 'Trailing DD' : 'Max Drawdown'}
             </span>
           </div>
           <div className="flex items-baseline justify-between mb-2">
-            <span className={cn('text-[22px] leading-none metric-number', trailingDdUsed === 0 ? 'text-white' : 'text-[#f87171]')}>
+            <span className={cn('text-[22px] leading-none metric-number', trailingDdUsed === 0 ? 'text-foreground' : 'text-[#f87171]')}>
               -${fmt(trailingDdUsed)}
             </span>
-            <span className="text-[11px] text-[rgba(255,255,255,0.3)]">/ -${fmt(maxTotalLoss)}</span>
+            <span className="text-[11px] text-muted-foreground/50">/ -${fmt(maxTotalLoss)}</span>
           </div>
           <ProgressBar value={trailingDdUsed} max={maxTotalLoss} color={totalDdColor} />
           <p className="text-[10px] mt-1.5" style={{ color: totalDdColor }}>
@@ -180,27 +180,27 @@ export function PropFirmCard({ account, trades }: Props) {
         </div>
 
         {/* Consistency */}
-        <div className="rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)] p-3">
+        <div className="rounded-lg bg-muted/40 border border-border p-3">
           <div className="flex items-center gap-1.5 mb-2">
-            <CalendarCheck className="h-3 w-3 text-[rgba(255,255,255,0.3)]" weight="fill" />
-            <span className="text-[10px] uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">Consistency</span>
+            <CalendarCheck className="h-3 w-3 text-muted-foreground/50" weight="fill" />
+            <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/60">Consistency</span>
           </div>
           {consistencyScore === null ? (
-            <p className="text-[12px] text-[rgba(255,255,255,0.25)] mt-1">No trades logged yet</p>
+            <p className="text-[12px] text-muted-foreground/50 mt-1">No trades logged yet</p>
           ) : (
             <>
               <div className="flex items-baseline justify-between mb-2">
                 <span className={cn('text-[22px] leading-none metric-number', consistencyScore >= 60 ? 'text-[#10b981]' : consistencyScore >= 40 ? 'text-[#f59e0b]' : 'text-[#f87171]')}>
                   {consistencyScore}%
                 </span>
-                <span className="text-[11px] text-[rgba(255,255,255,0.3)]">green days</span>
+                <span className="text-[11px] text-muted-foreground/50">green days</span>
               </div>
               <ProgressBar
                 value={consistencyScore}
                 max={100}
                 color={consistencyScore >= 60 ? '#10b981' : consistencyScore >= 40 ? '#f59e0b' : '#f87171'}
               />
-              <p className="text-[10px] text-[rgba(255,255,255,0.3)] mt-1.5">
+              <p className="text-[10px] text-muted-foreground/60 mt-1.5">
                 {greenStreak > 0 ? `${greenStreak} green day${greenStreak > 1 ? 's' : ''} in a row` : 'No current streak'}
               </p>
             </>
@@ -209,23 +209,23 @@ export function PropFirmCard({ account, trades }: Props) {
       </div>
 
       {/* Challenge stats footer */}
-      <div className="flex items-center gap-4 pt-3 border-t border-[rgba(255,255,255,0.05)]">
+      <div className="flex items-center gap-4 pt-3 border-t border-border">
         <div>
-          <p className="text-[10px] text-[rgba(255,255,255,0.25)] uppercase tracking-wide">Account Size</p>
-          <p className="text-[13px] font-semibold text-white metric-number">${fmt(challengeSize)}</p>
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">Account Size</p>
+          <p className="text-[13px] font-semibold text-foreground metric-number">${fmt(challengeSize)}</p>
         </div>
         <div>
-          <p className="text-[10px] text-[rgba(255,255,255,0.25)] uppercase tracking-wide">Trades Logged</p>
-          <p className="text-[13px] font-semibold text-white metric-number">{challengeTrades.length}</p>
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">Trades Logged</p>
+          <p className="text-[13px] font-semibold text-foreground metric-number">{challengeTrades.length}</p>
         </div>
         {challengeStartDate && (
           <div>
-            <p className="text-[10px] text-[rgba(255,255,255,0.25)] uppercase tracking-wide">Challenge Start</p>
-            <p className="text-[13px] font-semibold text-white">{challengeStartDate}</p>
+            <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wide">Challenge Start</p>
+            <p className="text-[13px] font-semibold text-foreground">{challengeStartDate}</p>
           </div>
         )}
         <div className="flex-1" />
-        <p className="text-[10px] text-[rgba(255,255,255,0.2)]">
+        <p className="text-[10px] text-muted-foreground/40">
           {trailingDrawdown ? 'Trailing drawdown from equity high' : 'Static drawdown from start balance'}
         </p>
       </div>

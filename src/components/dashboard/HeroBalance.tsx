@@ -74,7 +74,7 @@ export function HeroBalance({ nickname, stats, trades, accounts, selectedAccount
 
   return (
     <div className="pb-5 mb-1">
-      <p className="text-[13px] text-muted-foreground mb-3">
+      <p className="text-[13px] text-[var(--ef-ink-3)] mb-3">
         {greeting}, {nickname || 'Trader'}
       </p>
 
