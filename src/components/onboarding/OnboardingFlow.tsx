@@ -45,7 +45,7 @@ function ProgressDots({ step }: { step: Step }) {
               'rounded-full transition-all duration-300',
               isCompleted ? 'w-2.5 h-2.5 bg-white' :
               isActive    ? 'w-2.5 h-2.5 bg-white' :
-                            'w-2 h-2 bg-[rgba(255,255,255,0.2)]',
+                            'w-2 h-2 bg-muted-foreground/30',
             )}
           />
         );
@@ -59,7 +59,7 @@ function BackButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 text-xs text-[rgba(255,255,255,0.35)] hover:text-[rgba(255,255,255,0.6)] transition-colors mb-6"
+      className="flex items-center gap-1.5 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors mb-6"
     >
       <ArrowLeft className="h-3.5 w-3.5" /> Back
     </button>
@@ -78,8 +78,8 @@ function PillButton<T extends string>({
       className={cn(
         'px-4 py-2 rounded-full text-[13px] font-medium transition-all border',
         active
-          ? 'bg-white text-black border-transparent'
-          : 'bg-[rgba(255,255,255,0.04)] text-[rgba(255,255,255,0.45)] border-[rgba(255,255,255,0.1)] hover:text-[rgba(255,255,255,0.7)]',
+          ? 'bg-foreground text-background border-transparent'
+          : 'bg-muted text-muted-foreground border-border hover:text-foreground',
       )}
     >
       {children}
@@ -99,7 +99,7 @@ function GreenButton({
       disabled={disabled || loading}
       className={cn(
         'w-full py-3.5 rounded-[24px] text-[14px] font-bold transition-all',
-        'bg-white text-black hover:bg-white/90',
+        'bg-foreground text-background hover:bg-foreground/90',
         (disabled || loading) && 'opacity-50 cursor-not-allowed',
       )}
     >
@@ -268,8 +268,8 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
           <div
             className="w-full"
             style={{
-              background: '#0f0f0f',
-              border: '0.5px solid rgba(255,255,255,0.08)',
+              background: 'var(--card)',
+              border: '1px solid hsl(var(--border))',
               borderRadius: 16,
               padding: 40,
             }}
@@ -290,37 +290,37 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         <h1 className="text-[22px] font-black tracking-tight mb-2">
           Your trades are lying to you, {nickname}.
         </h1>
-        <p className="text-[13px] text-[rgba(255,255,255,0.4)] leading-relaxed">
+        <p className="text-[13px] text-muted-foreground/70 leading-relaxed">
           Not intentionally — but without data, you're running on gut feeling. EdgeFlow turns every trade into evidence.
         </p>
       </div>
 
       <div className="space-y-3">
-        <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <Activity className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
+        <div className="flex gap-4 p-4 rounded-xl bg-muted/50 border border-border">
+          <Activity className="h-5 w-5 text-muted-foreground/70 shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-white mb-0.5">Find your actual edge</p>
-            <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
+            <p className="text-[13px] font-semibold text-foreground mb-0.5">Find your actual edge</p>
+            <p className="text-[12px] text-muted-foreground/60 leading-relaxed">
               Not what you think works. What the data proves works — by instrument, session, and setup.
             </p>
           </div>
         </div>
 
-        <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <BarChart2 className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
+        <div className="flex gap-4 p-4 rounded-xl bg-muted/50 border border-border">
+          <BarChart2 className="h-5 w-5 text-muted-foreground/70 shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-white mb-0.5">Cut the leaks</p>
-            <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
+            <p className="text-[13px] font-semibold text-foreground mb-0.5">Cut the leaks</p>
+            <p className="text-[12px] text-muted-foreground/60 leading-relaxed">
               Most traders lose 20–40% to avoidable patterns. EdgeFlow shows you exactly which ones are costing you.
             </p>
           </div>
         </div>
 
-        <div className="flex gap-4 p-4 rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.06)]">
-          <Brain className="h-5 w-5 text-[rgba(255,255,255,0.6)] shrink-0 mt-0.5" />
+        <div className="flex gap-4 p-4 rounded-xl bg-muted/50 border border-border">
+          <Brain className="h-5 w-5 text-muted-foreground/70 shrink-0 mt-0.5" />
           <div>
-            <p className="text-[13px] font-semibold text-white mb-0.5">Trade the same way every time</p>
-            <p className="text-[12px] text-[rgba(255,255,255,0.4)] leading-relaxed">
+            <p className="text-[13px] font-semibold text-foreground mb-0.5">Trade the same way every time</p>
+            <p className="text-[12px] text-muted-foreground/60 leading-relaxed">
               Consistency beats brilliance. EdgeFlow makes your consistency measurable — and improvable.
             </p>
           </div>
@@ -340,7 +340,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
       <div>
         <h2 className="text-[20px] font-black tracking-tight mb-1">Set up your trading account</h2>
-        <p className="text-[13px] text-[rgba(255,255,255,0.4)]">
+        <p className="text-[13px] text-muted-foreground/60">
           This is where your trades will be logged and tracked.
         </p>
       </div>
@@ -348,20 +348,20 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
       <div className="space-y-4">
         {/* Account Name */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
             Account Name
           </Label>
           <Input
             value={accountName}
             onChange={e => setAccountName(e.target.value)}
             placeholder="My Futures Account"
-            className="mt-1.5 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] h-10"
+            className="mt-1.5 h-10"
           />
         </div>
 
         {/* Account Type */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
             Account Type
           </Label>
           <div className="flex gap-2 mt-1.5">
@@ -375,24 +375,24 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
         {/* Starting Balance */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
             Starting Balance
           </Label>
           <div className="relative mt-1.5">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.35)] text-sm">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-sm">$</span>
             <Input
               type="number"
               value={startingBalance}
               onChange={e => setStartingBalance(e.target.value)}
               placeholder="10,000"
-              className="bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] h-10 pl-7"
+              className="h-10 pl-7"
             />
           </div>
         </div>
 
         {/* Currency */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
             Currency
           </Label>
           <div className="flex gap-2 mt-1.5 flex-wrap">
@@ -409,7 +409,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         Create Account →
       </GreenButton>
 
-      <p className="text-center text-[11px] text-[rgba(255,255,255,0.25)]">
+      <p className="text-center text-[11px] text-muted-foreground/40">
         You can add more accounts later
       </p>
     </div>
@@ -422,7 +422,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
       <div>
         <h2 className="text-[20px] font-black tracking-tight mb-1">What does a valid trade look like?</h2>
-        <p className="text-[13px] text-[rgba(255,255,255,0.4)] leading-relaxed">
+        <p className="text-[13px] text-muted-foreground/60 leading-relaxed">
           Add the criteria every trade must meet before you enter. This becomes your pre-trade checklist.
         </p>
       </div>
@@ -432,14 +432,14 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         {items.map((item, i) => (
           <div
             key={i}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.07)]"
+            className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted/40 border border-border"
           >
             <Check className="h-3.5 w-3.5 text-white shrink-0" />
-            <span className="flex-1 text-[13px] text-[rgba(255,255,255,0.8)]">{item}</span>
+            <span className="flex-1 text-[13px] text-foreground">{item}</span>
             <button
               type="button"
               onClick={() => setItems(prev => prev.filter((_, j) => j !== i))}
-              className="text-[rgba(255,255,255,0.25)] hover:text-[rgba(255,255,255,0.6)] transition-colors"
+              className="text-muted-foreground/40 hover:text-muted-foreground transition-colors"
             >
               <X className="h-3.5 w-3.5" />
             </button>
@@ -454,7 +454,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
             value={newItem}
             onChange={e => setNewItem(e.target.value)}
             placeholder="e.g. HTF trend clear, POI identified, risk defined…"
-            className="bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] h-9 text-sm"
+            className="h-9 text-sm"
             onKeyDown={e => {
               if (e.key === 'Enter' && newItem.trim()) {
                 setItems(prev => [...prev, newItem.trim()]);
@@ -475,7 +475,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
               'px-3 rounded-lg border text-sm transition-colors',
               newItem.trim()
                 ? 'bg-white text-black border-transparent'
-                : 'bg-transparent text-[rgba(255,255,255,0.25)] border-[rgba(255,255,255,0.1)] cursor-not-allowed',
+                : 'bg-transparent text-muted-foreground/30 border-border cursor-not-allowed',
             )}
           >
             <Plus className="h-4 w-4" />
@@ -483,14 +483,14 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         </div>
       )}
       {items.length >= 8 && (
-        <p className="text-[11px] text-[rgba(255,255,255,0.25)]">Maximum 8 items reached</p>
+        <p className="text-[11px] text-muted-foreground/40">Maximum 8 items reached</p>
       )}
 
       <GreenButton onClick={handleStep3} loading={saving} disabled={items.length === 0}>
         Set My Checklist →
       </GreenButton>
 
-      <p className="text-center text-[11px] text-[rgba(255,255,255,0.25)]">
+      <p className="text-center text-[11px] text-muted-foreground/40">
         Don't overthink this — you can customize it anytime in settings
       </p>
     </div>
@@ -503,7 +503,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
       <div>
         <h2 className="text-[20px] font-black tracking-tight mb-1">Log your first trade</h2>
-        <p className="text-[13px] text-[rgba(255,255,255,0.4)]">
+        <p className="text-[13px] text-muted-foreground/60">
           It takes 30 seconds. The more you log, the smarter EdgeFlow gets.
         </p>
       </div>
@@ -511,18 +511,18 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
       <div className="space-y-4">
         {/* Instrument */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Instrument</Label>
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Instrument</Label>
           <Input
             value={instrument}
             onChange={e => setInstrument(e.target.value)}
             placeholder="NQ, ES, EURUSD…"
-            className="mt-1.5 bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] h-10"
+            className="mt-1.5 h-10"
           />
         </div>
 
         {/* Direction */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Direction</Label>
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Direction</Label>
           <div className="flex gap-2 mt-1.5">
             <PillButton value="long"  active={direction === 'long'}  onClick={setDirection}>Long</PillButton>
             <PillButton value="short" active={direction === 'short'} onClick={setDirection}>Short</PillButton>
@@ -531,7 +531,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
         {/* Result */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Result</Label>
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Result</Label>
           <div className="flex gap-2 mt-1.5">
             <PillButton value="win"        active={outcome === 'win'}        onClick={setOutcome}>Win</PillButton>
             <PillButton value="loss"       active={outcome === 'loss'}       onClick={setOutcome}>Loss</PillButton>
@@ -541,22 +541,22 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
         {/* P&L */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">P&amp;L Amount</Label>
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">P&amp;L Amount</Label>
           <div className="relative mt-1.5">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.35)] text-sm">$</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-sm">$</span>
             <Input
               type="number"
               value={pnl}
               onChange={e => setPnl(e.target.value)}
               placeholder="0.00"
-              className="bg-[rgba(255,255,255,0.05)] border-[rgba(255,255,255,0.1)] h-10 pl-7"
+              className="h-10 pl-7"
             />
           </div>
         </div>
 
         {/* Session */}
         <div>
-          <Label className="text-[10px] text-[rgba(255,255,255,0.35)] uppercase tracking-wider">Session</Label>
+          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Session</Label>
           <div className="flex flex-wrap gap-2 mt-1.5">
             {SESSIONS.map(s => (
               <PillButton key={s} value={s} active={tradeSession === s} onClick={setTradeSession}>
@@ -571,12 +571,12 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         Log Trade &amp; Enter EdgeFlow →
       </GreenButton>
 
-      <div className="pt-1 border-t border-[rgba(255,255,255,0.06)]">
+      <div className="pt-1 border-t border-border">
         <button
           type="button"
           onClick={() => handleStep4(true)}
           disabled={saving}
-          className="w-full text-center text-[13px] text-[rgba(255,255,255,0.5)] hover:text-white underline underline-offset-2 transition-colors pt-3"
+          className="w-full text-center text-[13px] text-muted-foreground/60 hover:text-foreground underline underline-offset-2 transition-colors pt-3"
         >
           Skip for now, I'll log trades later
         </button>

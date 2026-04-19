@@ -204,33 +204,33 @@ export default function ImportTrades() {
       <div className="max-w-3xl">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg text-[rgba(255,255,255,0.35)] hover:text-white hover:bg-[rgba(255,255,255,0.06)] transition-all">
+          <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-foreground hover:bg-muted transition-all">
             <ArrowLeft className="h-4 w-4" weight="regular" />
           </button>
           <div>
-            <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Import Trades</h1>
-            <p className="text-xs text-[rgba(255,255,255,0.35)]">Import from CSV — EdgeFlow export, MT4/MT5, or generic</p>
+            <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Import Trades</h1>
+            <p className="text-xs text-muted-foreground/60">Import from CSV — EdgeFlow export, MT4/MT5, or generic</p>
           </div>
         </div>
 
         {result ? (
           /* ── Result state ── */
-          <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-8 text-center space-y-4">
+          <div className="rounded-xl bg-card border border-border p-8 text-center space-y-4">
             <CheckCircle className="h-10 w-10 text-[#10b981] mx-auto" weight="fill" />
             <div>
-              <p className="text-xl font-bold text-white">{result.imported} trades imported</p>
-              {result.skipped > 0 && <p className="text-sm text-[rgba(255,255,255,0.4)] mt-1">{result.skipped} rows skipped (missing required fields)</p>}
+              <p className="text-xl font-bold text-foreground">{result.imported} trades imported</p>
+              {result.skipped > 0 && <p className="text-sm text-muted-foreground/60 mt-1">{result.skipped} rows skipped (missing required fields)</p>}
             </div>
             <div className="flex gap-3 justify-center pt-2">
-              <button onClick={() => navigate('/journal')} className="px-5 py-2 rounded-[24px] bg-white text-black text-sm font-semibold">View Trades</button>
-              <button onClick={() => { setResult(null); setRows([]); setFileName(''); setPreview([]); }} className="px-5 py-2 rounded-[24px] border border-[rgba(255,255,255,0.15)] text-white text-sm">Import More</button>
+              <button onClick={() => navigate('/journal')} className="px-5 py-2 rounded-[24px] bg-foreground text-background text-sm font-semibold">View Trades</button>
+              <button onClick={() => { setResult(null); setRows([]); setFileName(''); setPreview([]); }} className="px-5 py-2 rounded-[24px] border border-border text-foreground text-sm">Import More</button>
             </div>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Step 1 — Template */}
-            <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">1. Select Format</p>
+            <div className="rounded-xl bg-card border border-border p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">1. Select Format</p>
               <div className="grid grid-cols-3 gap-2">
                 {(Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]).map((key) => (
                   <button
@@ -239,12 +239,12 @@ export default function ImportTrades() {
                     className={cn(
                       'text-left p-3 rounded-xl border transition-all',
                       template === key
-                        ? 'border-white/30 bg-white/05'
-                        : 'border-[rgba(255,255,255,0.07)] hover:border-[rgba(255,255,255,0.15)]'
+                        ? 'border-foreground/30 bg-muted'
+                        : 'border-border hover:border-foreground/25'
                     )}
                   >
-                    <p className="text-sm font-semibold text-white mb-0.5">{TEMPLATES[key].label}</p>
-                    <p className="text-[11px] text-[rgba(255,255,255,0.35)] leading-snug">{TEMPLATES[key].hint}</p>
+                    <p className="text-sm font-semibold text-foreground mb-0.5">{TEMPLATES[key].label}</p>
+                    <p className="text-[11px] text-muted-foreground/60 leading-snug">{TEMPLATES[key].hint}</p>
                   </button>
                 ))}
               </div>
@@ -252,14 +252,14 @@ export default function ImportTrades() {
 
             {/* Step 2 — Account */}
             {accounts.length > 0 && (
-              <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">2. Assign to Account</p>
+              <div className="rounded-xl bg-card border border-border p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">2. Assign to Account</p>
                 <div className="flex flex-wrap gap-2">
                   {accounts.map((a) => (
                     <button
                       key={a.id}
                       onClick={() => setSelectedAccountId(a.id)}
-                      className={cn('px-3 py-1.5 rounded-full text-xs border transition-all', selectedAccountId === a.id ? 'border-white/30 text-white' : 'border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.4)]')}
+                      className={cn('px-3 py-1.5 rounded-full text-xs border transition-all', selectedAccountId === a.id ? 'border-foreground/30 bg-foreground text-background' : 'border-border text-muted-foreground')}
                     >
                       {a.name}
                     </button>
@@ -269,25 +269,25 @@ export default function ImportTrades() {
             )}
 
             {/* Step 3 — Upload */}
-            <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">3. Upload CSV File</p>
+            <div className="rounded-xl bg-card border border-border p-5">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">3. Upload CSV File</p>
               <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }} />
               {!fileName ? (
                 <button
                   onClick={() => fileRef.current?.click()}
-                  className="w-full border border-dashed border-[rgba(255,255,255,0.15)] rounded-xl py-10 flex flex-col items-center gap-3 hover:border-[rgba(255,255,255,0.3)] hover:bg-[rgba(255,255,255,0.02)] transition-all"
+                  className="w-full border border-dashed border-border rounded-xl py-10 flex flex-col items-center gap-3 hover:border-foreground/25 hover:bg-muted/30 transition-all"
                 >
-                  <UploadSimple className="h-8 w-8 text-[rgba(255,255,255,0.3)]" weight="regular" />
-                  <p className="text-sm text-[rgba(255,255,255,0.5)]">Click to select a CSV file</p>
+                  <UploadSimple className="h-8 w-8 text-muted-foreground/40" weight="regular" />
+                  <p className="text-sm text-muted-foreground/60">Click to select a CSV file</p>
                 </button>
               ) : (
-                <div className="flex items-center gap-3 p-3 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
-                  <FileText className="h-5 w-5 text-[rgba(255,255,255,0.5)] shrink-0" weight="regular" />
+                <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/40 border border-border">
+                  <FileText className="h-5 w-5 text-muted-foreground/60 shrink-0" weight="regular" />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm text-white truncate">{fileName}</p>
-                    <p className="text-xs text-[rgba(255,255,255,0.35)]">{rows.length} rows detected</p>
+                    <p className="text-sm text-foreground truncate">{fileName}</p>
+                    <p className="text-xs text-muted-foreground/50">{rows.length} rows detected</p>
                   </div>
-                  <button onClick={() => { setFileName(''); setRows([]); setPreview([]); if (fileRef.current) fileRef.current.value = ''; }} className="text-[rgba(255,255,255,0.3)] hover:text-white">
+                  <button onClick={() => { setFileName(''); setRows([]); setPreview([]); if (fileRef.current) fileRef.current.value = ''; }} className="text-muted-foreground/40 hover:text-foreground">
                     <X className="h-4 w-4" weight="regular" />
                   </button>
                 </div>
@@ -296,27 +296,27 @@ export default function ImportTrades() {
 
             {/* Preview */}
             {preview.length > 0 && (
-              <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.35)] mb-3">Preview (first 5 rows)</p>
+              <div className="rounded-xl bg-card border border-border p-5">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">Preview (first 5 rows)</p>
                 <div className="space-y-2">
                   {preview.map((p, i) => (
-                    <div key={i} className={cn('flex items-center gap-3 p-3 rounded-lg text-sm', p.parsed ? 'bg-[rgba(16,185,129,0.05)] border border-[rgba(16,185,129,0.15)]' : 'bg-[rgba(248,113,113,0.05)] border border-[rgba(248,113,113,0.15)]')}>
+                    <div key={i} className={cn('flex items-center gap-3 p-3 rounded-lg text-sm', p.parsed ? 'bg-[rgba(16,185,129,0.06)] border border-[rgba(16,185,129,0.2)]' : 'bg-[rgba(248,113,113,0.06)] border border-[rgba(248,113,113,0.2)]')}>
                       {p.parsed ? (
                         <CheckCircle className="h-4 w-4 text-[#10b981] shrink-0" weight="fill" />
                       ) : (
                         <Warning className="h-4 w-4 text-[#f87171] shrink-0" weight="fill" />
                       )}
                       {p.parsed ? (
-                        <span className="text-[rgba(255,255,255,0.7)] font-mono text-xs">
+                        <span className="text-foreground font-mono text-xs">
                           {p.parsed.date} · {p.parsed.instrument} · {p.parsed.direction} · {p.parsed.outcome} · ${p.parsed.pnl?.toFixed(2)}
                         </span>
                       ) : (
-                        <span className="text-[rgba(255,255,255,0.4)] text-xs">Row {i + 1} — missing required fields (date, instrument)</span>
+                        <span className="text-muted-foreground/60 text-xs">Row {i + 1} — missing required fields (date, instrument)</span>
                       )}
                     </div>
                   ))}
                 </div>
-                <p className="text-xs text-[rgba(255,255,255,0.35)] mt-3">
+                <p className="text-xs text-muted-foreground/50 mt-3">
                   {rows.length} total rows — estimated {Math.round((validCount / Math.min(preview.length, rows.length)) * rows.length)} will import successfully
                 </p>
               </div>

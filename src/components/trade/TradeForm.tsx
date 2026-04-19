@@ -30,16 +30,16 @@ interface TradeFormProps {
   onCancel?: () => void;
 }
 
-const LABEL = 'text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]';
-const INPUT = 'mt-1 bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] h-9 placeholder:text-[rgba(255,255,255,0.2)] focus-visible:ring-0 focus-visible:border-[rgba(255,255,255,0.3)]';
+const LABEL = 'text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60';
+const INPUT = 'mt-1 h-9';
 
 const btn = (active: boolean, variant: 'neutral' | 'loss' | 'be' = 'neutral') => cn(
   'flex-1 flex items-center justify-center gap-1 py-2 rounded-lg text-xs font-semibold transition-all border h-9 outline-none',
   active
     ? variant === 'loss' ? 'bg-[rgba(248,113,113,0.12)] text-[#f87171] border-[rgba(248,113,113,0.25)]'
-    : variant === 'be'   ? 'bg-[rgba(255,255,255,0.08)] text-white border-[rgba(255,255,255,0.2)]'
-    : 'bg-white text-black border-transparent'
-    : 'bg-transparent border-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.4)] hover:text-white hover:border-[rgba(255,255,255,0.25)]'
+    : variant === 'be'   ? 'bg-muted text-foreground border-border'
+    : 'bg-foreground text-background border-transparent'
+    : 'bg-transparent border-border text-muted-foreground/60 hover:text-foreground hover:border-foreground/25'
 );
 
 // Detect trading session from local hour
@@ -136,7 +136,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       <Tooltip open={openTooltip === id} onOpenChange={() => {}}>
         <TooltipTrigger asChild>
           <button type="button" className="ml-1 inline-flex outline-none" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpenTooltip(prev => prev === id ? null : id); }}>
-            <Question className="h-3 w-3 text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] transition-colors" weight="regular" />
+            <Question className="h-3 w-3 text-muted-foreground/40 hover:text-muted-foreground transition-colors" weight="regular" />
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="max-w-[200px] text-xs" onPointerDownOutside={() => setOpenTooltip(null)}>
@@ -229,7 +229,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       className="space-y-3"
     >
       {/* ─── Core Fields ─── */}
-      <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 space-y-4">
+      <div className="rounded-xl bg-card border border-border p-5 space-y-4">
 
         {/* Account */}
         {accounts.length > 1 && (
@@ -255,12 +255,12 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                 <button
                   type="button"
                   className={cn(
-                    'mt-1 flex h-9 w-full items-center justify-between rounded-md border bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] px-3 py-2 text-sm font-mono outline-none hover:border-[rgba(255,255,255,0.25)] transition-colors',
-                    !form.date && 'text-[rgba(255,255,255,0.3)]'
+                    'mt-1 flex h-9 w-full items-center justify-between rounded-md border bg-background border-input px-3 py-2 text-sm font-mono outline-none hover:border-foreground/25 transition-colors',
+                    !form.date && 'text-muted-foreground/60'
                   )}
                 >
                   {form.date ? form.date.slice(0, 10) : 'Pick a date'}
-                  <CalendarBlank className="h-3.5 w-3.5 text-[rgba(255,255,255,0.35)]" weight="regular" />
+                  <CalendarBlank className="h-3.5 w-3.5 text-muted-foreground/50" weight="regular" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-3 pointer-events-auto" align="start">
@@ -350,7 +350,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       <button
         type="button"
         onClick={() => setShowAdvanced(v => !v)}
-        className="flex items-center gap-2 text-[11px] font-medium text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] transition-colors outline-none px-1"
+        className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground/50 hover:text-muted-foreground transition-colors outline-none px-1"
       >
         {showAdvanced
           ? <CaretUp className="h-3 w-3" weight="bold" />
@@ -370,7 +370,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5 space-y-4">
+            <div className="rounded-xl bg-card border border-border p-5 space-y-4">
               {/* Row 4: HTF Bias, Emotional State, Confidence */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
@@ -430,7 +430,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                     value={form.notes}
                     onChange={e => update('notes', e.target.value)}
                     placeholder="Quick notes..."
-                    className="mt-1 bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)] min-h-[36px] h-9 resize-none text-sm py-2 focus-visible:ring-0 focus-visible:border-[rgba(255,255,255,0.3)] placeholder:text-[rgba(255,255,255,0.2)]"
+                    className="mt-1 min-h-[36px] h-9 resize-none text-sm py-2"
                   />
                 </div>
               </div>
@@ -443,7 +443,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                     <img
                       src={screenshotPreview ?? ''}
                       alt="Chart screenshot"
-                      className="h-28 w-auto rounded-lg border border-[rgba(255,255,255,0.1)] object-cover"
+                      className="h-28 w-auto rounded-lg border border-border object-cover"
                     />
                     <button
                       type="button"
@@ -454,9 +454,9 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                     </button>
                   </div>
                 ) : (
-                  <label className="mt-1 flex flex-col items-center justify-center gap-1.5 h-20 rounded-lg border border-dashed border-[rgba(255,255,255,0.15)] cursor-pointer hover:border-[rgba(255,255,255,0.3)] transition-colors">
-                    <Image className="h-5 w-5 text-[rgba(255,255,255,0.25)]" weight="regular" />
-                    <span className="text-[11px] text-[rgba(255,255,255,0.3)]">Click or drag to attach chart</span>
+                  <label className="mt-1 flex flex-col items-center justify-center gap-1.5 h-20 rounded-lg border border-dashed border-border cursor-pointer hover:border-foreground/25 transition-colors">
+                    <Image className="h-5 w-5 text-muted-foreground/40" weight="regular" />
+                    <span className="text-[11px] text-muted-foreground/50">Click or drag to attach chart</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -473,7 +473,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
 
       {/* ─── Entry Checklist ─── */}
       {activeCriteria.length > 0 && (
-        <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-5">
+        <div className="rounded-xl bg-card border border-border p-5">
           <TradeChecklist checks={checks} onChange={setChecks} />
         </div>
       )}
@@ -490,7 +490,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}
-            className="text-[rgba(255,255,255,0.4)] hover:text-white">
+            className="text-muted-foreground/60 hover:text-foreground">
             Cancel
           </Button>
         )}

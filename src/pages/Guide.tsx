@@ -124,7 +124,7 @@ export default function Guide() {
                   {done ? (
                     <CheckCircle2 className="h-4 w-4 text-white shrink-0" />
                   ) : (
-                    <Icon className="h-4 w-4 shrink-0" style={{ color: 'rgba(255,255,255,0.5)' }} />
+                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground/60" />
                   )}
                   <span className="truncate">{s.title}</span>
                 </button>
@@ -144,8 +144,8 @@ export default function Guide() {
               >
                 <div className="glass-card p-6">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="p-2.5 rounded-xl" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                      <activeSection.icon className="h-5 w-5" style={{ color: 'rgba(255,255,255,0.6)' }} />
+                    <div className="p-2.5 rounded-xl bg-muted">
+                      <activeSection.icon className="h-5 w-5 text-muted-foreground" />
                     </div>
                     <div>
                       <h2 className="text-lg font-bold">{activeSection.title}</h2>

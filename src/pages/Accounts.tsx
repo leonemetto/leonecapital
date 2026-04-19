@@ -392,7 +392,7 @@ const Accounts = () => {
                           setEditingBalance(null);
                           toast.success('Balance updated');
                         }}
-                        className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)] hover:text-white"
+                        className="p-0.5 rounded hover:bg-muted text-muted-foreground/60 hover:text-foreground"
                       >
                         <Check className="h-3 w-3" weight="bold" />
                       </button>

@@ -35,7 +35,6 @@ function ExpectancyTable({
   field?: string;
   onSimulate?: (key: string, field: string) => void;
 }) {
-  // Filter out rows with unknown/insufficient data and fewer than 2 trades
   const cleanData = data.filter(r =>
     r.key !== 'Unknown' &&
     r.key !== '' &&
@@ -50,18 +49,17 @@ function ExpectancyTable({
   const minExp = Math.min(...cleanData.map(r => r.expectancy));
 
   return (
-    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] overflow-hidden">
-      {/* Table header */}
-      <div className="px-6 py-4 border-b border-[rgba(255,255,255,0.06)]">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.4)]">{title}</p>
+    <div className="rounded-xl bg-card border border-border overflow-hidden">
+      <div className="px-6 py-4 border-b border-border">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">{title}</p>
       </div>
 
-      <div className="divide-y divide-[rgba(255,255,255,0.04)]">
+      <div className="divide-y divide-border/50">
         {/* Column labels */}
         <div className="grid grid-cols-[1fr_60px_60px_70px_70px_60px_32px] gap-2 px-6 py-2">
           {['Segment','Trades','Win%','Avg R','Expect.','P&L',''].map((h, i) => (
             <span key={i} className={cn(
-              'text-[9px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.2)]',
+              'text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/40',
               i === 0 ? '' : 'text-right'
             )}>{h}</span>
           ))}
@@ -80,39 +78,39 @@ function ExpectancyTable({
               key={row.key}
               className={cn(
                 'grid grid-cols-[1fr_60px_60px_70px_70px_60px_32px] gap-2 px-6 py-3.5 items-center transition-colors',
-                isBest ? 'hover:bg-[rgba(16,185,129,0.04)]' : isWorst ? 'hover:bg-[rgba(248,113,113,0.04)]' : 'hover:bg-[rgba(255,255,255,0.02)]'
+                isBest ? 'hover:bg-[var(--ef-pos-wash)]' : isWorst ? 'hover:bg-[var(--ef-neg-wash)]' : 'hover:bg-muted/30'
               )}
             >
               {/* Segment name */}
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className={cn(
                   'w-0.5 h-5 rounded-full shrink-0',
-                  isBest ? 'bg-[#10b981]' : isWorst ? 'bg-[#f87171]' : 'bg-[rgba(255,255,255,0.08)]'
+                  isBest ? 'bg-[#10b981]' : isWorst ? 'bg-[#f87171]' : 'bg-border'
                 )} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="text-[13px] font-medium text-[rgba(255,255,255,0.85)] truncate">{row.key}</span>
+                    <span className="text-[13px] font-medium text-foreground truncate">{row.key}</span>
                     {isLeak && (
-                      <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded-full shrink-0">
+                      <span className="inline-flex items-center gap-0.5 text-[8px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-full shrink-0">
                         <Warning className="h-2.5 w-2.5" weight="fill" /> LEAK
                       </span>
                     )}
                   </div>
                   {isLeak && field && (
-                    <p className="text-[10px] text-[rgba(255,255,255,0.25)] mt-0.5 leading-tight">
+                    <p className="text-[10px] text-muted-foreground/50 mt-0.5 leading-tight">
                       {getLeakDiagnostic(field, row.key, row.expectancy, row.winRate)}
                     </p>
                   )}
                 </div>
               </div>
 
-              <span className="text-right text-[12px] font-mono text-[rgba(255,255,255,0.3)]">{row.trades}</span>
+              <span className="text-right text-[12px] font-mono text-muted-foreground/50">{row.trades}</span>
 
               <span className={cn('text-right text-[12px] metric-number', row.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f87171]')}>
                 {row.winRate}%
               </span>
 
-              <span className={cn('text-right text-[12px] metric-number', (row.avgR ?? 0) >= 0 ? 'text-[rgba(255,255,255,0.6)]' : 'text-[#f87171]')}>
+              <span className={cn('text-right text-[12px] metric-number', (row.avgR ?? 0) >= 0 ? 'text-muted-foreground' : 'text-[#f87171]')}>
                 {row.avgR || '—'}
               </span>
 
@@ -122,7 +120,7 @@ function ExpectancyTable({
                   className={cn('absolute inset-y-0 right-0 rounded-sm opacity-[0.12]', row.expectancy > 0 ? 'bg-[#10b981]' : row.expectancy < 0 ? 'bg-[#f87171]' : '')}
                   style={{ width: `${barWidth}%` }}
                 />
-                <span className={cn('relative z-10 text-[12px] metric-number', row.expectancy > 0 ? 'text-[#10b981]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-[rgba(255,255,255,0.5)]')}>
+                <span className={cn('relative z-10 text-[12px] metric-number', row.expectancy > 0 ? 'text-[#10b981]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-muted-foreground/60')}>
                   {row.expectancy}
                 </span>
               </div>
@@ -149,7 +147,7 @@ function ExpectancyTable({
                     onClick={() => onSimulate(row.key, field)}
                     className={cn(
                       'p-1.5 rounded-lg transition-colors',
-                      isLeak ? 'text-amber-400 hover:bg-amber-400/10' : 'text-[rgba(255,255,255,0.2)] hover:text-white hover:bg-[rgba(255,255,255,0.06)]'
+                      isLeak ? 'text-amber-500 hover:bg-amber-500/10' : 'text-muted-foreground/40 hover:text-foreground hover:bg-muted'
                     )}
                     title="Simulate removing this filter"
                   >
@@ -171,22 +169,22 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
 
   if (tradeCount < THRESHOLD) {
     return (
-      <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-8 text-center">
-        <Brain className="h-8 w-8 text-[rgba(255,255,255,0.15)] mx-auto mb-4" weight="regular" />
-        <p className="text-[15px] font-semibold text-white mb-2">
+      <div className="rounded-xl bg-card border border-border p-8 text-center">
+        <Brain className="h-8 w-8 text-muted-foreground/30 mx-auto mb-4" weight="regular" />
+        <p className="text-[15px] font-semibold text-foreground mb-2">
           {THRESHOLD - tradeCount} more trades to unlock pattern detection
         </p>
-        <p className="text-sm text-[rgba(255,255,255,0.35)] mb-6 max-w-sm mx-auto">
+        <p className="text-sm text-muted-foreground/60 mb-6 max-w-sm mx-auto">
           EdgeFlow needs at least {THRESHOLD} trades to surface meaningful behavioral signals and psychological patterns.
         </p>
         <div className="flex items-center gap-3 max-w-xs mx-auto">
-          <div className="flex-1 h-1.5 bg-[rgba(255,255,255,0.06)] rounded-full overflow-hidden">
+          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-white rounded-full transition-all"
+              className="h-full bg-foreground rounded-full transition-all"
               style={{ width: `${Math.min((tradeCount / THRESHOLD) * 100, 100)}%` }}
             />
           </div>
-          <span className="text-[12px] font-mono text-[rgba(255,255,255,0.3)] shrink-0">{tradeCount} / {THRESHOLD}</span>
+          <span className="text-[12px] font-mono text-muted-foreground/50 shrink-0">{tradeCount} / {THRESHOLD}</span>
         </div>
       </div>
     );
@@ -194,18 +192,18 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
 
   if (insights.length === 0) {
     return (
-      <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] p-8 text-center">
+      <div className="rounded-xl bg-card border border-border p-8 text-center">
         <ShieldCheck className="h-8 w-8 text-[#10b981] mx-auto mb-3" weight="regular" />
-        <p className="text-[15px] font-semibold text-white mb-1">No significant patterns detected</p>
-        <p className="text-sm text-[rgba(255,255,255,0.35)]">Keep logging consistently to build a reliable data set.</p>
+        <p className="text-[15px] font-semibold text-foreground mb-1">No significant patterns detected</p>
+        <p className="text-sm text-muted-foreground/60">Keep logging consistently to build a reliable data set.</p>
       </div>
     );
   }
 
   const severityConfig: Record<string, { border: string; dot: string; tag: string; tagColor: string }> = {
-    high:   { border: 'border-[rgba(248,113,113,0.2)]',  dot: 'bg-[#f87171]',  tag: 'HIGH',   tagColor: 'text-[#f87171] bg-[rgba(248,113,113,0.1)]' },
-    medium: { border: 'border-[rgba(251,191,36,0.2)]',   dot: 'bg-amber-400',  tag: 'MEDIUM', tagColor: 'text-amber-400 bg-amber-400/10' },
-    low:    { border: 'border-[rgba(255,255,255,0.07)]',  dot: 'bg-[rgba(255,255,255,0.2)]', tag: 'LOW', tagColor: 'text-[rgba(255,255,255,0.3)] bg-[rgba(255,255,255,0.06)]' },
+    high:   { border: 'border-[rgba(248,113,113,0.25)]',  dot: 'bg-[#f87171]',  tag: 'HIGH',   tagColor: 'text-[#f87171] bg-[rgba(248,113,113,0.1)]' },
+    medium: { border: 'border-[rgba(251,191,36,0.25)]',   dot: 'bg-amber-500',  tag: 'MEDIUM', tagColor: 'text-amber-500 bg-amber-500/10' },
+    low:    { border: 'border-border',                     dot: 'bg-muted-foreground/30', tag: 'LOW', tagColor: 'text-muted-foreground/50 bg-muted' },
   };
 
   return (
@@ -218,26 +216,25 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className={cn('rounded-xl border bg-[rgba(255,255,255,0.02)] px-5 py-4', cfg.border)}
+            className={cn('rounded-xl border bg-card px-5 py-4', cfg.border)}
           >
             <div className="flex items-start gap-4">
               <div className={cn('w-0.5 h-full min-h-[2.5rem] rounded-full shrink-0 self-stretch', cfg.dot)} />
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between gap-3">
-                  <p className="text-[13px] font-medium text-[rgba(255,255,255,0.85)] leading-snug">{insight.message}</p>
+                  <p className="text-[13px] font-medium text-foreground leading-snug">{insight.message}</p>
                   <span className={cn('text-[9px] font-bold tracking-wider px-2 py-0.5 rounded-full shrink-0 mt-0.5', cfg.tagColor)}>
                     {cfg.tag}
                   </span>
                 </div>
-                <p className="text-[11px] text-[rgba(255,255,255,0.3)] font-mono mt-1.5">{insight.stat}</p>
+                <p className="text-[11px] text-muted-foreground/50 font-mono mt-1.5">{insight.stat}</p>
                 {insight.severity === 'high' && onSimulate && (
                   <button
                     onClick={() => {
-                      // Map behavioral type to a simulate field where applicable
                       if (insight.type === 'plan-deviation') onSimulate('No', 'followedPlan');
                       else if (insight.type === 'emotional') onSimulate('1', 'emotionalState');
                     }}
-                    className="mt-2.5 flex items-center gap-1.5 text-[10px] font-semibold text-[rgba(255,255,255,0.4)] hover:text-white border border-[rgba(255,255,255,0.1)] hover:border-[rgba(255,255,255,0.25)] rounded-full px-3 py-1 transition-all"
+                    className="mt-2.5 flex items-center gap-1.5 text-[10px] font-semibold text-muted-foreground hover:text-foreground border border-border hover:border-foreground/25 rounded-full px-3 py-1 transition-all"
                   >
                     <Lightning className="h-2.5 w-2.5" weight="bold" />
                     Simulate removing this from your trading
@@ -256,9 +253,9 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
 function RiskIndicator({ trades }: { trades: Trade[] }) {
   const risk = getCurrentRiskStatus(trades);
   const config = {
-    green:  { border: 'border-[rgba(16,185,129,0.2)]',  bg: 'bg-[rgba(16,185,129,0.04)]',  iconBg: 'bg-[rgba(16,185,129,0.1)]',  text: 'text-[#10b981]',  label: 'All Clear',   Icon: ShieldCheck },
-    yellow: { border: 'border-[rgba(251,191,36,0.2)]',   bg: 'bg-[rgba(251,191,36,0.04)]',   iconBg: 'bg-amber-400/10',             text: 'text-amber-400',  label: 'Caution',     Icon: Warning },
-    red:    { border: 'border-[rgba(248,113,113,0.2)]',  bg: 'bg-[rgba(248,113,113,0.04)]',  iconBg: 'bg-[rgba(248,113,113,0.1)]', text: 'text-[#f87171]',  label: 'Risk Alert',  Icon: TrendDown },
+    green:  { border: 'border-[rgba(16,185,129,0.25)]',  bg: 'bg-[rgba(16,185,129,0.05)]',  iconBg: 'bg-[rgba(16,185,129,0.1)]',  text: 'text-[#10b981]',  label: 'All Clear',   Icon: ShieldCheck },
+    yellow: { border: 'border-[rgba(251,191,36,0.25)]',   bg: 'bg-amber-500/5',               iconBg: 'bg-amber-500/10',             text: 'text-amber-500',  label: 'Caution',     Icon: Warning },
+    red:    { border: 'border-[rgba(248,113,113,0.25)]',  bg: 'bg-[rgba(248,113,113,0.05)]',  iconBg: 'bg-[rgba(248,113,113,0.1)]', text: 'text-[#f87171]',  label: 'Risk Alert',  Icon: TrendDown },
   }[risk.status];
   const { Icon } = config;
 
@@ -269,11 +266,11 @@ function RiskIndicator({ trades }: { trades: Trade[] }) {
       </div>
       <div className="flex-1">
         <p className={cn('text-[13px] font-bold mb-0.5', config.text)}>{config.label}</p>
-        <p className="text-[13px] text-[rgba(255,255,255,0.5)]">{risk.message}</p>
+        <p className="text-[13px] text-muted-foreground/60">{risk.message}</p>
       </div>
       {risk.drawdownR > 0 && (
         <div className="text-right shrink-0">
-          <p className="text-[10px] text-[rgba(255,255,255,0.3)] uppercase tracking-wider mb-0.5">Drawdown</p>
+          <p className="text-[10px] text-muted-foreground/50 uppercase tracking-wider mb-0.5">Drawdown</p>
           <p className={cn('text-[18px] font-bold font-mono', config.text)}>{risk.drawdownR}R</p>
         </div>
       )}
@@ -346,15 +343,15 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
   }, [result]);
 
   return (
-    <div className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] overflow-hidden">
-      <div className="px-6 py-5 border-b border-[rgba(255,255,255,0.06)]">
+    <div className="rounded-xl bg-card border border-border overflow-hidden">
+      <div className="px-6 py-5 border-b border-border">
         <div className="flex items-center gap-2 mb-1">
-          <Lightning className="h-4 w-4 text-[rgba(255,255,255,0.4)]" weight="regular" />
-          <p className="text-[13px] font-semibold text-white">Strategy Optimizer</p>
+          <Lightning className="h-4 w-4 text-muted-foreground/50" weight="regular" />
+          <p className="text-[13px] font-semibold text-foreground">Strategy Optimizer</p>
         </div>
-        <p className="text-[12px] text-[rgba(255,255,255,0.35)]">
+        <p className="text-[12px] text-muted-foreground/60">
           Apply filters to see what your performance looks like if you only took certain setups.
-          The <span className="text-white">solid green line</span> is your filtered portfolio — the <span className="text-[rgba(255,255,255,0.4)]">dashed line</span> is your full history.
+          The <span className="text-[#10b981] font-semibold">solid green line</span> is your filtered portfolio — the <span className="text-muted-foreground">dashed line</span> is your full history.
           If the green line finishes higher, that filter improves your results — consider trading only those conditions.
         </p>
       </div>
@@ -368,9 +365,9 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
             { label: 'Min Emotion', value: minEmotion, onChange: setMinEmotion, options: [{ value: '__any__', label: 'Any' }, ...[3,4,5].map(n => ({ value: String(n), label: `${n}+ out of 5` }))] },
           ].map(({ label, value, onChange, options }) => (
             <div key={label}>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)] mb-2">{label}</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-2">{label}</p>
               <Select value={value} onValueChange={onChange}>
-                <SelectTrigger className="h-9 text-xs bg-[rgba(255,255,255,0.04)] border-[rgba(255,255,255,0.1)]">
+                <SelectTrigger className="h-9 text-xs">
                   <SelectValue placeholder="Any" />
                 </SelectTrigger>
                 <SelectContent>
@@ -384,7 +381,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
         <div className="flex flex-wrap items-center gap-5">
           <div className="flex items-center gap-2">
             <Checkbox id="plan" checked={followedPlan} onCheckedChange={v => setFollowedPlan(!!v)} />
-            <Label htmlFor="plan" className="text-[13px] text-[rgba(255,255,255,0.5)] cursor-pointer">Plan followed trades only</Label>
+            <Label htmlFor="plan" className="text-[13px] text-muted-foreground cursor-pointer">Plan followed trades only</Label>
           </div>
           <div className="flex flex-wrap gap-2">
             {SESSIONS.map(s => (
@@ -395,8 +392,8 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
                 className={cn(
                   'text-[11px] px-3 py-1.5 rounded-full border transition-all',
                   selectedSessions.includes(s)
-                    ? 'bg-white text-black border-white font-semibold'
-                    : 'bg-transparent border-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.4)] hover:text-white hover:border-[rgba(255,255,255,0.25)]'
+                    ? 'bg-foreground text-background border-foreground font-semibold'
+                    : 'bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/25'
                 )}
               >
                 {s}
@@ -409,7 +406,7 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
           <Button
             size="sm"
             onClick={() => runSimulationWithValues()}
-            className="gap-2 bg-white text-black hover:bg-white/90 rounded-[24px] font-semibold px-5"
+            className="gap-2 bg-foreground text-background hover:bg-foreground/90 rounded-[24px] font-semibold px-5"
           >
             <Pulse className="h-3.5 w-3.5" weight="bold" /> Run Simulation
           </Button>
@@ -424,19 +421,19 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
                 { label: 'Expectancy', orig: result.originalExpectancy.toFixed(3),         filt: result.filteredExpectancy.toFixed(3),         badge: highExpectancy },
                 { label: 'Net P&L',    orig: `$${result.originalPnl.toFixed(0)}`,          filt: `$${result.filteredPnl.toFixed(0)}`,          badge: false },
               ].map(m => (
-                <div key={m.label} className="rounded-xl bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)] px-4 py-4">
+                <div key={m.label} className="rounded-xl bg-muted/40 border border-border px-4 py-4">
                   <div className="flex items-center gap-1 mb-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">{m.label}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">{m.label}</p>
                     {m.badge && <Lightning className="h-3 w-3 text-[#10b981]" />}
                   </div>
-                  <p className="text-[11px] text-[rgba(255,255,255,0.2)] line-through font-mono mb-1">{m.orig}</p>
-                  <p className="text-[20px] text-white leading-none metric-number">{m.filt}</p>
+                  <p className="text-[11px] text-muted-foreground/40 line-through font-mono mb-1">{m.orig}</p>
+                  <p className="text-[20px] text-foreground leading-none metric-number">{m.filt}</p>
                 </div>
               ))}
             </div>
 
             {drawdownReduced && (
-              <div className="flex items-center gap-2 text-[12px] text-[#10b981] font-mono bg-[rgba(16,185,129,0.04)] rounded-xl px-4 py-3 border border-[rgba(16,185,129,0.12)]">
+              <div className="flex items-center gap-2 text-[12px] text-[#10b981] font-mono bg-[rgba(16,185,129,0.06)] rounded-xl px-4 py-3 border border-[rgba(16,185,129,0.15)]">
                 <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
                 Max drawdown reduced: ${result.originalMaxDrawdown.toFixed(0)} → ${result.filteredMaxDrawdown.toFixed(0)}
               </div>
@@ -445,8 +442,8 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
             <div className={cn(
               'text-center py-3 rounded-xl text-[13px] font-medium',
               result.filteredPnl >= result.originalPnl
-                ? 'bg-[rgba(16,185,129,0.05)] text-[#10b981] border border-[rgba(16,185,129,0.12)]'
-                : 'bg-[rgba(255,255,255,0.02)] text-[rgba(255,255,255,0.4)] border border-[rgba(255,255,255,0.06)]'
+                ? 'bg-[rgba(16,185,129,0.06)] text-[#10b981] border border-[rgba(16,185,129,0.15)]'
+                : 'bg-muted text-muted-foreground border border-border'
             )}>
               {insightText}
             </div>
@@ -461,13 +458,13 @@ function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?:
                         <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
-                    <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fill: 'rgba(255,255,255,0.2)', fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={v => `$${v}`} />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ef-line)" vertical={false} />
+                    <XAxis dataKey="date" tick={{ fill: 'var(--ef-ink-4)', fontSize: 9 }} tickLine={false} axisLine={false} />
+                    <YAxis tick={{ fill: 'var(--ef-ink-4)', fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={v => `$${v}`} />
                     <Tooltip
-                      contentStyle={{ backgroundColor: '#000', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', color: '#fff', fontSize: 11, padding: '8px 14px' }}
+                      contentStyle={{ backgroundColor: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)', borderRadius: '12px', color: 'var(--ef-ink)', fontSize: 11, padding: '8px 14px' }}
                     />
-                    <Area type="monotone" dataKey="original" stroke="rgba(255,255,255,0.15)" strokeWidth={1} strokeDasharray="4 3" fill="none" name="All Trades" />
+                    <Area type="monotone" dataKey="original" stroke="var(--ef-line)" strokeWidth={1} strokeDasharray="4 3" fill="none" name="All Trades" />
                     <Area type="monotone" dataKey="filtered" stroke="#10b981" strokeWidth={1.5} fill="url(#filteredGrad)" name="Filtered Strategy" connectNulls />
                   </AreaChart>
                 </ResponsiveContainer>
@@ -521,11 +518,11 @@ const PerformanceAnalyst = () => {
     return (
       <AppLayout>
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
-          <div className="p-4 rounded-2xl bg-[rgba(255,255,255,0.04)] mb-6 border border-[rgba(255,255,255,0.07)]">
-            <ChartBar className="h-10 w-10 text-[rgba(255,255,255,0.3)]" weight="regular" />
+          <div className="p-4 rounded-2xl bg-muted mb-6 border border-border">
+            <ChartBar className="h-10 w-10 text-muted-foreground/40" weight="regular" />
           </div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px] mb-2">Performance Analytic</h1>
-          <p className="text-[14px] text-[rgba(255,255,255,0.35)]">Log your first trade to unlock deep analytics.</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px] mb-2">Performance Analytic</h1>
+          <p className="text-[14px] text-muted-foreground/60">Log your first trade to unlock deep analytics.</p>
         </div>
       </AppLayout>
     );
@@ -537,16 +534,16 @@ const PerformanceAnalyst = () => {
       {/* ── Header ── */}
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Performance Analytic</h1>
-          <p className="text-[13px] text-[rgba(255,255,255,0.35)] mt-1">
+          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Performance Analytic</h1>
+          <p className="text-[13px] text-muted-foreground/60 mt-1">
             Identify leaks, find your edge, simulate improvements
           </p>
         </div>
         {accounts.length > 1 && (
           <div className="flex items-center gap-2">
-            <Funnel className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
+            <Funnel className="h-3.5 w-3.5 text-muted-foreground/50" weight="regular" />
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
-              <SelectTrigger className="w-[160px] h-8 text-xs border-[rgba(255,255,255,0.1)] bg-transparent">
+              <SelectTrigger className="w-[160px] h-8 text-xs">
                 <SelectValue placeholder="All Accounts" />
               </SelectTrigger>
               <SelectContent>
@@ -565,7 +562,7 @@ const PerformanceAnalyst = () => {
 
       {/* ── Key Metrics ── */}
       <div className="mb-8">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.3)] mb-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60 mb-4">
           Key Metrics
         </p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -574,7 +571,7 @@ const PerformanceAnalyst = () => {
               label: 'R-Expectancy',
               value: stats.rExpectancy ? stats.rExpectancy.toFixed(3) : '—',
               sub: 'Expected R per trade',
-              color: stats.rExpectancy > 0 ? 'text-[#10b981]' : stats.rExpectancy < 0 ? 'text-[#f87171]' : 'text-white',
+              color: stats.rExpectancy > 0 ? 'text-[#10b981]' : stats.rExpectancy < 0 ? 'text-[#f87171]' : 'text-foreground',
               badge: stats.rExpectancy > 0.5,
             },
             {
@@ -595,7 +592,7 @@ const PerformanceAnalyst = () => {
               label: 'Max Drawdown',
               value: `$${stats.maxDrawdown}`,
               sub: 'Peak to trough loss',
-              color: stats.maxDrawdown > 0 ? 'text-[#f87171]' : 'text-white',
+              color: stats.maxDrawdown > 0 ? 'text-[#f87171]' : 'text-foreground',
               badge: false,
             },
           ].map((s, i) => (
@@ -604,10 +601,10 @@ const PerformanceAnalyst = () => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.06 }}
-              className="rounded-xl bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] px-5 py-5"
+              className="rounded-xl bg-card border border-border px-5 py-5"
             >
               <div className="flex items-center justify-between mb-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.3)]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
                   {s.label}
                 </p>
                 {s.badge && <Lightning className="h-3.5 w-3.5 text-[#10b981]" weight="fill" />}
@@ -615,7 +612,7 @@ const PerformanceAnalyst = () => {
               <p className={cn('text-[32px] leading-none mb-2 metric-number', s.color)}>
                 {s.value}
               </p>
-              <p className="text-[11px] text-[rgba(255,255,255,0.25)]">{s.sub}</p>
+              <p className="text-[11px] text-muted-foreground/50">{s.sub}</p>
             </motion.div>
           ))}
         </div>
@@ -624,12 +621,12 @@ const PerformanceAnalyst = () => {
       {/* ── Behavioral Patterns ── */}
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
-          <Brain className="h-4 w-4 text-[rgba(255,255,255,0.3)]" weight="regular" />
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.3)]">
+          <Brain className="h-4 w-4 text-muted-foreground/50" weight="regular" />
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
             Behavioral Patterns
           </p>
           {behavioral.length > 0 && (
-            <span className="text-[10px] font-mono text-[rgba(255,255,255,0.2)] ml-auto">
+            <span className="text-[10px] font-mono text-muted-foreground/40 ml-auto">
               {behavioral.length} signal{behavioral.length !== 1 ? 's' : ''}
             </span>
           )}
@@ -640,10 +637,10 @@ const PerformanceAnalyst = () => {
       {/* ── Expectancy Breakdown ── */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-[rgba(255,255,255,0.3)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
             Expectancy Breakdown
           </p>
-          <p className="text-[11px] text-[rgba(255,255,255,0.2)]">
+          <p className="text-[11px] text-muted-foreground/40">
             Click ⚡ on any row to see how your equity curve looks if you removed that setup from your trading
           </p>
         </div>

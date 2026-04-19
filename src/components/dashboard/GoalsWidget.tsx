@@ -36,30 +36,29 @@ function GoalRow({ label, current, target, isLoss = false }: GoalRowProps) {
   let textColor = current >= 0 ? '#10b981' : '#f87171';
 
   if (isLoss) {
-    // Max daily loss — red bar that fills as losses accumulate
     barColor = exceeded ? '#f87171' : '#fb923c';
-    textColor = current < 0 ? '#f87171' : 'rgba(255,255,255,0.5)';
+    textColor = current < 0 ? '#f87171' : 'var(--ef-ink-3)';
   } else {
-    barColor = exceeded ? '#10b981' : '#10b981';
-    textColor = current > 0 ? '#10b981' : current < 0 ? '#f87171' : 'rgba(255,255,255,0.5)';
+    barColor = '#10b981';
+    textColor = current > 0 ? '#10b981' : current < 0 ? '#f87171' : 'var(--ef-ink-3)';
   }
 
   return (
     <div className="space-y-1.5">
       <div className="flex items-center justify-between">
-        <span className="text-[11px] font-medium text-[rgba(255,255,255,0.5)]">{label}</span>
+        <span className="text-[11px] font-medium text-muted-foreground/60">{label}</span>
         <div className="flex items-center gap-1.5">
           <span className={cn('text-[13px] font-bold font-mono tabular-nums')} style={{ color: textColor }}>
             {current >= 0 ? '+' : ''}${current.toFixed(0)}
           </span>
           {hasTarget && (
-            <span className="text-[11px] text-[rgba(255,255,255,0.25)] font-mono">
+            <span className="text-[11px] text-muted-foreground/40 font-mono">
               / ${target!.toFixed(0)}
             </span>
           )}
         </div>
       </div>
-      <div className="h-1.5 rounded-full bg-[rgba(255,255,255,0.06)] overflow-hidden">
+      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
         {hasTarget ? (
           <div
             className="h-full rounded-full transition-all duration-500"
@@ -67,17 +66,17 @@ function GoalRow({ label, current, target, isLoss = false }: GoalRowProps) {
           />
         ) : (
           <div className="h-full w-full flex items-center">
-            <span className="text-[9px] text-[rgba(255,255,255,0.2)] pl-1">No target set</span>
+            <span className="text-[9px] text-muted-foreground/40 pl-1">No target set</span>
           </div>
         )}
       </div>
       {hasTarget && (
         <div className="flex justify-between">
-          <span className="text-[10px] text-[rgba(255,255,255,0.2)]">
+          <span className="text-[10px] text-muted-foreground/40">
             {exceeded ? (isLoss ? '⚠ Limit hit' : '✓ Target reached') : `${pct.toFixed(0)}%`}
           </span>
           {!exceeded && hasTarget && (
-            <span className="text-[10px] text-[rgba(255,255,255,0.2)] font-mono">
+            <span className="text-[10px] text-muted-foreground/40 font-mono">
               ${(target! - Math.abs(current)).toFixed(0)} to go
             </span>
           )}
@@ -114,11 +113,11 @@ export function GoalsWidget({ trades }: Props) {
 
   const field = (key: keyof TraderGoals, label: string, placeholder: string) => (
     <div>
-      <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">
+      <label className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
         {label}
       </label>
       <div className="relative mt-1">
-        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgba(255,255,255,0.3)] text-sm">$</span>
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-sm">$</span>
         <input
           type="number"
           min="0"
@@ -126,7 +125,7 @@ export function GoalsWidget({ trades }: Props) {
           value={draft[key] ?? ''}
           onChange={e => setDraft(p => ({ ...p, [key]: e.target.value === '' ? null : Number(e.target.value) }))}
           placeholder={placeholder}
-          className="w-full h-9 pl-7 pr-3 bg-[rgba(255,255,255,0.04)] border border-[rgba(255,255,255,0.1)] rounded-lg text-sm font-mono text-white placeholder:text-[rgba(255,255,255,0.2)] outline-none focus:border-[rgba(255,255,255,0.25)] transition-colors"
+          className="w-full h-9 pl-7 pr-3 bg-muted border border-border rounded-lg text-sm font-mono text-foreground placeholder:text-muted-foreground/40 outline-none focus:border-foreground/25 transition-colors"
         />
       </div>
     </div>
@@ -145,39 +144,38 @@ export function GoalsWidget({ trades }: Props) {
     }
   }, [todayPnl, goals?.maxDailyLoss]);
 
-  // Warn if daily loss limit is approaching or hit
   const lossWarning = goals?.maxDailyLoss && todayPnl < 0 && Math.abs(todayPnl) >= goals.maxDailyLoss * 0.8;
 
   return (
     <div className={cn(
       'rounded-xl border p-5 px-6 transition-colors',
       lossWarning
-        ? 'bg-[rgba(248,113,113,0.04)] border-[rgba(248,113,113,0.2)]'
-        : 'bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.07)]'
+        ? 'bg-[rgba(248,113,113,0.05)] border-[rgba(248,113,113,0.25)]'
+        : 'bg-card border-border'
     )}>
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div className="flex items-center gap-2">
-          <Target className="h-3.5 w-3.5 text-[rgba(255,255,255,0.3)]" weight="regular" />
-          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">
+          <Target className="h-3.5 w-3.5 text-muted-foreground/50" weight="regular" />
+          <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
             P&L Targets
           </span>
         </div>
         {!editing ? (
           <button
             onClick={() => setEditing(true)}
-            className="flex items-center gap-1 text-[10px] text-[rgba(255,255,255,0.3)] hover:text-white transition-colors outline-none"
+            className="flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-foreground transition-colors outline-none"
           >
             <PencilSimple className="h-3 w-3" weight="bold" /> Edit
           </button>
         ) : (
           <div className="flex items-center gap-2">
-            <button onClick={() => setEditing(false)} className="text-[rgba(255,255,255,0.3)] hover:text-white outline-none transition-colors">
+            <button onClick={() => setEditing(false)} className="text-muted-foreground/50 hover:text-foreground outline-none transition-colors">
               <X className="h-3.5 w-3.5" weight="bold" />
             </button>
             <button
               onClick={handleSave}
-              className="flex items-center gap-1 text-[10px] bg-white text-black px-3 h-7 rounded-[24px] font-semibold outline-none"
+              className="flex items-center gap-1 text-[10px] bg-foreground text-background px-3 h-7 rounded-[24px] font-semibold outline-none"
             >
               <Check className="h-3 w-3" weight="bold" /> Save
             </button>

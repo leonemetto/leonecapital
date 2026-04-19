@@ -12,7 +12,7 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 text-xs text-[rgba(255,255,255,0.35)]">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground/60">
         <CircleNotch className="h-3 w-3 animate-spin" weight="regular" /> Loading checklist...
       </div>
     );
@@ -37,10 +37,10 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]">
+        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">
           Entry Checklist
         </span>
-        <span className={`text-[10px] font-mono font-semibold ${checkedCount === total && total > 0 ? 'text-white' : 'text-[rgba(255,255,255,0.3)]'}`}>
+        <span className={`text-[10px] font-mono font-semibold ${checkedCount === total && total > 0 ? 'text-foreground' : 'text-muted-foreground/50'}`}>
           {checkedCount}/{total}
         </span>
       </div>
@@ -49,7 +49,7 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
         {Object.entries(grouped).map(([category, items]) => (
           <div key={category}>
             {Object.keys(grouped).length > 1 && (
-              <p className="text-[9px] text-[rgba(255,255,255,0.25)] uppercase tracking-widest mb-1.5 ml-0.5">{category}</p>
+              <p className="text-[9px] text-muted-foreground/40 uppercase tracking-widest mb-1.5 ml-0.5">{category}</p>
             )}
             <div className="space-y-2">
               {items.map(c => (
@@ -63,7 +63,7 @@ export function TradeChecklist({ checks, onChange }: TradeChecklistProps) {
                   <label
                     htmlFor={`check-${c.id}`}
                     className={`text-xs cursor-pointer select-none transition-colors ${
-                      checks[c.id] ? 'text-white' : 'text-[rgba(255,255,255,0.45)]'
+                      checks[c.id] ? 'text-foreground' : 'text-muted-foreground/60'
                     }`}
                   >
                     {c.label}
