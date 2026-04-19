@@ -1,22 +1,23 @@
 import { useMemo, useState, useCallback } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { HeroBalance } from '@/components/dashboard/HeroBalance';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
 import { RecentTrades } from '@/components/dashboard/RecentTrades';
 import { PropFirmCard } from '@/components/dashboard/PropFirmCard';
 import { DashboardRail } from '@/components/dashboard/DashboardRail';
+import { TopLeaks } from '@/components/dashboard/TopLeaks';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
-import { calculateAnalytics } from '@/lib/analytics';
-import { Wallet, ChartBar, Plus, NotePencil, Funnel } from '@phosphor-icons/react';
+import { calculateAnalytics, getExpectancyByField } from '@/lib/analytics';
+import { Wallet, ChartBar, Plus, NotePencil, Funnel, MagnifyingGlass, Bell } from '@phosphor-icons/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -24,6 +25,80 @@ const getGreeting = () => {
   if (hour < 17) return 'Good afternoon';
   return 'Good evening';
 };
+
+function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: number; outcome: string }[] }) {
+  const pairs = useMemo(() => {
+    if (trades.length === 0) return [];
+    return getExpectancyByField(trades as any, 'instrument')
+      .filter(p => p.total >= 2)
+      .slice(0, 6);
+  }, [trades]);
+
+  if (pairs.length === 0) return null;
+
+  const maxAbs = Math.max(...pairs.map(p => Math.abs(p.expectancy)), 1);
+
+  return (
+    <div className="rounded-[14px] border border-border bg-card" style={{ padding: '20px' }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ef-ink)' }}>
+            Instrument performance
+          </div>
+          <div className="font-mono" style={{ fontSize: 12, color: 'var(--ef-ink-3)', marginTop: 2 }}>
+            expectancy per trade
+          </div>
+        </div>
+        <Link to="/analyst" className="font-mono hover:text-[var(--ef-ink)] transition-colors" style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}>
+          all →
+        </Link>
+      </div>
+
+      <div className="flex flex-col">
+        {pairs.map(pair => {
+          const barPct = Math.abs(pair.expectancy) / maxAbs * 46;
+          const pos = pair.pnl >= 0;
+          return (
+            <div key={pair.key} className="flex items-center gap-2" style={{ padding: '8px 0', fontSize: 12.5 }}>
+              <div className="font-mono shrink-0" style={{ width: 64, color: 'var(--ef-ink-2)', fontWeight: 500 }}>
+                {pair.key}
+              </div>
+              <div
+                className="flex-1 relative"
+                style={{ height: 6, borderRadius: 3, background: 'var(--ef-bg-sunken)', overflow: 'visible' }}
+              >
+                {/* Center tick */}
+                <div style={{
+                  position: 'absolute', left: '50%', top: -1,
+                  width: 1, height: 8, background: 'var(--ef-ink-3)',
+                }} />
+                <div
+                  style={{
+                    position: 'absolute', top: 0, bottom: 0,
+                    borderRadius: 3,
+                    [pos ? 'left' : 'right']: '50%',
+                    width: barPct + '%',
+                    background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
+                  }}
+                />
+              </div>
+              <div
+                className="font-mono shrink-0 text-right"
+                style={{
+                  width: 56,
+                  fontSize: 11.5,
+                  color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
+                }}
+              >
+                {pos ? '+' : ''}${pair.pnl.toFixed(0)}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 const Dashboard = () => {
   const { trades, addTrade } = useSharedTrades();
@@ -148,24 +223,42 @@ const Dashboard = () => {
     />
   );
 
+  const today = new Date();
+  const monthLabel = today.toLocaleDateString('en', { month: 'long', year: 'numeric' });
+
   return (
     <AppLayout rail={rail}>
-      {/* Hero Balance */}
-      <HeroBalance
-        nickname={profile?.nickname || 'Trader'}
-        stats={stats}
-        trades={filteredTrades}
-        accounts={accounts}
-        selectedAccountId={selectedAccountId}
-      />
+      {/* Topbar */}
+      <div
+        className="flex items-center gap-4 border-b border-border"
+        style={{ paddingBottom: 12, marginBottom: 20 }}
+      >
+        <div className="flex-1 min-w-0">
+          <h1
+            style={{
+              margin: 0, fontSize: 22, fontWeight: 500,
+              letterSpacing: '-0.02em', color: 'var(--ef-ink)',
+            }}
+          >
+            Dashboard
+          </h1>
+          <div
+            className="font-mono"
+            style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}
+          >
+            {monthLabel} · {filteredTrades.length} trades logged
+          </div>
+        </div>
 
-      {/* Action row */}
-      <div className="flex items-center gap-2 mb-4">
-        {accounts.length > 1 && (
-          <>
-            <Funnel className="h-3.5 w-3.5 text-muted-foreground/40" weight="regular" />
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Account filter */}
+          {accounts.length > 1 && (
             <Select value={selectedAccountId} onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}>
-              <SelectTrigger className="w-[160px] h-7 text-xs">
+              <SelectTrigger
+                className="h-[34px] text-xs font-mono border-border rounded-[10px]"
+                style={{ width: 140, background: 'var(--ef-bg-elev)', fontSize: 12 }}
+              >
+                <Funnel className="h-3 w-3 mr-1 text-muted-foreground/50" weight="regular" />
                 <SelectValue placeholder="All Accounts" />
               </SelectTrigger>
               <SelectContent>
@@ -175,49 +268,69 @@ const Dashboard = () => {
                 ))}
               </SelectContent>
             </Select>
-          </>
-        )}
-        <div className="flex-1" />
-        <button
-          onClick={handleDailyReview}
-          className="h-7 px-3 flex items-center gap-1.5 text-xs font-medium text-muted-foreground border border-border rounded-[24px] hover:text-foreground hover:border-foreground/25 transition-colors outline-none"
-        >
-          <NotePencil className="h-3.5 w-3.5" weight="regular" />
-          Daily Review
-        </button>
-        <Link
-          to="/add-trade"
-          className="h-7 px-3.5 text-xs font-semibold text-background bg-foreground hover:opacity-80 rounded-[24px] flex items-center gap-1.5 transition-opacity"
-        >
-          <Plus className="h-3.5 w-3.5" weight="bold" />
-          Log Trade
-        </Link>
+          )}
+
+          <button
+            onClick={handleDailyReview}
+            className="flex items-center gap-1.5 outline-none transition-colors"
+            style={{
+              height: 34, padding: '0 14px', borderRadius: 10,
+              background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
+              fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
+            }}
+          >
+            <NotePencil className="h-3.5 w-3.5" weight="regular" />
+            Daily Review
+          </button>
+
+          <Link
+            to="/add-trade"
+            className="flex items-center gap-1.5 outline-none transition-colors"
+            style={{
+              height: 34, padding: '0 14px', borderRadius: 10,
+              background: 'var(--ef-ink)', color: 'var(--ef-bg)',
+              fontSize: 13, fontWeight: 500,
+              border: '1px solid var(--ef-ink)',
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" weight="bold" />
+            Log trade
+          </Link>
+        </div>
       </div>
 
       {/* Prop Firm Challenge Card */}
       {selectedPropAccount && (
-        <div className="mb-4">
+        <div style={{ marginBottom: 14 }}>
           <PropFirmCard account={selectedPropAccount} trades={filteredTrades} />
         </div>
       )}
 
       {/* Stat Cards */}
-      <div className="mb-4">
-        <StatCards stats={stats} trades={filteredTrades} />
+      <div style={{ marginBottom: 14 }}>
+        <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} />
       </div>
 
-      {/* Equity Curve */}
-      <div className="mb-4">
+      {/* Equity Curve + Leak Detection */}
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: '1.55fr 1fr', gap: 14, marginBottom: 14 }}
+      >
         <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
+        <TopLeaks trades={filteredTrades} />
       </div>
 
-      {/* Heat Map Calendar */}
-      <div className="mb-4">
+      {/* Heat Map Calendar + Instrument Performance */}
+      <div
+        className="grid"
+        style={{ gridTemplateColumns: '1.55fr 1fr', gap: 14, marginBottom: 14 }}
+      >
         <HeatMapCalendar trades={filteredTrades} />
+        <InstrumentPerformance trades={filteredTrades} />
       </div>
 
       {/* Recent Trades */}
-      <div className="mb-4">
+      <div style={{ marginBottom: 14 }}>
         <RecentTrades trades={filteredTrades} />
       </div>
     </AppLayout>

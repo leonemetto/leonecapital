@@ -28,10 +28,12 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         const d = t.date.split('T')[0];
         dayMap.set(d, (dayMap.get(d) || 0) + t.pnl);
       }
-      return Array.from(dayMap.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, pnl]) => {
-        bal += pnl;
-        return { date, balance: Number(bal.toFixed(2)), pnl };
-      });
+      return Array.from(dayMap.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([date, pnl]) => {
+          bal += pnl;
+          return { date, balance: Number(bal.toFixed(2)), pnl };
+        });
     }
 
     const groupFn = period === 'weekly'
@@ -45,47 +47,75 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
     }
 
     let bal = startingBalance;
-    return Array.from(groups.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([date, pnl]) => {
-      bal += pnl;
-      return { date, balance: Number(bal.toFixed(2)), pnl };
-    });
+    return Array.from(groups.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, pnl]) => {
+        bal += pnl;
+        return { date, balance: Number(bal.toFixed(2)), pnl };
+      });
   }, [trades, period, startingBalance]);
 
   const lastBal = data.length > 0 ? data[data.length - 1].balance : startingBalance;
-  const isPositive = lastBal >= startingBalance;
-  const lineColor = isPositive ? '#10b981' : '#f87171';
+  const netPnl = lastBal - startingBalance;
+  const netPct = startingBalance > 0 ? (netPnl / startingBalance) * 100 : 0;
+  const isPositive = netPnl >= 0;
+  const lineColor = isPositive ? 'var(--ef-pos)' : 'var(--ef-neg)';
+  const lineHex = isPositive ? 'oklch(0.55 0.17 155)' : 'oklch(0.52 0.18 25)';
   const isEmpty = data.length === 0;
 
   const yDomain = useMemo(() => {
     if (data.length === 0) return ['auto', 'auto'] as ['auto', 'auto'];
     const vals = data.map(d => d.balance);
-    const min = Math.min(...vals);
-    const max = Math.max(...vals);
+    const min = Math.min(...vals, startingBalance);
+    const max = Math.max(...vals, startingBalance);
     const pad = (max - min) * 0.15 || 50;
     return [Math.floor(min - pad), Math.ceil(max + pad)] as [number, number];
-  }, [data]);
+  }, [data, startingBalance]);
 
-  const pills: { key: Period; label: string }[] = [
-    { key: 'daily', label: 'Daily' },
-    { key: 'weekly', label: 'Weekly' },
-    { key: 'monthly', label: 'Monthly' },
+  const periods: { key: Period; label: string }[] = [
+    { key: 'daily', label: '30D' },
+    { key: 'weekly', label: '90D' },
+    { key: 'monthly', label: 'All' },
   ];
 
   return (
-    <div className="relative rounded-xl bg-card border border-border p-4 px-5">
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-sm text-muted-foreground">Equity Curve</span>
-        <div className="flex gap-0.5 bg-muted rounded-lg p-0.5">
-          {pills.map(p => (
+    <div className="rounded-[14px] border border-border bg-card" style={{ padding: 0, overflow: 'hidden' }}>
+      {/* Card header */}
+      <div
+        className="flex items-center justify-between"
+        style={{ padding: '20px 20px 0 20px' }}
+      >
+        <div>
+          <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ef-ink)' }}>
+            Equity curve
+          </div>
+          <div
+            className="font-mono"
+            style={{ fontSize: 12, color: 'var(--ef-ink-3)', marginTop: 2 }}
+          >
+            {period} · ${startingBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })} start
+          </div>
+        </div>
+
+        {/* Segmented control */}
+        <div
+          className="flex"
+          style={{ background: 'var(--ef-bg-sunken)', borderRadius: 8, padding: 3, gap: 2 }}
+        >
+          {periods.map(p => (
             <button
               key={p.key}
               onClick={() => setPeriod(p.key)}
-              className={cn(
-                'px-3 py-1 text-xs rounded-md transition-all',
-                period === p.key
-                  ? 'bg-foreground text-background font-semibold'
-                  : 'text-muted-foreground/60 hover:text-muted-foreground'
-              )}
+              className="transition-all outline-none"
+              style={{
+                padding: '5px 11px',
+                borderRadius: 6,
+                fontSize: 12,
+                fontWeight: period === p.key ? 500 : 400,
+                color: period === p.key ? 'var(--ef-ink)' : 'var(--ef-ink-3)',
+                background: period === p.key ? 'var(--ef-bg-elev)' : 'transparent',
+                boxShadow: period === p.key ? '0 1px 0 rgba(14,14,12,0.04)' : 'none',
+              }}
             >
               {p.label}
             </button>
@@ -93,66 +123,111 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
         </div>
       </div>
 
-      {/* Annotated balance overlay */}
+      {/* Equity meta */}
       {!isEmpty && (
-        <div className="absolute top-4 right-5 text-right pointer-events-none">
-          <p className="text-[9px] uppercase tracking-[0.1em] text-muted-foreground/50">Equity</p>
-          <p className="text-[17px] leading-tight metric-number text-foreground">${lastBal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+        <div
+          className="flex items-baseline gap-4"
+          style={{ padding: '12px 20px 4px' }}
+        >
+          <div
+            className="font-mono"
+            style={{ fontSize: 32, fontWeight: 500, letterSpacing: '-0.03em', color: 'var(--ef-ink)', lineHeight: 1 }}
+          >
+            ${lastBal.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+          </div>
+          <div
+            className="font-mono"
+            style={{
+              fontSize: 12,
+              color: isPositive ? 'var(--ef-pos)' : 'var(--ef-neg)',
+            }}
+          >
+            {netPnl >= 0 ? '+' : '−'}${Math.abs(netPnl).toLocaleString(undefined, { maximumFractionDigits: 0 })} ({netPct >= 0 ? '+' : ''}{netPct.toFixed(1)}%)
+          </div>
         </div>
       )}
 
-      <div className="h-[200px]">
+      {/* Chart */}
+      <div style={{ height: 200, padding: '0 4px 0 0' }}>
         {isEmpty ? (
           <div className="h-full flex flex-col items-center justify-center gap-3">
             <svg width="100%" height="60" className="opacity-20">
               <line x1="0" y1="30" x2="100%" y2="30" stroke="currentColor" strokeDasharray="6 4" strokeWidth="1" />
             </svg>
-            <span className="text-sm text-muted-foreground/50">Your equity curve will appear here</span>
-            <Link to="/add-trade" className="text-xs font-semibold text-background bg-profit hover:bg-profit/90 px-4 py-2 rounded-full transition-colors">
+            <span style={{ fontSize: 13, color: 'var(--ef-ink-4)' }}>Your equity curve will appear here</span>
+            <Link to="/add-trade" className="text-xs font-semibold px-4 py-2 rounded-full transition-colors"
+              style={{ background: 'var(--ef-pos)', color: 'white' }}>
               Log Trade →
             </Link>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data}>
+            <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 4 }}>
               <defs>
-                <linearGradient id="eqGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={lineColor} stopOpacity={0.14} />
-                  <stop offset="95%" stopColor={lineColor} stopOpacity={0} />
+                <linearGradient id="eqPos" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={lineHex} stopOpacity={0.18} />
+                  <stop offset="100%" stopColor={lineHex} stopOpacity={0} />
+                </linearGradient>
+                <linearGradient id="eqNeg" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor={lineHex} stopOpacity={0} />
+                  <stop offset="100%" stopColor={lineHex} stopOpacity={0.14} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="1 4" stroke="var(--ef-line)" vertical={false} />
+              <CartesianGrid
+                strokeDasharray="2 4"
+                stroke="var(--ef-line)"
+                vertical={false}
+              />
               <XAxis
                 dataKey="date"
-                tick={{ fill: 'var(--ef-ink-4)', fontSize: 11 }}
-                tickLine={false} axisLine={false}
+                tick={{ fill: 'var(--ef-ink-4)', fontSize: 10, fontFamily: 'var(--ff-mono)' }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={v => {
+                  try { return new Date(v).toLocaleDateString('en', { month: 'short', day: 'numeric' }); }
+                  catch { return v; }
+                }}
+                interval="preserveStartEnd"
               />
               <YAxis
-                orientation="right"
+                orientation="left"
                 domain={yDomain}
-                tick={{ fill: 'var(--ef-ink-4)', fontSize: 11 }}
-                tickLine={false} axisLine={false}
-                tickFormatter={v => `$${v}`}
+                tick={{ fill: 'var(--ef-ink-4)', fontSize: 10, fontFamily: 'var(--ff-mono)' }}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={v => `$${(v / 1000).toFixed(0)}k`}
+                width={40}
               />
-              <ReferenceLine y={startingBalance} stroke="var(--ef-line)" />
+              <ReferenceLine
+                y={startingBalance}
+                stroke="var(--ef-ink-4)"
+                strokeDasharray="4 4"
+                strokeWidth={1}
+                opacity={0.5}
+              />
               <Tooltip
                 contentStyle={{
-                  backgroundColor: 'var(--ef-bg-elev)',
-                  border: '1px solid var(--ef-line)',
-                  borderRadius: '6px',
-                  color: 'var(--ef-ink)',
+                  backgroundColor: 'var(--ef-ink)',
+                  border: 'none',
+                  borderRadius: 8,
+                  color: 'var(--ef-bg)',
                   fontSize: 11,
-                  padding: '6px 14px',
+                  fontFamily: 'var(--ff-mono)',
+                  padding: '8px 12px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.18)',
                 }}
-                formatter={(value: number) => [`$${value.toFixed(2)}`, 'Balance']}
+                labelStyle={{ opacity: 0.6, fontSize: 10, marginBottom: 2 }}
+                formatter={(value: number) => [`$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 'Balance']}
               />
               <Area
                 type="monotone"
                 dataKey="balance"
-                stroke={lineColor}
-                strokeWidth={2}
-                fill="url(#eqGrad)"
+                stroke={lineHex}
+                strokeWidth={1.6}
+                fill={isPositive ? 'url(#eqPos)' : 'url(#eqNeg)'}
                 dot={false}
+                activeDot={{ r: 4, fill: 'var(--ef-bg-elev)', stroke: lineHex, strokeWidth: 2 }}
+                baseValue={startingBalance}
               />
             </AreaChart>
           </ResponsiveContainer>
