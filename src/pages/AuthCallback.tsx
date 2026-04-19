@@ -81,10 +81,10 @@ export default function AuthCallback() {
         <DottedSurface />
         <div className="w-full max-w-sm relative z-10 text-center space-y-4">
           <div className="flex items-center gap-3 justify-center mb-8">
-            <Lightning className="h-6 w-6 text-white" weight="fill" />
+            <Lightning className="h-6 w-6 text-foreground" weight="fill" />
             <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
           </div>
-          <div className="bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] rounded-xl p-6 space-y-4">
+          <div className="bg-card border border-border rounded-xl p-6 space-y-4">
             <h2 className="text-lg font-bold text-destructive">Link Invalid or Expired</h2>
             <p className="text-xs text-muted-foreground">{error}</p>
             <Button className="w-full" onClick={() => navigate('/auth', { replace: true })}>
@@ -101,7 +101,7 @@ export default function AuthCallback() {
       <DottedSurface />
       <div className="relative z-10 text-center space-y-3">
         <div className="flex items-center gap-3 justify-center">
-          <Lightning className="h-6 w-6 text-white" weight="fill" />
+          <Lightning className="h-6 w-6 text-foreground" weight="fill" />
           <h1 className="text-2xl font-black tracking-tight">EDGEFLOW</h1>
         </div>
         <p className="text-sm text-muted-foreground">Verifying your email…</p>
