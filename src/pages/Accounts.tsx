@@ -54,7 +54,7 @@ const FIELD_INPUT = 'mt-1 h-9';
 
 const BADGE_STYLES: Record<string, string> = {
   live: 'bg-white text-black',
-  demo: 'bg-[rgba(255,255,255,0.12)] text-[rgba(255,255,255,0.7)]',
+  demo: 'bg-muted text-muted-foreground',
   prop: 'bg-amber-400/20 text-amber-300',
 };
 
@@ -99,8 +99,8 @@ const Accounts = () => {
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <div>
-          <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Trading Accounts</h1>
-          <p className="text-xs text-[rgba(255,255,255,0.3)]">Manage your accounts and track balances</p>
+          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Trading Accounts</h1>
+          <p className="text-xs text-muted-foreground/60">Manage your accounts and track balances</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -108,9 +108,9 @@ const Accounts = () => {
               <Plus className="h-3.5 w-3.5" weight="bold" /> New Account
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-md bg-[#0e0e0e] border-[rgba(255,255,255,0.1)]">
+          <DialogContent className="sm:max-w-md">
             <DialogHeader>
-              <DialogTitle className="text-white">Create Trading Account</DialogTitle>
+              <DialogTitle>Create Trading Account</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 pt-2">
               <div>
@@ -167,7 +167,7 @@ const Accounts = () => {
 
               {/* Prop firm challenge config */}
               {form.type === 'prop' && (
-                <div className="space-y-3 pt-2 border-t border-[rgba(255,255,255,0.07)]">
+                <div className="space-y-3 pt-2 border-t border-border">
                   <p className="text-[10px] uppercase tracking-[0.1em] text-amber-300/70 font-semibold">Challenge Settings</p>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
@@ -220,7 +220,7 @@ const Accounts = () => {
                       className={cn(FIELD_INPUT, 'font-mono')}
                     />
                   </div>
-                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.07)]">
+                  <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/40 border border-border">
                     <input
                       type="checkbox"
                       id="trailing-dd"
@@ -228,7 +228,7 @@ const Accounts = () => {
                       onChange={e => update('trailingDrawdown', e.target.checked)}
                       className="h-3.5 w-3.5 accent-amber-400"
                     />
-                    <label htmlFor="trailing-dd" className="text-xs text-[rgba(255,255,255,0.7)] cursor-pointer">
+                    <label htmlFor="trailing-dd" className="text-xs text-foreground/80 cursor-pointer">
                       Trailing drawdown (from equity high watermark) — used by FTMO, Apex, etc.
                     </label>
                   </div>
@@ -246,11 +246,11 @@ const Accounts = () => {
       {/* Empty state */}
       {accounts.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
-          <div className="p-3 rounded-xl bg-[rgba(255,255,255,0.05)] mb-5">
-            <Wallet className="h-8 w-8 text-[rgba(255,255,255,0.4)]" weight="regular" />
+          <div className="p-3 rounded-xl bg-muted mb-5">
+            <Wallet className="h-8 w-8 text-muted-foreground/50" weight="regular" />
           </div>
-          <h2 className="text-lg font-bold text-white mb-1">No accounts yet</h2>
-          <p className="text-sm text-[rgba(255,255,255,0.4)] mb-5">Create a trading account to start tracking balances</p>
+          <h2 className="text-lg font-bold text-foreground mb-1">No accounts yet</h2>
+          <p className="text-sm text-muted-foreground mb-5">Create a trading account to start tracking balances</p>
           <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]" onClick={() => setOpen(true)}>
             <Plus className="h-3.5 w-3.5" weight="bold" /> Create First Account
           </Button>
@@ -276,13 +276,13 @@ const Accounts = () => {
                 {/* Card header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 min-w-0">
-                    <Wallet className="h-4 w-4 shrink-0 text-[rgba(255,255,255,0.35)]" weight="regular" />
+                    <Wallet className="h-4 w-4 shrink-0 text-muted-foreground/60" weight="regular" />
                     {editingName?.id === account.id ? (
                       <span className="flex items-center gap-1 min-w-0">
                         <Input
                           value={editingName.name}
                           onChange={e => setEditingName({ ...editingName, name: e.target.value })}
-                          className="h-6 w-36 text-[12px] bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.15)] px-1.5"
+                          className="h-6 w-36 text-[12px] px-1.5"
                           autoFocus
                           onKeyDown={e => {
                             if (e.key === 'Enter') {
@@ -303,11 +303,11 @@ const Accounts = () => {
                             setEditingName(null);
                             toast.success('Account renamed');
                           }}
-                          className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.6)] hover:text-white"
+                          className="p-0.5 rounded hover:bg-muted text-muted-foreground hover:text-foreground"
                         >
                           <Check className="h-3 w-3" weight="bold" />
                         </button>
-                        <button onClick={() => setEditingName(null)} className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.35)]">
+                        <button onClick={() => setEditingName(null)} className="p-0.5 rounded hover:bg-muted text-muted-foreground/60">
                           <X className="h-3 w-3" weight="bold" />
                         </button>
                       </span>
@@ -317,13 +317,13 @@ const Accounts = () => {
                         onClick={() => setEditingName({ id: account.id, name: account.name })}
                         title="Click to rename"
                       >
-                        <span className="text-sm font-semibold text-white truncate">{account.name}</span>
-                        <PencilSimple className="h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-40 transition-opacity text-[rgba(255,255,255,0.6)]" weight="bold" />
+                        <span className="text-sm font-semibold text-foreground truncate">{account.name}</span>
+                        <PencilSimple className="h-2.5 w-2.5 shrink-0 opacity-0 group-hover:opacity-40 transition-opacity text-muted-foreground" weight="bold" />
                       </button>
                     )}
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={cn('text-[10px] font-bold uppercase px-2 py-0.5 rounded-full', BADGE_STYLES[account.type] || 'bg-[rgba(255,255,255,0.1)] text-[rgba(255,255,255,0.6)]')}>
+                    <span className={cn('text-[10px] font-bold uppercase px-2 py-0.5 rounded-full', BADGE_STYLES[account.type] || 'bg-muted text-muted-foreground')}>
                       {account.type}
                     </span>
                     <button
@@ -333,7 +333,7 @@ const Accounts = () => {
                           toast.success('Account deleted');
                         }
                       }}
-                      className="p-1 rounded text-[rgba(255,255,255,0.25)] hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+                      className="p-1 rounded text-muted-foreground/50 hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
                     >
                       <Trash className="h-3.5 w-3.5" weight="regular" />
                     </button>
@@ -344,7 +344,7 @@ const Accounts = () => {
                 <div className="flex items-end justify-between mb-3">
                   <div>
                     <span className={FIELD_LABEL}>Current Balance</span>
-                    <p className="text-[22px] text-white mt-0.5 leading-none metric-number">
+                    <p className="text-[22px] text-foreground mt-0.5 leading-none metric-number">
                       {currencySymbol(account.currency)}{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
                   </div>
@@ -353,27 +353,27 @@ const Accounts = () => {
 
                 {/* Stats row */}
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">P&L</p>
+                  <div className="flex-1 rounded-md bg-muted/40 border border-border px-2.5 py-1.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50 leading-none mb-0.5">P&L</p>
                     <p className={cn('text-[11px] leading-none metric-number', pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
                       {pnl >= 0 ? '+' : ''}{currencySymbol(account.currency)}{Math.abs(pnl).toFixed(0)}
                       <span className="text-[9px] ml-1 opacity-70 font-normal" style={{ letterSpacing: 'normal' }}>({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)</span>
                     </p>
                   </div>
-                  <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">Win Rate</p>
-                    <p className={cn('text-[11px] leading-none metric-number', winRate !== null && winRate >= 50 ? 'text-[#10b981]' : 'text-[rgba(255,255,255,0.5)]')}>
+                  <div className="flex-1 rounded-md bg-muted/40 border border-border px-2.5 py-1.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50 leading-none mb-0.5">Win Rate</p>
+                    <p className={cn('text-[11px] leading-none metric-number', winRate !== null && winRate >= 50 ? 'text-[#10b981]' : 'text-muted-foreground/60')}>
                       {winRate !== null ? `${winRate}%` : '—'}
                     </p>
                   </div>
-                  <div className="flex-1 rounded-md bg-[rgba(255,255,255,0.03)] border border-[rgba(255,255,255,0.05)] px-2.5 py-1.5">
-                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.25)] leading-none mb-0.5">Trades</p>
-                    <p className="text-[11px] font-bold font-mono leading-none text-white">{tradeCount}</p>
+                  <div className="flex-1 rounded-md bg-muted/40 border border-border px-2.5 py-1.5">
+                    <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50 leading-none mb-0.5">Trades</p>
+                    <p className="text-[11px] font-bold font-mono leading-none text-foreground">{tradeCount}</p>
                   </div>
                 </div>
 
                 {/* Starting balance edit */}
-                <div className="flex items-center gap-1.5 text-[10px] text-[rgba(255,255,255,0.3)]">
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60">
                   <span>Starting: {account.currency}</span>
                   {editingBalance?.id === account.id ? (
                     <span className="flex items-center gap-1">
@@ -381,7 +381,7 @@ const Accounts = () => {
                         type="number" step="any"
                         value={editingBalance.balance}
                         onChange={e => setEditingBalance({ ...editingBalance, balance: e.target.value })}
-                        className="h-6 w-24 text-[10px] font-mono bg-[rgba(255,255,255,0.06)] border-[rgba(255,255,255,0.15)] px-1.5"
+                        className="h-6 w-24 text-[10px] font-mono px-1.5"
                         autoFocus
                       />
                       <button
@@ -396,7 +396,7 @@ const Accounts = () => {
                       >
                         <Check className="h-3 w-3" weight="bold" />
                       </button>
-                      <button onClick={() => setEditingBalance(null)} className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.06)] text-[rgba(255,255,255,0.35)]">
+                      <button onClick={() => setEditingBalance(null)} className="p-0.5 rounded hover:bg-muted text-muted-foreground/60">
                         <X className="h-3 w-3" weight="bold" />
                       </button>
                     </span>
@@ -405,7 +405,7 @@ const Accounts = () => {
                       {account.startingBalance.toLocaleString()}
                       <button
                         onClick={() => setEditingBalance({ id: account.id, balance: String(account.startingBalance) })}
-                        className="p-0.5 rounded hover:bg-[rgba(255,255,255,0.08)] text-[rgba(255,255,255,0.3)] hover:text-[rgba(255,255,255,0.6)] transition-colors"
+                        className="p-0.5 rounded hover:bg-muted text-muted-foreground/50 hover:text-muted-foreground transition-colors"
                       >
                         <PencilSimple className="h-2.5 w-2.5" weight="bold" />
                       </button>
