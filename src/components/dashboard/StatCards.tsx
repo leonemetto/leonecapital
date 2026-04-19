@@ -53,9 +53,11 @@ interface CardProps {
   foot?: string;
   sparkData?: number[];
   sparkColor?: string;
+  featured?: boolean;
+  trendUp?: boolean | null;
 }
 
-function StatCard({ tone, label, value, delta, deltaTone, foot, sparkData, sparkColor }: CardProps) {
+function StatCard({ tone, label, value, delta, deltaTone, foot, sparkData, sparkColor, featured, trendUp }: CardProps) {
   const wash = {
     mint:  'bg-[var(--ef-pos-wash)] border-[color-mix(in_oklab,var(--ef-pos)_18%,transparent)]',
     peach: 'bg-[var(--ef-neg-wash)] border-[color-mix(in_oklab,var(--ef-neg)_18%,transparent)]',
@@ -68,21 +70,49 @@ function StatCard({ tone, label, value, delta, deltaTone, foot, sparkData, spark
     deltaTone === 'neg' ? 'text-[var(--ef-neg)]' :
     'text-[var(--ef-ink-2)]';
 
+  const valueFontSize = featured ? 38 : 26;
+  const minH = featured ? 158 : 126;
+
   return (
     <div
       className={cn('rounded-[14px] border flex flex-col justify-between overflow-hidden', wash)}
-      style={{ padding: 24, minHeight: 126 }}
+      style={{ padding: 24, minHeight: minH }}
     >
       <div>
-        <div
-          className="font-mono uppercase text-[var(--ef-ink-3)]"
-          style={{ fontSize: 11, letterSpacing: '0.04em' }}
-        >
-          {label}
+        <div className="flex items-center justify-between gap-2">
+          <div
+            className="font-mono uppercase text-[var(--ef-ink-3)]"
+            style={{ fontSize: 11, letterSpacing: '0.04em' }}
+          >
+            {label}
+          </div>
+          {/* Trend arrow pill */}
+          {trendUp !== null && trendUp !== undefined && (
+            <div
+              className={cn('flex items-center gap-0.5 rounded-full px-1.5 py-0.5 font-mono')}
+              style={{
+                fontSize: 10,
+                background: trendUp ? 'var(--ef-pos-wash)' : 'var(--ef-neg-wash)',
+                color: trendUp ? 'var(--ef-pos)' : 'var(--ef-neg)',
+                border: `1px solid ${trendUp ? 'color-mix(in oklab, var(--ef-pos) 22%, transparent)' : 'color-mix(in oklab, var(--ef-neg) 22%, transparent)'}`,
+              }}
+            >
+              {trendUp
+                ? <ArrowUp className="h-2.5 w-2.5" weight="bold" />
+                : <ArrowDown className="h-2.5 w-2.5" weight="bold" />
+              }
+              {trendUp ? 'up' : 'dn'}
+            </div>
+          )}
         </div>
         <div
           className="font-mono leading-none mt-2 text-[var(--ef-ink)]"
-          style={{ fontSize: 26, letterSpacing: '-0.02em', fontVariantNumeric: 'tabular-nums', fontWeight: 500 }}
+          style={{
+            fontSize: valueFontSize,
+            letterSpacing: '-0.02em',
+            fontVariantNumeric: 'tabular-nums',
+            fontWeight: featured ? 600 : 500,
+          }}
         >
           {value}
         </div>
@@ -124,7 +154,6 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
       return d.toISOString().split('T')[0];
     });
 
-    // Build cumulative balance by date
     const sortedDates = [...new Set(trades.map(t => t.date))].sort();
     const cumByDate = new Map<string, number>();
     let cum = 0;
@@ -142,6 +171,19 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
     return { balanceSpark, dailySpark };
   }, [trades, startingBalance]);
 
+  // Trend direction: last 3 vs first 3 of spark
+  const balanceTrend = balanceSpark.length >= 4
+    ? (balanceSpark[balanceSpark.length - 1] > balanceSpark[0] ? true : balanceSpark[balanceSpark.length - 1] < balanceSpark[0] ? false : null)
+    : null;
+
+  const dailyTrend = dailySpark.length >= 4
+    ? (() => {
+        const recent = dailySpark.slice(-3).reduce((a, b) => a + b, 0);
+        const older = dailySpark.slice(0, 3).reduce((a, b) => a + b, 0);
+        return recent > older ? true : recent < older ? false : null;
+      })()
+    : null;
+
   const streak = stats.currentStreak;
   const streakText =
     streak.type === 'none' ? 'No streak' :
@@ -156,6 +198,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-[14px]">
       <StatCard
+        featured
         tone="mint"
         label="Account balance"
         value={'$' + currentBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
@@ -164,6 +207,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
         foot={`${trades.length} trades`}
         sparkData={balanceSpark}
         sparkColor={stats.netPnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)'}
+        trendUp={balanceTrend}
       />
       <StatCard
         tone="peach"
@@ -173,6 +217,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
         deltaTone={stats.winRate >= 50 ? 'pos' : 'neg'}
         sparkData={dailySpark}
         sparkColor="oklch(0.58 0.18 25)"
+        trendUp={dailyTrend}
       />
       <StatCard
         tone="slate"
@@ -182,6 +227,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
         deltaTone={stats.profitFactor >= 1 ? 'pos' : 'neg'}
         sparkData={dailySpark}
         sparkColor="oklch(0.58 0.18 25)"
+        trendUp={stats.profitFactor >= 1 ? true : false}
       />
       <StatCard
         tone="warm"
@@ -192,6 +238,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
         foot={`avg R: ${stats.rExpectancy >= 0 ? '+' : ''}${stats.rExpectancy.toFixed(2)}R`}
         sparkData={dailySpark}
         sparkColor="oklch(0.55 0.12 75)"
+        trendUp={expectancyPerTrade > 0 ? true : expectancyPerTrade < 0 ? false : null}
       />
     </div>
   );

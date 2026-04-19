@@ -200,10 +200,19 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
               />
               <ReferenceLine
                 y={startingBalance}
-                stroke="var(--ef-ink-4)"
+                stroke="var(--ef-ink-3)"
                 strokeDasharray="4 4"
-                strokeWidth={1}
-                opacity={0.5}
+                strokeWidth={1.5}
+                opacity={0.7}
+                label={{
+                  value: `start · $${startingBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                  position: 'insideTopRight',
+                  style: {
+                    fill: 'var(--ef-ink-4)',
+                    fontSize: 9.5,
+                    fontFamily: 'var(--ff-mono)',
+                  },
+                }}
               />
               <Tooltip
                 contentStyle={{
