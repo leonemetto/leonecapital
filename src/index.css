@@ -82,8 +82,8 @@
   }
 
   .dark {
-    /* Deep near-black terminal dark */
-    --background: 30 10% 4%;         /* #0b0b0a */
+    /* Pure black */
+    --background: 0 0% 0%;           /* #000000 */
     --foreground: 40 15% 93%;        /* #f2f0ea */
     --card: 30 8% 8%;                /* #141413 */
     --card-foreground: 40 15% 93%;
@@ -109,7 +109,7 @@
     --chart-3: 45 90% 50%;
     --chart-4: 200 70% 50%;
     --chart-5: 280 60% 55%;
-    --sidebar-background: 30 10% 4%;
+    --sidebar-background: 0 0% 0%;
     --sidebar-foreground: 35 5% 55%;
     --sidebar-primary: 40 15% 93%;   /* sidebar active = near-white */
     --sidebar-primary-foreground: 30 8% 4%;
@@ -119,9 +119,9 @@
     --sidebar-ring: 155 55% 42%;
 
     /* Dark mode design token aliases */
-    --ef-bg: #0b0b0a;
+    --ef-bg: #000000;
     --ef-bg-elev: #141413;
-    --ef-bg-sunken: #060605;
+    --ef-bg-sunken: #000000;
     --ef-ink: #f2f0ea;
     --ef-ink-2: #cfcdc5;
     --ef-ink-3: #908e87;
