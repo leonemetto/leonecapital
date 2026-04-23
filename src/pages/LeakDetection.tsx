@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
