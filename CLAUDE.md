@@ -54,79 +54,90 @@ Target: $2,000/month from paying traders globally
   - Signed URLs expire after 1 hour
   - RLS: user can only access their own files
 
-## Design System — STRICT RULES
-### Colors
-- #10b981 (green) = profit/wins/positive P&L ONLY
-- #f87171 (red) = losses/negative P&L ONLY
-- #ffffff (white) = all neutral UI elements
-- rgba(255,255,255,0.4) = secondary text
-- rgba(255,255,255,0.25) = muted/hint text
-- rgba(255,255,255,0.07) = card borders
-- rgba(255,255,255,0.02) = card backgrounds
-- #0a0a0a = page background
+## Design System — EdgeFlow tokens (src/index.css)
+The app uses a token-based design system with light + dark variants. Always use tokens, not hardcoded hex.
+
+### CSS Custom Properties (var(--ef-*))
+- `var(--ef-bg)` — page background (#000000 dark, #fafaf7 light)
+- `var(--ef-bg-elev)` — elevated card background (#141413 dark, #ffffff light)
+- `var(--ef-bg-sunken)` — sunken/input background
+- `var(--ef-ink)` — primary text
+- `var(--ef-ink-2)` — secondary text
+- `var(--ef-ink-3)` — muted text
+- `var(--ef-ink-4)` — very muted / placeholder
+- `var(--ef-line)` — border/divider color (#23221f dark, #e8e6df light)
+- `var(--ef-pos)` — profit green (oklch)
+- `var(--ef-neg)` — loss red (oklch)
+- `var(--ef-pos-wash)` — green tint background
+- `var(--ef-neg-wash)` — red tint background
+- `var(--ef-warn)` — amber warning
+- `var(--ef-warn-high)` — stronger amber
+- `var(--ef-warn-wash)` — amber tint background
+- `var(--ff-mono)` — mono font stack ('Geist Mono')
 
 ### Fonts
-- Sans: Inter
-- Mono: Roboto Mono (clean zeros, no dot/slash — use for all numbers)
-- All numeric values: font-mono tabular-nums
+- Sans: Geist (variable, loaded from /fonts/Geist-Variable.woff2)
+- Mono: Geist Mono (variable, loaded from /fonts/GeistMono-Variable.woff2)
+- All numeric values: `font-mono tabular-nums` class
 
 ### Buttons
-- Primary: white bg (#ffffff), black text,
-  border-radius: 24px, font-weight: 600
-- Secondary: transparent,
-  border: 0.5px solid rgba(255,255,255,0.15),
-  white text, border-radius: 24px
-- NEVER use green on buttons except
-  "Log Trade" submit (creates financial record)
-  Log Trade submit: bg-[#10b981] text-black rounded-[24px]
+- Primary: `bg-foreground text-background` rounded-[24px] font-semibold
+- Secondary: transparent, border border-border, rounded-[24px]
+- Log Trade submit ONLY: `bg-[#10b981] text-black` rounded-[24px]
+- NEVER use green on any button except Log Trade submit
 
-### Cards
-- background: rgba(255,255,255,0.02)
-- border: 0.5px solid rgba(255,255,255,0.07)
-- border-radius: 12px (rounded-xl)
-- padding: 20px 24px
-- NO colored backgrounds on cards ever
+### Cards (dark mode)
+- Use `var(--ef-bg-elev)` background, `1px solid var(--ef-line)` border
+- border-radius: 14px
+- glass-card / glass-card-elevated classes available (glassmorphism in light, flat in dark)
 
 ### Section Labels
-- text-[10px] font-semibold uppercase tracking-[0.08em] text-[rgba(255,255,255,0.3)]
+- `.section-label` utility: text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 font-bold
+- `.label-text` utility: text-[10px] uppercase tracking-[0.12em] text-muted-foreground/60 font-semibold
 
 ### Sidebar
-- Active item: white text + 2px solid white left border, NO background
-- Inactive items: rgba(255,255,255,0.35)
+- Active item: bg-foreground text-background rounded-[8px]
+- Inactive items: text-muted-foreground hover:text-foreground hover:bg-muted
 - No green anywhere in sidebar
-- Collapsed: icon + 8px label, no Radix Tooltip
-- Log Trade button: white pill at top of nav, always visible
+- Collapsed: icon (17px) + 8px label, no Radix Tooltip
+- Log Trade button: bg-foreground text-background pill at top of nav, always visible
+- Settings removed from nav — accessible via clicking profile name at bottom
 
 ### Typography
-- Page titles: 24px, font-weight: 700, letter-spacing: -0.5px
-- Section labels: 10px, font-weight: 600, letter-spacing: 0.08em, uppercase
-- Body: 13-14px, rgba(255,255,255,0.8)
-- Muted: 11-12px, rgba(255,255,255,0.35)
+- Page titles: ~22px, font-weight: 500, letter-spacing: -0.02em
+- Section labels: 9-10px, font-semibold, uppercase, tracking wide
+- Body: 13px
+- Numbers: font-mono class (Geist Mono), tabular-nums
 
 ## Pages & Status
-- /dashboard     — Analytics dashboard ✅ fully redesigned
-- /analyst       — Performance Analytic ✅ (renamed from Analyst)
-- /journal       — Trades DB ✅ summary stats added
-- /accounts      — Trading Accounts ✅ (sparkline fixed)
-- /add-trade     — Log Trade ✅ collapsible advanced fields
-- /ai            — AI Advisor, gated behind 10 trades ✅
-- /profile       — Settings ✅ (always accessible from sidebar)
-- /guide         — Platform Guide ✅
-- /import-trades — CSV/broker import ✅ (EdgeFlow, MT4/MT5, generic formats)
-- /auth          — Login/Signup ✅
-- /auth/callback — Email confirmation + OAuth redirect ✅
-- /reset-password — Password reset ✅
-- /onboarding   — 4-step onboarding flow ✅
-- /             — Landing page ✅ (public marketing page)
+- /dashboard        — Analytics dashboard ✅ fully redesigned
+- /analyst          — Performance Analytic ✅ (renamed from Analyst)
+- /journal          — Trades DB ✅ summary stats + 50-per-page pagination
+- /accounts         — Trading Accounts ✅ (sparkline fixed)
+- /add-trade        — Log Trade ✅ collapsible advanced fields, double-submit guard
+- /ai               — AI Advisor, gated behind 10 trades ✅
+- /profile          — Settings ✅ (accessible from sidebar bottom profile section)
+- /guide            — Platform Guide ✅
+- /import-trades    — CSV/broker import ✅ (EdgeFlow, MT4/MT5, generic formats)
+- /leak-detection   — Leak Detection ✅ sidebar badge for new leaks
+- /what-if          — Strategy Optimizer ✅ what-if simulation with equity curve
+- /trading-plan     — Trading Plan / Entry Checklist ✅
+- /auth             — Login/Signup ✅
+- /auth/callback    — Email confirmation + OAuth redirect ✅
+- /reset-password   — Password reset ✅
+- /onboarding       — 4-step onboarding flow ✅
+- /                 — Landing page ✅ (public marketing page)
 
 ## Sidebar Nav Labels (current)
-- Dashboard → /dashboard (was "Analytics")
-- Analytic → /analyst (was "Analyst")
+- Dashboard → /dashboard
+- Analytic → /analyst
 - Trades DB → /journal
 - Accounts → /accounts
 - AI Advisor → /ai
 - Trading Plan → /trading-plan (criteria/checklist management)
-- Settings → /profile
+- Leak Detection → /leak-detection (badge shows new leaks since last visit)
+- Optimizer → /what-if
+- Profile/Settings → bottom of sidebar (click avatar/name to navigate to /profile)
 
 ## Features Complete
 - ✅ Auth (signup, signin, reset password, Google OAuth)
@@ -140,7 +151,7 @@ Target: $2,000/month from paying traders globally
 - ✅ Vercel deployment + custom domain leone.capital
 - ✅ Phosphor icons throughout (replaced all Lucide)
 - ✅ Roboto Mono font (clean zeros, no center dot)
-- ✅ Trade form — core fields always visible, advanced fields collapsible
+- ✅ Trade form — core fields always visible, advanced fields collapsible, double-submit protected
 - ✅ Trade screenshot upload — attach chart image, stored in Supabase Storage
 - ✅ Screenshot viewer — camera icon in Recent Trades opens full-screen overlay
 - ✅ Screenshot in Trades DB — thumbnail visible in expanded trade row
@@ -149,7 +160,7 @@ Target: $2,000/month from paying traders globally
 - ✅ Drawdown alerts — toast warning at 80%, error toast at 100% of daily loss limit
 - ✅ Position size calculator — on Log Trade page, auto-reads account balance
 - ✅ Journal page summary stats bar (trades, win rate, P&L, avg R)
-- ✅ Sidebar Settings always visible (removed guide-completion gate)
+- ✅ Trades DB pagination — 50 trades per page with filter/sort preserved
 - ✅ Accounts sparkline fixed
 - ✅ Multi-account support — filter dashboard/analytics by account
 - ✅ Demo data — 15 sample trades generated for new users, deletable from settings
@@ -163,6 +174,15 @@ Target: $2,000/month from paying traders globally
 - ✅ Re-engagement emails — day-3 and day-7 inactivity emails via Resend (pg_cron: 0 8 * * *)
 - ✅ Weekly AI digest — Monday performance email with Gemini insight (pg_cron: 0 7 * * 1)
 - ✅ Sentry error monitoring — production only, PII stripped, DSN in Vercel env vars
+- ✅ Leak Detection page — identifies negative-expectancy patterns across instrument/session/discipline
+- ✅ Strategy Optimizer (What-If Simulator) — simulate removing any filter and see equity curve impact
+- ✅ Leak Detection sidebar badge — shows count of new leaks since user last visited the page
+- ✅ Loading skeletons — Dashboard and Trades DB show skeleton UI while data fetches
+- ✅ React.lazy code splitting — heavy pages lazy-loaded, reduces initial bundle
+- ✅ Per-page error boundaries — a crash on one page shows "try again" without killing the app
+- ✅ LeaksContext — single computation shared across sidebar badge and Leak Detection page
+- ✅ Fully typed Supabase hooks — useTrades, useCriteria typed against generated Database types
+- ✅ 21 analytics unit tests — calculateAnalytics, getExpectancyByField, simulateFilter, getDailyPnl
 
 ## Trade Form — All Fields
 ### Always Visible (required)
@@ -262,10 +282,15 @@ Target: $2,000/month from paying traders globally
 - getExpectancyByField(trades, field) — breakdown by instrument/direction/strategy/session/bias
 - getExpectancyByPlanAdherence(trades) — followed vs violated stats
 - detectBehavioralPatterns(trades) — revenge trading, overtrading, clustering, emotional, post-loss, plan-deviation
-- simulateFilter(trades, field, value) — what-if filter analysis
+- simulateFilter(trades, filters) — what-if simulation, returns SimulationResult with equity curves
+- detectToxicCombinations(trades) — finds instrument+session+direction combos with negative expectancy
 - getCurrentRiskStatus(trades) — drawdown %, streak, daily trend
 - getLeakDiagnostic(field, key, expectancy, winRate) — human-readable leak explanation
-- getDailyPnl(trades) — map of date → {pnl, tradeCount}
+- getDailyPnl(trades) — Map of date → {pnl, trades} (returns Map, not plain object)
+- getEquityCurve(trades) — daily cumulative P&L series for charts
+- getStrategyPerformance(trades) — per-strategy win rate + expectancy
+- getSessionPerformance(trades) — per-session win rate + expectancy
+- exportTradesCSV(trades) — triggers CSV download
 
 ## Onboarding Flow (4 steps)
 1. Nickname — trader's display name
@@ -294,12 +319,25 @@ Target: $2,000/month from paying traders globally
 - Goals: daily/weekly/monthly targets, max daily loss
 - Demo data deletion
 
+## State Architecture
+- TanStack Query handles all server state (trades, accounts, criteria, profile, goals)
+- QueryClient configured with staleTime: 5min — no refetch on every window focus
+- React Context lifts query results app-wide (no prop drilling, no duplicate fetches):
+  - TradesContext — wraps useTrades(), all pages call useSharedTrades()
+  - AccountsContext — wraps useAccounts() + selectedAccountId state
+  - LeaksContext — single computeLeaks() call shared by sidebar badge + LeakDetection page
+- All heavy pages (AIAdvisor, PerformanceAnalyst, Landing, etc.) are React.lazy loaded
+- PageErrorBoundary wraps every route — a page crash shows "try again" without killing the app
+- useTrades fetches up to 2000 trades (safety cap) — enough for 1-2 years of active trading
+
 ## Supabase SQL — Run These Manually (CLI not authenticated)
 All migrations are in supabase/migrations/ but must be applied via dashboard SQL editor.
 Pending if not yet run:
 1. screenshot_url column + trade-screenshots bucket + RLS policies
 2. daily_journals table + RLS
 3. trader_goals table + RLS
+Note: trader_goals and daily_journals are NOT in generated types (types.ts) — hooks for
+these tables use `as any` casts intentionally until `supabase gen types typescript` is re-run.
 
 ## Task List — DO THESE IN ORDER
 

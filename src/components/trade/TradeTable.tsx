@@ -27,7 +27,7 @@ type OutcomeFilter = 'all' | 'win' | 'loss' | 'breakeven';
 type DirectionFilter = 'all' | 'long' | 'short';
 type DateRange = 'all' | 'week' | 'month';
 
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 50;
 const CARD = 'rounded-xl bg-card border border-border';
 
 function TradeScreenshot({ path }: { path: string }) {

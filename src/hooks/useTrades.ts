@@ -62,7 +62,8 @@ export function useTrades() {
       const { data, error } = await supabase
         .from('trades')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(2000);
       if (error) throw error;
       return (data ?? []).map(rowToTrade);
     },
