@@ -12,7 +12,7 @@ import { exportTradePDF } from '@/lib/pdfExport';
 
 const Journal = () => {
   const navigate = useNavigate();
-  const { trades, updateTrade, deleteTrade } = useSharedTrades();
+  const { trades, updateTrade, deleteTrade, isLoading: tradesLoading } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
 
@@ -30,12 +30,26 @@ const Journal = () => {
     return { total: filteredTrades.length, wins, netPnl, winRate, avgR };
   }, [filteredTrades]);
 
+  if (tradesLoading) {
+    return (
+      <AppLayout>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div style={{ height: 28, width: 160, borderRadius: 8, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
+          <div style={{ height: 80, borderRadius: 14, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
+          {[...Array(5)].map((_, i) => (
+            <div key={i} style={{ height: 52, borderRadius: 10, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
+          ))}
+        </div>
+      </AppLayout>
+    );
+  }
+
   return (
     <AppLayout>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 20 }}>
         <div>
-          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Trades DB</h1>
-          <p className="text-xs text-muted-foreground/60">Your complete trade history</p>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Trades DB</h1>
+          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Your complete trade history</div>
         </div>
         <div className="flex items-center gap-2">
           {accounts.length > 1 && (
@@ -54,49 +68,46 @@ const Journal = () => {
               </Select>
             </>
           )}
-          <button
-            onClick={() => navigate('/import-trades')}
-            className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 transition-colors"
-          >
-            <UploadSimple className="h-3.5 w-3.5" weight="regular" />
-            Import
-          </button>
-          {filteredTrades.length > 0 && (
-            <>
-              <button
-                onClick={() => exportTradesCSV(filteredTrades)}
-                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 transition-colors"
-              >
-                <DownloadSimple className="h-3.5 w-3.5" weight="regular" />
-                CSV
-              </button>
-              <button
-                onClick={() => exportTradePDF(filteredTrades)}
-                className="flex items-center gap-1.5 h-8 px-3 text-xs rounded-[24px] border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 transition-colors"
-              >
-                <FilePdf className="h-3.5 w-3.5" weight="regular" />
-                PDF
-              </button>
-            </>
-          )}
+          {[
+            { label: 'Import', icon: UploadSimple, onClick: () => navigate('/import-trades') },
+            ...(filteredTrades.length > 0 ? [
+              { label: 'CSV', icon: DownloadSimple, onClick: () => exportTradesCSV(filteredTrades) },
+              { label: 'PDF', icon: FilePdf, onClick: () => exportTradePDF(filteredTrades) },
+            ] : []),
+          ].map(({ label, icon: Icon, onClick }) => (
+            <button
+              key={label}
+              onClick={onClick}
+              className="flex items-center gap-1.5 transition-colors"
+              style={{
+                height: 34, padding: '0 12px', borderRadius: 10,
+                background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
+                fontSize: 12, fontWeight: 500, color: 'var(--ef-ink-2)',
+              }}
+            >
+              <Icon className="h-3.5 w-3.5" weight="regular" />
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Summary stats */}
       {stats && (
-        <div className="flex items-stretch rounded-[10px] bg-card border border-border mb-4">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: '1px solid var(--ef-line)', borderRadius: 14, overflow: 'hidden', marginBottom: 14 }}>
           {[
-            { label: 'Total Trades', value: stats.total, color: 'text-foreground' },
-            { label: 'Win Rate', value: `${stats.winRate}%`, color: stats.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f87171]' },
-            { label: 'Net P&L', value: `${stats.netPnl >= 0 ? '+' : ''}$${stats.netPnl.toFixed(0)}`, color: stats.netPnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]' },
-            { label: 'Avg R', value: filteredTrades.some(t => t.rMultiple != null) ? `${stats.avgR >= 0 ? '+' : ''}${stats.avgR.toFixed(2)}R` : '—', color: stats.avgR >= 0 ? 'text-foreground' : 'text-[#f87171]' },
+            { label: 'Total Trades', value: stats.total, mono: String(stats.total), color: 'var(--ef-ink)' },
+            { label: 'Win Rate', value: `${stats.winRate}%`, mono: `${stats.winRate}%`, color: stats.winRate >= 50 ? 'var(--ef-pos)' : 'var(--ef-neg)' },
+            { label: 'Net P&L', value: `${stats.netPnl >= 0 ? '+' : ''}$${stats.netPnl.toFixed(0)}`, mono: `${stats.netPnl >= 0 ? '+' : ''}$${stats.netPnl.toFixed(0)}`, color: stats.netPnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' },
+            { label: 'Avg R', value: filteredTrades.some(t => t.rMultiple != null) ? `${stats.avgR >= 0 ? '+' : ''}${stats.avgR.toFixed(2)}R` : '—', mono: filteredTrades.some(t => t.rMultiple != null) ? `${stats.avgR >= 0 ? '+' : ''}${stats.avgR.toFixed(2)}R` : '—', color: stats.avgR >= 0 ? 'var(--ef-ink)' : 'var(--ef-neg)' },
           ].map((s, i, arr) => (
-            <div key={s.label} className="flex-1 flex items-center">
-              <div className="flex-1 py-3 px-4 flex flex-col items-center">
-                <span className="text-[10px] font-medium uppercase tracking-[0.08em] text-muted-foreground/60">{s.label}</span>
-                <span className={cn('text-[22px] leading-tight metric-number', s.color)}>{s.value}</span>
-              </div>
-              {i < arr.length - 1 && <div className="w-px h-10 bg-border" />}
+            <div key={s.label} style={{
+              padding: '16px 20px',
+              background: 'var(--ef-bg-elev)',
+              borderRight: i < arr.length - 1 ? '1px solid var(--ef-line)' : 'none',
+            }}>
+              <div className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{s.label}</div>
+              <div className="font-mono" style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', color: s.color, lineHeight: 1 }}>{s.value}</div>
             </div>
           ))}
         </div>

@@ -14,9 +14,12 @@ import {
   X,
   Plus,
   ClipboardText,
+  Drop,
+  Scales,
 } from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
+import { useLeaks } from '@/contexts/LeaksContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useState } from 'react';
 
@@ -35,12 +38,14 @@ function EdgeFlowMark({ size = 20 }: { size?: number }) {
 }
 
 const baseNavItems = [
-  { title: 'Dashboard',    short: 'Dash',     path: '/dashboard',     Icon: ChartLineUp },
-  { title: 'Analytic',     short: 'Analytic', path: '/analyst',       Icon: ChartBar },
-  { title: 'Trades DB',    short: 'Trades',   path: '/journal',       Icon: Rows },
-  { title: 'Accounts',     short: 'Accounts', path: '/accounts',      Icon: CurrencyDollar },
-  { title: 'AI Advisor',   short: 'AI',       path: '/ai',            Icon: Brain },
-  { title: 'Trading Plan', short: 'Plan',     path: '/trading-plan',  Icon: ClipboardText },
+  { title: 'Dashboard',       short: 'Dash',    path: '/dashboard',       Icon: ChartLineUp },
+  { title: 'Analytic',        short: 'Analytic',path: '/analyst',         Icon: ChartBar },
+  { title: 'Trades DB',       short: 'Trades',  path: '/journal',         Icon: Rows },
+  { title: 'Accounts',        short: 'Accounts',path: '/accounts',        Icon: CurrencyDollar },
+  { title: 'AI Advisor',      short: 'AI',      path: '/ai',              Icon: Brain },
+  { title: 'Trading Plan',    short: 'Plan',    path: '/trading-plan',    Icon: ClipboardText },
+  { title: 'Leak Detection',  short: 'Leaks',   path: '/leak-detection',  Icon: Drop,   badge: true },
+  { title: 'Optimizer',       short: 'Optim.',  path: '/what-if',         Icon: Scales },
 ];
 
 export function AppSidebar() {
@@ -51,10 +56,9 @@ export function AppSidebar() {
   const navigate = useNavigate();
   const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
 
-  const navItems = [
-    ...baseNavItems,
-    { title: 'Settings', short: 'Settings', path: '/profile', Icon: GearSix },
-  ];
+  const { newLeakCount: leakCount } = useLeaks();
+
+  const navItems = baseNavItems;
 
   const sidebarWidth = collapsed ? 'w-[68px]' : 'w-[220px]';
 
@@ -135,32 +139,60 @@ export function AppSidebar() {
             <p className="text-[9.5px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/50 px-2 pt-1 pb-0.5">Analyze</p>
           )}
 
-          {navItems.map(item => (
-            <NavLink
-              key={item.path}
-              to={item.path}
-              end={item.path === '/'}
-              onClick={() => setMobileOpen(false)}
-              className={({ isActive }) => cn(
-                'flex transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[8px]',
-                collapsed
-                  ? 'flex-col items-center justify-center gap-1 py-2.5 px-1'
-                  : 'flex-row items-center gap-2.5 px-2.5 py-2',
-                isActive
-                  ? 'bg-foreground text-background'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-              )}
-            >
-              <item.Icon
-                className={collapsed ? 'h-[17px] w-[17px] shrink-0' : 'h-[16px] w-[16px] shrink-0'}
-                weight="regular"
-              />
-              {collapsed
-                ? <span className="text-[8px] font-medium tracking-[0.04em] leading-none">{item.short}</span>
-                : <span className="truncate text-[13px] font-medium">{item.title}</span>
-              }
-            </NavLink>
-          ))}
+          {navItems.map(item => {
+            const showBadge = (item as any).badge && leakCount > 0;
+            return (
+              <NavLink
+                key={item.path}
+                to={item.path}
+                end={item.path === '/'}
+                onClick={() => setMobileOpen(false)}
+                className={({ isActive }) => cn(
+                  'flex transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[8px]',
+                  collapsed
+                    ? 'flex-col items-center justify-center gap-1 py-2.5 px-1'
+                    : 'flex-row items-center gap-2.5 px-2.5 py-2',
+                  isActive
+                    ? 'bg-foreground text-background'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                )}
+              >
+                <span className="relative shrink-0">
+                  <item.Icon
+                    className={collapsed ? 'h-[17px] w-[17px]' : 'h-[16px] w-[16px]'}
+                    weight="regular"
+                  />
+                  {showBadge && (
+                    <span style={{
+                      position: 'absolute', top: -2, right: -2,
+                      width: 6, height: 6, borderRadius: '50%',
+                      background: 'var(--ef-neg)',
+                      border: '1.5px solid var(--background)',
+                      display: 'block',
+                    }} />
+                  )}
+                </span>
+                {collapsed ? (
+                  <span className="text-[8px] font-medium tracking-[0.04em] leading-none">{item.short}</span>
+                ) : (
+                  <span className="truncate text-[13px] font-medium flex-1">{item.title}</span>
+                )}
+                {!collapsed && showBadge && (
+                  <span style={{
+                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    minWidth: 18, height: 18, borderRadius: 9,
+                    background: 'var(--ef-neg)',
+                    color: 'white',
+                    fontSize: 10, fontWeight: 700,
+                    fontFamily: 'var(--ff-mono)',
+                    flexShrink: 0,
+                  }}>
+                    {leakCount}
+                  </span>
+                )}
+              </NavLink>
+            );
+          })}
         </nav>
 
         {/* User section */}
@@ -189,16 +221,17 @@ export function AppSidebar() {
             <>
               <button
                 onClick={() => navigate('/profile')}
-                className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none"
+                className="group flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none"
               >
                 <Avatar className="h-7 w-7 shrink-0">
                   <AvatarImage src={profile?.avatarUrl || undefined} />
                   <AvatarFallback className="text-[9px] font-bold bg-muted text-foreground">{initials}</AvatarFallback>
                 </Avatar>
-                <div className="text-left min-w-0">
+                <div className="text-left min-w-0 flex-1">
                   <p className="text-[12px] font-semibold leading-none truncate text-foreground">{profile?.nickname || 'User'}</p>
-                  <p className="text-[10px] mt-0.5 text-muted-foreground/60">Profile & settings</p>
+                  <p className="text-[10px] mt-0.5 text-muted-foreground/60">Settings</p>
                 </div>
+                <GearSix className="h-[14px] w-[14px] shrink-0 opacity-0 group-hover:opacity-60 transition-opacity" weight="regular" />
               </button>
               <button
                 onClick={() => signOut()}

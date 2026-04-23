@@ -58,6 +58,7 @@
     --sidebar-ring: 155 60% 38%;
 
     /* Design token aliases for fintech components */
+    --ff-mono: 'Roboto Mono', 'Courier New', monospace;
     --ef-bg: #fafaf7;
     --ef-bg-elev: #ffffff;
     --ef-bg-sunken: #f3f2ed;
@@ -71,6 +72,8 @@
     --ef-pos-wash: oklch(0.95 0.04 155);
     --ef-neg-wash: oklch(0.95 0.04 25);
     --ef-cool-wash: oklch(0.95 0.02 240);
+    --ef-warn: oklch(0.62 0.16 65);
+    --ef-warn-high: oklch(0.60 0.17 55);
     --ef-warn-wash: oklch(0.96 0.04 75);
 
     --glass-bg: 0 0% 100% / 0.55;
@@ -132,6 +135,8 @@
     --ef-pos-wash: oklch(0.25 0.07 155);
     --ef-neg-wash: oklch(0.25 0.08 25);
     --ef-cool-wash: oklch(0.24 0.04 240);
+    --ef-warn: oklch(0.72 0.16 65);
+    --ef-warn-high: oklch(0.72 0.17 55);
     --ef-warn-wash: oklch(0.26 0.07 75);
 
     --glass-bg: 0 0% 100% / 0.02;
@@ -193,6 +198,21 @@
   }
 
   /* ─── Liquid Glass System ─── */
+  /* Dark mode: flat ef-* card style instead of glassmorphism */
+  .dark .glass-card,
+  .dark .glass-card-elevated {
+    background: var(--ef-bg-elev) !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border: 1px solid var(--ef-line) !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+  }
+  .dark .glass-card::before,
+  .dark .glass-card-elevated::before {
+    display: none !important;
+  }
+
   .glass-card {
     background: hsl(var(--glass-bg));
     backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
@@ -325,6 +345,41 @@
       linear-gradient(hsl(var(--border) / 0.3) 1px, transparent 1px),
       linear-gradient(90deg, hsl(var(--border) / 0.3) 1px, transparent 1px);
     background-size: 40px 40px;
+  }
+}
+
+/* ─── Responsive utility grids ─── */
+.optimizer-filter-grid {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 640px) {
+  .optimizer-filter-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.optimizer-stat-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, 1fr);
+}
+@media (min-width: 560px) {
+  .optimizer-stat-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* ─── Leak Detection responsive grid ─── */
+.leak-grid {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 720px) {
+  .leak-grid {
+    grid-template-columns: minmax(0, 1fr) 300px;
   }
 }
 

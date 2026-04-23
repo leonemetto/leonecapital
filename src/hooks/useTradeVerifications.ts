@@ -7,8 +7,9 @@ export interface TradeVerification {
 }
 
 export function useTradeVerifications(tradeIds: string[]) {
+  const stableKey = [...tradeIds].sort().join(',');
   return useQuery({
-    queryKey: ['trade_verifications', tradeIds],
+    queryKey: ['trade_verifications', stableKey],
     enabled: tradeIds.length > 0,
     queryFn: async () => {
       const { data, error } = await supabase

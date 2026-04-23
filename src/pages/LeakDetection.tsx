@@ -1,8 +1,9 @@
-import { useMemo, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
-import { computeLeaks, DashboardLeak } from '@/components/dashboard/DashboardLeakDetection';
+import { useLeaks } from '@/contexts/LeaksContext';
+import type { DashboardLeak } from '@/components/dashboard/DashboardLeakDetection';
 import { getExpectancyByField } from '@/lib/analytics';
 import { Warning, CheckCircle, Drop, Lightning } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
@@ -168,8 +169,8 @@ function SessionBreakdown({ trades }: { trades: any[] }) {
 export default function LeakDetection() {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
+  const { leaks } = useLeaks();
 
-  const leaks = useMemo(() => computeLeaks(trades), [trades]);
   const totalImpact = leaks.reduce((s, l) => s + l.impact, 0);
   const criticalCount = leaks.filter(l => l.severity === 'critical').length;
 

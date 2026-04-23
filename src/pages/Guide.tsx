@@ -6,8 +6,8 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { cn } from '@/lib/utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Target, Search, Zap, Brain, CalendarCheck, ArrowRight, ArrowLeft, CheckCircle2,
-} from 'lucide-react';
+  Target, MagnifyingGlass, Lightning, Brain, CalendarCheck, ArrowRight, ArrowLeft, CheckCircle,
+} from '@phosphor-icons/react';
 
 const SECTIONS = [
   {
@@ -24,7 +24,7 @@ const SECTIONS = [
     id: 'analyst',
     title: 'Performance Analyst',
     subtitle: 'The Leak Detector',
-    icon: Search,
+    icon: MagnifyingGlass,
     content: [
       { heading: 'How to Spot Your Leaks', body: 'The Performance Analyst breaks down your trades by instrument, session, direction, HTF bias, confidence, and emotional state. Any segment with negative R-expectancy gets flagged with a "LEAK" badge.' },
       { heading: 'What the LEAK Badge Means', body: 'A LEAK badge means that segment has negative expectancy — on average, you lose money every time you trade that combination. It\'s the mathematical equivalent of a hole in your pocket.' },
@@ -35,7 +35,7 @@ const SECTIONS = [
     id: 'optimizer',
     title: 'Strategy Optimizer',
     subtitle: 'The Proof',
-    icon: Zap,
+    icon: Lightning,
     content: [
       { heading: 'Validating Your Edge', body: 'Click the ⚡ icon on any table row to load that segment into the Strategy Optimizer. It instantly shows you what your equity curve would look like if you only traded that setup — or removed it entirely.' },
       { heading: 'The Ghost Curve', body: 'The dashed gray line is your total portfolio. The bold green line is the filtered strategy. When the green line outperforms the gray — you\'ve found something worth keeping.' },
@@ -89,19 +89,22 @@ export default function Guide() {
   return (
     <AppLayout>
       <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 24 }}>
           <div>
-            <h1 className="text-[24px] font-bold text-white tracking-[-0.5px]">Platform Guide</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Platform Guide</h1>
+            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
               {guideProgress.length}/{SECTIONS.length} sections completed
-            </p>
+            </div>
           </div>
-          <Button variant="ghost" size="sm" className="text-xs" onClick={async () => {
-            await completeOnboarding();
-            navigate('/dashboard');
-          }}>
+          <button
+            style={{ fontSize: 12, color: 'var(--ef-ink-3)', background: 'none', border: 'none', cursor: 'pointer' }}
+            onClick={async () => {
+              await completeOnboarding();
+              navigate('/dashboard');
+            }}
+          >
             Skip Guide
-          </Button>
+          </button>
         </div>
 
         <div className="flex gap-6">
@@ -122,9 +125,9 @@ export default function Guide() {
                   )}
                 >
                   {done ? (
-                    <CheckCircle2 className="h-4 w-4 text-white shrink-0" />
+                    <CheckCircle size={16} weight="fill" color="var(--ef-ink)" />
                   ) : (
-                    <Icon className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+                    <Icon size={16} weight="regular" color="var(--ef-ink-3)" />
                   )}
                   <span className="truncate">{s.title}</span>
                 </button>
@@ -144,13 +147,13 @@ export default function Guide() {
               >
                 <div className="glass-card p-6">
                   <div className="flex items-center gap-3 mb-5">
-                    <div className="p-2.5 rounded-xl bg-muted">
-                      <activeSection.icon className="h-5 w-5 text-muted-foreground" />
+                    <div style={{ padding: 10, borderRadius: 10, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
+                      <activeSection.icon size={20} weight="regular" color="var(--ef-ink-3)" />
                     </div>
                     <div>
-                      <h2 className="text-lg font-bold">{activeSection.title}</h2>
+                      <h2 style={{ margin: 0, fontSize: 16, fontWeight: 500, color: 'var(--ef-ink)' }}>{activeSection.title}</h2>
                       {activeSection.subtitle && (
-                        <p className="text-xs text-muted-foreground">{activeSection.subtitle}</p>
+                        <p className="font-mono" style={{ margin: 0, fontSize: 11, color: 'var(--ef-ink-3)' }}>{activeSection.subtitle}</p>
                       )}
                     </div>
                   </div>
@@ -178,7 +181,7 @@ export default function Guide() {
                       disabled={activeIndex === 0}
                       onClick={() => setActiveIndex(i => i - 1)}
                     >
-                      <ArrowLeft className="h-3 w-3" /> Previous
+                      <ArrowLeft size={12} weight="regular" /> Previous
                     </Button>
 
                     <div className="flex gap-1">
@@ -199,7 +202,7 @@ export default function Guide() {
                       onClick={handleContinue}
                     >
                       {isLast ? 'Finish Guide' : 'Continue'}
-                      <ArrowRight className="h-3 w-3" />
+                      <ArrowRight size={12} weight="regular" />
                     </Button>
                   </div>
                 </div>

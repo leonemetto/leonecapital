@@ -1,9 +1,14 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 import { Trade, TradeFormData } from '@/types/trade';
 
 const BUCKET = 'trade-screenshots';
+
+type TradeRow = Database['public']['Tables']['trades']['Row'];
+type TradeInsert = Database['public']['Tables']['trades']['Insert'];
+type TradeUpdate = Database['public']['Tables']['trades']['Update'];
 
 export async function uploadTradeScreenshot(userId: string, tradeId: string, file: File): Promise<string> {
   const ext = file.name.split('.').pop() ?? 'jpg';
@@ -23,15 +28,15 @@ export async function deleteTradeScreenshot(path: string): Promise<void> {
   await supabase.storage.from(BUCKET).remove([path]);
 }
 
-function rowToTrade(r: any): Trade {
+function rowToTrade(r: TradeRow): Trade {
   return {
     id: r.id,
     date: r.date,
     instrument: r.instrument,
-    direction: r.direction,
+    direction: r.direction as 'long' | 'short',
     strategy: r.strategy || '',
     session: r.session || '',
-    outcome: r.outcome,
+    outcome: r.outcome as 'win' | 'loss' | 'breakeven',
     pnl: Number(r.pnl),
     rMultiple: r.r_multiple != null ? Number(r.r_multiple) : undefined,
     riskPercent: r.risk_percent != null ? Number(r.risk_percent) : undefined,
@@ -67,7 +72,7 @@ export function useTrades() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    const { data, error } = await supabase.from('trades').insert({
+    const insert: TradeInsert = {
       user_id: user.id,
       date: form.date,
       instrument: form.instrument,
@@ -86,15 +91,16 @@ export function useTrades() {
       time_in_trade: form.timeInTrade ?? null,
       followed_plan: form.followedPlan ?? null,
       screenshot_url: form.screenshotUrl ?? null,
-    } as any).select().single();
+    };
 
+    const { data, error } = await supabase.from('trades').insert(insert).select().single();
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
     return rowToTrade(data);
   }, [qc]);
 
   const updateTrade = useCallback(async (id: string, form: Partial<TradeFormData>) => {
-    const updates: any = {};
+    const updates: TradeUpdate = {};
     if (form.date !== undefined) updates.date = form.date;
     if (form.instrument !== undefined) updates.instrument = form.instrument;
     if (form.direction !== undefined) updates.direction = form.direction;

@@ -203,7 +203,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       if (savedTrade?.id && Object.keys(checks).length > 0) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await supabase.from('trade_verifications' as any).upsert({
+          await supabase.from('trade_verifications').upsert({
             trade_id: savedTrade.id,
             user_id: user.id,
             checks,

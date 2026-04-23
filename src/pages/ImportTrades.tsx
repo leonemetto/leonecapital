@@ -203,23 +203,23 @@ export default function ImportTrades() {
     <AppLayout>
       <div className="max-w-3xl">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-6">
-          <button onClick={() => navigate(-1)} className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-foreground hover:bg-muted transition-all">
+        <div className="flex items-center gap-3 border-b border-border" style={{ paddingBottom: 12, marginBottom: 20 }}>
+          <button onClick={() => navigate(-1)} style={{ padding: '6px', borderRadius: 8, background: 'transparent', border: 'none', color: 'var(--ef-ink-3)', cursor: 'pointer' }}>
             <ArrowLeft className="h-4 w-4" weight="regular" />
           </button>
           <div>
-            <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Import Trades</h1>
-            <p className="text-xs text-muted-foreground/60">Import from CSV — EdgeFlow export, MT4/MT5, or generic</p>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Import Trades</h1>
+            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Import from CSV — EdgeFlow export, MT4/MT5, or generic</div>
           </div>
         </div>
 
         {result ? (
           /* ── Result state ── */
-          <div className="rounded-xl bg-card border border-border p-8 text-center space-y-4">
-            <CheckCircle className="h-10 w-10 text-[#10b981] mx-auto" weight="fill" />
+          <div className="text-center" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)', borderRadius: 14, padding: '32px 24px' }}>
+            <CheckCircle size={40} color="var(--ef-pos)" weight="fill" style={{ margin: '0 auto 16px' }} />
             <div>
-              <p className="text-xl font-bold text-foreground">{result.imported} trades imported</p>
-              {result.skipped > 0 && <p className="text-sm text-muted-foreground/60 mt-1">{result.skipped} rows skipped (missing required fields)</p>}
+              <p style={{ fontSize: 20, fontWeight: 500, color: 'var(--ef-ink)', margin: '0 0 4px' }}>{result.imported} trades imported</p>
+              {result.skipped > 0 && <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', margin: 0 }}>{result.skipped} rows skipped (missing required fields)</p>}
             </div>
             <div className="flex gap-3 justify-center pt-2">
               <button onClick={() => navigate('/journal')} className="px-5 py-2 rounded-[24px] bg-foreground text-background text-sm font-semibold">View Trades</button>
@@ -229,7 +229,7 @@ export default function ImportTrades() {
         ) : (
           <div className="space-y-4">
             {/* Step 1 — Template */}
-            <div className="rounded-xl bg-card border border-border p-5">
+            <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
               <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">1. Select Format</p>
               <div className="grid grid-cols-3 gap-2">
                 {(Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]).map((key) => (
@@ -252,7 +252,7 @@ export default function ImportTrades() {
 
             {/* Step 2 — Account */}
             {accounts.length > 0 && (
-              <div className="rounded-xl bg-card border border-border p-5">
+              <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">2. Assign to Account</p>
                 <div className="flex flex-wrap gap-2">
                   {accounts.map((a) => (
@@ -269,7 +269,7 @@ export default function ImportTrades() {
             )}
 
             {/* Step 3 — Upload */}
-            <div className="rounded-xl bg-card border border-border p-5">
+            <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
               <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">3. Upload CSV File</p>
               <input ref={fileRef} type="file" accept=".csv" className="hidden" onChange={(e) => { if (e.target.files?.[0]) handleFile(e.target.files[0]); }} />
               {!fileName ? (
@@ -296,7 +296,7 @@ export default function ImportTrades() {
 
             {/* Preview */}
             {preview.length > 0 && (
-              <div className="rounded-xl bg-card border border-border p-5">
+              <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
                 <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">Preview (first 5 rows)</p>
                 <div className="space-y-2">
                   {preview.map((p, i) => (

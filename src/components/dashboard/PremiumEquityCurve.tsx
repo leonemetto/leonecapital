@@ -12,9 +12,10 @@ type Period = 'daily' | 'weekly' | 'monthly';
 interface Props {
   trades: Trade[];
   startingBalance?: number;
+  projectedGain?: number;
 }
 
-export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
+export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain = 0 }: Props) {
   const [period, setPeriod] = useState<Period>('daily');
 
   const data = useMemo(() => {
@@ -61,16 +62,26 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
   const isPositive = netPnl >= 0;
   const lineColor = isPositive ? 'var(--ef-pos)' : 'var(--ef-neg)';
   const lineHex = isPositive ? 'oklch(0.55 0.17 155)' : 'oklch(0.52 0.18 25)';
+
+  // Projected data — linearly distribute the gain over time
+  const projectedData = useMemo(() => {
+    if (projectedGain <= 0 || data.length === 0) return null;
+    return data.map((pt, i) => ({
+      ...pt,
+      projected: pt.balance + (projectedGain * (i / (data.length - 1))),
+    }));
+  }, [data, projectedGain]);
   const isEmpty = data.length === 0;
 
   const yDomain = useMemo(() => {
     if (data.length === 0) return ['auto', 'auto'] as ['auto', 'auto'];
     const vals = data.map(d => d.balance);
+    const projMax = projectedGain > 0 ? (lastBal + projectedGain) : 0;
     const min = Math.min(...vals, startingBalance);
-    const max = Math.max(...vals, startingBalance);
+    const max = Math.max(...vals, startingBalance, projMax);
     const pad = (max - min) * 0.15 || 50;
     return [Math.floor(min - pad), Math.ceil(max + pad)] as [number, number];
-  }, [data, startingBalance]);
+  }, [data, startingBalance, projectedGain, lastBal]);
 
   const periods: { key: Period; label: string }[] = [
     { key: 'daily', label: '30D' },
@@ -144,6 +155,18 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
           >
             {netPnl >= 0 ? '+' : '−'}${Math.abs(netPnl).toLocaleString(undefined, { maximumFractionDigits: 0 })} ({netPct >= 0 ? '+' : ''}{netPct.toFixed(1)}%)
           </div>
+          {projectedGain > 0 && (
+            <span style={{
+              marginLeft: 'auto',
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+              padding: '3px 8px', borderRadius: 999,
+              background: 'var(--ef-pos-wash)',
+              color: 'var(--ef-pos)',
+              fontSize: 11, fontFamily: 'var(--ff-mono)',
+            }}>
+              projected +${projectedGain.toLocaleString(undefined, { maximumFractionDigits: 0 })} w/o leaks
+            </span>
+          )}
         </div>
       )}
 
@@ -162,7 +185,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={data} margin={{ left: 0, right: 8, top: 8, bottom: 4 }}>
+            <AreaChart data={projectedData ?? data} margin={{ left: 0, right: 8, top: 8, bottom: 4 }}>
               <defs>
                 <linearGradient id="eqPos" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="0%" stopColor={lineHex} stopOpacity={0.18} />
@@ -228,15 +251,30 @@ export function PremiumEquityCurve({ trades, startingBalance = 0 }: Props) {
                 labelStyle={{ opacity: 0.6, fontSize: 10, marginBottom: 2 }}
                 formatter={(value: number) => [`$${value.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, 'Balance']}
               />
+              {projectedData && (
+                <Area
+                  type="monotone"
+                  dataKey="projected"
+                  stroke="oklch(0.55 0.17 155)"
+                  strokeWidth={1.6}
+                  strokeDasharray="4 3"
+                  fill="url(#eqPos)"
+                  fillOpacity={0.5}
+                  dot={false}
+                  activeDot={false}
+                  baseValue={startingBalance}
+                />
+              )}
               <Area
                 type="monotone"
                 dataKey="balance"
-                stroke={lineHex}
-                strokeWidth={1.6}
-                fill={isPositive ? 'url(#eqPos)' : 'url(#eqNeg)'}
+                stroke={projectedData ? 'var(--ef-ink-4)' : lineHex}
+                strokeWidth={projectedData ? 1.2 : 1.6}
+                fill={projectedData ? 'none' : (isPositive ? 'url(#eqPos)' : 'url(#eqNeg)')}
                 dot={false}
                 activeDot={{ r: 4, fill: 'var(--ef-bg-elev)', stroke: lineHex, strokeWidth: 2 }}
                 baseValue={startingBalance}
+                opacity={projectedData ? 0.45 : 1}
               />
             </AreaChart>
           </ResponsiveContainer>

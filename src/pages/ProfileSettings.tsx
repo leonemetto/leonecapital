@@ -306,8 +306,13 @@ export default function ProfileSettings() {
 
   return (
     <AppLayout>
-      <div className="max-w-lg mx-auto space-y-6">
-        <h1 className="text-xl font-bold">Profile Settings</h1>
+      <div className="max-w-lg mx-auto" style={{ paddingBottom: 40 }}>
+        <div className="border-b border-border" style={{ paddingBottom: 12, marginBottom: 24 }}>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Settings</h1>
+          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Profile, security, and preferences</div>
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
         {/* Avatar */}
         <div className="glass-card p-6">
@@ -497,6 +502,8 @@ export default function ProfileSettings() {
             </div>
             <Switch checked={theme === 'light'} onCheckedChange={(checked) => setTheme(checked ? 'light' : 'dark')} />
           </div>
+        </div>
+
         </div>
       </div>
     </AppLayout>

@@ -276,22 +276,22 @@ export default function AIAdvisor() {
     return (
       <AppLayout>
         <div className="max-w-md mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
-          <div className="p-4 rounded-2xl bg-muted border border-border">
-            <Lock className="h-10 w-10 text-muted-foreground/50" weight="regular" />
+          <div style={{ padding: 16, borderRadius: 14, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
+            <Lock size={40} color="var(--ef-ink-3)" weight="regular" />
           </div>
           <div>
-            <h2 className="text-[22px] font-bold text-foreground tracking-tight mb-2">Your AI advisor needs more data</h2>
-            <p className="text-sm leading-relaxed text-muted-foreground/70">
+            <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Your AI advisor needs more data</h2>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ef-ink-3)', margin: 0 }}>
               Log at least {TRADE_GATE} trades before your AI advisor can give you meaningful insights. Right now there isn't enough data to detect patterns.
             </p>
           </div>
           <div className="w-full max-w-xs">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-mono text-muted-foreground/60">{trades.length}/{TRADE_GATE} trades logged</span>
-              <span className="text-[11px] font-mono text-muted-foreground/40">{TRADE_GATE - trades.length} remaining</span>
+              <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}>{trades.length}/{TRADE_GATE} trades logged</span>
+              <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>{TRADE_GATE - trades.length} remaining</span>
             </div>
-            <div className="h-1 rounded-full overflow-hidden bg-muted">
-              <div className="h-full rounded-full bg-foreground/40 transition-all" style={{ width: `${(trades.length / TRADE_GATE) * 100}%` }} />
+            <div style={{ height: 4, borderRadius: 99, overflow: 'hidden', background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
+              <div style={{ height: '100%', borderRadius: 99, background: 'var(--ef-ink-3)', transition: 'width 0.3s', width: `${(trades.length / TRADE_GATE) * 100}%` }} />
             </div>
           </div>
           <Link to="/add-trade">
@@ -317,14 +317,15 @@ export default function AIAdvisor() {
             className="flex items-center justify-between pb-3 border-b border-border mb-1"
           >
             <div className="flex items-center gap-2.5">
-              <div className="h-1.5 w-1.5 rounded-full bg-[#10b981]" />
-              <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-muted-foreground/60">
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ef-pos)' }} />
+              <span className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                 AI Advisor
               </span>
             </div>
             <button
               onClick={clearChat}
-              className="flex items-center gap-1.5 text-[10px] tracking-wider uppercase text-muted-foreground/50 hover:text-[#f87171] transition-colors px-2 py-1 rounded"
+              className="flex items-center gap-1.5 transition-colors px-2 py-1 rounded"
+              style={{ fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ef-ink-4)' }}
             >
               <Trash className="h-3 w-3" weight="regular" />
               Clear
@@ -362,10 +363,10 @@ export default function AIAdvisor() {
                   transition={{ delay: 0.15, duration: 0.4 }}
                   className="space-y-2"
                 >
-                  <h2 className="text-[28px] font-bold text-foreground tracking-[-0.03em] leading-tight">
+                  <h2 style={{ margin: 0, fontSize: 26, fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 1.2, color: 'var(--ef-ink)' }}>
                     AI Trade Advisor
                   </h2>
-                  <p className="text-sm text-muted-foreground/70 max-w-sm leading-relaxed">
+                  <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', lineHeight: 1.6, maxWidth: 360, margin: '8px auto 0' }}>
                     Your personal trading analyst. Ask anything about your performance — patterns, risks, and actionable insights from your data.
                   </p>
                 </motion.div>

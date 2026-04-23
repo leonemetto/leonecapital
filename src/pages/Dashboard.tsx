@@ -10,12 +10,11 @@ import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { calculateAnalytics, getExpectancyByField } from '@/lib/analytics';
-import { Wallet, ChartBar, Plus, NotePencil, Funnel, Warning } from '@phosphor-icons/react';
+import { Wallet, ChartBar, Plus, NotePencil, Funnel } from '@phosphor-icons/react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -24,58 +23,11 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
-function LeakTeaser({ trades }: { trades: { instrument: string; pnl: number; outcome: string; session?: string }[] }) {
-  const summary = useMemo(() => {
-    if (trades.length < 3) return null;
-    const byInstrument = getExpectancyByField(trades as any, 'instrument');
-    const bySession = getExpectancyByField(trades as any, 'session');
-    const combined = [...byInstrument, ...bySession]
-      .filter(s => s.expectancy < 0 && s.total >= 3 && s.pnl < 0)
-      .sort((a, b) => a.pnl - b.pnl)
-      .slice(0, 5);
-    if (combined.length === 0) return null;
-    const impact = combined.reduce((s, l) => s + l.pnl, 0);
-    const criticalCount = combined.filter(l => l.expectancy < -80).length;
-    return { count: combined.length, impact, criticalCount };
-  }, [trades]);
-
-  if (!summary) return null;
-
-  return (
-    <Link
-      to="/analyst"
-      className="flex items-center gap-3 rounded-[10px] border transition-colors hover:border-[color-mix(in_oklab,var(--ef-neg)_35%,transparent)]"
-      style={{
-        padding: '10px 16px',
-        background: 'var(--ef-neg-wash)',
-        border: '1px solid color-mix(in oklab, var(--ef-neg) 20%, transparent)',
-        textDecoration: 'none',
-      }}
-    >
-      <Warning size={14} weight="fill" style={{ color: 'var(--ef-neg)', flexShrink: 0 }} />
-      <span style={{ fontSize: 13, color: 'var(--ef-ink-2)', flex: 1 }}>
-        <span style={{ fontWeight: 600, color: 'var(--ef-neg)' }}>{summary.count} active leak{summary.count !== 1 ? 's' : ''}</span>
-        {summary.criticalCount > 0 && (
-          <span className="font-mono" style={{ fontSize: 11, marginLeft: 6, color: 'var(--ef-neg)', background: 'var(--ef-neg-wash)', padding: '1px 6px', borderRadius: 4, border: '1px solid color-mix(in oklab, var(--ef-neg) 25%, transparent)' }}>
-            {summary.criticalCount} critical
-          </span>
-        )}
-        <span className="font-mono" style={{ marginLeft: 8, color: 'var(--ef-ink-3)', fontSize: 12 }}>
-          −${Math.abs(summary.impact).toLocaleString(undefined, { maximumFractionDigits: 0 })} impact detected
-        </span>
-      </span>
-      <span className="font-mono" style={{ fontSize: 11.5, color: 'var(--ef-ink-3)', flexShrink: 0 }}>
-        View analysis →
-      </span>
-    </Link>
-  );
-}
-
 function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: number; outcome: string }[] }) {
   const pairs = useMemo(() => {
     if (trades.length === 0) return [];
     return getExpectancyByField(trades as any, 'instrument')
-      .filter(p => p.total >= 2)
+      .filter(p => p.trades >= 2)
       .slice(0, 6);
   }, [trades]);
 
@@ -84,8 +36,15 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
   const maxAbs = Math.max(...pairs.map(p => Math.abs(p.expectancy)), 1);
 
   return (
-    <div className="rounded-[14px] border border-border bg-card" style={{ padding: '20px' }}>
-      <div className="flex items-center justify-between" style={{ marginBottom: 16 }}>
+    <div
+      style={{
+        background: 'var(--ef-bg-elev)',
+        border: '1px solid var(--ef-line)',
+        borderRadius: 14,
+        padding: '20px 22px',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 500, letterSpacing: '-0.01em', color: 'var(--ef-ink)' }}>
             Instrument performance
@@ -94,7 +53,11 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
             expectancy per trade
           </div>
         </div>
-        <Link to="/analyst" className="font-mono hover:text-[var(--ef-ink)] transition-colors" style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}>
+        <Link
+          to="/analyst"
+          className="font-mono hover:text-[var(--ef-ink)] transition-colors"
+          style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}
+        >
           all →
         </Link>
       </div>
@@ -112,26 +75,22 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
                 className="flex-1 relative"
                 style={{ height: 6, borderRadius: 3, background: 'var(--ef-bg-sunken)', overflow: 'visible' }}
               >
-                {/* Center tick */}
                 <div style={{
                   position: 'absolute', left: '50%', top: -1,
                   width: 1, height: 8, background: 'var(--ef-ink-3)',
                 }} />
-                <div
-                  style={{
-                    position: 'absolute', top: 0, bottom: 0,
-                    borderRadius: 3,
-                    [pos ? 'left' : 'right']: '50%',
-                    width: barPct + '%',
-                    background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
-                  }}
-                />
+                <div style={{
+                  position: 'absolute', top: 0, bottom: 0,
+                  borderRadius: 3,
+                  [pos ? 'left' : 'right']: '50%',
+                  width: barPct + '%',
+                  background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
+                }} />
               </div>
               <div
                 className="font-mono shrink-0 text-right"
                 style={{
-                  width: 56,
-                  fontSize: 11.5,
+                  width: 56, fontSize: 11.5,
                   color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
                 }}
               >
@@ -146,13 +105,14 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
 }
 
 const Dashboard = () => {
-  const { trades, addTrade } = useSharedTrades();
+  const { trades, addTrade, isLoading: tradesLoading } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const { profile } = useProfile();
   const navigate = useNavigate();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>(() => {
-    return localStorage.getItem('dashboard_account_filter') ?? '__all__';
-  });
+
+  const [selectedAccountId, setSelectedAccountId] = useState<string>(() =>
+    localStorage.getItem('dashboard_account_filter') ?? '__all__'
+  );
   const [loadingDemo, setLoadingDemo] = useState(false);
 
   const filteredTrades = useMemo(
@@ -163,9 +123,7 @@ const Dashboard = () => {
   const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
 
   const startingBalance = useMemo(() => {
-    if (selectedAccountId === '__all__') {
-      return accounts.reduce((sum, a) => sum + (a.startingBalance ?? 0), 0);
-    }
+    if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + (a.startingBalance ?? 0), 0);
     return accounts.find(a => a.id === selectedAccountId)?.startingBalance ?? 0;
   }, [accounts, selectedAccountId]);
 
@@ -218,6 +176,26 @@ const Dashboard = () => {
       setLoadingDemo(false);
     }
   }, [accounts, addTrade]);
+
+  // Loading skeleton
+  if (tradesLoading) {
+    return (
+      <AppLayout>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          {/* Header skeleton */}
+          <div style={{ height: 28, width: 200, borderRadius: 8, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
+          {/* Stat bar skeleton */}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+            {[...Array(5)].map((_, i) => (
+              <div key={i} style={{ height: 72, borderRadius: 12, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
+            ))}
+          </div>
+          {/* Chart skeleton */}
+          <div style={{ height: 220, borderRadius: 14, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
+        </div>
+      </AppLayout>
+    );
+  }
 
   // No accounts state
   if (accounts.length === 0) {
@@ -279,26 +257,20 @@ const Dashboard = () => {
         style={{ paddingBottom: 12, marginBottom: 20 }}
       >
         <div className="flex-1 min-w-0">
-          <h1
-            style={{
-              margin: 0, fontSize: 22, fontWeight: 500,
-              letterSpacing: '-0.02em', color: 'var(--ef-ink)',
-            }}
-          >
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
             Dashboard
           </h1>
-          <div
-            className="font-mono"
-            style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}
-          >
+          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
             {monthLabel} · {filteredTrades.length} trades logged
           </div>
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          {/* Account filter */}
           {accounts.length > 1 && (
-            <Select value={selectedAccountId} onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}>
+            <Select
+              value={selectedAccountId}
+              onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}
+            >
               <SelectTrigger
                 className="h-[34px] text-xs font-mono border-border rounded-[10px]"
                 style={{ width: 140, background: 'var(--ef-bg-elev)', fontSize: 12 }}
@@ -351,26 +323,19 @@ const Dashboard = () => {
         </div>
       )}
 
-      {/* Stat Cards */}
+      {/* Stat strip — unified, no colored backgrounds */}
+      <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} />
+
+      {/* Row 1: Equity curve full width */}
       <div style={{ marginBottom: 14 }}>
-        <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} />
+        <PremiumEquityCurve
+          trades={filteredTrades}
+          startingBalance={startingBalance}
+        />
       </div>
 
-      {/* Equity Curve — full width */}
-      <div style={{ marginBottom: 8 }}>
-        <PremiumEquityCurve trades={filteredTrades} startingBalance={startingBalance} />
-      </div>
-
-      {/* Leak teaser banner */}
-      <div style={{ marginBottom: 14 }}>
-        <LeakTeaser trades={filteredTrades} />
-      </div>
-
-      {/* Heat Map Calendar + Instrument Performance */}
-      <div
-        className="grid"
-        style={{ gridTemplateColumns: '1.55fr 1fr', gap: 14, marginBottom: 14 }}
-      >
+      {/* Row 2: Heat Map Calendar (1.55fr) + Instrument Performance (1fr) */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 14 }}>
         <HeatMapCalendar trades={filteredTrades} />
         <InstrumentPerformance trades={filteredTrades} />
       </div>

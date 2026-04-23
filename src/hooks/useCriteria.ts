@@ -1,6 +1,11 @@
 import { useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+
+type CriteriaRow = Database['public']['Tables']['criteria_settings']['Row'];
+type CriteriaInsert = Database['public']['Tables']['criteria_settings']['Insert'];
+type CriteriaUpdate = Database['public']['Tables']['criteria_settings']['Update'];
 
 export interface CriteriaSetting {
   id: string;
@@ -19,7 +24,7 @@ const DEFAULT_CRITERIA = [
   { label: 'No News in Next 30min', category: 'Risk', sort_order: 5 },
 ];
 
-function rowToCriteria(r: any): CriteriaSetting {
+function rowToCriteria(r: CriteriaRow): CriteriaSetting {
   return {
     id: r.id,
     label: r.label,
@@ -37,7 +42,7 @@ export function useCriteria() {
     queryKey: key,
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('criteria_settings' as any)
+        .from('criteria_settings')
         .select('*')
         .order('sort_order', { ascending: true });
       if (error) throw error;
@@ -49,29 +54,30 @@ export function useCriteria() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
     const maxOrder = criteria.reduce((m, c) => Math.max(m, c.sortOrder), -1);
-    const { error } = await supabase.from('criteria_settings' as any).insert({
+    const insert: CriteriaInsert = {
       user_id: user.id,
       label,
       category,
       is_active: true,
       sort_order: maxOrder + 1,
-    });
+    };
+    const { error } = await supabase.from('criteria_settings').insert(insert);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
   }, [criteria, qc]);
 
   const updateCriteria = useCallback(async (id: string, updates: Partial<{ label: string; category: string; isActive: boolean }>) => {
-    const dbUpdates: any = {};
+    const dbUpdates: CriteriaUpdate = {};
     if (updates.label !== undefined) dbUpdates.label = updates.label;
     if (updates.category !== undefined) dbUpdates.category = updates.category;
     if (updates.isActive !== undefined) dbUpdates.is_active = updates.isActive;
-    const { error } = await supabase.from('criteria_settings' as any).update(dbUpdates).eq('id', id);
+    const { error } = await supabase.from('criteria_settings').update(dbUpdates).eq('id', id);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);
 
   const deleteCriteria = useCallback(async (id: string) => {
-    const { error } = await supabase.from('criteria_settings' as any).delete().eq('id', id);
+    const { error } = await supabase.from('criteria_settings').delete().eq('id', id);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);
@@ -79,14 +85,14 @@ export function useCriteria() {
   const seedDefaults = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
-    const rows = DEFAULT_CRITERIA.map(c => ({
+    const rows: CriteriaInsert[] = DEFAULT_CRITERIA.map(c => ({
       user_id: user.id,
       label: c.label,
       category: c.category,
       is_active: true,
       sort_order: c.sort_order,
     }));
-    const { error } = await supabase.from('criteria_settings' as any).insert(rows);
+    const { error } = await supabase.from('criteria_settings').insert(rows);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);

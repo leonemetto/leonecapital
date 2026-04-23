@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useSharedTrades } from '@/contexts/TradesContext';
@@ -278,212 +278,12 @@ function RiskIndicator({ trades }: { trades: Trade[] }) {
   );
 }
 
-// ─── Strategy Simulator ───
-interface SimulatorPreFilter { field: string; value: string; }
-
-function StrategySimulator({ trades, preFilter }: { trades: Trade[]; preFilter?: SimulatorPreFilter | null }) {
-  const [instrument, setInstrument] = useState<string>('__any__');
-  const [htfBias, setHtfBias] = useState<string>('__any__');
-  const [minConfidence, setMinConfidence] = useState<string>('__any__');
-  const [followedPlan, setFollowedPlan] = useState<boolean>(false);
-  const [selectedSessions, setSelectedSessions] = useState<string[]>([]);
-  const [minEmotion, setMinEmotion] = useState<string>('__any__');
-  const [result, setResult] = useState<SimulationResult | null>(null);
-
-  const instruments = useMemo(() => Array.from(new Set(trades.map(t => t.instrument))).sort(), [trades]);
-
-  useEffect(() => {
-    if (!preFilter) return;
-    if (preFilter.field === 'instrument') setInstrument(preFilter.value);
-    else if (preFilter.field === 'session') setSelectedSessions([preFilter.value]);
-    else if (preFilter.field === 'htfBias') setHtfBias(preFilter.value);
-    setTimeout(() => runSimulationWithValues(preFilter), 100);
-  }, [preFilter]);
-
-  const runSimulationWithValues = (pf?: SimulatorPreFilter | null) => {
-    const inst = pf?.field === 'instrument' ? pf.value : instrument;
-    const sess = pf?.field === 'session' ? [pf.value] : selectedSessions;
-    setResult(simulateFilter(trades, {
-      instrument: inst !== '__any__' ? inst : undefined,
-      htfBias: htfBias !== '__any__' ? htfBias : undefined,
-      minConfidence: minConfidence !== '__any__' ? parseInt(minConfidence) : undefined,
-      followedPlan: followedPlan ? true : undefined,
-      sessions: sess.length > 0 ? sess : undefined,
-      minEmotionalState: minEmotion !== '__any__' ? parseInt(minEmotion) : undefined,
-    }));
-  };
-
-  const toggleSession = (s: string) =>
-    setSelectedSessions(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
-
-  const insightText = useMemo(() => {
-    if (!result) return '';
-    if (result.filteredPnl <= result.originalPnl && result.filteredPnl > 0 && result.originalPnl > 0)
-      return `This setup accounts for ${((result.filteredPnl / result.originalPnl) * 100).toFixed(1)}% ($${result.filteredPnl.toFixed(0)}) of your total gains`;
-    if (result.filteredPnl > result.originalPnl)
-      return `Filtering improves P&L by ${result.improvementPct}% — removing excluded trades adds $${(result.filteredPnl - result.originalPnl).toFixed(0)}`;
-    if (result.filteredPnl < 0)
-      return `This filter isolates a losing subset — $${Math.abs(result.filteredPnl).toFixed(0)} in losses from ${result.filteredTrades} trades`;
-    return `${result.improvementPct > 0 ? '+' : ''}${result.improvementPct}% P&L change with filter: ${result.label}`;
-  }, [result]);
-
-  const drawdownReduced = result ? result.filteredMaxDrawdown < result.originalMaxDrawdown : false;
-  const highExpectancy = result ? result.filteredExpectancy > 0.5 : false;
-
-  const mergedCurveData = useMemo(() => {
-    if (!result || result.originalEquityCurve.length === 0) return [];
-    const map = new Map<string, { date: string; original: number; filtered?: number }>();
-    for (const pt of result.originalEquityCurve) map.set(pt.date, { date: pt.date, original: pt.balance });
-    for (const pt of result.equityCurve) {
-      const existing = map.get(pt.date);
-      if (existing) existing.filtered = pt.balance;
-      else map.set(pt.date, { date: pt.date, original: 0, filtered: pt.balance });
-    }
-    return Array.from(map.values()).sort((a, b) => a.date.localeCompare(b.date));
-  }, [result]);
-
-  return (
-    <div className="rounded-xl bg-card border border-border overflow-hidden">
-      <div className="px-6 py-5 border-b border-border">
-        <div className="flex items-center gap-2 mb-1">
-          <Lightning className="h-4 w-4 text-muted-foreground/50" weight="regular" />
-          <p className="text-[13px] font-semibold text-foreground">Strategy Optimizer</p>
-        </div>
-        <p className="text-[12px] text-muted-foreground/60">
-          Apply filters to see what your performance looks like if you only took certain setups.
-          The <span className="text-[#10b981] font-semibold">solid green line</span> is your filtered portfolio — the <span className="text-muted-foreground">dashed line</span> is your full history.
-          If the green line finishes higher, that filter improves your results — consider trading only those conditions.
-        </p>
-      </div>
-
-      <div className="p-6 space-y-5">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-          {[
-            { label: 'Instrument', value: instrument, onChange: setInstrument, options: [{ value: '__any__', label: 'Any instrument' }, ...instruments.map(i => ({ value: i, label: i }))] },
-            { label: 'HTF Bias', value: htfBias, onChange: setHtfBias, options: [{ value: '__any__', label: 'Any bias' }, ...HTF_BIASES.map(b => ({ value: b, label: b }))] },
-            { label: 'Min Confidence', value: minConfidence, onChange: setMinConfidence, options: [{ value: '__any__', label: 'Any' }, ...[3,4,5].map(n => ({ value: String(n), label: `${n}+ out of 5` }))] },
-            { label: 'Min Emotion', value: minEmotion, onChange: setMinEmotion, options: [{ value: '__any__', label: 'Any' }, ...[3,4,5].map(n => ({ value: String(n), label: `${n}+ out of 5` }))] },
-          ].map(({ label, value, onChange, options }) => (
-            <div key={label}>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-2">{label}</p>
-              <Select value={value} onValueChange={onChange}>
-                <SelectTrigger className="h-9 text-xs">
-                  <SelectValue placeholder="Any" />
-                </SelectTrigger>
-                <SelectContent>
-                  {options.map(o => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-5">
-          <div className="flex items-center gap-2">
-            <Checkbox id="plan" checked={followedPlan} onCheckedChange={v => setFollowedPlan(!!v)} />
-            <Label htmlFor="plan" className="text-[13px] text-muted-foreground cursor-pointer">Plan followed trades only</Label>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {SESSIONS.map(s => (
-              <button
-                key={s}
-                type="button"
-                onClick={() => toggleSession(s)}
-                className={cn(
-                  'text-[11px] px-3 py-1.5 rounded-full border transition-all',
-                  selectedSessions.includes(s)
-                    ? 'bg-foreground text-background border-foreground font-semibold'
-                    : 'bg-transparent border-border text-muted-foreground hover:text-foreground hover:border-foreground/25'
-                )}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <Button
-            size="sm"
-            onClick={() => runSimulationWithValues()}
-            className="gap-2 bg-foreground text-background hover:bg-foreground/90 rounded-[24px] font-semibold px-5"
-          >
-            <Pulse className="h-3.5 w-3.5" weight="bold" /> Run Simulation
-          </Button>
-        </div>
-
-        {result && (
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="space-y-4 pt-2">
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {[
-                { label: 'Trades',     orig: String(result.originalTrades),                filt: String(result.filteredTrades),                badge: false },
-                { label: 'Win Rate',   orig: `${result.originalWinRate.toFixed(1)}%`,      filt: `${result.filteredWinRate.toFixed(1)}%`,      badge: false },
-                { label: 'Expectancy', orig: result.originalExpectancy.toFixed(3),         filt: result.filteredExpectancy.toFixed(3),         badge: highExpectancy },
-                { label: 'Net P&L',    orig: `$${result.originalPnl.toFixed(0)}`,          filt: `$${result.filteredPnl.toFixed(0)}`,          badge: false },
-              ].map(m => (
-                <div key={m.label} className="rounded-xl bg-muted/40 border border-border px-4 py-4">
-                  <div className="flex items-center gap-1 mb-3">
-                    <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60">{m.label}</p>
-                    {m.badge && <Lightning className="h-3 w-3 text-[#10b981]" />}
-                  </div>
-                  <p className="text-[11px] text-muted-foreground/40 line-through font-mono mb-1">{m.orig}</p>
-                  <p className="text-[20px] text-foreground leading-none metric-number">{m.filt}</p>
-                </div>
-              ))}
-            </div>
-
-            {drawdownReduced && (
-              <div className="flex items-center gap-2 text-[12px] text-[#10b981] font-mono bg-[rgba(16,185,129,0.06)] rounded-xl px-4 py-3 border border-[rgba(16,185,129,0.15)]">
-                <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
-                Max drawdown reduced: ${result.originalMaxDrawdown.toFixed(0)} → ${result.filteredMaxDrawdown.toFixed(0)}
-              </div>
-            )}
-
-            <div className={cn(
-              'text-center py-3 rounded-xl text-[13px] font-medium',
-              result.filteredPnl >= result.originalPnl
-                ? 'bg-[rgba(16,185,129,0.06)] text-[#10b981] border border-[rgba(16,185,129,0.15)]'
-                : 'bg-muted text-muted-foreground border border-border'
-            )}>
-              {insightText}
-            </div>
-
-            {mergedCurveData.length > 0 && (
-              <div className="h-[180px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={mergedCurveData}>
-                    <defs>
-                      <linearGradient id="filteredGrad" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.15} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="var(--ef-line)" vertical={false} />
-                    <XAxis dataKey="date" tick={{ fill: 'var(--ef-ink-4)', fontSize: 9 }} tickLine={false} axisLine={false} />
-                    <YAxis tick={{ fill: 'var(--ef-ink-4)', fontSize: 9 }} tickLine={false} axisLine={false} tickFormatter={v => `$${v}`} />
-                    <Tooltip
-                      contentStyle={{ backgroundColor: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)', borderRadius: '12px', color: 'var(--ef-ink)', fontSize: 11, padding: '8px 14px' }}
-                    />
-                    <Area type="monotone" dataKey="original" stroke="var(--ef-line)" strokeWidth={1} strokeDasharray="4 3" fill="none" name="All Trades" />
-                    <Area type="monotone" dataKey="filtered" stroke="#10b981" strokeWidth={1.5} fill="url(#filteredGrad)" name="Filtered Strategy" connectNulls />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            )}
-          </motion.div>
-        )}
-      </div>
-    </div>
-  );
-}
 
 // ─── Main Page ───
 const PerformanceAnalyst = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
-  const [preFilter, setPreFilter] = useState<SimulatorPreFilter | null>(null);
-  const simulatorRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const [showTour, setShowTour] = useState(false);
 
@@ -509,9 +309,10 @@ const PerformanceAnalyst = () => {
   const byPlan      = useMemo(() => getExpectancyByPlanAdherence(filteredTrades),               [filteredTrades]);
   const behavioral  = useMemo(() => detectBehavioralPatterns(filteredTrades),                   [filteredTrades]);
 
+  const navigate = useNavigate();
+
   const handleSimulate = (key: string, field: string) => {
-    setPreFilter({ field, value: key });
-    setTimeout(() => simulatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    navigate(`/what-if?field=${encodeURIComponent(field)}&key=${encodeURIComponent(key)}`);
   };
 
   if (trades.length === 0) {
@@ -532,12 +333,12 @@ const PerformanceAnalyst = () => {
     <AppLayout>
 
       {/* ── Header ── */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 28 }}>
         <div>
-          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Performance Analytic</h1>
-          <p className="text-[13px] text-muted-foreground/60 mt-1">
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Performance Analytic</h1>
+          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
             Identify leaks, find your edge, simulate improvements
-          </p>
+          </div>
         </div>
         {accounts.length > 1 && (
           <div className="flex items-center gap-2">
@@ -657,9 +458,24 @@ const PerformanceAnalyst = () => {
         </div>
       </div>
 
-      {/* ── Strategy Optimizer ── */}
-      <div ref={simulatorRef} data-tour="simulator">
-        <StrategySimulator trades={filteredTrades} preFilter={preFilter} />
+      {/* ── Strategy Optimizer link ── */}
+      <div className="rounded-xl bg-card border border-border px-6 py-5 flex items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <Lightning className="h-4 w-4 text-muted-foreground/50" weight="regular" />
+            <p className="text-[13px] font-semibold text-foreground">Strategy Optimizer</p>
+          </div>
+          <p className="text-[12px] text-muted-foreground/60">
+            Click the <Lightning className="h-3 w-3 inline" weight="bold" /> icon on any row above to simulate removing that segment — or open the full optimizer to build custom filters.
+          </p>
+        </div>
+        <Link
+          to="/what-if"
+          className="shrink-0 flex items-center gap-1.5 text-[13px] font-semibold rounded-[24px] px-5 py-2 transition-colors"
+          style={{ background: 'var(--ef-ink)', color: 'var(--ef-bg)', whiteSpace: 'nowrap' }}
+        >
+          Open Optimizer →
+        </Link>
       </div>
 
       {showTour && (

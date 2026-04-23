@@ -38,7 +38,7 @@ function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: s
   const ys = points.map(v => H - ((v - min) / range) * H);
   const d = xs.map((x, i) => `${i === 0 ? 'M' : 'L'}${x.toFixed(1)},${ys[i].toFixed(1)}`).join(' ');
   const last = points[points.length - 1];
-  const color = last >= 0 ? '#10b981' : '#f87171';
+  const color = last >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)';
 
   return (
     <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} fill="none" aria-hidden>
@@ -48,7 +48,6 @@ function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: s
   );
 }
 
-const CARD = 'rounded-xl bg-card border border-border';
 const FIELD_LABEL = 'text-[10px] uppercase tracking-[0.08em] font-semibold text-muted-foreground/60';
 const FIELD_INPUT = 'mt-1 h-9';
 
@@ -97,16 +96,23 @@ const Accounts = () => {
   return (
     <AppLayout>
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 20 }}>
         <div>
-          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px]">Trading Accounts</h1>
-          <p className="text-xs text-muted-foreground/60">Manage your accounts and track balances</p>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Trading Accounts</h1>
+          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Manage accounts and track balances</div>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]">
+            <button
+              className="flex items-center gap-1.5 transition-colors"
+              style={{
+                height: 34, padding: '0 14px', borderRadius: 10,
+                background: 'var(--ef-ink)', color: 'var(--ef-bg)',
+                fontSize: 13, fontWeight: 500, border: 'none',
+              }}
+            >
               <Plus className="h-3.5 w-3.5" weight="bold" /> New Account
-            </Button>
+            </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
@@ -235,9 +241,9 @@ const Accounts = () => {
                 </div>
               )}
 
-              <Button type="submit" size="sm" className="w-full gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px] font-semibold">
+              <button type="submit" style={{ width: '100%', height: 36, borderRadius: 10, background: 'var(--ef-ink)', color: 'var(--ef-bg)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, border: 'none', cursor: 'pointer' }}>
                 <Wallet className="h-3.5 w-3.5" weight="bold" /> Create Account
-              </Button>
+              </button>
             </form>
           </DialogContent>
         </Dialog>
@@ -245,15 +251,13 @@ const Accounts = () => {
 
       {/* Empty state */}
       {accounts.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center">
-          <div className="p-3 rounded-xl bg-muted mb-5">
-            <Wallet className="h-8 w-8 text-muted-foreground/50" weight="regular" />
-          </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">No accounts yet</h2>
-          <p className="text-sm text-muted-foreground mb-5">Create a trading account to start tracking balances</p>
-          <Button size="sm" className="gap-1.5 bg-white text-black hover:bg-white/90 rounded-[24px]" onClick={() => setOpen(true)}>
+        <div className="flex flex-col items-center justify-center min-h-[40vh] text-center" style={{ gap: 12 }}>
+          <Wallet size={36} color="var(--ef-ink-4)" weight="light" />
+          <div style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em', color: 'var(--ef-ink)' }}>No accounts yet</div>
+          <div style={{ fontSize: 13, color: 'var(--ef-ink-3)' }}>Create a trading account to start tracking balances</div>
+          <button onClick={() => setOpen(true)} style={{ marginTop: 8, height: 36, padding: '0 18px', borderRadius: 24, background: 'var(--ef-ink)', color: 'var(--ef-bg)', fontSize: 13, fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 6, border: 'none', cursor: 'pointer' }}>
             <Plus className="h-3.5 w-3.5" weight="bold" /> Create First Account
-          </Button>
+          </button>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -271,7 +275,7 @@ const Accounts = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.25, delay: i * 0.05 }}
-                className={cn(CARD, 'p-5')}
+                style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)', borderRadius: 14, padding: '20px' }}
               >
                 {/* Card header */}
                 <div className="flex items-center justify-between mb-4">
@@ -333,7 +337,7 @@ const Accounts = () => {
                           toast.success('Account deleted');
                         }
                       }}
-                      className="p-1 rounded text-muted-foreground/50 hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+                      className="p-1 rounded text-muted-foreground/50 hover:text-[var(--ef-neg)] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
                     >
                       <Trash className="h-3.5 w-3.5" weight="regular" />
                     </button>
@@ -355,14 +359,14 @@ const Accounts = () => {
                 <div className="flex items-center gap-2 mb-3">
                   <div className="flex-1 rounded-md bg-muted/40 border border-border px-2.5 py-1.5">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50 leading-none mb-0.5">P&L</p>
-                    <p className={cn('text-[11px] leading-none metric-number', pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+                    <p className={cn('text-[11px] leading-none metric-number', pnl >= 0 ? 'text-[var(--ef-pos)]' : 'text-[var(--ef-neg)]')}>
                       {pnl >= 0 ? '+' : ''}{currencySymbol(account.currency)}{Math.abs(pnl).toFixed(0)}
                       <span className="text-[9px] ml-1 opacity-70 font-normal" style={{ letterSpacing: 'normal' }}>({pnlPercent >= 0 ? '+' : ''}{pnlPercent.toFixed(1)}%)</span>
                     </p>
                   </div>
                   <div className="flex-1 rounded-md bg-muted/40 border border-border px-2.5 py-1.5">
                     <p className="text-[9px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/50 leading-none mb-0.5">Win Rate</p>
-                    <p className={cn('text-[11px] leading-none metric-number', winRate !== null && winRate >= 50 ? 'text-[#10b981]' : 'text-muted-foreground/60')}>
+                    <p className={cn('text-[11px] leading-none metric-number', winRate !== null && winRate >= 50 ? 'text-[var(--ef-pos)]' : 'text-muted-foreground/60')}>
                       {winRate !== null ? `${winRate}%` : '—'}
                     </p>
                   </div>

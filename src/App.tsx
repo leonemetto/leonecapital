@@ -14,8 +14,10 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
+import { LeaksProvider } from "@/contexts/LeaksContext";
 import { NicknamePrompt } from "@/components/NicknamePrompt";
 import { ThemeProvider } from "@/components/ThemeProvider";
+import { PageErrorBoundary } from "@/components/PageErrorBoundary";
 import * as Sentry from '@sentry/react';
 import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
@@ -182,23 +184,25 @@ const App = () => (
                 <ProfileGate>
                   <AccountsProvider>
                     <TradesProvider>
+                      <LeaksProvider>
                       <ChecklistGate>
                         <Routes>
-                          <Route path="/dashboard" element={<Dashboard />} />
-                          <Route path="/add-trade" element={<AddTrade />} />
-                          <Route path="/journal" element={<Journal />} />
-                          <Route path="/accounts" element={<Accounts />} />
-                          <Route path="/ai" element={<AIAdvisor />} />
-                          <Route path="/analyst" element={<PerformanceAnalyst />} />
-                          <Route path="/profile" element={<ProfileSettings />} />
-                          <Route path="/import-trades" element={<ImportTrades />} />
-                          <Route path="/trading-plan" element={<TradingPlan />} />
-                          <Route path="/guide" element={<Guide />} />
-                          <Route path="/leak-detection" element={<LeakDetection />} />
-                          <Route path="/what-if" element={<WhatIfSimulator />} />
+                          <Route path="/dashboard" element={<PageErrorBoundary pageName="dashboard"><Dashboard /></PageErrorBoundary>} />
+                          <Route path="/add-trade" element={<PageErrorBoundary pageName="add-trade"><AddTrade /></PageErrorBoundary>} />
+                          <Route path="/journal" element={<PageErrorBoundary pageName="journal"><Journal /></PageErrorBoundary>} />
+                          <Route path="/accounts" element={<PageErrorBoundary pageName="accounts"><Accounts /></PageErrorBoundary>} />
+                          <Route path="/ai" element={<PageErrorBoundary pageName="ai"><AIAdvisor /></PageErrorBoundary>} />
+                          <Route path="/analyst" element={<PageErrorBoundary pageName="analyst"><PerformanceAnalyst /></PageErrorBoundary>} />
+                          <Route path="/profile" element={<PageErrorBoundary pageName="profile"><ProfileSettings /></PageErrorBoundary>} />
+                          <Route path="/import-trades" element={<PageErrorBoundary pageName="import-trades"><ImportTrades /></PageErrorBoundary>} />
+                          <Route path="/trading-plan" element={<PageErrorBoundary pageName="trading-plan"><TradingPlan /></PageErrorBoundary>} />
+                          <Route path="/guide" element={<PageErrorBoundary pageName="guide"><Guide /></PageErrorBoundary>} />
+                          <Route path="/leak-detection" element={<PageErrorBoundary pageName="leak-detection"><LeakDetection /></PageErrorBoundary>} />
+                          <Route path="/what-if" element={<PageErrorBoundary pageName="what-if"><WhatIfSimulator /></PageErrorBoundary>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </ChecklistGate>
+                      </LeaksProvider>
                     </TradesProvider>
                   </AccountsProvider>
                 </ProfileGate>
