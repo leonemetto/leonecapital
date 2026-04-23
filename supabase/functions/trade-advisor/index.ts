@@ -245,8 +245,8 @@ serve(async (req) => {
     const body = await req.json();
     validateRequest(body);
 
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) throw new Error("GEMINI_API_KEY is not configured");
+    const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY");
+    if (!ANTHROPIC_API_KEY) throw new Error("ANTHROPIC_API_KEY is not configured");
 
     const systemPrompt = buildSystemPrompt(
       body.tradesSummary || "No trades data available.",
@@ -255,10 +255,9 @@ serve(async (req) => {
       body.criteriaDefinitions || []
     );
 
-    // Gemini uses "model" instead of "assistant"
-    const geminiContents = body.messages.slice(-20).map((m: any) => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }],
+    const anthropicMessages = body.messages.slice(-20).map((m: any) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
     }));
 
     // Retry up to 3 times on 429 with exponential backoff
@@ -266,22 +265,25 @@ serve(async (req) => {
     let lastError = "";
     for (let attempt = 0; attempt < 3; attempt++) {
       if (attempt > 0) await new Promise(r => setTimeout(r, 1500 * attempt));
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
-        {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: systemPrompt }] },
-            contents: geminiContents,
-            generationConfig: { maxOutputTokens: 1200, temperature: 0.7 },
-          }),
-        }
-      );
+      response = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 1200,
+          system: systemPrompt,
+          messages: anthropicMessages,
+          stream: true,
+        }),
+      });
       if (response.ok) break;
       lastError = await response.text();
-      console.error(`Gemini attempt ${attempt + 1} failed:`, response.status, lastError);
-      if (response.status !== 429) break; // only retry on rate limit
+      console.error(`Anthropic attempt ${attempt + 1} failed:`, response.status, lastError);
+      if (response.status !== 429) break;
     }
 
     if (!response || !response.ok) {
@@ -297,8 +299,8 @@ serve(async (req) => {
       });
     }
 
-    // Translate Gemini SSE → OpenAI-compatible SSE so the client needs no changes.
-    // Gemini emits: data: {"candidates":[{"content":{"parts":[{"text":"..."}]}}]}
+    // Translate Anthropic SSE → OpenAI-compatible SSE so the client needs no changes.
+    // Anthropic emits: event: content_block_delta / data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"..."}}
     // Client expects: data: {"choices":[{"delta":{"content":"..."}}]} + data: [DONE]
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
@@ -320,21 +322,22 @@ serve(async (req) => {
             const line = buf.slice(0, newline).replace(/\r$/, "");
             buf = buf.slice(newline + 1);
 
+            if (line.startsWith("event:")) continue; // skip event type lines
             if (!line.startsWith("data: ")) continue;
             const json = line.slice(6).trim();
             if (!json) continue;
 
             try {
               const evt = JSON.parse(json);
-              const text = evt.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (text) {
-                const chunk = JSON.stringify({ choices: [{ delta: { content: text } }] });
+              if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta" && evt.delta.text) {
+                const chunk = JSON.stringify({ choices: [{ delta: { content: evt.delta.text } }] });
                 await writer.write(encoder.encode(`data: ${chunk}\n\n`));
+              } else if (evt.type === "message_stop") {
+                await writer.write(encoder.encode("data: [DONE]\n\n"));
               }
             } catch { /* skip malformed lines */ }
           }
         }
-        await writer.write(encoder.encode("data: [DONE]\n\n"));
       } finally {
         writer.close();
       }
