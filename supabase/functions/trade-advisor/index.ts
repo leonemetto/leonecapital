@@ -215,12 +215,28 @@ serve(async (req) => {
       });
     }
 
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const { createClient } = await import("https://esm.sh/@supabase/supabase-js@2");
-    const supabase = createClient(supabaseUrl, supabaseKey);
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
-    if (authError || !user) {
+    // Verify JWT using SUPABASE_JWT_SECRET (auto-injected, no API roundtrip needed)
+    const jwtSecret = Deno.env.get("SUPABASE_JWT_SECRET")!;
+    let userId: string;
+    try {
+      const [, payloadB64] = token.split(".");
+      const payload = JSON.parse(atob(payloadB64.replace(/-/g, "+").replace(/_/g, "/")));
+      if (!payload.sub) throw new Error("Missing sub");
+      // Verify signature using HMAC-SHA256
+      const key = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(jwtSecret),
+        { name: "HMAC", hash: "SHA-256" },
+        false,
+        ["verify"]
+      );
+      const [headerB64, payloadPart, sigB64] = token.split(".");
+      const sigBytes = Uint8Array.from(atob(sigB64.replace(/-/g, "+").replace(/_/g, "/")), c => c.charCodeAt(0));
+      const valid = await crypto.subtle.verify("HMAC", key, sigBytes, new TextEncoder().encode(`${headerB64}.${payloadPart}`));
+      if (!valid) throw new Error("Invalid signature");
+      if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) throw new Error("Token expired");
+      userId = payload.sub;
+    } catch {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
@@ -228,7 +244,7 @@ serve(async (req) => {
     }
 
     // ── Rate limiting ───────────────────────────────────────────────────────
-    if (!checkRateLimit(user.id)) {
+    if (!checkRateLimit(userId)) {
       return new Response(JSON.stringify({ error: "Rate limit exceeded. You can send 20 messages per hour." }), {
         status: 429,
         headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
