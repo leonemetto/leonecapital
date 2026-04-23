@@ -77,6 +77,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
   const { instruments, confirmations, addInstrument, addConfirmation } = useCustomOptions();
   const { activeCriteria } = useCriteria();
   const [checks, setChecks] = useState<Record<string, boolean>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   // Show advanced by default when editing an existing trade that has advanced fields
@@ -158,6 +159,8 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     const outcome = form.outcome as 'win' | 'loss' | 'breakeven';
     const pnl = outcome === 'breakeven' ? 0 : outcome === 'loss' ? -Math.abs(rawPnl) : Math.abs(rawPnl);
 
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       // Upload screenshot first so we can store path in one insert
       let screenshotPath: string | undefined = initialData?.screenshotUrl;
@@ -217,6 +220,8 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       if (onCancel) onCancel();
     } catch (err: any) {
       toast.error(err.message || 'Failed to save trade');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -483,10 +488,11 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         <Button
           type="submit"
           size="sm"
-          className="gap-1.5 px-5 bg-[#10b981] hover:bg-[#10b981]/90 text-black font-semibold rounded-[24px]"
+          disabled={isSubmitting}
+          className="gap-1.5 px-5 bg-[#10b981] hover:bg-[#10b981]/90 text-black font-semibold rounded-[24px] disabled:opacity-60 disabled:cursor-not-allowed"
         >
           <Lightning className="h-3.5 w-3.5" weight="fill" />
-          {submitLabel}
+          {isSubmitting ? 'Saving...' : submitLabel}
         </Button>
         {onCancel && (
           <Button type="button" variant="ghost" size="sm" onClick={onCancel}

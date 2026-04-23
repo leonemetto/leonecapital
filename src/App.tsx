@@ -10,7 +10,7 @@ import { useOnboarding } from "@/hooks/useOnboarding";
 import { MfaChallenge } from "@/components/MfaChallenge";
 import { ChecklistSetup } from "@/components/criteria/ChecklistSetup";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
@@ -21,19 +21,29 @@ import Dashboard from "./pages/Dashboard";
 import AddTrade from "./pages/AddTrade";
 import Journal from "./pages/Journal";
 import Accounts from "./pages/Accounts";
-import AIAdvisor from "./pages/AIAdvisor";
-import ResetPassword from "./pages/ResetPassword";
-import ProfileSettings from "./pages/ProfileSettings";
-import TradingPlan from "./pages/TradingPlan";
-import PerformanceAnalyst from "./pages/PerformanceAnalyst";
-import Guide from "./pages/Guide";
-import Auth from "./pages/Auth";
-import AuthCallback from "./pages/AuthCallback";
-import Landing from "./pages/Landing";
-import ImportTrades from "./pages/ImportTrades";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const AIAdvisor = lazy(() => import("./pages/AIAdvisor"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
+const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
+const TradingPlan = lazy(() => import("./pages/TradingPlan"));
+const PerformanceAnalyst = lazy(() => import("./pages/PerformanceAnalyst"));
+const Guide = lazy(() => import("./pages/Guide"));
+const Auth = lazy(() => import("./pages/Auth"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const Landing = lazy(() => import("./pages/Landing"));
+const ImportTrades = lazy(() => import("./pages/ImportTrades"));
+const LeakDetection = lazy(() => import("./pages/LeakDetection"));
+const WhatIfSimulator = lazy(() => import("./pages/WhatIfSimulator"));
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000,
+      retry: 1,
+    },
+  },
+});
 
 function AuthGate({ children }: { children: React.ReactNode }) {
   const { user, session, loading } = useAuth();
@@ -52,7 +62,12 @@ function AuthGate({ children }: { children: React.ReactNode }) {
         const { data, error } = await supabase.auth.mfa.listFactors();
         if (error) throw error;
         const verifiedFactors = data?.totp?.filter((f: any) => f.status === 'verified') || [];
-        const aal = JSON.parse(atob(session.access_token.split('.')[1]))?.aal || 'aal1';
+        let aal = 'aal1';
+        try {
+          aal = JSON.parse(atob(session.access_token.split('.')[1]))?.aal || 'aal1';
+        } catch {
+          // Malformed token — treat as aal1 so MFA is required if factors exist
+        }
         if (verifiedFactors.length > 0 && aal === 'aal1') {
           setMfaFactorId(verifiedFactors[0].id);
           setMfaRequired(true);
@@ -152,6 +167,11 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <Suspense fallback={
+            <div className="min-h-screen bg-background flex items-center justify-center">
+              <div className="text-muted-foreground text-sm">Loading...</div>
+            </div>
+          }>
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/auth" element={<Auth />} />
@@ -174,6 +194,8 @@ const App = () => (
                           <Route path="/import-trades" element={<ImportTrades />} />
                           <Route path="/trading-plan" element={<TradingPlan />} />
                           <Route path="/guide" element={<Guide />} />
+                          <Route path="/leak-detection" element={<LeakDetection />} />
+                          <Route path="/what-if" element={<WhatIfSimulator />} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </ChecklistGate>
@@ -183,6 +205,7 @@ const App = () => (
               </AuthGate>
             } />
           </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>
