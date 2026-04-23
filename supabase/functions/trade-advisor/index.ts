@@ -286,12 +286,12 @@ serve(async (req) => {
 
     if (!response || !response.ok) {
       if (response?.status === 429) {
-        return new Response(JSON.stringify({ error: `Rate limited: ${lastError}` }), {
+        return new Response(JSON.stringify({ error: "The AI service is temporarily at capacity. Please try again in a few seconds." }), {
           status: 429,
           headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
         });
       }
-      return new Response(JSON.stringify({ error: `Gemini error ${response?.status}: ${lastError}` }), {
+      return new Response(JSON.stringify({ error: `AI service error (${response?.status}). Please try again.` }), {
         status: 500,
         headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
       });
