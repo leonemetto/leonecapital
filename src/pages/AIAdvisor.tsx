@@ -55,7 +55,11 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     ac.pnl += t.pnl; accountMap.set(acctId, ac);
   }
 
+  const earliest = trades.length > 0 ? trades[trades.length - 1].date : '';
+  const latest = trades.length > 0 ? trades[0].date : '';
+
   return [
+    earliest && latest ? `Trade period: ${earliest} → ${latest}` : '',
     `Total trades: ${analytics.totalTrades}`, `Win rate: ${analytics.winRate.toFixed(1)}%`,
     `Net P&L: $${analytics.netPnl.toFixed(2)}`, `Avg win: $${analytics.avgWin.toFixed(2)}, Avg loss: $${analytics.avgLoss.toFixed(2)}`,
     `Profit factor: ${analytics.profitFactor}`, `Max drawdown: $${analytics.maxDrawdown}`,
