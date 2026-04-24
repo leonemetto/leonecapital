@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const ALLOWED_ORIGINS = ["https://leone.capital", "https://www.leone.capital", "http://localhost:8080", "http://localhost:5173"];
 
@@ -133,6 +134,18 @@ COMMUNICATION RULES:
 - Do not offer unsolicited advice or data dumps before the user asks.
 - If the user asks for a summary, prioritize the specific area they inquired about first.
 
+DIAGNOSTIC DISCIPLINE:
+When diagnosing WHY a pattern exists, follow this order before concluding:
+1. Check the session field on those specific trades. If all losses are in one session, that is the root cause hypothesis — not the instrument.
+2. Check the HTF bias field. If the trader is entering short with a bullish HTF bias logged, that is a confluence failure, not a market structure problem.
+3. Check the notes on those trades. If the notes say "chased", "early entry", "no setup" — that is execution failure, not strategy failure.
+4. Only after checking all three may you form a conclusion. State which fields you checked: "Looking at your 4 GBP/USD short losses: all were London session, HTF bias was bullish on 3/4, and 2 notes say 'no clear setup.' This is a discipline problem, not a pair problem."
+
+WHEN DATA IS INSUFFICIENT TO DIAGNOSE:
+If session, HTF bias, or notes fields are missing or sparse on the failing trades, do NOT speculate. Ask ONE focused diagnostic question instead.
+Example: "Your GBP/USD shorts are 0% win rate across 4 trades. I don't have session data for these. Were these all taken during the same session? That changes the diagnosis."
+Only one question per response. Make it the question that would most change the diagnosis.
+
 ACCOUNT-SPECIFIC QUERIES:
 - When the user asks about a specific account (e.g., "Tell me about my 100K account", "How is my demo account doing?"), ONLY analyze trades belonging to that account. Do NOT mix in data from other accounts.
 - Each trade in the RECENT TRADES section has an "Acct:" tag showing which account it belongs to. The BY ACCOUNT section in the summary also breaks down stats per account.
@@ -146,6 +159,7 @@ ANALYSIS PRIORITIES:
 4. Detect loss clustering and drawdown cycles
 5. When checklist data exists, quantify the win rate difference between full compliance and violations
 6. Flag dangerous patterns with specific recommendations (reduce size, skip session, etc.)
+7. REHABILITATION CRITERIA: Whenever you recommend stopping a behavior (e.g., "stop shorting X"), always state what conditions in the trader's own data would justify reintroducing it. Example: "Return to shorting GBP/USD when you can show 3 consecutive winning short entries with HTF bias aligned bearish and a defined session window. Right now you don't have that sample." Never leave the trader with a dead end — always give them a measurable way back.
 
 EXTERNAL MARKET CONTEXT:
 When you identify a loss pattern tied to a specific instrument, session, or date range, enrich it with external context from your market knowledge:
@@ -158,6 +172,7 @@ When you identify a loss pattern tied to a specific instrument, session, or date
 
 ALWAYS distinguish data from inference: use "Your data shows X. This likely coincided with Y" or "XAUUSD losses clustered near NY open are often caused by Z."
 Never fabricate specific event dates. If uncertain, speak to the pattern, not the specific date.
+CRITICAL: Only apply session-specific market context if the session field on those trades confirms where they were taken. If session data is absent on the failing trades, do not assume. Say: "I don't have session data for these trades — if they were NY open, that would explain the pattern. Can you confirm?"
 
 TRADE NOTES ANALYSIS:
 Each trade in RECENT TRADES may have a note field (shown as | "note text"). These are the trader's own words written at trade close — they are high-signal data.
@@ -182,12 +197,12 @@ ${tradesSummary}${profileSection}${checklistSection}${recentSection}
 Analyze. Quantify. Be direct.`;
 }
 
-// ── Per-user rate limiting: max 20 requests per hour ──────────────────────
+// Hourly rate limiter — abuse prevention for all tiers (not the free-tier AI cap)
 const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
 
 function checkRateLimit(userId: string): boolean {
   const now = Date.now();
-  const windowMs = 60 * 60 * 1000; // 1 hour
+  const windowMs = 60 * 60 * 1000;
   const maxRequests = 20;
   const entry = rateLimitMap.get(userId);
   if (!entry || now > entry.resetAt) {
@@ -215,7 +230,6 @@ serve(async (req) => {
       });
     }
 
-    // Decode JWT payload to extract user ID (without signature verification for now)
     let userId: string;
     try {
       const parts = token.split(".");
@@ -223,7 +237,6 @@ serve(async (req) => {
       const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
       if (!payload.sub) throw new Error("no sub");
       if (payload.exp && payload.exp < Math.floor(Date.now() / 1000)) throw new Error("expired");
-      // Must be issued by this Supabase project
       const expectedIss = `${Deno.env.get("SUPABASE_URL")}/auth/v1`;
       if (payload.iss && payload.iss !== expectedIss) throw new Error("wrong issuer");
       userId = payload.sub;
@@ -234,12 +247,54 @@ serve(async (req) => {
       });
     }
 
-    // ── Rate limiting ───────────────────────────────────────────────────────
+    // ── Supabase client (service role — reads subscriptions and profiles) ───
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    // ── Subscription tier check ─────────────────────────────────────────────
+    const { data: subscription } = await supabase
+      .from("subscriptions")
+      .select("tier, status")
+      .eq("user_id", userId)
+      .maybeSingle();
+
+    const tier = subscription?.tier ?? "free";
+    const status = subscription?.status ?? "active";
+    const isPro = (tier === "pro" || tier === "elite") &&
+      (status === "active" || status === "trialing");
+
+    // ── Free tier: DB-backed AI message cap (3 lifetime messages) ───────────
+    let aiMessagesUsed = 0;
+    if (!isPro) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("ai_messages_used")
+        .eq("id", userId)
+        .single();
+
+      aiMessagesUsed = profile?.ai_messages_used ?? 0;
+      if (aiMessagesUsed >= 3) {
+        return new Response(
+          JSON.stringify({ error: "upgrade_required", used: aiMessagesUsed, limit: 3 }),
+          {
+            status: 429,
+            headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+          }
+        );
+      }
+    }
+
+    // ── Hourly rate limit (all tiers) ───────────────────────────────────────
     if (!checkRateLimit(userId)) {
-      return new Response(JSON.stringify({ error: "Rate limit exceeded. You can send 20 messages per hour." }), {
-        status: 429,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: "Rate limit exceeded. You can send 20 messages per hour." }),
+        {
+          status: 429,
+          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        }
+      );
     }
 
     const body = await req.json();
@@ -260,7 +315,6 @@ serve(async (req) => {
       content: m.content,
     }));
 
-    // Retry up to 3 times on 429 with exponential backoff
     let response: Response | null = null;
     let lastError = "";
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -288,25 +342,27 @@ serve(async (req) => {
 
     if (!response || !response.ok) {
       if (response?.status === 429) {
-        return new Response(JSON.stringify({ error: "The AI service is temporarily at capacity. Please try again in a few seconds." }), {
-          status: 429,
-          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "The AI service is temporarily at capacity. Please try again in a few seconds." }),
+          {
+            status: 429,
+            headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+          }
+        );
       }
-      return new Response(JSON.stringify({ error: `AI service error (${response?.status}). Please try again.` }), {
-        status: 500,
-        headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-      });
+      return new Response(
+        JSON.stringify({ error: `AI error (${response?.status}): ${lastError.slice(0, 300)}` }),
+        { status: 500, headers: { ...getCorsHeaders(req), "Content-Type": "application/json" } }
+      );
     }
 
-    // Translate Anthropic SSE → OpenAI-compatible SSE so the client needs no changes.
-    // Anthropic emits: event: content_block_delta / data: {"type":"content_block_delta","delta":{"type":"text_delta","text":"..."}}
-    // Client expects: data: {"choices":[{"delta":{"content":"..."}}]} + data: [DONE]
+    // ── Stream Anthropic SSE → OpenAI-compatible SSE ────────────────────────
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
 
     (async () => {
+      let hasIncremented = false;
       try {
         const reader = response.body!.getReader();
         const decoder = new TextDecoder();
@@ -322,7 +378,7 @@ serve(async (req) => {
             const line = buf.slice(0, newline).replace(/\r$/, "");
             buf = buf.slice(newline + 1);
 
-            if (line.startsWith("event:")) continue; // skip event type lines
+            if (line.startsWith("event:")) continue;
             if (!line.startsWith("data: ")) continue;
             const json = line.slice(6).trim();
             if (!json) continue;
@@ -332,6 +388,13 @@ serve(async (req) => {
               if (evt.type === "content_block_delta" && evt.delta?.type === "text_delta" && evt.delta.text) {
                 const chunk = JSON.stringify({ choices: [{ delta: { content: evt.delta.text } }] });
                 await writer.write(encoder.encode(`data: ${chunk}\n\n`));
+
+                // Increment free-tier counter after first successful chunk
+                // (crash before this = no charge; crash after = message was delivered)
+                if (!isPro && !hasIncremented) {
+                  hasIncremented = true;
+                  await supabase.rpc("increment_ai_messages", { p_user_id: userId });
+                }
               } else if (evt.type === "message_stop") {
                 await writer.write(encoder.encode("data: [DONE]\n\n"));
               }
@@ -344,7 +407,11 @@ serve(async (req) => {
     })();
 
     return new Response(readable, {
-      headers: { ...getCorsHeaders(req), "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+      headers: {
+        ...getCorsHeaders(req),
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+      },
     });
   } catch (e) {
     console.error("trade-advisor error:", e);

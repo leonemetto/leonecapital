@@ -219,7 +219,17 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       }
       if (onCancel) onCancel();
     } catch (err: any) {
-      toast.error(err.message || 'Failed to save trade');
+      if (err.message?.includes('Free tier limit reached')) {
+        toast.error('You\'ve reached the 50-trade limit on the free plan. Upgrade to Pro to log more trades.', {
+          duration: 6000,
+          action: {
+            label: 'Upgrade',
+            onClick: () => window.location.href = '/pricing',
+          },
+        });
+      } else {
+        toast.error(err.message || 'Failed to save trade');
+      }
     } finally {
       setIsSubmitting(false);
     }

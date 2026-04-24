@@ -84,6 +84,7 @@ export function useOnboarding() {
       emotional_state: t.emotional_state,
       followed_plan: t.followed_plan,
       time_in_trade: t.time_in_trade,
+      is_demo: true,
     }));
 
     await supabase.from('trades').insert(rows);

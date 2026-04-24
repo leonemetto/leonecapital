@@ -214,7 +214,17 @@ export default function AIAdvisor() {
 
       if (!resp.ok || !resp.body) {
         const err = await resp.json().catch(() => ({ error: 'Failed to connect' }));
-        setMessages(prev => trimMessages([...prev, { role: 'assistant', content: `⚠️ ${err.error || 'Something went wrong.'}`, id: assistantId }]));
+        if (resp.status === 429 && err.error === 'upgrade_required') {
+          const used = err.used ?? 3;
+          const limit = err.limit ?? 3;
+          setMessages(prev => trimMessages([...prev, {
+            role: 'assistant',
+            content: `You've used ${used}/${limit} free AI messages. Upgrade to Pro for unlimited AI Advisor access.\n\n[Upgrade to Pro →](/pricing)`,
+            id: assistantId,
+          }]));
+        } else {
+          setMessages(prev => trimMessages([...prev, { role: 'assistant', content: `⚠️ ${err.error || 'Something went wrong.'}`, id: assistantId }]));
+        }
         setIsLoading(false);
         return;
       }

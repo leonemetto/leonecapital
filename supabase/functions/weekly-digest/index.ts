@@ -182,9 +182,18 @@ serve(async (req) => {
     const { data: profiles } = await supabase.from("profiles").select("id, nickname");
     const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p.nickname ?? "Trader"]));
 
+    // Only send weekly digest to Pro/Elite subscribers
+    const { data: proSubs } = await supabase
+      .from("subscriptions")
+      .select("user_id")
+      .in("tier", ["pro", "elite"])
+      .in("status", ["active", "trialing"]);
+    const proUserIds = new Set((proSubs ?? []).map((s: any) => s.user_id));
+
     let sent = 0;
     for (const user of authUsers) {
       if (!user.email) continue;
+      if (!proUserIds.has(user.id)) continue; // weekly digest is a Pro feature
 
       const { data: trades } = await supabase
         .from("trades")

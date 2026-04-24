@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
 import { LeaksProvider } from "@/contexts/LeaksContext";
+import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { NicknamePrompt } from "@/components/NicknamePrompt";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageErrorBoundary } from "@/components/PageErrorBoundary";
@@ -182,6 +183,7 @@ const App = () => (
             <Route path="*" element={
               <AuthGate>
                 <ProfileGate>
+                  <SubscriptionProvider>
                   <AccountsProvider>
                     <TradesProvider>
                       <LeaksProvider>
@@ -205,6 +207,7 @@ const App = () => (
                       </LeaksProvider>
                     </TradesProvider>
                   </AccountsProvider>
+                  </SubscriptionProvider>
                 </ProfileGate>
               </AuthGate>
             } />

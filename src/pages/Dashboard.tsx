@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from 'react';
+import { useMemo, useState, useCallback, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
@@ -10,8 +10,9 @@ import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { calculateAnalytics, getExpectancyByField } from '@/lib/analytics';
+import { useInvalidateSubscription } from '@/hooks/useSubscription';
 import { Wallet, ChartBar, Plus, NotePencil, Funnel } from '@phosphor-icons/react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { format } from 'date-fns';
@@ -109,6 +110,18 @@ const Dashboard = () => {
   const { accounts } = useSharedAccounts();
   const { profile } = useProfile();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const invalidateSubscription = useInvalidateSubscription();
+
+  // Invalidate subscription cache when returning from payment — Lemon Squeezy
+  // redirects to /dashboard?payment=success after checkout completes
+  useEffect(() => {
+    if (searchParams.get('payment') === 'success') {
+      invalidateSubscription();
+      toast.success('Payment successful! Your plan has been upgraded.');
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   const [selectedAccountId, setSelectedAccountId] = useState<string>(() =>
     localStorage.getItem('dashboard_account_filter') ?? '__all__'
