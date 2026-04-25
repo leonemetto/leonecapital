@@ -188,13 +188,15 @@
 
 @layer utilities {
   .font-mono {
-    font-family: 'Geist Mono', 'Courier New', monospace;
+    font-family: 'Geist', system-ui, sans-serif;
     font-variant-numeric: tabular-nums lining-nums;
     font-feature-settings: 'tnum' on, 'lnum' on;
   }
 
   .tabular-nums {
+    font-family: 'Geist', system-ui, sans-serif;
     font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' on, 'lnum' on;
   }
 
   /* ─── Liquid Glass System ─── */
