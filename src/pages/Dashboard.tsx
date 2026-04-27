@@ -24,6 +24,15 @@ const getGreeting = () => {
   return 'Good evening';
 };
 
+const getLocationFromTimezone = () => {
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const city = tz.split('/').pop()?.replace(/_/g, ' ') ?? tz;
+  return city;
+};
+
+const formatTime = () =>
+  new Date().toLocaleTimeString('en', { hour: 'numeric', minute: '2-digit', hour12: true });
+
 function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: number; outcome: string }[] }) {
   const pairs = useMemo(() => {
     if (trades.length === 0) return [];
@@ -127,6 +136,12 @@ const Dashboard = () => {
     localStorage.getItem('dashboard_account_filter') ?? '__all__'
   );
   const [loadingDemo, setLoadingDemo] = useState(false);
+  const [currentTime, setCurrentTime] = useState(formatTime);
+
+  useEffect(() => {
+    const id = setInterval(() => setCurrentTime(formatTime()), 60_000);
+    return () => clearInterval(id);
+  }, []);
 
   const filteredTrades = useMemo(
     () => selectedAccountId === '__all__' ? trades : trades.filter(t => t.accountId === selectedAccountId),
@@ -271,10 +286,10 @@ const Dashboard = () => {
       >
         <div className="flex-1 min-w-0">
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
-            Dashboard
+            {getGreeting()}, {profile?.nickname || 'Trader'}
           </h1>
           <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
-            {monthLabel} · {filteredTrades.length} trades logged
+            {getLocationFromTimezone()} · {currentTime} · {filteredTrades.length} trades logged
           </div>
         </div>
 
