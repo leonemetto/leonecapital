@@ -35,6 +35,8 @@ const Guide = lazy(() => import("./pages/Guide"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Landing = lazy(() => import("./pages/Landing"));
+const Privacy = lazy(() => import("./pages/Privacy"));
+const Terms = lazy(() => import("./pages/Terms"));
 const ImportTrades = lazy(() => import("./pages/ImportTrades"));
 const LeakDetection = lazy(() => import("./pages/LeakDetection"));
 const WhatIfSimulator = lazy(() => import("./pages/WhatIfSimulator"));
@@ -177,6 +179,8 @@ const App = () => (
           }>
           <Routes>
             <Route path="/" element={<Landing />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/reset-password" element={<ResetPassword />} />
