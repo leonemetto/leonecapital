@@ -16,12 +16,12 @@ export interface CriteriaSetting {
 }
 
 const DEFAULT_CRITERIA = [
-  { label: 'Less than 2h POI', category: 'Timeframe', sort_order: 0 },
-  { label: 'Clear DOL (Draw on Liquidity)', category: 'Liquidity', sort_order: 1 },
-  { label: 'Risk-to-Reward >1:2', category: 'Risk', sort_order: 2 },
-  { label: 'Higher Timeframe Alignment', category: 'Trend', sort_order: 3 },
-  { label: 'ICT Kill Zone Active', category: 'Session', sort_order: 4 },
-  { label: 'No News in Next 30min', category: 'Risk', sort_order: 5 },
+  { label: 'Trend clearly defined on higher timeframe', category: 'Trend', sort_order: 0 },
+  { label: 'Entry near key support or resistance', category: 'Structure', sort_order: 1 },
+  { label: 'Risk-to-reward ≥ 1:2', category: 'Risk', sort_order: 2 },
+  { label: 'Position size within daily risk limit', category: 'Risk', sort_order: 3 },
+  { label: 'Confirmation signal present', category: 'Confirmation', sort_order: 4 },
+  { label: 'No major news in next 30 minutes', category: 'Risk', sort_order: 5 },
 ];
 
 function rowToCriteria(r: CriteriaRow): CriteriaSetting {

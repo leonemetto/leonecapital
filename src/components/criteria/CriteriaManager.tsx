@@ -165,7 +165,7 @@ export function CriteriaManager() {
                   <Input
                     value={newLabel}
                     onChange={e => setNewLabel(e.target.value)}
-                    placeholder="e.g. Price at HTF POI"
+                    placeholder="e.g. Entry near key support level"
                     className="h-7 bg-background border-border text-xs"
                     autoFocus
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
@@ -175,7 +175,7 @@ export function CriteriaManager() {
                   <Input
                     value={newCategory}
                     onChange={e => setNewCategory(e.target.value)}
-                    placeholder="e.g. Liquidity"
+                    placeholder="e.g. Risk Management"
                     className="h-7 bg-background border-border text-xs"
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                   />

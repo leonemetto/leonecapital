@@ -8,7 +8,7 @@ const DEFAULT_INSTRUMENTS = [
   'GBP/JPY', 'AUD/USD', 'USD/CAD', 'BTC/USD', 'ETH/USD', 'SOL/USD',
 ];
 
-const DEFAULT_CONFIRMATIONS = ['CISD', 'IFVG', 'Both'];
+const DEFAULT_CONFIRMATIONS = ['Candlestick Pattern', 'Volume Confirmation', 'RSI Signal', 'MACD Cross', 'Moving Average'];
 
 export function useCustomOptions() {
   const [instruments, setInstruments] = useState<string[]>(DEFAULT_INSTRUMENTS);

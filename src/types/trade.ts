@@ -28,7 +28,7 @@ export const INSTRUMENTS = [
 ] as const;
 
 export const STRATEGIES = [
-  'CISD', 'IFVG', 'Both',
+  'Trend Continuation', 'Breakout', 'Support/Resistance', 'Reversal', 'Momentum', 'Scalp',
 ] as const;
 
 export const SESSIONS = [

@@ -15,7 +15,7 @@ function trade(overrides: Partial<Trade> = {}): Trade {
     date: '2024-01-15',
     instrument: 'XAUUSD',
     direction: 'long',
-    strategy: 'CISD',
+    strategy: 'Trend Continuation',
     session: 'London',
     outcome: 'win',
     pnl: 100,

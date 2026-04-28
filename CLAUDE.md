@@ -295,7 +295,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 ## Onboarding Flow (4 steps)
 1. Nickname — trader's display name
 2. Account Setup — name, type (live/demo/prop), starting balance, currency (USD/EUR/GBP/KES)
-3. Entry Checklist — configure pre-trade criteria (defaults: HTF FVG, POI, CISD/IFVG)
+3. Entry Checklist — configure pre-trade criteria (universal defaults: trend, structure, R:R, risk, confirmation, news)
 4. First Trade — optional first trade to initialize portfolio
 - Sets profiles.onboarding_completed = true on finish
 - Demo data option: generates 15 realistic sample trades

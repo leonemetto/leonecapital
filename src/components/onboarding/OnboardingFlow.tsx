@@ -453,7 +453,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
           <Input
             value={newItem}
             onChange={e => setNewItem(e.target.value)}
-            placeholder="e.g. HTF trend clear, POI identified, risk defined…"
+            placeholder="e.g. Trend confirmed, entry near key level, risk defined…"
             className="h-9 text-sm"
             onKeyDown={e => {
               if (e.key === 'Enter' && newItem.trim()) {
