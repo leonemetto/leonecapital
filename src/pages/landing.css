@@ -719,13 +719,12 @@
 #lp .lp-leak-list li::before {
   content: '✓'; color: var(--lp-green); font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 2px;
 }
-#lp .lp-leak-visual { display: flex; overflow: hidden; }
-#lp .lp-leak-img-wrap { flex: 1; display: flex; overflow: hidden; }
-#lp .lp-leak-img-wrap img { width: 100%; object-fit: cover; object-position: left top; display: block; }
+#lp .lp-leak-visual { display: flex; padding: 40px 40px 40px 0; }
+#lp .lp-leak-img-wrap { flex: 1; display: flex; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
 @media (max-width: 860px) {
   #lp .lp-leak-section { grid-template-columns: 1fr; }
-  #lp .lp-leak-visual { order: -1; min-height: 260px; }
-  #lp .lp-leak-copy { padding: 60px 24px; }
+  #lp .lp-leak-visual { order: -1; padding: 24px 24px 0; }
+  #lp .lp-leak-copy { padding: 24px 24px 60px; }
 }
 
 /* ─── ATLAS SPOTLIGHT ─── */
@@ -748,13 +747,12 @@
 #lp .lp-atlas-list li::before {
   content: '✓'; color: var(--lp-green); font-weight: 700; font-size: 12px; flex-shrink: 0; margin-top: 2px;
 }
-#lp .lp-atlas-visual { display: flex; overflow: hidden; }
-#lp .lp-atlas-img-wrap { flex: 1; display: flex; overflow: hidden; }
-#lp .lp-atlas-img-wrap img { width: 100%; object-fit: cover; object-position: right top; display: block; }
+#lp .lp-atlas-visual { display: flex; padding: 40px 0 40px 40px; }
+#lp .lp-atlas-img-wrap { flex: 1; display: flex; border-radius: 12px; overflow: hidden; box-shadow: 0 24px 64px rgba(0,0,0,0.5); }
 @media (max-width: 860px) {
   #lp .lp-atlas-section { grid-template-columns: 1fr; }
-  #lp .lp-atlas-visual { min-height: 260px; }
-  #lp .lp-atlas-copy { padding: 60px 24px; }
+  #lp .lp-atlas-visual { padding: 24px 24px 0; }
+  #lp .lp-atlas-copy { padding: 24px 24px 60px; }
 }
 
 /* ─── TESTIMONIALS ─── */

@@ -2,6 +2,100 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './landing.css';
 
+const S = {
+  panel: { background: '#141413', border: '1px solid #23221f', borderRadius: 12, overflow: 'hidden', fontFamily: "'Geist', system-ui, sans-serif", height: '100%', display: 'flex', flexDirection: 'column' as const },
+  header: { padding: '12px 16px', borderBottom: '1px solid #23221f', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
+  headerTitle: { fontSize: 13, fontWeight: 600, color: '#f2f0ea', letterSpacing: '-0.2px' },
+  badge: (color: string) => ({ fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, background: color === 'red' ? 'oklch(0.25 0.08 25)' : 'oklch(0.25 0.07 155)', color: color === 'red' ? 'oklch(0.65 0.18 25)' : 'oklch(0.65 0.17 155)' }),
+  dot: (color: string) => ({ width: 6, height: 6, borderRadius: '50%', background: color === 'green' ? 'oklch(0.65 0.17 155)' : '#5a5852', display: 'inline-block', marginRight: 6 }),
+  row: { padding: '14px 16px', borderBottom: '1px solid #23221f', display: 'flex', alignItems: 'center', gap: 12 },
+  label: { fontSize: 12, fontWeight: 600, color: '#f2f0ea', letterSpacing: '-0.2px', marginBottom: 3 },
+  sub: { fontSize: 11, color: '#5a5852' },
+  neg: { fontSize: 13, fontWeight: 700, color: 'oklch(0.65 0.18 25)', fontFamily: "'Geist Mono', monospace", marginLeft: 'auto' as const, flexShrink: 0 },
+  pos: { fontSize: 13, fontWeight: 700, color: 'oklch(0.65 0.17 155)', fontFamily: "'Geist Mono', monospace", marginLeft: 'auto' as const, flexShrink: 0 },
+  pill: (color: string) => ({ fontSize: 10, padding: '2px 6px', borderRadius: 4, background: color === 'red' ? 'oklch(0.25 0.08 25)' : '#1e1e1c', color: color === 'red' ? 'oklch(0.65 0.18 25)' : '#5a5852', fontWeight: 600 }),
+};
+
+function LeakMockup() {
+  const leaks = [
+    { combo: 'XAUUSD · New York', type: 'Instrument + Session', wr: '26%', exp: '−1.4R', trades: 11 },
+    { combo: 'Long · Friday sessions', type: 'Direction + Day', wr: '31%', exp: '−0.9R', trades: 8 },
+    { combo: 'EUR/USD · Asian overlap', type: 'Instrument + Session', wr: '29%', exp: '−0.7R', trades: 14 },
+  ];
+  return (
+    <div style={S.panel}>
+      <div style={S.header}>
+        <span style={S.headerTitle}>Leak Detection</span>
+        <span style={S.badge('red')}>3 leaks found</span>
+      </div>
+      <div style={{ padding: '10px 16px 6px', borderBottom: '1px solid #23221f' }}>
+        <span style={{ fontSize: 11, color: '#5a5852' }}>Combinations with negative expectancy across your last 120 trades</span>
+      </div>
+      {leaks.map((l, i) => (
+        <div key={i} style={{ ...S.row, alignItems: 'flex-start' }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: 'oklch(0.25 0.08 25)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+            <span style={{ fontSize: 14, color: 'oklch(0.65 0.18 25)' }}>↓</span>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={S.label}>{l.combo}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 4 }}>
+              <span style={S.pill('gray')}>{l.type}</span>
+              <span style={{ fontSize: 11, color: '#5a5852' }}>{l.trades} trades</span>
+            </div>
+          </div>
+          <div style={{ textAlign: 'right' as const, flexShrink: 0 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'oklch(0.65 0.18 25)', fontFamily: 'monospace' }}>{l.exp}</div>
+            <div style={{ fontSize: 11, color: '#5a5852', marginTop: 2 }}>{l.wr} win rate</div>
+          </div>
+        </div>
+      ))}
+      <div style={{ padding: '14px 16px', marginTop: 'auto' as const, borderTop: '1px solid #23221f', background: 'rgba(255,255,255,0.01)' }}>
+        <div style={{ fontSize: 12, color: '#908e87', lineHeight: 1.5 }}>
+          <span style={{ color: 'oklch(0.65 0.18 25)', fontWeight: 700 }}>Estimated impact: </span>
+          Removing these 3 leaks improves your monthly expectancy by <span style={{ color: '#f2f0ea', fontWeight: 600 }}>+0.8R</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AtlasMockup() {
+  return (
+    <div style={S.panel}>
+      <div style={S.header}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <span style={S.dot('green')} />
+          <span style={S.headerTitle}>Atlas</span>
+        </div>
+        <span style={{ fontSize: 11, color: '#5a5852' }}>120 trades loaded</span>
+      </div>
+      <div style={{ flex: 1, overflowY: 'hidden' as const, padding: '16px', display: 'flex', flexDirection: 'column' as const, gap: 14 }}>
+        <div style={{ alignSelf: 'flex-end' as const, background: '#1e1e1c', border: '1px solid #23221f', borderRadius: '12px 12px 4px 12px', padding: '10px 14px', maxWidth: '80%' }}>
+          <p style={{ fontSize: 13, color: '#cfcdc5', lineHeight: 1.6, margin: 0 }}>Why is my win rate dropping on Mondays?</p>
+        </div>
+        <div style={{ alignSelf: 'flex-start' as const, background: 'oklch(0.25 0.07 155 / 0.3)', border: '1px solid oklch(0.65 0.17 155 / 0.15)', borderRadius: '4px 12px 12px 12px', padding: '10px 14px', maxWidth: '90%' }}>
+          <p style={{ fontSize: 13, color: '#cfcdc5', lineHeight: 1.7, margin: 0 }}>
+            Your Monday win rate is <span style={{ color: '#f2f0ea', fontWeight: 600 }}>31%</span> vs <span style={{ color: '#f2f0ea', fontWeight: 600 }}>58%</span> the rest of the week. The gap appears in the first 90 minutes of London open — 9 of your last 12 Monday losses came before 9:30am. You're trading before the range is established. Try a rule: no entries on Mondays before 9:30 London.
+          </p>
+        </div>
+        <div style={{ alignSelf: 'flex-end' as const, background: '#1e1e1c', border: '1px solid #23221f', borderRadius: '12px 12px 4px 12px', padding: '10px 14px', maxWidth: '80%' }}>
+          <p style={{ fontSize: 13, color: '#cfcdc5', lineHeight: 1.6, margin: 0 }}>What's my best performing session overall?</p>
+        </div>
+        <div style={{ alignSelf: 'flex-start' as const, background: 'oklch(0.25 0.07 155 / 0.3)', border: '1px solid oklch(0.65 0.17 155 / 0.15)', borderRadius: '4px 12px 12px 12px', padding: '10px 14px', maxWidth: '90%' }}>
+          <p style={{ fontSize: 13, color: '#cfcdc5', lineHeight: 1.7, margin: 0 }}>
+            London open — <span style={{ color: '#f2f0ea', fontWeight: 600 }}>64% win rate</span>, <span style={{ color: 'oklch(0.65 0.17 155)', fontWeight: 600 }}>+1.3R expectancy</span> across 48 trades. New York is dragging your overall stats down to 51%.
+          </p>
+        </div>
+      </div>
+      <div style={{ padding: '12px 16px', borderTop: '1px solid #23221f' }}>
+        <div style={{ background: '#1e1e1c', border: '1px solid #23221f', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: '#5a5852' }}>
+          Ask Atlas anything about your trading...
+        </div>
+      </div>
+    </div>
+  );
+}
+
 const FAQS = [
   {
     q: 'How is this better than my Excel spreadsheet?',
@@ -378,7 +472,7 @@ export default function Landing() {
         </div>
         <div className="lp-leak-visual lp-reveal">
           <div className="lp-leak-img-wrap">
-            <img src="/screenshot-leaks.webp" alt="Leak Detection — negative-expectancy pattern analysis" loading="lazy" />
+            <LeakMockup />
           </div>
         </div>
       </section>
@@ -387,7 +481,7 @@ export default function Landing() {
       <section className="lp-atlas-section">
         <div className="lp-atlas-visual lp-reveal">
           <div className="lp-atlas-img-wrap">
-            <img src="/screenshot-ai.webp" alt="Atlas — AI trading analyst with full trade context" loading="lazy" />
+            <AtlasMockup />
           </div>
         </div>
         <div className="lp-atlas-copy lp-reveal">
