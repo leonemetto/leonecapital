@@ -391,6 +391,31 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* LEAK DETECTION SPOTLIGHT */}
+      <section className="lp-leak-section">
+        <div className="lp-container">
+          <div className="lp-leak-grid">
+            <div className="lp-leak-copy lp-reveal">
+              <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> Unique to EdgeFlow</div>
+              <h2 className="lp-leak-title">Find the exact leaks<br/>draining your edge.</h2>
+              <p className="lp-leak-body">Most traders know something is off. They just can't pinpoint it. Leak Detection scans every combination of instrument, session, strategy, and direction — and surfaces only the ones with negative expectancy. Not a dashboard to explore. A diagnostic that tells you what to cut.</p>
+              <ul className="lp-leak-list">
+                <li>Negative-expectancy combinations flagged automatically</li>
+                <li>Expectancy, win rate, and P&L per combination</li>
+                <li>Simulate the impact of removing any leak on your equity curve</li>
+                <li>No other journal does this</li>
+              </ul>
+              <button className="lp-btn-primary-lg" style={{ marginTop: 8 }} onClick={() => navigate('/auth')}>See your leaks free →</button>
+            </div>
+            <div className="lp-leak-visual lp-reveal">
+              <div className="lp-leak-img-wrap">
+                <img src="/screenshot-leaks.webp" alt="Leak Detection — negative-expectancy pattern analysis" loading="lazy" />
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* TESTIMONIALS CAROUSEL */}
       <section className="lp-testimonials-section">
         <div className="lp-container">

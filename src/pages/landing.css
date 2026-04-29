@@ -655,6 +655,42 @@
   #lp .lp-for-grid { grid-template-columns: 1fr; }
 }
 
+/* ─── LEAK DETECTION SPOTLIGHT ─── */
+#lp .lp-leak-section { background: var(--lp-bg2); padding: 110px 0; }
+#lp .lp-leak-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+#lp .lp-leak-copy { display: flex; flex-direction: column; gap: 20px; }
+#lp .lp-leak-title {
+  font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -0.04em;
+  line-height: 1.1; color: var(--lp-ink); margin: 0;
+}
+#lp .lp-leak-body {
+  font-size: 15px; color: var(--lp-ink3); line-height: 1.8; margin: 0;
+}
+#lp .lp-leak-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+#lp .lp-leak-list li {
+  font-size: 14px; color: var(--lp-ink2); display: flex; align-items: flex-start; gap: 10px;
+}
+#lp .lp-leak-list li::before {
+  content: '✓'; color: var(--lp-green); font-weight: 700; font-size: 12px;
+  flex-shrink: 0; margin-top: 2px;
+}
+#lp .lp-leak-visual { position: relative; }
+#lp .lp-leak-img-wrap {
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--lp-border);
+  box-shadow: 0 0 80px rgba(173,255,47,0.06), 0 24px 64px rgba(0,0,0,0.5);
+}
+#lp .lp-leak-img-wrap img { width: 100%; display: block; }
+@media (max-width: 860px) {
+  #lp .lp-leak-grid { grid-template-columns: 1fr; gap: 48px; }
+  #lp .lp-leak-visual { order: -1; }
+}
+
 /* ─── TESTIMONIALS ─── */
 #lp .lp-testimonials-section { background: var(--lp-bg2); }
 #lp .lp-testi-marquee-wrap {
