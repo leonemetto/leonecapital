@@ -239,8 +239,8 @@ export default function Landing() {
           <a href="#how" className="lp-btn-secondary-lg">See how it works</a>
         </div>
         <div className="lp-hero-trust">
-          <span className="lp-hero-trust-item">No credit card needed</span>
-          <span className="lp-hero-trust-item">50 trades free</span>
+          <span className="lp-hero-trust-item">Start free — no credit card</span>
+          <span className="lp-hero-trust-item">50 trades included</span>
           <span className="lp-hero-trust-item">Set up in under 5 minutes</span>
         </div>
 
