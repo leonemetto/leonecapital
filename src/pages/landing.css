@@ -121,10 +121,9 @@
   transform: rotateX(14deg) scale(0.96);
 }
 #lp .lp-hero-tilt-glow {
-  position: absolute; bottom: -60px; left: 50%; transform: translateX(-50%);
-  width: 70%; height: 160px;
-  background: radial-gradient(ellipse, rgba(140,255,46,0.18) 0%, transparent 70%);
-  filter: blur(24px); pointer-events: none; opacity: 0;
+  width: 60%; height: 120px; margin: 0 auto;
+  background: radial-gradient(ellipse, rgba(140,255,46,0.22) 0%, transparent 70%);
+  filter: blur(32px); pointer-events: none; opacity: 1;
 }
 /* Hero app preview panel */
 #lp .lp-hero-preview {

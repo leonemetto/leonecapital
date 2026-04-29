@@ -43,18 +43,16 @@ const PREVIEW_TABS = ['Dashboard', 'Analytics', 'AI Advisor', 'Leak Detection', 
 export default function Landing() {
   const navigate = useNavigate();
   const tiltInnerRef = useRef<HTMLDivElement>(null);
-  const tiltGlowRef = useRef<HTMLDivElement>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
 
   // Tilt-flatten scroll animation
   useEffect(() => {
     const inner = tiltInnerRef.current;
-    const glow = tiltGlowRef.current;
-    if (!inner || !glow) return;
+    if (!inner) return;
 
-    let cur = { r: 14, s: 0.96, g: 0 };
-    let tgt = { r: 14, s: 0.96, g: 0 };
+    let cur = { r: 14, s: 0.96 };
+    let tgt = { r: 14, s: 0.96 };
     let raf: number;
 
     function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
@@ -66,15 +64,12 @@ export default function Landing() {
       const eased = 1 - Math.pow(1 - progress, 2);
       tgt.r = lerp(14, 0, eased);
       tgt.s = lerp(0.96, 1.0, eased);
-      tgt.g = eased > 0.4 ? (eased - 0.4) / 0.6 : 0;
     }
 
     function animate() {
       cur.r += (tgt.r - cur.r) * 0.1;
       cur.s += (tgt.s - cur.s) * 0.1;
-      cur.g += (tgt.g - cur.g) * 0.1;
       inner.style.transform = `rotateX(${cur.r.toFixed(3)}deg) scale(${cur.s.toFixed(4)})`;
-      glow.style.opacity = cur.g.toFixed(3);
       raf = requestAnimationFrame(animate);
     }
 
@@ -158,9 +153,10 @@ export default function Landing() {
           <span className="lp-hero-trust-item">Up and running in 2 minutes</span>
         </div>
 
+        <div className="lp-hero-tilt-glow"></div>
+
         <div className="lp-hero-tilt-wrap">
           <div className="lp-hero-tilt-inner" ref={tiltInnerRef}>
-            <div className="lp-hero-tilt-glow" ref={tiltGlowRef}></div>
             <div className="lp-hero-preview">
               <div className="lp-hero-preview-chrome">
                 <div className="lp-hero-preview-dots">
