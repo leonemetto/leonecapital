@@ -623,6 +623,50 @@
 #lp .lp-compare-list li .lp-icon { flex-shrink: 0; margin-top: 2px; }
 #lp .lp-compare-card.after .lp-compare-list li { color: rgba(255,255,255,0.75); }
 
+/* ─── VS SPREADSHEET ─── */
+#lp .lp-vs-section { background: var(--lp-bg2); padding: 100px 0; }
+#lp .lp-vs-table {
+  max-width: 880px; margin: 0 auto;
+  border: 1px solid var(--lp-border); border-radius: 14px; overflow: hidden;
+}
+#lp .lp-vs-header {
+  display: grid; grid-template-columns: 1fr 1fr;
+  background: rgba(255,255,255,0.03);
+  border-bottom: 1px solid var(--lp-border);
+}
+#lp .lp-vs-col-label {
+  padding: 14px 24px; font-size: 11px; font-weight: 700;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+#lp .lp-vs-label-bad { color: rgba(255,255,255,0.25); border-right: 1px solid var(--lp-border); }
+#lp .lp-vs-label-good { color: var(--lp-green); }
+#lp .lp-vs-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--lp-border);
+}
+#lp .lp-vs-row:last-child { border-bottom: none; }
+#lp .lp-vs-row:nth-child(odd) { background: rgba(255,255,255,0.01); }
+#lp .lp-vs-cell {
+  padding: 16px 24px; font-size: 14px; line-height: 1.5;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+#lp .lp-vs-cell-bad {
+  color: rgba(255,255,255,0.35); border-right: 1px solid var(--lp-border);
+}
+#lp .lp-vs-cell-good { color: rgba(255,255,255,0.8); }
+#lp .lp-vs-icon {
+  flex-shrink: 0; font-size: 11px; font-weight: 700; margin-top: 2px;
+}
+#lp .lp-vs-cell-bad .lp-vs-icon { color: rgba(255,80,80,0.5); }
+#lp .lp-vs-cell-good .lp-vs-icon { color: var(--lp-green); }
+@media (max-width: 640px) {
+  #lp .lp-vs-header { grid-template-columns: 1fr; }
+  #lp .lp-vs-label-bad { display: none; }
+  #lp .lp-vs-row { grid-template-columns: 1fr; }
+  #lp .lp-vs-cell-bad { display: none; }
+  #lp .lp-vs-cell-good { border-left: none; }
+}
+
 /* ─── WHO IS THIS FOR ─── */
 #lp .lp-for-section { background: var(--lp-bg); padding: 100px 0; }
 #lp .lp-for-grid {

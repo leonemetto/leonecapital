@@ -362,6 +362,37 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* VS SPREADSHEET */}
+      <section className="lp-vs-section">
+        <div className="lp-container">
+          <div className="lp-reveal" style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Why not a spreadsheet?</div>
+            <h2 className="lp-section-title">Your spreadsheet stores trades.<br/>EdgeFlow decodes them.</h2>
+          </div>
+          <div className="lp-vs-table lp-reveal">
+            <div className="lp-vs-header">
+              <div className="lp-vs-col-label lp-vs-label-bad">Your spreadsheet</div>
+              <div className="lp-vs-col-label lp-vs-label-good">EdgeFlow</div>
+            </div>
+            {[
+              ['Manual copy-paste after every trade', 'One-form entry — 20+ data points in under a minute'],
+              ['SUM() formulas you built and maintain', 'Win rate, expectancy, profit factor, max drawdown — built in'],
+              ['You have to notice your own patterns', 'Leak Detection flags negative-expectancy patterns automatically'],
+              ['No behavioral data', 'Emotional state, plan adherence, and confidence tracked per trade'],
+              ['ChatGPT with a pasted CSV', 'Atlas — live AI analyst with full context of every trade you\'ve logged'],
+              ['Another tab per account', 'Multi-account analytics, unified in one dashboard'],
+              ['Manual broker export and paste', 'MT4/MT5 and generic CSV import built in'],
+              ['Screenshot of a chart', 'One-click PDF performance report'],
+            ].map(([bad, good], i) => (
+              <div key={i} className="lp-vs-row">
+                <div className="lp-vs-cell lp-vs-cell-bad"><span className="lp-vs-icon">✕</span>{bad}</div>
+                <div className="lp-vs-cell lp-vs-cell-good"><span className="lp-vs-icon">✓</span>{good}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* WHO IS THIS FOR */}
       <section className="lp-for-section">
         <div className="lp-container">
