@@ -14,7 +14,7 @@ const TESTIMONIALS = [
 const FAQS = [
   {
     q: 'What brokers and platforms does EdgeFlow support?',
-    a: 'EdgeFlow supports CSV import from all major brokers including NinjaTrader, TradingView, MetaTrader 4/5, Interactive Brokers, Tradovate, OANDA, and more. Manual entry is available for any broker. Works for futures, forex, stocks, options, crypto, and indices.',
+    a: 'EdgeFlow works with any broker. You can log trades manually in seconds, or import a CSV — with dedicated parsers for MetaTrader 4/5 and a generic CSV mode that handles exports from any other platform. Works across futures, forex, stocks, options, crypto, and indices.',
   },
   {
     q: 'Is my trading data secure and private?',
@@ -111,12 +111,7 @@ export default function Landing() {
       {/* NAV */}
       <nav className="lp-nav">
         <div className="lp-nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-          <div className="lp-nav-logo-mark">
-            <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M2 11L6 7L9 10L14 4" stroke="#050505" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-              <path d="M11 4H14V7" stroke="#050505" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
-          </div>
+          <img src="/favicon.svg" alt="EdgeFlow" className="lp-nav-logo-img" />
           EdgeFlow
         </div>
 
@@ -176,11 +171,11 @@ export default function Landing() {
       <div className="lp-hero-strip">
         <div className="lp-hero-strip-item">
           <div className="lp-hero-strip-num">20<span>+</span></div>
-          <div className="lp-hero-strip-label">Analytics fields tracked per trade</div>
+          <div className="lp-hero-strip-label">Data points captured per trade</div>
         </div>
         <div className="lp-hero-strip-item">
-          <div className="lp-hero-strip-num">6<span>+</span></div>
-          <div className="lp-hero-strip-label">Broker CSV import formats</div>
+          <div className="lp-hero-strip-num">8<span>+</span></div>
+          <div className="lp-hero-strip-label">Performance breakdowns built in</div>
         </div>
         <div className="lp-hero-strip-item">
           <div className="lp-hero-strip-num" style={{ color: 'var(--lp-green)' }}>AI</div>
@@ -188,20 +183,20 @@ export default function Landing() {
         </div>
         <div className="lp-hero-strip-item">
           <div className="lp-hero-strip-num">$0</div>
-          <div className="lp-hero-strip-label">To start, no time limit</div>
+          <div className="lp-hero-strip-label">Free forever — no credit card</div>
         </div>
       </div>
 
       {/* LOGOS STRIP */}
       <div className="lp-logos-strip">
         <div className="lp-logos-strip-inner">
-          <span className="lp-logos-label">Import trades from</span>
-          <span className="lp-logo-item">MetaTrader 4 / 5</span>
-          <span className="lp-logo-item">TradingView</span>
-          <span className="lp-logo-item">NinjaTrader</span>
-          <span className="lp-logo-item">Interactive Brokers</span>
-          <span className="lp-logo-item">OANDA</span>
-          <span className="lp-logo-item">Any CSV broker</span>
+          <span className="lp-logos-label">Works with</span>
+          <span className="lp-logo-item">MetaTrader 4</span>
+          <span className="lp-logo-item">MetaTrader 5</span>
+          <span className="lp-logo-item">Manual entry</span>
+          <span className="lp-logo-item">Any CSV export</span>
+          <span className="lp-logo-item">All brokers</span>
+          <span className="lp-logo-item">Any market</span>
         </div>
       </div>
 
@@ -313,8 +308,8 @@ export default function Landing() {
             <div className="lp-stat-label">Analytics fields per trade</div>
           </div>
           <div className="lp-reveal-scale lp-delay-2">
-            <div className="lp-stat-num">6<span>+</span></div>
-            <div className="lp-stat-label">Broker import formats</div>
+            <div className="lp-stat-num">8<span>+</span></div>
+            <div className="lp-stat-label">Analytics breakdowns built in</div>
           </div>
           <div className="lp-reveal-scale lp-delay-3">
             <div className="lp-stat-num">AI</div>

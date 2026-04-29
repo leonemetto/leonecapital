@@ -34,11 +34,7 @@
   font-size: 18px; font-weight: 800; letter-spacing: -0.5px;
   color: var(--lp-white); text-decoration: none; cursor: pointer;
 }
-#lp .lp-nav-logo-mark {
-  width: 30px; height: 30px; background: var(--lp-green);
-  border-radius: 8px; display: flex; align-items: center; justify-content: center;
-}
-#lp .lp-nav-logo-mark svg { width: 16px; height: 16px; }
+#lp .lp-nav-logo-img { width: 32px; height: 32px; border-radius: 8px; display: block; }
 #lp .lp-nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
 #lp .lp-nav-links a {
   font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.65);
