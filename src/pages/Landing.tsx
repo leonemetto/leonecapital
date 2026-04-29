@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './landing.css';
 
@@ -30,7 +30,7 @@ const FAQS = [
   },
   {
     q: 'How does the AI Advisor work?',
-    a: 'The AI Advisor is powered by Gemini and has full context of your last 50 trades, win rates, P&L breakdown, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers. Available on Pro after 10 logged trades.',
+    a: 'The AI Advisor is powered by Claude (Anthropic) and has full context of your last 50 trades, win rates, P&L breakdown, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers. Available on Pro after 10 logged trades.',
   },
   {
     q: 'Can I cancel my subscription at any time?',
@@ -42,55 +42,8 @@ const PREVIEW_TABS = ['Dashboard', 'Analytics', 'AI Advisor', 'Leak Detection', 
 
 export default function Landing() {
   const navigate = useNavigate();
-  const heroWrapRef = useRef<HTMLDivElement>(null);
-  const heroGlowRef = useRef<HTMLDivElement>(null);
-  const heroContainerRef = useRef<HTMLDivElement>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
-
-  // Scroll tilt animation
-  useEffect(() => {
-    const heroWrap = heroWrapRef.current;
-    const heroGlow = heroGlowRef.current;
-    const heroContainer = heroContainerRef.current;
-    if (!heroWrap || !heroGlow || !heroContainer) return;
-
-    let currentRotate = 22, currentScale = 0.96, currentGlow = 0;
-    let targetRotate = 22, targetScale = 0.96, targetGlow = 0;
-    let rafId: number;
-
-    function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
-
-    function updateTarget() {
-      const rect = heroContainer.getBoundingClientRect();
-      const viewH = window.innerHeight;
-      const total = rect.height + viewH;
-      const scrolled = viewH - rect.top;
-      const progress = Math.max(0, Math.min(1, scrolled / total));
-      const eased = 1 - Math.pow(1 - progress, 2.2);
-      targetRotate = lerp(22, 0, eased);
-      targetScale = lerp(0.96, 1.02, eased);
-      targetGlow = eased > 0.5 ? (eased - 0.5) * 2 : 0;
-    }
-
-    function animate() {
-      currentRotate += (targetRotate - currentRotate) * 0.09;
-      currentScale += (targetScale - currentScale) * 0.09;
-      currentGlow += (targetGlow - currentGlow) * 0.09;
-      heroWrap.style.transform = `rotateX(${currentRotate.toFixed(3)}deg) scale(${currentScale.toFixed(4)})`;
-      heroGlow.style.opacity = currentGlow.toFixed(3);
-      rafId = requestAnimationFrame(animate);
-    }
-
-    window.addEventListener('scroll', updateTarget, { passive: true });
-    updateTarget();
-    animate();
-
-    return () => {
-      window.removeEventListener('scroll', updateTarget);
-      cancelAnimationFrame(rafId);
-    };
-  }, []);
 
   // Scroll reveal observer
   useEffect(() => {
@@ -148,38 +101,60 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="lp-hero">
-        <div className="lp-hero-kicker">
-          <span className="lp-hero-kicker-dot"></span>
-          Free to start — no credit card needed
-        </div>
-        <h1>Trade smarter.<br/>Grow your <em>edge.</em></h1>
-        <p className="lp-hero-sub">
-          EdgeFlow is the trading journal built for serious traders. Log every trade, find your edge, and eliminate the habits killing your P&L — powered by AI.
-        </p>
-        <div className="lp-hero-ctas">
-          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start for free</button>
-          <a href="#pricing" className="lp-btn-secondary-lg">See pricing</a>
+        <div className="lp-hero-left">
+          <div className="lp-hero-kicker">
+            <span className="lp-hero-kicker-dot"></span>
+            Free forever plan — no credit card needed
+          </div>
+          <h1>Find the patterns<br/>killing your <em>P&L.</em></h1>
+          <p className="lp-hero-sub">
+            Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
+          </p>
+          <div className="lp-hero-ctas">
+            <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start journaling free</button>
+            <a href="#features" className="lp-btn-secondary-lg">See all features</a>
+          </div>
+          <div className="lp-hero-trust">
+            <span className="lp-hero-trust-item">No credit card needed</span>
+            <span className="lp-hero-trust-item">Free forever plan</span>
+            <span className="lp-hero-trust-item">Up and running in 2 minutes</span>
+          </div>
         </div>
 
-        <div className="lp-hero-scroll-container" ref={heroContainerRef}>
-          <div className="lp-hero-scroll-inner">
-            <div className="lp-hero-image-wrap" ref={heroWrapRef}>
-              <div className="lp-hero-image-glow" ref={heroGlowRef}></div>
-              <div className="lp-hero-image-border">
-                <div className="lp-hero-browser-bar">
-                  <div className="lp-hero-browser-dots">
-                    <div className="lp-hero-browser-dot" style={{ background: '#ff5f57' }}></div>
-                    <div className="lp-hero-browser-dot" style={{ background: '#febc2e' }}></div>
-                    <div className="lp-hero-browser-dot" style={{ background: '#28c840' }}></div>
-                  </div>
-                  <div className="lp-hero-browser-bar-url">leone.capital/dashboard</div>
-                </div>
-                <img src="/app-screenshot.png" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
+        <div className="lp-hero-right">
+          <div className="lp-hero-preview">
+            <div className="lp-hero-preview-chrome">
+              <div className="lp-hero-preview-dots">
+                <div className="lp-hero-preview-dot" style={{ background: '#ff5f57' }}></div>
+                <div className="lp-hero-preview-dot" style={{ background: '#febc2e' }}></div>
+                <div className="lp-hero-preview-dot" style={{ background: '#28c840' }}></div>
               </div>
+              <div className="lp-hero-preview-url">leone.capital/dashboard</div>
             </div>
+            <img src="/app-screenshot.png" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
           </div>
         </div>
       </section>
+
+      {/* HERO STRIP */}
+      <div className="lp-hero-strip">
+        <div className="lp-hero-strip-item">
+          <div className="lp-hero-strip-num">20<span>+</span></div>
+          <div className="lp-hero-strip-label">Analytics fields tracked per trade</div>
+        </div>
+        <div className="lp-hero-strip-item">
+          <div className="lp-hero-strip-num">6<span>+</span></div>
+          <div className="lp-hero-strip-label">Broker CSV import formats</div>
+        </div>
+        <div className="lp-hero-strip-item">
+          <div className="lp-hero-strip-num" style={{ color: 'var(--lp-green)' }}>AI</div>
+          <div className="lp-hero-strip-label">Powered by Claude (Anthropic)</div>
+        </div>
+        <div className="lp-hero-strip-item">
+          <div className="lp-hero-strip-num">$0</div>
+          <div className="lp-hero-strip-label">To start, no time limit</div>
+        </div>
+      </div>
 
       {/* LOGOS STRIP */}
       <div className="lp-logos-strip">
@@ -343,7 +318,7 @@ export default function Landing() {
           </div>
           <div className="lp-reveal-scale lp-delay-3">
             <div className="lp-stat-num">AI</div>
-            <div className="lp-stat-label">Gemini-powered advisor</div>
+            <div className="lp-stat-label">Powered by Claude (Anthropic)</div>
           </div>
           <div className="lp-reveal-scale lp-delay-4">
             <div className="lp-stat-num">$0</div>
@@ -556,7 +531,7 @@ export default function Landing() {
             <div className="lp-bento-card lp-reveal lp-delay-3">
               <div className="lp-bento-icon">🤖</div>
               <h3>AI Advisor</h3>
-              <p>Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural patterns. Plain-language answers powered by Gemini.</p>
+              <p>Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural patterns. Plain-language answers powered by Claude.</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-1">
               <div className="lp-bento-icon">⚡</div>
@@ -689,7 +664,7 @@ export default function Landing() {
               <ul className="lp-price-features">
                 <li><span className="lp-price-check">✓</span> Everything in Starter</li>
                 <li><span className="lp-price-check">✓</span> Session &amp; instrument analytics</li>
-                <li><span className="lp-price-check">✓</span> AI Advisor (Gemini powered)</li>
+                <li><span className="lp-price-check">✓</span> AI Advisor (Claude powered)</li>
                 <li><span className="lp-price-check">✓</span> Leak Detection</li>
                 <li><span className="lp-price-check">✓</span> Trading Plan enforcement</li>
                 <li><span className="lp-price-check">✓</span> Strategy Optimizer</li>
