@@ -385,6 +385,7 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 ### GROWTH (post-launch)
 - [ ] Prop firm challenge mode — per-phase drawdown limits, FTMO/Topstep/MFF rules, live headroom tracking (Elite feature)
 - [ ] Mobile app / PWA
+- [ ] Real testimonials carousel on landing page — collect real quotes from real traders with Twitter/X handles, then replace the current placeholder carousel. Quotes must be specific (name the feature, include a data point). Target: 6-8 quotes minimum before re-adding.
 
 ## Payments Plan (when ready)
 - International: Lemon Squeezy, $19/mo Pro, $39/mo Elite
