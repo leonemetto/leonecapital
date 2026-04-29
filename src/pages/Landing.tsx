@@ -361,6 +361,36 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* WHO IS THIS FOR */}
+      <section className="lp-for-section">
+        <div className="lp-container">
+          <div className="lp-reveal" style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Who it's for</div>
+            <h2 className="lp-section-title">Built for traders who<br/>take data seriously.</h2>
+          </div>
+          <div className="lp-for-grid">
+            <div className="lp-for-card">
+              <div className="lp-for-num">01</div>
+              <h3 className="lp-for-title">You're losing — and you don't know why.</h3>
+              <p className="lp-for-body">You're following a system but the results don't add up. EdgeFlow's Leak Detection surfaces the exact instruments, sessions, and setups that are quietly draining your account — with expectancy numbers attached.</p>
+              <div className="lp-for-feature">→ Leak Detection</div>
+            </div>
+            <div className="lp-for-card">
+              <div className="lp-for-num">02</div>
+              <h3 className="lp-for-title">You're breakeven — trying to go profitable.</h3>
+              <p className="lp-for-body">The data is in your trades but you can't see the pattern. Atlas, your AI analyst, reads your full trade history and behavioral profile to tell you exactly what to cut and what to double down on.</p>
+              <div className="lp-for-feature">→ Atlas AI</div>
+            </div>
+            <div className="lp-for-card">
+              <div className="lp-for-num">03</div>
+              <h3 className="lp-for-title">You're profitable — and want to scale.</h3>
+              <p className="lp-for-body">Multiple accounts, prop firm challenges, performance reports for coaches. EdgeFlow gives you the infrastructure to treat your trading like a business — with PDF exports, multi-account analytics, and full audit trails.</p>
+              <div className="lp-for-feature">→ Multi-account + PDF export</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* TESTIMONIALS CAROUSEL */}
       <section className="lp-testimonials-section">
         <div className="lp-container">
