@@ -115,7 +115,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 - /journal          — Trades DB ✅ summary stats + 50-per-page pagination
 - /accounts         — Trading Accounts ✅ (sparkline fixed)
 - /add-trade        — Log Trade ✅ collapsible advanced fields, double-submit guard
-- /ai               — AI Advisor, gated behind 10 trades ✅
+- /ai               — Atlas, gated behind 10 trades ✅
 - /profile          — Settings ✅ (accessible from sidebar bottom profile section)
 - /guide            — Platform Guide ✅
 - /import-trades    — CSV/broker import ✅ (EdgeFlow, MT4/MT5, generic formats)
@@ -133,7 +133,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 - Analytic → /analyst
 - Trades DB → /journal
 - Accounts → /accounts
-- AI Advisor → /ai
+- Atlas → /ai
 - Trading Plan → /trading-plan (criteria/checklist management)
 - Leak Detection → /leak-detection (badge shows new leaks since last visit)
 - Optimizer → /what-if
@@ -145,7 +145,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 - ✅ Email delivery via Resend
 - ✅ 4-step onboarding flow (nickname → account → checklist → first trade)
 - ✅ Dashboard — equity curve, heatmap calendar, session performance bars, stat bar, recent trades, daily journal widget
-- ✅ AI Advisor gated behind 10 trades, powered by Claude Haiku (Anthropic) via ANTHROPIC_API_KEY
+- ✅ Atlas gated behind 10 trades, powered by Claude Haiku (Anthropic) via ANTHROPIC_API_KEY
 - ✅ AI behavioral memory — extract-insight edge function appends insights to trader_profiles after each chat
 - ✅ Supabase migration (own project)
 - ✅ Vercel deployment + custom domain leone.capital
@@ -239,7 +239,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 4. Account selector — focus analysis on one account
 5. Leak diagnostic — human-readable explanation for negative-expectancy segments
 
-## AI Advisor — How It Works
+## Atlas — How It Works
 - Gate: requires 10+ trades (shows X/10 progress bar)
 - Edge function: supabase/functions/trade-advisor/index.ts
 - Model: Claude Haiku (claude-haiku-4-5-20251001) via Anthropic API
@@ -389,7 +389,7 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 ## Payments Plan (when ready)
 - International: Lemon Squeezy, $19/mo Pro, $39/mo Elite
 - Kenya: Intasend (M-Pesa), KES 1,499/mo Pro, KES 2,999/mo Elite
-- Free tier: 50 trades lifetime cap, 3 AI Advisor messages lifetime (DB-backed counter)
+- Free tier: 50 trades lifetime cap, 3 Atlas messages lifetime (DB-backed counter)
 - Payouts: Wise → Binance (USDT)
 - Design doc: ~/.gstack/projects/leonemetto-leonecapital/ceo-plans/2026-04-24-paywall.md
 

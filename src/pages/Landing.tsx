@@ -20,8 +20,8 @@ const FAQS = [
     a: 'Your data is encrypted at rest and in transit, stored on SOC 2 compliant infrastructure (Supabase). Row-level security ensures no other user can ever access your trades. We never share, sell, or use your data for any purpose other than providing your analytics. Export or delete your data at any time.',
   },
   {
-    q: 'How does the AI Advisor work?',
-    a: 'The AI Advisor is powered by Claude (Anthropic) and has full context of your last 50 trades, win rates, P&L breakdown, session analytics, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers with no filler. Available on Pro after 10 logged trades.',
+    q: 'How does the Atlas work?',
+    a: 'The Atlas is powered by Claude (Anthropic) and has full context of your last 50 trades, win rates, P&L breakdown, session analytics, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers with no filler. Available on Pro after 10 logged trades.',
   },
   {
     q: 'Can I cancel my subscription at any time?',
@@ -53,7 +53,7 @@ const FEATURE_GROUPS = [
     sub: 'Most traders lose money from 1–2 specific patterns they never see. This makes them visible.',
     features: [
       { name: 'Leak Detection', desc: 'Automatically flags negative-expectancy patterns — the instruments, sessions, and behaviours that are quietly draining your account.' },
-      { name: 'AI Advisor', desc: 'Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural memory. Direct answers powered by Claude (Anthropic).' },
+      { name: 'Atlas', desc: 'Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural memory. Direct answers powered by Claude (Anthropic).' },
       { name: 'Plan Enforcement', desc: 'Custom pre-trade checklist. EdgeFlow tracks every rule you break and shows the exact P&L cost of each violation in plain numbers.' },
     ],
   },
@@ -88,13 +88,13 @@ const TESTIMONIALS = [
   { quote: 'The leak detection flagged a pattern I had no idea about — I was losing 30% more on trades taken after a gap open. That insight alone was worth it.', name: 'Priya S.', role: 'Futures trader' },
   { quote: 'I failed 3 prop firm challenges before EdgeFlow. It showed me I was overtrading on Thursdays. Passed the 4th challenge with 8% headroom left.', name: 'Tom K.', role: 'FTMO trader' },
   { quote: 'I used to keep a spreadsheet with 12 tabs. EdgeFlow does everything in seconds and surfaces things I would never have calculated manually.', name: 'Marcus L.', role: 'Swing trader, US equities' },
-  { quote: 'The AI Advisor gave me a direct breakdown of my revenge trading pattern. Not motivational fluff — it showed me the actual R-multiple cost.', name: 'Aisha M.', role: 'Crypto trader' },
+  { quote: 'The Atlas gave me a direct breakdown of my revenge trading pattern. Not motivational fluff — it showed me the actual R-multiple cost.', name: 'Aisha M.', role: 'Crypto trader' },
   { quote: 'I realised my Asian session win rate was 68% but I was only trading it 12% of the time. EdgeFlow made that obvious. Changed my whole schedule.', name: 'Daniel R.', role: 'FX scalper' },
   { quote: 'The plan enforcement checklist keeps me accountable. I can actually see what my win rate drops to when I break my own rules.', name: 'Sarah V.', role: 'Options trader' },
   { quote: 'Every serious trader needs this. I discovered I had a 74% win rate on London open but was cutting positions early and leaving 2R on the table.', name: 'Kwame A.', role: 'Gold and indices trader' },
 ];
 
-const PREVIEW_TABS = ['Dashboard', 'Analytics', 'AI Advisor', 'Leak Detection', 'Optimizer'];
+const PREVIEW_TABS = ['Dashboard', 'Analytics', 'Atlas', 'Leak Detection', 'Optimizer'];
 const TAB_SCREENSHOTS = [
   '/app-screenshot.webp',
   '/screenshot-analytic.webp',
@@ -105,7 +105,7 @@ const TAB_SCREENSHOTS = [
 const TAB_ALTS = [
   'EdgeFlow dashboard — equity curve, win rate, and session performance',
   'EdgeFlow Analytics — performance breakdown by instrument, session, and strategy',
-  'EdgeFlow AI Advisor — Claude-powered trading coach with full trade context',
+  'EdgeFlow Atlas — Claude-powered trading coach with full trade context',
   'EdgeFlow Leak Detection — identify negative-expectancy patterns',
   'EdgeFlow Strategy Optimizer — simulate removing losing filters',
 ];
@@ -319,7 +319,7 @@ export default function Landing() {
               <div className="lp-step-body">
                 <div className="lp-step-num">03</div>
                 <h3>Eliminate losing patterns</h3>
-                <p>Use the Leak Detector and AI Advisor to pinpoint the specific behaviours draining your account — revenge trading, bad sessions, overtrading — and cut them precisely.</p>
+                <p>Use the Leak Detector and Atlas to pinpoint the specific behaviours draining your account — revenge trading, bad sessions, overtrading — and cut them precisely.</p>
               </div>
             </div>
           </div>
@@ -408,7 +408,7 @@ export default function Landing() {
                 <li><span className="lp-price-check">✓</span> Basic P&amp;L analytics</li>
                 <li><span className="lp-price-check">✓</span> Manual trade entry</li>
                 <li><span className="lp-price-check">✓</span> Single account</li>
-                <li><span className="lp-price-check">✓</span> 3 AI Advisor messages</li>
+                <li><span className="lp-price-check">✓</span> 3 Atlas messages</li>
               </ul>
               <button className="lp-btn-price basic" onClick={() => navigate('/auth')}>Get started free</button>
             </div>
@@ -422,7 +422,7 @@ export default function Landing() {
               <ul className="lp-price-features">
                 <li><span className="lp-price-check">✓</span> Unlimited trades</li>
                 <li><span className="lp-price-check">✓</span> Session &amp; instrument analytics</li>
-                <li><span className="lp-price-check">✓</span> Unlimited AI Advisor (Claude)</li>
+                <li><span className="lp-price-check">✓</span> Unlimited Atlas (Claude)</li>
                 <li><span className="lp-price-check">✓</span> Leak Detection</li>
                 <li><span className="lp-price-check">✓</span> Strategy Optimizer</li>
                 <li><span className="lp-price-check">✓</span> Trading Plan enforcement</li>
@@ -500,7 +500,7 @@ export default function Landing() {
             <ul>
               <li><a onClick={() => navigate('/auth')}>Dashboard</a></li>
               <li><a onClick={() => navigate('/auth')}>Analytics</a></li>
-              <li><a onClick={() => navigate('/auth')}>AI Advisor</a></li>
+              <li><a onClick={() => navigate('/auth')}>Atlas</a></li>
               <li><a href="#pricing">Pricing</a></li>
             </ul>
           </div>

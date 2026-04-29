@@ -51,7 +51,7 @@ export default function Terms() {
           },
           {
             title: '3. Not Financial Advice',
-            body: `EdgeFlow provides data analysis and pattern detection based on your historical trade data. Nothing in EdgeFlow — including AI Advisor responses — constitutes financial advice, investment advice, or a recommendation to buy or sell any asset.\n\nYou are solely responsible for your trading decisions. Past performance identified by EdgeFlow does not guarantee future results. Trading carries significant risk.`,
+            body: `EdgeFlow provides data analysis and pattern detection based on your historical trade data. Nothing in EdgeFlow — including Atlas responses — constitutes financial advice, investment advice, or a recommendation to buy or sell any asset.\n\nYou are solely responsible for your trading decisions. Past performance identified by EdgeFlow does not guarantee future results. Trading carries significant risk.`,
           },
           {
             title: '4. Account Responsibilities',
@@ -59,7 +59,7 @@ export default function Terms() {
           },
           {
             title: '5. Acceptable Use',
-            body: `You may not use EdgeFlow to:\n\n• Attempt to gain unauthorised access to any part of the service\n• Upload malicious code or attempt to compromise system integrity\n• Use the AI Advisor to generate content that violates laws or regulations\n• Resell or redistribute access to EdgeFlow without authorisation`,
+            body: `You may not use EdgeFlow to:\n\n• Attempt to gain unauthorised access to any part of the service\n• Upload malicious code or attempt to compromise system integrity\n• Use the Atlas to generate content that violates laws or regulations\n• Resell or redistribute access to EdgeFlow without authorisation`,
           },
           {
             title: '6. Subscription and Billing',

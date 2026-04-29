@@ -44,11 +44,11 @@ const SECTIONS = [
   },
   {
     id: 'ai-advisor',
-    title: 'AI Advisor',
+    title: 'Atlas',
     subtitle: 'Your Consultant',
     icon: Brain,
     content: [
-      { heading: 'Deep Analysis', body: 'The AI Advisor analyzes patterns across all your trades. It identifies toxic combinations — like going long on instruments with a Bearish HTF FVG — that you might not notice manually.' },
+      { heading: 'Deep Analysis', body: 'The Atlas analyzes patterns across all your trades. It identifies toxic combinations — like going long on instruments with a Bearish HTF FVG — that you might not notice manually.' },
       { heading: 'Behavioral Patterns', body: 'Beyond setups, the AI tracks your behavior: revenge trading after losses, overtrading on Fridays, emotional state correlations. It sees the trader behind the trades.' },
       { heading: 'Actionable Recommendations', body: 'Every insight comes with a specific, actionable recommendation. Not just "you\'re losing money on gold" but "your XAUUSD longs against bearish HTF bias have -0.8R expectancy over 5 trades — consider eliminating this setup."' },
     ],

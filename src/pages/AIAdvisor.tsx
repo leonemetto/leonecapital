@@ -219,7 +219,7 @@ export default function AIAdvisor() {
           const limit = err.limit ?? 3;
           setMessages(prev => trimMessages([...prev, {
             role: 'assistant',
-            content: `You've used ${used}/${limit} free AI messages. Upgrade to Pro for unlimited AI Advisor access.\n\n[Upgrade to Pro →](/pricing)`,
+            content: `You've used ${used}/${limit} free Atlas messages. Upgrade to Pro for unlimited access.\n\n[Upgrade to Pro →](/pricing)`,
             id: assistantId,
           }]));
         } else {
@@ -333,7 +333,7 @@ export default function AIAdvisor() {
             <div className="flex items-center gap-2.5">
               <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ef-pos)' }} />
               <span className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                AI Advisor
+                Atlas
               </span>
             </div>
             <button
@@ -378,7 +378,7 @@ export default function AIAdvisor() {
                   className="space-y-2"
                 >
                   <h2 style={{ margin: 0, fontSize: 26, fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 1.2, color: 'var(--ef-ink)' }}>
-                    AI Trade Advisor
+                    Atlas
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', lineHeight: 1.6, maxWidth: 360, margin: '8px auto 0' }}>
                     Your personal trading analyst. Ask anything about your performance — patterns, risks, and actionable insights from your data.

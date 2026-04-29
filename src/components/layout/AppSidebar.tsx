@@ -42,7 +42,7 @@ const baseNavItems = [
   { title: 'Analytics',       short: 'Stats',   path: '/analyst',         Icon: ChartBar },
   { title: 'Trades DB',       short: 'Trades',  path: '/journal',         Icon: Rows },
   { title: 'Accounts',        short: 'Accounts',path: '/accounts',        Icon: CurrencyDollar },
-  { title: 'AI Advisor',      short: 'AI',      path: '/ai',              Icon: Brain },
+  { title: 'Atlas',           short: 'AI',      path: '/ai',              Icon: Brain },
   { title: 'Trading Plan',    short: 'Plan',    path: '/trading-plan',    Icon: ClipboardText },
   { title: 'Leak Detection',  short: 'Leaks',   path: '/leak-detection',  Icon: Drop,   badge: true },
   { title: 'Optimizer',       short: 'Optim.',  path: '/what-if',         Icon: Scales },

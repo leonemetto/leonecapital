@@ -47,7 +47,7 @@ export default function Privacy() {
           },
           {
             title: '2. How We Use Your Information',
-            body: `We use your information to provide, maintain, and improve EdgeFlow. Specifically, we use it to:\n\n• Provide your trading journal and analytics services\n• Power the AI Advisor with your trade data context\n• Send re-engagement and weekly digest emails (opt-out available)\n• Detect and prevent fraud or abuse\n• Comply with legal obligations`,
+            body: `We use your information to provide, maintain, and improve EdgeFlow. Specifically, we use it to:\n\n• Provide your trading journal and analytics services\n• Power the Atlas with your trade data context\n• Send re-engagement and weekly digest emails (opt-out available)\n• Detect and prevent fraud or abuse\n• Comply with legal obligations`,
           },
           {
             title: '3. Data Security',
@@ -55,7 +55,7 @@ export default function Privacy() {
           },
           {
             title: '4. AI and Data Processing',
-            body: `When you use the AI Advisor, your most recent trades and trader profile are sent to Google Gemini (via Google AI Studio) to generate responses. This data is transmitted securely over HTTPS. We do not use your trading data to train AI models.\n\nBehavioural insights extracted from AI conversations are stored in your trader profile and used only to improve future AI responses for your account.`,
+            body: `When you use Atlas, your most recent trades and trader profile are sent to Claude (Anthropic) to generate responses. This data is transmitted securely over HTTPS. We do not use your trading data to train AI models.\n\nBehavioural insights extracted from AI conversations are stored in your trader profile and used only to improve future Atlas responses for your account.`,
           },
           {
             title: '5. Data Retention',
