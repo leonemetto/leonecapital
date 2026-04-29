@@ -119,6 +119,7 @@ export default function Landing() {
   const [navScrolled, setNavScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [annualBilling, setAnnualBilling] = useState(false);
 
   useEffect(() => {
     const onScroll = () => {
@@ -450,6 +451,19 @@ export default function Landing() {
             <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Pricing</div>
             <h2 className="lp-section-title">Simple plans.</h2>
             <p className="lp-section-sub" style={{ margin: '0 auto' }}>Start free. Upgrade when your edge needs more power.</p>
+            <div className="lp-billing-toggle">
+              <span className={`lp-billing-label${!annualBilling ? ' active' : ''}`}>Monthly</span>
+              <button
+                className={`lp-toggle-track${annualBilling ? ' on' : ''}`}
+                onClick={() => setAnnualBilling(a => !a)}
+                aria-label="Toggle annual billing"
+              >
+                <span className="lp-toggle-thumb" />
+              </button>
+              <span className={`lp-billing-label${annualBilling ? ' active' : ''}`}>
+                Annual <span className="lp-billing-save">2 months free</span>
+              </span>
+            </div>
           </div>
           <div className="lp-pricing-grid">
             <div className="lp-price-card basic lp-reveal-left">
@@ -471,8 +485,8 @@ export default function Landing() {
             <div className="lp-price-card pro lp-reveal" style={{ position: 'relative' }}>
               <div className="lp-price-popular">Best value</div>
               <div className="lp-price-badge">Pro</div>
-              <div className="lp-price-amount">$19</div>
-              <div className="lp-price-per">per month · cancel anytime</div>
+              <div className="lp-price-amount">{annualBilling ? '$15.83' : '$19'}</div>
+              <div className="lp-price-per">{annualBilling ? <>per month · <strong style={{ color: 'var(--lp-green)' }}>$190 billed annually</strong></> : 'per month · cancel anytime'}</div>
               <div className="lp-price-divider"></div>
               <ul className="lp-price-features">
                 <li><span className="lp-price-check">✓</span> Unlimited trades</li>
@@ -491,8 +505,8 @@ export default function Landing() {
 
             <div className="lp-price-card elite lp-reveal-right">
               <div className="lp-price-badge">Elite</div>
-              <div className="lp-price-amount">$39</div>
-              <div className="lp-price-per">per month · cancel anytime</div>
+              <div className="lp-price-amount">{annualBilling ? '$32.50' : '$39'}</div>
+              <div className="lp-price-per">{annualBilling ? <>per month · <strong style={{ color: 'var(--lp-green)' }}>$390 billed annually</strong></> : 'per month · cancel anytime'}</div>
               <div className="lp-price-divider"></div>
               <ul className="lp-price-features">
                 <li><span className="lp-price-check">✓</span> Everything in Pro</li>

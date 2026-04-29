@@ -723,6 +723,38 @@
 #lp .lp-testi-name { font-size: 14px; font-weight: 700; color: var(--lp-white); letter-spacing: -0.2px; margin-bottom: 2px; }
 #lp .lp-testi-role { font-size: 12px; color: var(--lp-muted); }
 
+/* ─── BILLING TOGGLE ─── */
+#lp .lp-billing-toggle {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  margin-top: 28px;
+}
+#lp .lp-billing-label {
+  font-size: 14px; color: rgba(255,255,255,0.35); font-weight: 500;
+  transition: color 0.2s;
+}
+#lp .lp-billing-label.active { color: rgba(255,255,255,0.85); }
+#lp .lp-billing-save {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  background: rgba(173,255,47,0.12); color: var(--lp-green);
+  border-radius: 99px; padding: 2px 8px; margin-left: 6px; letter-spacing: 0.01em;
+}
+#lp .lp-toggle-track {
+  width: 44px; height: 24px; border-radius: 99px;
+  background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.12);
+  position: relative; cursor: pointer; transition: background 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+#lp .lp-toggle-track.on {
+  background: var(--lp-green); border-color: var(--lp-green);
+}
+#lp .lp-toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: #fff; transition: transform 0.2s;
+  display: block;
+}
+#lp .lp-toggle-track.on .lp-toggle-thumb { transform: translateX(20px); }
+
 /* ─── PRICING ─── */
 #lp .lp-pricing-grid {
   display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
