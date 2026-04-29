@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './landing.css';
 
@@ -42,8 +42,47 @@ const PREVIEW_TABS = ['Dashboard', 'Analytics', 'AI Advisor', 'Leak Detection', 
 
 export default function Landing() {
   const navigate = useNavigate();
+  const tiltInnerRef = useRef<HTMLDivElement>(null);
+  const tiltGlowRef = useRef<HTMLDivElement>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+
+  // Tilt-flatten scroll animation
+  useEffect(() => {
+    const inner = tiltInnerRef.current;
+    const glow = tiltGlowRef.current;
+    if (!inner || !glow) return;
+
+    let cur = { r: 14, s: 0.96, g: 0 };
+    let tgt = { r: 14, s: 0.96, g: 0 };
+    let raf: number;
+
+    function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+
+    function update() {
+      const scrollY = window.scrollY;
+      const heroH = (inner.closest('.lp-hero') as HTMLElement)?.offsetHeight ?? 600;
+      const progress = Math.min(1, scrollY / (heroH * 0.8));
+      const eased = 1 - Math.pow(1 - progress, 2);
+      tgt.r = lerp(14, 0, eased);
+      tgt.s = lerp(0.96, 1.0, eased);
+      tgt.g = eased > 0.4 ? (eased - 0.4) / 0.6 : 0;
+    }
+
+    function animate() {
+      cur.r += (tgt.r - cur.r) * 0.1;
+      cur.s += (tgt.s - cur.s) * 0.1;
+      cur.g += (tgt.g - cur.g) * 0.1;
+      inner.style.transform = `rotateX(${cur.r.toFixed(3)}deg) scale(${cur.s.toFixed(4)})`;
+      glow.style.opacity = cur.g.toFixed(3);
+      raf = requestAnimationFrame(animate);
+    }
+
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+    animate();
+    return () => { window.removeEventListener('scroll', update); cancelAnimationFrame(raf); };
+  }, []);
 
   // Scroll reveal observer
   useEffect(() => {
@@ -101,37 +140,38 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="lp-hero">
-        <div className="lp-hero-left">
-          <div className="lp-hero-kicker">
-            <span className="lp-hero-kicker-dot"></span>
-            Free forever plan — no credit card needed
-          </div>
-          <h1>Find the patterns<br/>killing your <em>P&L.</em></h1>
-          <p className="lp-hero-sub">
-            Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
-          </p>
-          <div className="lp-hero-ctas">
-            <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start journaling free</button>
-            <a href="#features" className="lp-btn-secondary-lg">See all features</a>
-          </div>
-          <div className="lp-hero-trust">
-            <span className="lp-hero-trust-item">No credit card needed</span>
-            <span className="lp-hero-trust-item">Free forever plan</span>
-            <span className="lp-hero-trust-item">Up and running in 2 minutes</span>
-          </div>
+        <div className="lp-hero-kicker">
+          <span className="lp-hero-kicker-dot"></span>
+          Free forever plan — no credit card needed
+        </div>
+        <h1>Find the patterns<br/>killing your <em>P&L.</em></h1>
+        <p className="lp-hero-sub">
+          Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
+        </p>
+        <div className="lp-hero-ctas">
+          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start journaling free</button>
+          <a href="#features" className="lp-btn-secondary-lg">See all features</a>
+        </div>
+        <div className="lp-hero-trust">
+          <span className="lp-hero-trust-item">No credit card needed</span>
+          <span className="lp-hero-trust-item">Free forever plan</span>
+          <span className="lp-hero-trust-item">Up and running in 2 minutes</span>
         </div>
 
-        <div className="lp-hero-right">
-          <div className="lp-hero-preview">
-            <div className="lp-hero-preview-chrome">
-              <div className="lp-hero-preview-dots">
-                <div className="lp-hero-preview-dot" style={{ background: '#ff5f57' }}></div>
-                <div className="lp-hero-preview-dot" style={{ background: '#febc2e' }}></div>
-                <div className="lp-hero-preview-dot" style={{ background: '#28c840' }}></div>
+        <div className="lp-hero-tilt-wrap">
+          <div className="lp-hero-tilt-inner" ref={tiltInnerRef}>
+            <div className="lp-hero-tilt-glow" ref={tiltGlowRef}></div>
+            <div className="lp-hero-preview">
+              <div className="lp-hero-preview-chrome">
+                <div className="lp-hero-preview-dots">
+                  <div className="lp-hero-preview-dot" style={{ background: '#ff5f57' }}></div>
+                  <div className="lp-hero-preview-dot" style={{ background: '#febc2e' }}></div>
+                  <div className="lp-hero-preview-dot" style={{ background: '#28c840' }}></div>
+                </div>
+                <div className="lp-hero-preview-url">leone.capital/dashboard</div>
               </div>
-              <div className="lp-hero-preview-url">leone.capital/dashboard</div>
+              <img src="/app-screenshot.png" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
             </div>
-            <img src="/app-screenshot.png" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
           </div>
         </div>
       </section>
