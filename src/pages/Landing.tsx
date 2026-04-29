@@ -285,7 +285,13 @@ export default function Landing() {
       {/* NAV */}
       <nav className={`lp-nav${navScrolled ? ' scrolled' : ''}`}>
         <div className="lp-nav-logo" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>
-          <img src="/favicon.svg" alt="EdgeFlow" className="lp-nav-logo-img" />
+          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'rgb(140,255,46)', flexShrink: 0 }}>
+            <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+            <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+            <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+            <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+            <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+          </svg>
           EdgeFlow
         </div>
         <ul className="lp-nav-links">
@@ -330,7 +336,9 @@ export default function Landing() {
           Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
         </p>
         <div className="lp-hero-ctas">
-          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start journaling free</button>
+          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>
+            Start journaling free<span className="lp-cta-arrow-wrap">→</span>
+          </button>
           <a href="#how" className="lp-btn-secondary-lg">See how it works</a>
         </div>
         <div className="lp-hero-trust">
@@ -343,6 +351,7 @@ export default function Landing() {
 
         <div className="lp-hero-tilt-wrap">
           <div className="lp-hero-tilt-inner" ref={tiltInnerRef}>
+            <div className="lp-hero-preview-bezel">
             <div className="lp-hero-preview">
               <div className="lp-hero-preview-chrome">
                 <div className="lp-hero-preview-dots">
@@ -353,6 +362,7 @@ export default function Landing() {
                 <div className="lp-hero-preview-url">edgeflow.app/dashboard</div>
               </div>
               <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
+            </div>
             </div>
           </div>
         </div>
@@ -468,7 +478,7 @@ export default function Landing() {
             <li>Simulate the impact of removing any leak on your equity curve</li>
             <li>No other journal does this</li>
           </ul>
-          <button className="lp-btn-primary-lg" style={{ marginTop: 8 }} onClick={() => navigate('/auth')}>See your leaks free →</button>
+          <button className="lp-btn-primary-lg" style={{ marginTop: 8 }} onClick={() => navigate('/auth')}>See your leaks free<span className="lp-cta-arrow-wrap">→</span></button>
         </div>
         <div className="lp-leak-visual lp-reveal">
           <div className="lp-leak-img-wrap">
@@ -494,7 +504,7 @@ export default function Landing() {
             <li>Builds a behavioral memory across every conversation</li>
             <li>Powered by Claude (Anthropic)</li>
           </ul>
-          <button className="lp-btn-primary-lg" style={{ marginTop: 8 }} onClick={() => navigate('/auth')}>Try Atlas free →</button>
+          <button className="lp-btn-primary-lg" style={{ marginTop: 8 }} onClick={() => navigate('/auth')}>Try Atlas free<span className="lp-cta-arrow-wrap">→</span></button>
         </div>
       </section>
 
@@ -698,7 +708,7 @@ export default function Landing() {
         <div className="lp-cta-inner lp-reveal">
           <h2>Your edge is already<br/>in your data.</h2>
           <p>Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
-          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start for free — no credit card</button>
+          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start free — no credit card<span className="lp-cta-arrow-wrap">→</span></button>
         </div>
       </section>
 
@@ -707,7 +717,13 @@ export default function Landing() {
         <div className="lp-footer-top">
           <div className="lp-footer-brand">
             <div className="lp-nav-logo" style={{ cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <img src="/favicon.svg" alt="EdgeFlow" className="lp-nav-logo-img" />
+              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'rgb(140,255,46)', flexShrink: 0 }}>
+                <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+                <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+                <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+                <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+                <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
+              </svg>
               EdgeFlow
             </div>
             <p>The trading journal and analytics platform for traders who take their performance seriously. Works for any market, any strategy, any broker.</p>
