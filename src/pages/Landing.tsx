@@ -2,39 +2,84 @@ import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './landing.css';
 
-const TESTIMONIALS = [
-  { initials: 'JK', quote: 'EdgeFlow showed me I was giving back 40% of my profits during the New York close. One small change, massive difference.', name: 'James K.', role: 'Futures trader, 4 years' },
-  { initials: 'SM', quote: 'I finally stopped keeping my journal in Excel. The session analytics alone paid for the subscription in the first week.', name: 'Sarah M.', role: 'Forex swing trader' },
-  { initials: 'TR', quote: 'The AI Advisor caught that I was consistently overtrading on Mondays. My win rate went from 52% to 71% just by sitting out.', name: 'Tariq R.', role: 'Prop firm trader' },
-  { initials: 'AO', quote: "I was hesitant about paying for a journal app, but the leak detector found $1,200/month I was bleeding on Friday afternoon trades.", name: 'Alex O.', role: 'Crypto day trader' },
-  { initials: 'NB', quote: 'The equity curve and session breakdowns make it obvious where I need to tighten up. First tool that actually changed my behavior.', name: 'Nadia B.', role: 'Equity options trader' },
-  { initials: 'MP', quote: "Passed my prop firm challenge in 3 weeks after using EdgeFlow to nail down which setups had real edge. Couldn't have done it without it.", name: 'Marcus P.', role: 'Prop firm funded trader' },
-];
-
 const FAQS = [
   {
-    q: 'What brokers and platforms does EdgeFlow support?',
-    a: 'EdgeFlow works with any broker. You can log trades manually in seconds, or import a CSV — with dedicated parsers for MetaTrader 4/5 and a generic CSV mode that handles exports from any other platform. Works across futures, forex, stocks, options, crypto, and indices.',
+    q: 'How is this better than my Excel spreadsheet?',
+    a: 'Excel shows you what happened. EdgeFlow shows you why, and what to do about it. It automatically segments your results by session, instrument, strategy, and direction — then flags the exact patterns (revenge trading, overtrading, bad sessions) draining your account. That analysis takes hours to build manually and has to be rebuilt every month. EdgeFlow does it in real time.',
+  },
+  {
+    q: 'Does EdgeFlow work for prop firm challenges?',
+    a: 'Yes. The Elite plan includes per-phase challenge tracking — set your firm\'s specific drawdown limit, daily loss limit, and profit target, and EdgeFlow tracks your remaining cushion live. You\'ll see exactly how much headroom you have in each phase. Works for FTMO, MyForexFunds, Topstep, Apex, and any firm with standard rules.',
+  },
+  {
+    q: 'Can I import my existing trade history?',
+    a: 'Yes — import directly from MT4/MT5 export files, or use the generic CSV mode for any other broker or platform. Your historical data loads immediately and appears in all analytics from day one. No data is lost on the free tier — if you upgrade later, your full history carries over.',
   },
   {
     q: 'Is my trading data secure and private?',
-    a: 'Your data is encrypted at rest and in transit, stored on SOC 2 compliant infrastructure (Supabase). Row-level security ensures no other user can access your trades. We never share, sell, or use your data for any purpose other than providing your analytics. Export or delete your data at any time.',
-  },
-  {
-    q: "Can I use EdgeFlow if I'm a beginner trader?",
-    a: "Absolutely. EdgeFlow is built to be useful from day one, even with a handful of trades. The AI Advisor explains everything in plain language — no data science background required. Many beginners find it significantly speeds up their learning curve.",
-  },
-  {
-    q: "What's the difference between Pro and Elite?",
-    a: "Pro gives you the full analytics suite — AI Advisor, Leak Detection, Session Analytics, Strategy Optimizer, and PDF reports. Elite adds prop firm challenge tracking (per-phase drawdown limits and targets), advanced behavioral scoring, priority AI responses, and early access to new features.",
+    a: 'Your data is encrypted at rest and in transit, stored on SOC 2 compliant infrastructure (Supabase). Row-level security ensures no other user can ever access your trades. We never share, sell, or use your data for any purpose other than providing your analytics. Export or delete your data at any time.',
   },
   {
     q: 'How does the AI Advisor work?',
-    a: 'The AI Advisor is powered by Claude (Anthropic) and has full context of your last 50 trades, win rates, P&L breakdown, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers. Available on Pro after 10 logged trades.',
+    a: 'The AI Advisor is powered by Claude (Anthropic) and has full context of your last 50 trades, win rates, P&L breakdown, session analytics, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers with no filler. Available on Pro after 10 logged trades.',
   },
   {
     q: 'Can I cancel my subscription at any time?',
-    a: 'Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro or Elite access until the end of your billing period. Your trade data is always yours to keep, and you can export it as CSV at any time.',
+    a: 'Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro or Elite access until the end of your billing period. Your trade data is always yours to export as CSV at any time.',
+  },
+];
+
+const FEATURE_GROUPS = [
+  {
+    heading: 'Track every trade',
+    sub: 'Manual entry in seconds. MT4/MT5 CSV import. Screenshot at entry. Everything in one place.',
+    features: [
+      { name: 'Trade Log', desc: 'Log any market — forex, futures, stocks, crypto, options, indices. Manual or CSV. Attach a screenshot of your chart at entry.' },
+      { name: 'Multiple Accounts', desc: 'Separate live, demo, and prop firm accounts. Analyse each independently or aggregate all at once with one click.' },
+      { name: 'Daily Journal', desc: 'Session mood, notes, and key lessons. 14-day history panel makes the mental patterns behind your best and worst days visible.' },
+    ],
+  },
+  {
+    heading: 'Understand your edge',
+    sub: 'Your data broken down by every dimension that matters — so you see exactly where you make money.',
+    features: [
+      { name: 'Session Analytics', desc: 'Win rate, expectancy, and P&L by session (London, New York, Asian, Overlap), instrument, strategy, HTF bias, and direction.' },
+      { name: 'Equity Curve', desc: 'Daily and cumulative P&L charted across any time window. Heat map calendar shows best and worst days at a glance.' },
+      { name: 'Strategy Optimizer', desc: 'Simulate removing any filter — instantly see your equity curve with and without a given session, instrument, or setup.' },
+    ],
+  },
+  {
+    heading: 'Find and fix leaks',
+    sub: 'Most traders lose money from 1–2 specific patterns they never see. This makes them visible.',
+    features: [
+      { name: 'Leak Detection', desc: 'Automatically flags negative-expectancy patterns — the instruments, sessions, and behaviours that are quietly draining your account.' },
+      { name: 'AI Advisor', desc: 'Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural memory. Direct answers powered by Claude (Anthropic).' },
+      { name: 'Plan Enforcement', desc: 'Custom pre-trade checklist. EdgeFlow tracks every rule you break and shows the exact P&L cost of each violation in plain numbers.' },
+    ],
+  },
+];
+
+const OUTCOMES = [
+  {
+    label: 'Prop firm trader',
+    headline: 'Found the session killing the challenge',
+    detail: 'Asian session trades on Fridays were responsible for 2.4R of weekly losses. Cut entirely. Weekly P&L turned positive within two weeks.',
+    stat: '−2.4R/week',
+    statLabel: 'weekly leak identified',
+  },
+  {
+    label: 'Forex swing trader',
+    headline: 'Caught a revenge trading pattern',
+    detail: 'Win rate dropped from 61% to 38% on days following a loss. A single behavioural rule — no trading the day after a red day — fixed it completely.',
+    stat: '−23% WR',
+    statLabel: 'after-loss performance gap',
+  },
+  {
+    label: 'Day trader',
+    headline: 'Discovered a session mismatch',
+    detail: 'London: 74% win rate. New York: 31% win rate. Stopped trading New York entirely. Profit factor improved from 1.2 to 2.1 within a month.',
+    stat: '1.2 → 2.1',
+    statLabel: 'profit factor after adjustment',
   },
 ];
 
@@ -64,7 +109,6 @@ export default function Landing() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [showScrollTop, setShowScrollTop] = useState(false);
 
-  // Nav scroll + scroll-to-top visibility
   useEffect(() => {
     const onScroll = () => {
       setNavScrolled(window.scrollY > 60);
@@ -74,24 +118,19 @@ export default function Landing() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  // Close mobile menu on resize to desktop
   useEffect(() => {
     const onResize = () => { if (window.innerWidth > 768) setMobileMenuOpen(false); };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  // Tilt-flatten scroll animation
   useEffect(() => {
     const inner = tiltInnerRef.current;
     if (!inner) return;
-
     let cur = { r: 14, s: 0.96 };
     let tgt = { r: 14, s: 0.96 };
     let raf: number;
-
     function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
-
     function update() {
       const scrollY = window.scrollY;
       const heroH = (inner.closest('.lp-hero') as HTMLElement)?.offsetHeight ?? 600;
@@ -100,21 +139,18 @@ export default function Landing() {
       tgt.r = lerp(14, 0, eased);
       tgt.s = lerp(0.96, 1.0, eased);
     }
-
     function animate() {
       cur.r += (tgt.r - cur.r) * 0.1;
       cur.s += (tgt.s - cur.s) * 0.1;
       inner.style.transform = `rotateX(${cur.r.toFixed(3)}deg) scale(${cur.s.toFixed(4)})`;
       raf = requestAnimationFrame(animate);
     }
-
     window.addEventListener('scroll', update, { passive: true });
     update();
     animate();
     return () => { window.removeEventListener('scroll', update); cancelAnimationFrame(raf); };
   }, []);
 
-  // Scroll reveal observer
   useEffect(() => {
     const els = document.querySelectorAll('#lp .lp-reveal, #lp .lp-reveal-left, #lp .lp-reveal-right, #lp .lp-reveal-scale');
     const observer = new IntersectionObserver((entries) => {
@@ -129,7 +165,6 @@ export default function Landing() {
     return () => observer.disconnect();
   }, []);
 
-  // Load Manrope font
   useEffect(() => {
     if (document.querySelector('#lp-manrope-font')) return;
     const link = document.createElement('link');
@@ -139,8 +174,6 @@ export default function Landing() {
     document.head.appendChild(link);
   }, []);
 
-  const doubled = [...TESTIMONIALS, ...TESTIMONIALS];
-
   return (
     <div id="lp">
       {/* NAV */}
@@ -149,14 +182,12 @@ export default function Landing() {
           <img src="/favicon.svg" alt="EdgeFlow" className="lp-nav-logo-img" />
           EdgeFlow
         </div>
-
         <ul className="lp-nav-links">
           <li><a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a></li>
           <li><a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a></li>
           <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
           <li><a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
         </ul>
-
         <div className="lp-nav-actions">
           <button className="lp-btn-ghost" onClick={() => navigate('/auth')}>Log in</button>
           <button className="lp-btn-primary lp-nav-cta" onClick={() => navigate('/auth')}>Start free →</button>
@@ -186,7 +217,7 @@ export default function Landing() {
       <section className="lp-hero">
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-dot"></span>
-          Free forever plan — no credit card needed
+          Free to start — no credit card needed
         </div>
         <h1>Find the patterns<br/>killing your <em>P&L.</em></h1>
         <p className="lp-hero-sub">
@@ -198,8 +229,8 @@ export default function Landing() {
         </div>
         <div className="lp-hero-trust">
           <span className="lp-hero-trust-item">No credit card needed</span>
-          <span className="lp-hero-trust-item">Free forever plan</span>
-          <span className="lp-hero-trust-item">Up and running in 2 minutes</span>
+          <span className="lp-hero-trust-item">50 trades free</span>
+          <span className="lp-hero-trust-item">Set up in under 5 minutes</span>
         </div>
 
         <div className="lp-hero-tilt-glow"></div>
@@ -213,7 +244,7 @@ export default function Landing() {
                   <div className="lp-hero-preview-dot" style={{ background: '#febc2e' }}></div>
                   <div className="lp-hero-preview-dot" style={{ background: '#28c840' }}></div>
                 </div>
-                <div className="lp-hero-preview-url">leone.capital/dashboard</div>
+                <div className="lp-hero-preview-url">edgeflow.app/dashboard</div>
               </div>
               <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
             </div>
@@ -237,7 +268,7 @@ export default function Landing() {
         </div>
         <div className="lp-hero-strip-item">
           <div className="lp-hero-strip-num">$0</div>
-          <div className="lp-hero-strip-label">Free forever — no credit card</div>
+          <div className="lp-hero-strip-label">Free to start — no card needed</div>
         </div>
       </div>
 
@@ -273,7 +304,6 @@ export default function Landing() {
                 <p>Enter trades manually in seconds, or import a CSV from your broker. Works with MT4/MT5 and any generic export. No API keys, no setup.</p>
               </div>
             </div>
-
             <div className="lp-step-card lp-reveal lp-delay-2">
               <div className="lp-step-mockup">
                 <img src="/screenshot-analytic.webp" alt="Analytics — win rate and expectancy by instrument, session, and strategy" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
@@ -281,10 +311,9 @@ export default function Landing() {
               <div className="lp-step-body">
                 <div className="lp-step-num">02</div>
                 <h3>Analyse your performance</h3>
-                <p>EdgeFlow surfaces win rates, expectancy, and P&L breakdowns by session, instrument, strategy, and direction — so you see exactly where your edge lives.</p>
+                <p>EdgeFlow surfaces win rates, expectancy, and P&L breakdowns by session, instrument, strategy, and direction — so you see exactly where your edge lives and where it doesn't.</p>
               </div>
             </div>
-
             <div className="lp-step-card lp-reveal lp-delay-3">
               <div className="lp-step-mockup">
                 <img src="/screenshot-leaks.webp" alt="Leak Detection — pinpoint patterns draining your P&L" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
@@ -292,34 +321,12 @@ export default function Landing() {
               <div className="lp-step-body">
                 <div className="lp-step-num">03</div>
                 <h3>Eliminate losing patterns</h3>
-                <p>Use the Leak Detector and AI Advisor to pinpoint the specific behaviours draining your account — revenge trading, overtrading, bad sessions.</p>
+                <p>Use the Leak Detector and AI Advisor to pinpoint the specific behaviours draining your account — revenge trading, bad sessions, overtrading — and cut them precisely.</p>
               </div>
             </div>
           </div>
         </div>
       </section>
-
-      {/* STATS */}
-      <div className="lp-stats-section">
-        <div className="lp-stats-grid">
-          <div className="lp-reveal-scale lp-delay-1">
-            <div className="lp-stat-num">20<span>+</span></div>
-            <div className="lp-stat-label">Analytics fields per trade</div>
-          </div>
-          <div className="lp-reveal-scale lp-delay-2">
-            <div className="lp-stat-num">8<span>+</span></div>
-            <div className="lp-stat-label">Analytics breakdowns built in</div>
-          </div>
-          <div className="lp-reveal-scale lp-delay-3">
-            <div className="lp-stat-num">AI</div>
-            <div className="lp-stat-label">Powered by Claude (Anthropic)</div>
-          </div>
-          <div className="lp-reveal-scale lp-delay-4">
-            <div className="lp-stat-num">$0</div>
-            <div className="lp-stat-label">To get started</div>
-          </div>
-        </div>
-      </div>
 
       {/* APP PREVIEW */}
       <section className="lp-preview-section">
@@ -347,7 +354,7 @@ export default function Landing() {
                 <div className="lp-preview-dot" style={{ background: '#febc2e' }}></div>
                 <div className="lp-preview-dot" style={{ background: '#28c840' }}></div>
               </div>
-              <div className="lp-preview-url">leone.capital/{TAB_PATHS[activeTab]}</div>
+              <div className="lp-preview-url">edgeflow.app/{TAB_PATHS[activeTab]}</div>
             </div>
             <div key={activeTab} className="lp-preview-body active lp-tab-fade">
               <img src={TAB_SCREENSHOTS[activeTab]} alt={TAB_ALTS[activeTab]} loading="lazy" />
@@ -356,65 +363,35 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FEATURES BENTO */}
-      <section id="features" className="lp-bento-section">
+      {/* FEATURES */}
+      <section id="features" className="lp-features-section">
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> Features</div>
-            <h2 className="lp-section-title">Built for traders,<br/>not spreadsheets</h2>
+            <h2 className="lp-section-title">Everything serious<br/>traders need</h2>
+            <p className="lp-section-sub">Built around one goal: turn your raw trade history into actionable intelligence.</p>
           </div>
-          <div className="lp-bento-grid">
-            <div className="lp-bento-card wide lp-reveal lp-delay-1">
-              <div className="lp-bento-icon">📈</div>
-              <h3>Equity Curve & P&L Analytics</h3>
-              <p>Visualise your account growth over any time window. Heat map calendar shows your best and worst days at a glance. Spot drawdowns before they compound.</p>
-              <div className="lp-mini-bars">
-                <div className="lp-mini-bar-row"><span className="lp-mini-bar-label">London</span><div className="lp-mini-bar-track"><div className="lp-mini-bar-fill" style={{ width: '88%' }}></div></div><span className="lp-mini-bar-val">72% WR</span></div>
-                <div className="lp-mini-bar-row"><span className="lp-mini-bar-label">New York</span><div className="lp-mini-bar-track"><div className="lp-mini-bar-fill" style={{ width: '62%' }}></div></div><span className="lp-mini-bar-val">58% WR</span></div>
-                <div className="lp-mini-bar-row"><span className="lp-mini-bar-label">Asian</span><div className="lp-mini-bar-track"><div className="lp-mini-bar-fill" style={{ width: '34%' }}></div></div><span className="lp-mini-bar-val">31% WR</span></div>
-                <div className="lp-mini-bar-row"><span className="lp-mini-bar-label">Overlap</span><div className="lp-mini-bar-track"><div className="lp-mini-bar-fill" style={{ width: '76%' }}></div></div><span className="lp-mini-bar-val">68% WR</span></div>
+          <div className="lp-feature-groups">
+            {FEATURE_GROUPS.map((group, gi) => (
+              <div key={gi} className={`lp-feature-group lp-reveal lp-delay-${gi + 1}`}>
+                <div className="lp-feature-group-header">
+                  <div className="lp-feature-group-num">0{gi + 1}</div>
+                  <h3>{group.heading}</h3>
+                  <p>{group.sub}</p>
+                </div>
+                <div className="lp-feature-items">
+                  {group.features.map((f, fi) => (
+                    <div key={fi} className="lp-feature-item">
+                      <div className="lp-feature-item-dot" />
+                      <div className="lp-feature-item-body">
+                        <strong>{f.name}</strong>
+                        <span>{f.desc}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-2">
-              <div className="lp-bento-icon">🔍</div>
-              <h3>Leak Detection</h3>
-              <p>Automatically identifies instruments, sessions, and behaviours secretly sabotaging your results — revenge trades, overtrading, plan violations — and tells you exactly what to cut.</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-3">
-              <div className="lp-bento-icon">🤖</div>
-              <h3>AI Advisor</h3>
-              <p>Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural patterns. Direct, data-backed answers powered by Claude (Anthropic).</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-1">
-              <div className="lp-bento-icon">⚡</div>
-              <h3>Strategy Optimizer</h3>
-              <p>Simulate removing any instrument, session, or filter and instantly see how your equity curve changes. Know exactly what's worth trading before you risk another dollar.</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-2">
-              <div className="lp-bento-icon">📋</div>
-              <h3>Trading Plan Enforcement</h3>
-              <p>Set your own pre-trade checklist. EdgeFlow tracks every time you broke your own rules — and shows the P&L impact of each violation in plain numbers.</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-3">
-              <div className="lp-bento-icon">🗓</div>
-              <h3>Daily Journal</h3>
-              <p>Log session notes, mood, and key lessons daily. 14-day history panel lets you spot the mental patterns behind your best and worst trading days.</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-1">
-              <div className="lp-bento-icon">🏦</div>
-              <h3>Multiple Accounts</h3>
-              <p>Track live, demo, and prop firm accounts separately. Switch between them instantly or analyse all accounts in aggregate with one click.</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-2">
-              <div className="lp-bento-icon">📄</div>
-              <h3>PDF Performance Reports</h3>
-              <p>Export a branded performance report with equity curve, session breakdown, and full trade list — ready to share with mentors or prop firm evaluators.</p>
-            </div>
-            <div className="lp-bento-card lp-reveal lp-delay-3">
-              <div className="lp-bento-icon">📥</div>
-              <h3>CSV Import</h3>
-              <p>Import directly from MT4/MT5 export files, or use the generic CSV mode for any other broker. No API keys or third-party connections required.</p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
@@ -431,50 +408,47 @@ export default function Landing() {
               <div className="lp-compare-badge">Without EdgeFlow</div>
               <h3>Flying blind</h3>
               <ul className="lp-compare-list">
-                <li><span className="lp-icon">✗</span> Spreadsheets that take hours to maintain</li>
-                <li><span className="lp-icon">✗</span> No idea which setups are actually profitable</li>
-                <li><span className="lp-icon">✗</span> Repeating the same costly mistakes every week</li>
-                <li><span className="lp-icon">✗</span> Guessing what session or instrument to trade</li>
-                <li><span className="lp-icon">✗</span> Emotional decisions after losing streaks</li>
-                <li><span className="lp-icon">✗</span> No accountability to your own trading rules</li>
+                <li><span className="lp-icon">✗</span> Running a 14-tab Excel file to calculate R-multiple after every trade</li>
+                <li><span className="lp-icon">✗</span> No idea whether Friday afternoon trades are profitable or costing you the week</li>
+                <li><span className="lp-icon">✗</span> Taking the same loss in the same session every week and calling it bad luck</li>
+                <li><span className="lp-icon">✗</span> Failing a prop firm challenge with no data on what actually went wrong</li>
+                <li><span className="lp-icon">✗</span> Emotional decisions after losing streaks with no way to quantify the damage</li>
+                <li><span className="lp-icon">✗</span> Trading setups with no historical proof they actually have edge</li>
               </ul>
             </div>
             <div className="lp-compare-card after lp-reveal-right">
               <div className="lp-compare-badge">✦ With EdgeFlow</div>
               <h3>Data-driven edge</h3>
               <ul className="lp-compare-list">
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Trades logged in seconds — manual or CSV import</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Clear P&L breakdown by instrument, session &amp; strategy</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Leaks identified and fixed systematically</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Know your best session before you open a chart</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> AI Advisor keeps you objective and disciplined</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Pre-trade checklist enforces your own rules</li>
+                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Trades logged in seconds — manual, CSV, or MT4/MT5 import</li>
+                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Exact P&L breakdown by session, instrument, strategy, and direction</li>
+                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Leaks identified by name with the exact dollar cost of each one</li>
+                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Prop firm challenge tracking — remaining headroom, phase rules, live drawdown</li>
+                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> AI Advisor keeps you objective after losing streaks with data, not pep talks</li>
+                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Pre-trade checklist enforces your own rules — and shows what violations cost</li>
               </ul>
             </div>
           </div>
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
-      <section id="testimonials" className="lp-testimonials-section">
+      {/* OUTCOMES */}
+      <section className="lp-outcomes-section">
         <div className="lp-container">
           <div className="lp-reveal">
-            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> Hear from our traders</div>
-            <h2 className="lp-section-title">Loved by traders<br/>at every level</h2>
+            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> What traders discover</div>
+            <h2 className="lp-section-title">Your edge is already<br/>in your data.</h2>
+            <p className="lp-section-sub">Most traders lose money from 1–2 patterns they never knew existed. Here's what they typically find in the first week.</p>
           </div>
-        </div>
-        <div className="lp-testi-marquee-wrap lp-reveal">
-          <div className="lp-testi-marquee-track">
-            {doubled.map((t, i) => (
-              <div className="lp-testi-card" key={i}>
-                <div className="lp-testi-stars">{'★★★★★'.split('').map((s, j) => <span key={j} className="lp-star">{s}</span>)}</div>
-                <p className="lp-testi-quote">"{t.quote}"</p>
-                <div className="lp-testi-author">
-                  <div className="lp-testi-avatar">{t.initials}</div>
-                  <div>
-                    <div className="lp-testi-name">{t.name}</div>
-                    <div className="lp-testi-role">{t.role}</div>
-                  </div>
+          <div className="lp-outcomes-grid">
+            {OUTCOMES.map((o, i) => (
+              <div key={i} className={`lp-outcome-card lp-reveal lp-delay-${i + 1}`}>
+                <div className="lp-outcome-label">{o.label}</div>
+                <h3 className="lp-outcome-headline">{o.headline}</h3>
+                <p className="lp-outcome-detail">{o.detail}</p>
+                <div className="lp-outcome-stat">
+                  <div className="lp-outcome-stat-num">{o.stat}</div>
+                  <div className="lp-outcome-stat-label">{o.statLabel}</div>
                 </div>
               </div>
             ))}
@@ -494,49 +468,52 @@ export default function Landing() {
             <div className="lp-price-card basic lp-reveal-left">
               <div className="lp-price-badge">Starter</div>
               <div className="lp-price-amount">$0</div>
-              <div className="lp-price-per">Free forever</div>
+              <div className="lp-price-per">Free to start</div>
               <div className="lp-price-divider"></div>
               <ul className="lp-price-features">
-                <li><span className="lp-price-check">✓</span> Unlimited trade logging</li>
+                <li><span className="lp-price-check">✓</span> Up to 50 trades</li>
                 <li><span className="lp-price-check">✓</span> Equity curve &amp; calendar</li>
                 <li><span className="lp-price-check">✓</span> Basic P&amp;L analytics</li>
                 <li><span className="lp-price-check">✓</span> Manual trade entry</li>
-                <li><span className="lp-price-check">✓</span> CSV import</li>
-                <li><span className="lp-price-check">✓</span> Multiple accounts</li>
+                <li><span className="lp-price-check">✓</span> Single account</li>
+                <li><span className="lp-price-check">✓</span> 3 AI Advisor messages</li>
               </ul>
               <button className="lp-btn-price basic" onClick={() => navigate('/auth')}>Get started free</button>
             </div>
 
             <div className="lp-price-card pro lp-reveal" style={{ position: 'relative' }}>
-              <div className="lp-price-popular">Most popular</div>
+              <div className="lp-price-popular">Best value</div>
               <div className="lp-price-badge">Pro</div>
-              <div className="lp-price-amount">$12</div>
+              <div className="lp-price-amount">$19</div>
               <div className="lp-price-per">per month · cancel anytime</div>
               <div className="lp-price-divider"></div>
               <ul className="lp-price-features">
-                <li><span className="lp-price-check">✓</span> Everything in Starter</li>
+                <li><span className="lp-price-check">✓</span> Unlimited trades</li>
                 <li><span className="lp-price-check">✓</span> Session &amp; instrument analytics</li>
-                <li><span className="lp-price-check">✓</span> AI Advisor (Claude powered)</li>
+                <li><span className="lp-price-check">✓</span> Unlimited AI Advisor (Claude)</li>
                 <li><span className="lp-price-check">✓</span> Leak Detection</li>
-                <li><span className="lp-price-check">✓</span> Trading Plan enforcement</li>
                 <li><span className="lp-price-check">✓</span> Strategy Optimizer</li>
+                <li><span className="lp-price-check">✓</span> Trading Plan enforcement</li>
                 <li><span className="lp-price-check">✓</span> PDF performance reports</li>
-                <li><span className="lp-price-check">✓</span> Daily journal &amp; behavioral tracking</li>
+                <li><span className="lp-price-check">✓</span> CSV import (MT4/MT5 + generic)</li>
+                <li><span className="lp-price-check">✓</span> Multiple accounts</li>
+                <li><span className="lp-price-check">✓</span> Weekly AI digest email</li>
               </ul>
               <button className="lp-btn-price pro" onClick={() => navigate('/auth')}>Get Pro</button>
             </div>
 
             <div className="lp-price-card elite lp-reveal-right">
               <div className="lp-price-badge">Elite</div>
-              <div className="lp-price-amount">$24</div>
+              <div className="lp-price-amount">$39</div>
               <div className="lp-price-per">per month · cancel anytime</div>
               <div className="lp-price-divider"></div>
               <ul className="lp-price-features">
                 <li><span className="lp-price-check">✓</span> Everything in Pro</li>
                 <li><span className="lp-price-check">✓</span> Prop firm challenge tracking</li>
-                <li><span className="lp-price-check">✓</span> Per-phase drawdown limits</li>
+                <li><span className="lp-price-check">✓</span> Per-phase drawdown &amp; daily loss limits</li>
+                <li><span className="lp-price-check">✓</span> FTMO, Topstep, MFF &amp; custom rules</li>
+                <li><span className="lp-price-check">✓</span> Extended AI memory (50 insights)</li>
                 <li><span className="lp-price-check">✓</span> Advanced behavioral scoring</li>
-                <li><span className="lp-price-check">✓</span> Priority AI responses</li>
                 <li><span className="lp-price-check">✓</span> Priority support</li>
                 <li><span className="lp-price-check">✓</span> Early access to new features</li>
               </ul>
@@ -571,7 +548,7 @@ export default function Landing() {
       <section className="lp-cta-section">
         <div className="lp-cta-inner lp-reveal">
           <h2>Your edge is already<br/>in your data.</h2>
-          <p>Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Takes 2 minutes to set up.</p>
+          <p>Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
           <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start for free — no credit card</button>
         </div>
       </section>

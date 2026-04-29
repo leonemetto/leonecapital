@@ -145,7 +145,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 - ✅ Email delivery via Resend
 - ✅ 4-step onboarding flow (nickname → account → checklist → first trade)
 - ✅ Dashboard — equity curve, heatmap calendar, session performance bars, stat bar, recent trades, daily journal widget
-- ✅ AI Advisor gated behind 10 trades, powered by Gemini 2.0 Flash (free)
+- ✅ AI Advisor gated behind 10 trades, powered by Claude Haiku (Anthropic) via ANTHROPIC_API_KEY
 - ✅ AI behavioral memory — extract-insight edge function appends insights to trader_profiles after each chat
 - ✅ Supabase migration (own project)
 - ✅ Vercel deployment + custom domain leone.capital
@@ -163,16 +163,16 @@ The app uses a token-based design system with light + dark variants. Always use 
 - ✅ Trades DB pagination — 50 trades per page with filter/sort preserved
 - ✅ Accounts sparkline fixed
 - ✅ Multi-account support — filter dashboard/analytics by account
-- ✅ Demo data — 15 sample trades generated for new users, deletable from settings
+- ✅ Demo data — 25 sample trades generated for new users, deletable from settings
 - ✅ Trader behavioral profile — style, instruments, sessions, goals, mistakes, rules, mental triggers
 - ✅ Entry checklist — custom criteria with category, active/inactive toggle, compliance tracking
 - ✅ Avatar upload — profile picture stored in Supabase avatars bucket
 - ✅ Theme toggle — light/dark mode (next-themes)
-- ✅ Landing page — hero with animated word cycling, ContainerScroll 3D tilt, carousel, feature rows, testimonials, pricing, FAQ
+- ✅ Landing page — redesigned: hero with tilt scroll, grouped features section, outcomes section (replaces fake testimonials), pricing matching approved paywall plan, FAQ including prop firm and AI questions
 - ✅ CSV/broker import — supports EdgeFlow, MT4/MT5, and generic CSV formats with live preview
 - ✅ PDF export — dark-themed performance report via jsPDF (summary + session/strategy breakdown + trade list)
 - ✅ Re-engagement emails — day-3 and day-7 inactivity emails via Resend (pg_cron: 0 8 * * *)
-- ✅ Weekly AI digest — Monday performance email with Gemini insight (pg_cron: 0 7 * * 1)
+- ✅ Weekly AI digest — Monday performance email with Claude insight (pg_cron: 0 7 * * 1)
 - ✅ Sentry error monitoring — production only, PII stripped, DSN in Vercel env vars
 - ✅ Leak Detection page — identifies negative-expectancy patterns across instrument/session/discipline
 - ✅ Strategy Optimizer (What-If Simulator) — simulate removing any filter and see equity curve impact
@@ -242,7 +242,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 ## AI Advisor — How It Works
 - Gate: requires 10+ trades (shows X/10 progress bar)
 - Edge function: supabase/functions/trade-advisor/index.ts
-- Model: Gemini 2.0 Flash via Google AI Studio (free tier)
+- Model: Claude Haiku (claude-haiku-4-5-20251001) via Anthropic API
 - Personality: senior risk manager / performance coach, direct, data-driven, no fluff
 - Context sent per message:
   - Last 50 trades with all fields
@@ -250,7 +250,7 @@ The app uses a token-based design system with light + dark variants. Always use 
   - Checklist compliance analytics
   - Trader profile (style, rules, instruments, sessions, behavioral memory)
   - Criteria definitions
-- Streaming: SSE, translated from Gemini format to OpenAI-compatible for client
+- Streaming: SSE (Anthropic streaming format)
 - Chat stored in sessionStorage (cleared on browser close)
 - Max 10 messages per session (auto-trims)
 - Suggestion pills: quick prompts for common questions
@@ -258,21 +258,21 @@ The app uses a token-based design system with light + dark variants. Always use 
 
 ## AI Behavioral Memory (extract-insight)
 - Edge function: supabase/functions/extract-insight/index.ts
-- Model: Gemini 2.0 Flash
+- Model: Claude Haiku (claude-haiku-4-5-20251001) via Anthropic API
 - Triggered: after each AI chat response (async, fire-and-forget)
 - Extracts ONE insight ≤10 words about behavioral patterns
 - Appended to trader_profiles.behavioral_memory (JSONB array)
-- Keeps last 20 insights
+- Keeps last 20 insights (free/pro), 50 insights (elite)
 - Used in future AI sessions as additional context
 
 ## Edge Functions (supabase/functions/)
-- trade-advisor — streaming chat with Gemini 2.0 Flash, requires GEMINI_API_KEY secret
-- extract-insight — behavioral insight extraction, requires GEMINI_API_KEY secret
+- trade-advisor — streaming chat with Claude Haiku, requires ANTHROPIC_API_KEY secret
+- extract-insight — behavioral insight extraction, requires ANTHROPIC_API_KEY secret
 - re-engagement — daily email to users inactive 3 or 7 days, requires RESEND_API_KEY secret
-- weekly-digest — Monday email to users who traded last 7 days, requires GEMINI_API_KEY + RESEND_API_KEY
+- weekly-digest — Monday email to users who traded last 7 days, requires ANTHROPIC_API_KEY + RESEND_API_KEY
 
 ## Supabase Secrets Required
-- GEMINI_API_KEY — Google AI Studio API key (free tier)
+- ANTHROPIC_API_KEY — Anthropic API key for Claude Haiku (trade-advisor + extract-insight + weekly-digest)
 - RESEND_API_KEY — Resend email API key (noreply@leone.capital)
 - SUPABASE_URL — auto-set by Supabase
 - SUPABASE_SERVICE_ROLE_KEY — auto-set by Supabase
@@ -383,13 +383,15 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [ ] Upgrade prompts / paywall screens for gated features
 
 ### GROWTH (post-launch)
-- [ ] Real prop firm mode — challenge phase tracking, per-phase drawdown limits
+- [ ] Prop firm challenge mode — per-phase drawdown limits, FTMO/Topstep/MFF rules, live headroom tracking (Elite feature)
 - [ ] Mobile app / PWA
 
 ## Payments Plan (when ready)
-- Kenya users: Intasend (M-Pesa), KES 999/mo Pro, KES 1,999/mo Elite
-- International: Lemon Squeezy, $12/mo Pro, $24/mo Elite
+- International: Lemon Squeezy, $19/mo Pro, $39/mo Elite
+- Kenya: Intasend (M-Pesa), KES 1,499/mo Pro, KES 2,999/mo Elite
+- Free tier: 50 trades lifetime cap, 3 AI Advisor messages lifetime (DB-backed counter)
 - Payouts: Wise → Binance (USDT)
+- Design doc: ~/.gstack/projects/leonemetto-leonecapital/ceo-plans/2026-04-24-paywall.md
 
 ## Security Standards (apply to all new code)
 - Zero-trust: validate and authorise on the backend for every request, never trust client input
