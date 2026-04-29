@@ -170,7 +170,7 @@ export default function Landing() {
                 </div>
                 <div className="lp-hero-preview-url">leone.capital/dashboard</div>
               </div>
-              <img src="/app-screenshot.png" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
+              <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
             </div>
           </div>
         </div>
@@ -275,7 +275,7 @@ export default function Landing() {
           <div className="lp-steps-grid">
             <div className="lp-step-card lp-reveal lp-delay-1">
               <div className="lp-step-mockup">
-                <img src="/screenshot-trades.png" alt="Trades DB — log and review all your trades" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
+                <img src="/screenshot-trades.webp" alt="Trades DB — log and review all your trades" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
               </div>
               <div className="lp-step-body">
                 <div className="lp-step-num">01</div>
@@ -286,7 +286,7 @@ export default function Landing() {
 
             <div className="lp-step-card lp-reveal lp-delay-2">
               <div className="lp-step-mockup">
-                <img src="/screenshot-analytic.png" alt="Analytics — win rate and expectancy by instrument, session, and strategy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
+                <img src="/screenshot-analytic.webp" alt="Analytics — win rate and expectancy by instrument, session, and strategy" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
               </div>
               <div className="lp-step-body">
                 <div className="lp-step-num">02</div>
@@ -297,7 +297,7 @@ export default function Landing() {
 
             <div className="lp-step-card lp-reveal lp-delay-3">
               <div className="lp-step-mockup">
-                <img src="/screenshot-leaks.png" alt="Leak Detection — pinpoint patterns draining your P&L" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
+                <img src="/screenshot-leaks.webp" alt="Leak Detection — pinpoint patterns draining your P&L" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
               </div>
               <div className="lp-step-body">
                 <div className="lp-step-num">03</div>
@@ -364,27 +364,27 @@ export default function Landing() {
 
             {/* Dashboard — real screenshot */}
             <div className={`lp-preview-body${activeTab === 0 ? ' active' : ''}`}>
-              <img src="/app-screenshot.png" alt="EdgeFlow dashboard" />
+              <img src="/app-screenshot.webp" alt="EdgeFlow dashboard" loading="lazy" />
             </div>
 
             {/* Analytics — real screenshot */}
             <div className={`lp-preview-body${activeTab === 1 ? ' active' : ''}`}>
-              <img src="/screenshot-analytic.png" alt="EdgeFlow Analytics — performance breakdown by instrument, session, and strategy" />
+              <img src="/screenshot-analytic.webp" alt="EdgeFlow Analytics — performance breakdown by instrument, session, and strategy" loading="lazy" />
             </div>
 
             {/* AI Advisor — real screenshot */}
             <div className={`lp-preview-body${activeTab === 2 ? ' active' : ''}`}>
-              <img src="/screenshot-ai.png" alt="EdgeFlow AI Advisor — Claude-powered trading coach" />
+              <img src="/screenshot-ai.webp" alt="EdgeFlow AI Advisor — Claude-powered trading coach" loading="lazy" />
             </div>
 
             {/* Leak Detection — real screenshot */}
             <div className={`lp-preview-body${activeTab === 3 ? ' active' : ''}`}>
-              <img src="/screenshot-leaks.png" alt="EdgeFlow Leak Detection — find negative-expectancy patterns" />
+              <img src="/screenshot-leaks.webp" alt="EdgeFlow Leak Detection — find negative-expectancy patterns" loading="lazy" />
             </div>
 
             {/* Optimizer — real screenshot */}
             <div className={`lp-preview-body${activeTab === 4 ? ' active' : ''}`}>
-              <img src="/screenshot-optimizer.png" alt="EdgeFlow Strategy Optimizer — simulate removing losing filters" />
+              <img src="/screenshot-optimizer.webp" alt="EdgeFlow Strategy Optimizer — simulate removing losing filters" loading="lazy" />
             </div>
           </div>
         </div>
