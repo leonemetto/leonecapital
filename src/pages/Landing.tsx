@@ -257,14 +257,7 @@ export default function Landing() {
                 </div>
                 <div className="lp-hero-preview-url">edgeflow.app/dashboard</div>
               </div>
-              <video
-                src="/hero-video.mp4"
-                autoPlay
-                muted
-                loop
-                playsInline
-                style={{ display: 'block', width: '100%', height: 'auto' }}
-              />
+              <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
             </div>
           </div>
         </div>
