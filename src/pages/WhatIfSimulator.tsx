@@ -361,7 +361,7 @@ export default function WhatIfSimulator() {
               fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
             }}
           >
-            Analytic →
+            Analytics →
           </Link>
         </div>
       </div>

@@ -39,7 +39,7 @@ function EdgeFlowMark({ size = 20 }: { size?: number }) {
 
 const baseNavItems = [
   { title: 'Dashboard',       short: 'Dash',    path: '/dashboard',       Icon: ChartLineUp },
-  { title: 'Analytic',        short: 'Analytic',path: '/analyst',         Icon: ChartBar },
+  { title: 'Analytics',       short: 'Stats',   path: '/analyst',         Icon: ChartBar },
   { title: 'Trades DB',       short: 'Trades',  path: '/journal',         Icon: Rows },
   { title: 'Accounts',        short: 'Accounts',path: '/accounts',        Icon: CurrencyDollar },
   { title: 'AI Advisor',      short: 'AI',      path: '/ai',              Icon: Brain },

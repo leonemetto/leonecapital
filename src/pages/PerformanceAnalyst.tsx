@@ -322,7 +322,7 @@ const PerformanceAnalyst = () => {
           <div className="p-4 rounded-2xl bg-muted mb-6 border border-border">
             <ChartBar className="h-10 w-10 text-muted-foreground/40" weight="regular" />
           </div>
-          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px] mb-2">Performance Analytic</h1>
+          <h1 className="text-[24px] font-bold text-foreground tracking-[-0.5px] mb-2">Performance Analytics</h1>
           <p className="text-[14px] text-muted-foreground/60">Log your first trade to unlock deep analytics.</p>
         </div>
       </AppLayout>
@@ -335,7 +335,7 @@ const PerformanceAnalyst = () => {
       {/* ── Header ── */}
       <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 28 }}>
         <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Performance Analytic</h1>
+          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Performance Analytics</h1>
           <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
             Identify leaks, find your edge, simulate improvements
           </div>
