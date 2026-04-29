@@ -113,7 +113,7 @@ const TAB_PATHS = ['dashboard', 'analyst', 'ai', 'leak-detection', 'what-if'];
 
 export default function Landing() {
   const navigate = useNavigate();
-  const tiltInnerRef = useRef<HTMLDivElement>(null); // kept for scroll effect
+  const tiltInnerRef = useRef<HTMLDivElement>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
   const [navScrolled, setNavScrolled] = useState(false);
@@ -227,29 +227,40 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="lp-hero">
-        <div className="lp-hero-left">
-          <div className="lp-hero-kicker">
-            <span className="lp-hero-kicker-dot"></span>
-            AI-powered trading journal
-          </div>
-          <h1 className="lp-hero-h1">The journal that<br/>finds your <em>edge.</em></h1>
-          <p className="lp-hero-sub">
-            Log every trade, identify your patterns, and eliminate the habits killing your P&L — powered by AI built for serious traders.
-          </p>
-          <div className="lp-hero-ctas">
-            <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start for free</button>
-            <a href="#how" className="lp-btn-secondary-lg">
-              <span className="lp-play-icon">▶</span> See how it works
-            </a>
-          </div>
-          <div className="lp-hero-trust">
-            <span className="lp-hero-trust-item">No credit card needed</span>
-            <span className="lp-hero-trust-item">50 trades free</span>
-            <span className="lp-hero-trust-item">Setup in 2 minutes</span>
-          </div>
+        <div className="lp-hero-kicker">
+          <span className="lp-hero-kicker-dot"></span>
+          Free to start — no credit card needed
         </div>
-        <div className="lp-hero-right">
-          <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
+        <h1>Find the patterns<br/>killing your <em>P&L.</em></h1>
+        <p className="lp-hero-sub">
+          Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
+        </p>
+        <div className="lp-hero-ctas">
+          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start journaling free</button>
+          <a href="#how" className="lp-btn-secondary-lg">See how it works</a>
+        </div>
+        <div className="lp-hero-trust">
+          <span className="lp-hero-trust-item">Start free — no credit card</span>
+          <span className="lp-hero-trust-item">50 trades included</span>
+          <span className="lp-hero-trust-item">Set up in under 5 minutes</span>
+        </div>
+
+        <div className="lp-hero-tilt-glow"></div>
+
+        <div className="lp-hero-tilt-wrap">
+          <div className="lp-hero-tilt-inner" ref={tiltInnerRef}>
+            <div className="lp-hero-preview">
+              <div className="lp-hero-preview-chrome">
+                <div className="lp-hero-preview-dots">
+                  <div className="lp-hero-preview-dot" style={{ background: '#ff5f57' }}></div>
+                  <div className="lp-hero-preview-dot" style={{ background: '#febc2e' }}></div>
+                  <div className="lp-hero-preview-dot" style={{ background: '#28c840' }}></div>
+                </div>
+                <div className="lp-hero-preview-url">edgeflow.app/dashboard</div>
+              </div>
+              <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
+            </div>
+          </div>
         </div>
       </section>
 
