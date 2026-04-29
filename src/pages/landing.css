@@ -702,9 +702,9 @@
 /* ─── LEAK DETECTION SPOTLIGHT ─── */
 #lp .lp-leak-section { background: var(--lp-bg2); padding: 110px 0; }
 #lp .lp-leak-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: stretch;
 }
-#lp .lp-leak-copy { display: flex; flex-direction: column; gap: 20px; }
+#lp .lp-leak-copy { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
 #lp .lp-leak-title {
   font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -0.04em;
   line-height: 1.1; color: var(--lp-ink); margin: 0;
@@ -723,13 +723,14 @@
   content: '✓'; color: var(--lp-green); font-weight: 700; font-size: 12px;
   flex-shrink: 0; margin-top: 2px;
 }
-#lp .lp-leak-visual { position: relative; }
+#lp .lp-leak-visual { position: relative; display: flex; }
 #lp .lp-leak-img-wrap {
   border-radius: 12px; overflow: hidden;
   border: 1px solid var(--lp-border);
   box-shadow: 0 0 80px rgba(173,255,47,0.06), 0 24px 64px rgba(0,0,0,0.5);
+  flex: 1; display: flex;
 }
-#lp .lp-leak-img-wrap img { width: 100%; display: block; }
+#lp .lp-leak-img-wrap img { width: 100%; display: block; object-fit: cover; object-position: top; }
 @media (max-width: 860px) {
   #lp .lp-leak-grid { grid-template-columns: 1fr; gap: 48px; }
   #lp .lp-leak-visual { order: -1; }
@@ -738,9 +739,9 @@
 /* ─── ATLAS SPOTLIGHT ─── */
 #lp .lp-atlas-section { background: var(--lp-bg); padding: 110px 0; }
 #lp .lp-atlas-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: stretch;
 }
-#lp .lp-atlas-copy { display: flex; flex-direction: column; gap: 20px; }
+#lp .lp-atlas-copy { display: flex; flex-direction: column; gap: 20px; justify-content: center; }
 #lp .lp-atlas-title {
   font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -0.04em;
   line-height: 1.1; color: var(--lp-ink); margin: 0;
@@ -759,13 +760,14 @@
   content: '✓'; color: var(--lp-green); font-weight: 700; font-size: 12px;
   flex-shrink: 0; margin-top: 2px;
 }
-#lp .lp-atlas-visual { position: relative; }
+#lp .lp-atlas-visual { position: relative; display: flex; }
 #lp .lp-atlas-img-wrap {
   border-radius: 12px; overflow: hidden;
   border: 1px solid var(--lp-border);
   box-shadow: 0 0 80px rgba(173,255,47,0.04), 0 24px 64px rgba(0,0,0,0.5);
+  flex: 1; display: flex;
 }
-#lp .lp-atlas-img-wrap img { width: 100%; display: block; }
+#lp .lp-atlas-img-wrap img { width: 100%; display: block; object-fit: cover; object-position: top; }
 @media (max-width: 860px) {
   #lp .lp-atlas-grid { grid-template-columns: 1fr; gap: 48px; }
 }
