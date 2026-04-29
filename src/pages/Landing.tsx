@@ -195,7 +195,7 @@ export default function Landing() {
         </div>
         <ul className="lp-nav-links">
           <li><a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a></li>
-          <li><a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a></li>
+          <li><a href="#preview" onClick={() => setMobileMenuOpen(false)}>Features</a></li>
           <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
           <li><a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
         </ul>
@@ -215,7 +215,7 @@ export default function Landing() {
       {/* MOBILE MENU */}
       <div className={`lp-mobile-menu${mobileMenuOpen ? ' open' : ''}`}>
         <a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a>
-        <a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a>
+        <a href="#preview" onClick={() => setMobileMenuOpen(false)}>Features</a>
         <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
         <a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
         <div className="lp-mobile-menu-actions">
@@ -236,7 +236,7 @@ export default function Landing() {
         </p>
         <div className="lp-hero-ctas">
           <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start journaling free</button>
-          <a href="#features" className="lp-btn-secondary-lg">See all features</a>
+          <a href="#how" className="lp-btn-secondary-lg">See how it works</a>
         </div>
         <div className="lp-hero-trust">
           <span className="lp-hero-trust-item">No credit card needed</span>
@@ -280,19 +280,6 @@ export default function Landing() {
         <div className="lp-hero-strip-item">
           <div className="lp-hero-strip-num">$0</div>
           <div className="lp-hero-strip-label">Free to start — no card needed</div>
-        </div>
-      </div>
-
-      {/* LOGOS STRIP */}
-      <div className="lp-logos-strip">
-        <div className="lp-logos-strip-inner">
-          <span className="lp-logos-label">Works with</span>
-          <span className="lp-logo-item">MetaTrader 4</span>
-          <span className="lp-logo-item">MetaTrader 5</span>
-          <span className="lp-logo-item">Manual entry</span>
-          <span className="lp-logo-item">Any CSV export</span>
-          <span className="lp-logo-item">All brokers</span>
-          <span className="lp-logo-item">Any market</span>
         </div>
       </div>
 
@@ -340,7 +327,7 @@ export default function Landing() {
       </section>
 
       {/* APP PREVIEW */}
-      <section className="lp-preview-section">
+      <section id="preview" className="lp-preview-section">
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> See it in action</div>
@@ -374,75 +361,6 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* FEATURES */}
-      <section id="features" className="lp-features-section">
-        <div className="lp-container">
-          <div className="lp-reveal">
-            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> Features</div>
-            <h2 className="lp-section-title">Everything serious<br/>traders need</h2>
-            <p className="lp-section-sub">Built around one goal: turn your raw trade history into actionable intelligence.</p>
-          </div>
-          <div className="lp-feature-groups">
-            {FEATURE_GROUPS.map((group, gi) => (
-              <div key={gi} className={`lp-feature-group lp-reveal lp-delay-${gi + 1}`}>
-                <div className="lp-feature-group-header">
-                  <div className="lp-feature-group-num">0{gi + 1}</div>
-                  <h3>{group.heading}</h3>
-                  <p>{group.sub}</p>
-                </div>
-                <div className="lp-feature-items">
-                  {group.features.map((f, fi) => (
-                    <div key={fi} className="lp-feature-item">
-                      <div className="lp-feature-item-dot" />
-                      <div className="lp-feature-item-body">
-                        <strong>{f.name}</strong>
-                        <span>{f.desc}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* COMPARISON */}
-      <section>
-        <div className="lp-container">
-          <div className="lp-reveal">
-            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> The EdgeFlow difference</div>
-            <h2 className="lp-section-title">There's a smarter way<br/>to trade</h2>
-          </div>
-          <div className="lp-comparison-grid">
-            <div className="lp-compare-card before lp-reveal-left">
-              <div className="lp-compare-badge">Without EdgeFlow</div>
-              <h3>Flying blind</h3>
-              <ul className="lp-compare-list">
-                <li><span className="lp-icon">✗</span> Running a 14-tab Excel file to calculate R-multiple after every trade</li>
-                <li><span className="lp-icon">✗</span> No idea whether Friday afternoon trades are profitable or costing you the week</li>
-                <li><span className="lp-icon">✗</span> Taking the same loss in the same session every week and calling it bad luck</li>
-                <li><span className="lp-icon">✗</span> Failing a prop firm challenge with no data on what actually went wrong</li>
-                <li><span className="lp-icon">✗</span> Emotional decisions after losing streaks with no way to quantify the damage</li>
-                <li><span className="lp-icon">✗</span> Trading setups with no historical proof they actually have edge</li>
-              </ul>
-            </div>
-            <div className="lp-compare-card after lp-reveal-right">
-              <div className="lp-compare-badge">✦ With EdgeFlow</div>
-              <h3>Data-driven edge</h3>
-              <ul className="lp-compare-list">
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Trades logged in seconds — manual, CSV, or MT4/MT5 import</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Exact P&L breakdown by session, instrument, strategy, and direction</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Leaks identified by name with the exact dollar cost of each one</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Prop firm challenge tracking — remaining headroom, phase rules, live drawdown</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> AI Advisor keeps you objective after losing streaks with data, not pep talks</li>
-                <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Pre-trade checklist enforces your own rules — and shows what violations cost</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* TESTIMONIALS CAROUSEL */}
       <section className="lp-testimonials-section">
         <div className="lp-container">
@@ -463,30 +381,6 @@ export default function Landing() {
                     <div className="lp-testi-name">{t.name}</div>
                     <div className="lp-testi-role">{t.role}</div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* OUTCOMES */}
-      <section className="lp-outcomes-section">
-        <div className="lp-container">
-          <div className="lp-reveal">
-            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> What traders discover</div>
-            <h2 className="lp-section-title">Your edge is already<br/>in your data.</h2>
-            <p className="lp-section-sub">Most traders lose money from 1–2 patterns they never knew existed. Here's what they typically find in the first week.</p>
-          </div>
-          <div className="lp-outcomes-grid">
-            {OUTCOMES.map((o, i) => (
-              <div key={i} className={`lp-outcome-card lp-reveal lp-delay-${i + 1}`}>
-                <div className="lp-outcome-label">{o.label}</div>
-                <h3 className="lp-outcome-headline">{o.headline}</h3>
-                <p className="lp-outcome-detail">{o.detail}</p>
-                <div className="lp-outcome-stat">
-                  <div className="lp-outcome-stat-num">{o.stat}</div>
-                  <div className="lp-outcome-stat-label">{o.statLabel}</div>
                 </div>
               </div>
             ))}
@@ -613,10 +507,10 @@ export default function Landing() {
           <div className="lp-footer-col">
             <h4>Features</h4>
             <ul>
-              <li><a href="#features">Leak Detection</a></li>
-              <li><a href="#features">Equity Curve</a></li>
-              <li><a href="#features">Session Analytics</a></li>
-              <li><a href="#features">Strategy Optimizer</a></li>
+              <li><a href="#preview">Leak Detection</a></li>
+              <li><a href="#preview">Equity Curve</a></li>
+              <li><a href="#preview">Session Analytics</a></li>
+              <li><a href="#preview">Strategy Optimizer</a></li>
             </ul>
           </div>
           <div className="lp-footer-col">
