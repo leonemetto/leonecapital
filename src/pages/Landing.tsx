@@ -254,61 +254,6 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* WHO IT'S FOR */}
-      <section>
-        <div className="lp-container">
-          <div className="lp-reveal">
-            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> Who it's for</div>
-            <h2 className="lp-section-title">Built for every type<br/>of serious trader</h2>
-            <p className="lp-section-sub">Any market, any strategy, any broker. If you trade, EdgeFlow works for you.</p>
-          </div>
-          <div className="lp-for-grid">
-            <div className="lp-for-card lp-reveal lp-delay-1">
-              <div className="lp-for-icon">💱</div>
-              <div>
-                <div className="lp-for-label">Forex traders</div>
-                <div className="lp-for-sub">Session analytics, currency pair breakdowns</div>
-              </div>
-            </div>
-            <div className="lp-for-card lp-reveal lp-delay-2">
-              <div className="lp-for-icon">📊</div>
-              <div>
-                <div className="lp-for-label">Futures traders</div>
-                <div className="lp-for-sub">Instrument-level edge, session P&L mapping</div>
-              </div>
-            </div>
-            <div className="lp-for-card lp-reveal lp-delay-3">
-              <div className="lp-for-icon">₿</div>
-              <div>
-                <div className="lp-for-label">Crypto traders</div>
-                <div className="lp-for-sub">24/7 session tracking, drawdown alerts</div>
-              </div>
-            </div>
-            <div className="lp-for-card lp-reveal lp-delay-1">
-              <div className="lp-for-icon">📈</div>
-              <div>
-                <div className="lp-for-label">Stock traders</div>
-                <div className="lp-for-sub">Strategy & direction win rate breakdowns</div>
-              </div>
-            </div>
-            <div className="lp-for-card lp-reveal lp-delay-2">
-              <div className="lp-for-icon">⚡</div>
-              <div>
-                <div className="lp-for-label">Options traders</div>
-                <div className="lp-for-sub">R-multiple tracking, plan adherence scoring</div>
-              </div>
-            </div>
-            <div className="lp-for-card lp-reveal lp-delay-3">
-              <div className="lp-for-icon">🏆</div>
-              <div>
-                <div className="lp-for-label">Prop firm traders</div>
-                <div className="lp-for-sub">Challenge tracking, per-phase drawdown limits</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* HOW IT WORKS */}
       <section id="how">
         <div className="lp-container">
