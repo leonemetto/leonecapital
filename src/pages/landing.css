@@ -735,6 +735,41 @@
   #lp .lp-leak-visual { order: -1; }
 }
 
+/* ─── ATLAS SPOTLIGHT ─── */
+#lp .lp-atlas-section { background: var(--lp-bg); padding: 110px 0; }
+#lp .lp-atlas-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+}
+#lp .lp-atlas-copy { display: flex; flex-direction: column; gap: 20px; }
+#lp .lp-atlas-title {
+  font-size: clamp(32px, 4vw, 52px); font-weight: 800; letter-spacing: -0.04em;
+  line-height: 1.1; color: var(--lp-ink); margin: 0;
+}
+#lp .lp-atlas-body {
+  font-size: 15px; color: var(--lp-ink3); line-height: 1.8; margin: 0;
+}
+#lp .lp-atlas-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 10px;
+}
+#lp .lp-atlas-list li {
+  font-size: 14px; color: var(--lp-ink2); display: flex; align-items: flex-start; gap: 10px;
+}
+#lp .lp-atlas-list li::before {
+  content: '✓'; color: var(--lp-green); font-weight: 700; font-size: 12px;
+  flex-shrink: 0; margin-top: 2px;
+}
+#lp .lp-atlas-visual { position: relative; }
+#lp .lp-atlas-img-wrap {
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid var(--lp-border);
+  box-shadow: 0 0 80px rgba(173,255,47,0.04), 0 24px 64px rgba(0,0,0,0.5);
+}
+#lp .lp-atlas-img-wrap img { width: 100%; display: block; }
+@media (max-width: 860px) {
+  #lp .lp-atlas-grid { grid-template-columns: 1fr; gap: 48px; }
+}
+
 /* ─── TESTIMONIALS ─── */
 #lp .lp-testimonials-section { background: var(--lp-bg2); }
 #lp .lp-testi-marquee-wrap {
