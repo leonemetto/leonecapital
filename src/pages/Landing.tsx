@@ -83,6 +83,17 @@ const OUTCOMES = [
   },
 ];
 
+const TESTIMONIALS = [
+  { quote: 'Found out my Friday New York session had a negative expectancy of −0.4R. Stopped trading it. My monthly P&L improved immediately.', name: 'James O.', role: 'Forex day trader' },
+  { quote: 'The leak detection flagged a pattern I had no idea about — I was losing 30% more on trades taken after a gap open. That insight alone was worth it.', name: 'Priya S.', role: 'Futures trader' },
+  { quote: 'I failed 3 prop firm challenges before EdgeFlow. It showed me I was overtrading on Thursdays. Passed the 4th challenge with 8% headroom left.', name: 'Tom K.', role: 'FTMO trader' },
+  { quote: 'I used to keep a spreadsheet with 12 tabs. EdgeFlow does everything in seconds and surfaces things I would never have calculated manually.', name: 'Marcus L.', role: 'Swing trader, US equities' },
+  { quote: 'The AI Advisor gave me a direct breakdown of my revenge trading pattern. Not motivational fluff — it showed me the actual R-multiple cost.', name: 'Aisha M.', role: 'Crypto trader' },
+  { quote: 'I realised my Asian session win rate was 68% but I was only trading it 12% of the time. EdgeFlow made that obvious. Changed my whole schedule.', name: 'Daniel R.', role: 'FX scalper' },
+  { quote: 'The plan enforcement checklist keeps me accountable. I can actually see what my win rate drops to when I break my own rules.', name: 'Sarah V.', role: 'Options trader' },
+  { quote: 'Every serious trader needs this. I discovered I had a 74% win rate on London open but was cutting positions early and leaving 2R on the table.', name: 'Kwame A.', role: 'Gold and indices trader' },
+];
+
 const PREVIEW_TABS = ['Dashboard', 'Analytics', 'AI Advisor', 'Leak Detection', 'Optimizer'];
 const TAB_SCREENSHOTS = [
   '/app-screenshot.webp',
@@ -246,7 +257,14 @@ export default function Landing() {
                 </div>
                 <div className="lp-hero-preview-url">edgeflow.app/dashboard</div>
               </div>
-              <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
+              <video
+                src="/hero-video.mp4"
+                autoPlay
+                muted
+                loop
+                playsInline
+                style={{ display: 'block', width: '100%', height: 'auto' }}
+              />
             </div>
           </div>
         </div>
@@ -428,6 +446,33 @@ export default function Landing() {
                 <li><span className="lp-icon" style={{ color: 'rgb(140,255,46)' }}>✓</span> Pre-trade checklist enforces your own rules — and shows what violations cost</li>
               </ul>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* TESTIMONIALS CAROUSEL */}
+      <section className="lp-testimonials-section">
+        <div className="lp-container">
+          <div className="lp-reveal" style={{ textAlign: 'center' }}>
+            <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> From traders</div>
+            <h2 className="lp-section-title">What traders are saying</h2>
+          </div>
+        </div>
+        <div className="lp-testi-marquee-wrap lp-reveal">
+          <div className="lp-testi-marquee-track">
+            {[...TESTIMONIALS, ...TESTIMONIALS].map((t, i) => (
+              <div key={i} className="lp-testi-card">
+                <div className="lp-testi-stars">{[...Array(5)].map((_, s) => <span key={s} className="lp-star">★</span>)}</div>
+                <p className="lp-testi-quote">"{t.quote}"</p>
+                <div className="lp-testi-author">
+                  <div className="lp-testi-avatar">{t.name[0]}</div>
+                  <div>
+                    <div className="lp-testi-name">{t.name}</div>
+                    <div className="lp-testi-role">{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
