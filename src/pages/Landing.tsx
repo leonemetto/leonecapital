@@ -39,12 +39,47 @@ const FAQS = [
 ];
 
 const PREVIEW_TABS = ['Dashboard', 'Analytics', 'AI Advisor', 'Leak Detection', 'Optimizer'];
+const TAB_SCREENSHOTS = [
+  '/app-screenshot.webp',
+  '/screenshot-analytic.webp',
+  '/screenshot-ai.webp',
+  '/screenshot-leaks.webp',
+  '/screenshot-optimizer.webp',
+];
+const TAB_ALTS = [
+  'EdgeFlow dashboard — equity curve, win rate, and session performance',
+  'EdgeFlow Analytics — performance breakdown by instrument, session, and strategy',
+  'EdgeFlow AI Advisor — Claude-powered trading coach with full trade context',
+  'EdgeFlow Leak Detection — identify negative-expectancy patterns',
+  'EdgeFlow Strategy Optimizer — simulate removing losing filters',
+];
+const TAB_PATHS = ['dashboard', 'analyst', 'ai', 'leak-detection', 'what-if'];
 
 export default function Landing() {
   const navigate = useNavigate();
   const tiltInnerRef = useRef<HTMLDivElement>(null);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState(0);
+  const [navScrolled, setNavScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  // Nav scroll + scroll-to-top visibility
+  useEffect(() => {
+    const onScroll = () => {
+      setNavScrolled(window.scrollY > 60);
+      setShowScrollTop(window.scrollY > 800);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    const onResize = () => { if (window.innerWidth > 768) setMobileMenuOpen(false); };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   // Tilt-flatten scroll animation
   useEffect(() => {
@@ -109,24 +144,43 @@ export default function Landing() {
   return (
     <div id="lp">
       {/* NAV */}
-      <nav className="lp-nav">
-        <div className="lp-nav-logo" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+      <nav className={`lp-nav${navScrolled ? ' scrolled' : ''}`}>
+        <div className="lp-nav-logo" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>
           <img src="/favicon.svg" alt="EdgeFlow" className="lp-nav-logo-img" />
           EdgeFlow
         </div>
 
         <ul className="lp-nav-links">
-          <li><a href="#how">How it works</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#pricing">Pricing</a></li>
-          <li><a href="#faq">FAQ</a></li>
+          <li><a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a></li>
+          <li><a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a></li>
+          <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
+          <li><a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
         </ul>
 
         <div className="lp-nav-actions">
           <button className="lp-btn-ghost" onClick={() => navigate('/auth')}>Log in</button>
-          <button className="lp-btn-primary" onClick={() => navigate('/auth')}>Start free →</button>
+          <button className="lp-btn-primary lp-nav-cta" onClick={() => navigate('/auth')}>Start free →</button>
+          <button
+            className={`lp-hamburger${mobileMenuOpen ? ' open' : ''}`}
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <span /><span /><span />
+          </button>
         </div>
       </nav>
+
+      {/* MOBILE MENU */}
+      <div className={`lp-mobile-menu${mobileMenuOpen ? ' open' : ''}`}>
+        <a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a>
+        <a href="#features" onClick={() => setMobileMenuOpen(false)}>Features</a>
+        <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
+        <a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
+        <div className="lp-mobile-menu-actions">
+          <button className="lp-btn-ghost" onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }}>Log in</button>
+          <button className="lp-btn-primary-lg" onClick={() => { navigate('/auth'); setMobileMenuOpen(false); }}>Start free →</button>
+        </div>
+      </div>
 
       {/* HERO */}
       <section className="lp-hero">
@@ -271,7 +325,7 @@ export default function Landing() {
               <div className="lp-step-body">
                 <div className="lp-step-num">01</div>
                 <h3>Log your trades</h3>
-                <p>Enter trades manually in seconds, or import a CSV from your broker. Works with MT4/MT5, TradingView, NinjaTrader, and more. No API keys required.</p>
+                <p>Enter trades manually in seconds, or import a CSV from your broker. Works with MT4/MT5 and any generic export. No API keys, no setup.</p>
               </div>
             </div>
 
@@ -348,34 +402,10 @@ export default function Landing() {
                 <div className="lp-preview-dot" style={{ background: '#febc2e' }}></div>
                 <div className="lp-preview-dot" style={{ background: '#28c840' }}></div>
               </div>
-              <div className="lp-preview-url">
-                leone.capital/{['dashboard', 'analyst', 'ai', 'leak-detection', 'what-if'][activeTab]}
-              </div>
+              <div className="lp-preview-url">leone.capital/{TAB_PATHS[activeTab]}</div>
             </div>
-
-            {/* Dashboard — real screenshot */}
-            <div className={`lp-preview-body${activeTab === 0 ? ' active' : ''}`}>
-              <img src="/app-screenshot.webp" alt="EdgeFlow dashboard" loading="lazy" />
-            </div>
-
-            {/* Analytics — real screenshot */}
-            <div className={`lp-preview-body${activeTab === 1 ? ' active' : ''}`}>
-              <img src="/screenshot-analytic.webp" alt="EdgeFlow Analytics — performance breakdown by instrument, session, and strategy" loading="lazy" />
-            </div>
-
-            {/* AI Advisor — real screenshot */}
-            <div className={`lp-preview-body${activeTab === 2 ? ' active' : ''}`}>
-              <img src="/screenshot-ai.webp" alt="EdgeFlow AI Advisor — Claude-powered trading coach" loading="lazy" />
-            </div>
-
-            {/* Leak Detection — real screenshot */}
-            <div className={`lp-preview-body${activeTab === 3 ? ' active' : ''}`}>
-              <img src="/screenshot-leaks.webp" alt="EdgeFlow Leak Detection — find negative-expectancy patterns" loading="lazy" />
-            </div>
-
-            {/* Optimizer — real screenshot */}
-            <div className={`lp-preview-body${activeTab === 4 ? ' active' : ''}`}>
-              <img src="/screenshot-optimizer.webp" alt="EdgeFlow Strategy Optimizer — simulate removing losing filters" loading="lazy" />
+            <div key={activeTab} className="lp-preview-body active lp-tab-fade">
+              <img src={TAB_SCREENSHOTS[activeTab]} alt={TAB_ALTS[activeTab]} loading="lazy" />
             </div>
           </div>
         </div>
@@ -403,24 +433,22 @@ export default function Landing() {
             <div className="lp-bento-card lp-reveal lp-delay-2">
               <div className="lp-bento-icon">🔍</div>
               <h3>Leak Detection</h3>
-              <p>Automatically identifies instruments, sessions, and behaviours secretly sabotaging your results — revenge trades, overtrading, plan violations.</p>
-              <div className="lp-metric">−23%</div>
-              <div className="lp-metric-label">avg. drawdown after 30 days</div>
+              <p>Automatically identifies instruments, sessions, and behaviours secretly sabotaging your results — revenge trades, overtrading, plan violations — and tells you exactly what to cut.</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-3">
               <div className="lp-bento-icon">🤖</div>
               <h3>AI Advisor</h3>
-              <p>Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural patterns. Plain-language answers powered by Claude.</p>
+              <p>Ask anything about your trading. Full context of your last 50 trades, win rates, and behavioural patterns. Direct, data-backed answers powered by Claude (Anthropic).</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-1">
               <div className="lp-bento-icon">⚡</div>
               <h3>Strategy Optimizer</h3>
-              <p>Simulate removing any instrument, session, or filter and instantly see how your equity curve changes. Know exactly what's worth trading.</p>
+              <p>Simulate removing any instrument, session, or filter and instantly see how your equity curve changes. Know exactly what's worth trading before you risk another dollar.</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-2">
               <div className="lp-bento-icon">📋</div>
               <h3>Trading Plan Enforcement</h3>
-              <p>Set your own pre-trade checklist. EdgeFlow tracks every time you broke your own rules — and shows the win rate impact of each violation.</p>
+              <p>Set your own pre-trade checklist. EdgeFlow tracks every time you broke your own rules — and shows the P&L impact of each violation in plain numbers.</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-3">
               <div className="lp-bento-icon">🗓</div>
@@ -430,17 +458,17 @@ export default function Landing() {
             <div className="lp-bento-card lp-reveal lp-delay-1">
               <div className="lp-bento-icon">🏦</div>
               <h3>Multiple Accounts</h3>
-              <p>Track live, demo, and prop firm accounts separately. Switch between them instantly or analyse all accounts in aggregate.</p>
+              <p>Track live, demo, and prop firm accounts separately. Switch between them instantly or analyse all accounts in aggregate with one click.</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-2">
               <div className="lp-bento-icon">📄</div>
               <h3>PDF Performance Reports</h3>
-              <p>Export a branded performance report with equity curve, session breakdown, and full trade list — ready to share with mentors or prop firms.</p>
+              <p>Export a branded performance report with equity curve, session breakdown, and full trade list — ready to share with mentors or prop firm evaluators.</p>
             </div>
             <div className="lp-bento-card lp-reveal lp-delay-3">
               <div className="lp-bento-icon">📥</div>
               <h3>CSV Import</h3>
-              <p>Import from MT4/MT5, TradingView, NinjaTrader, Interactive Brokers, and any generic CSV. No manual re-entry needed.</p>
+              <p>Import directly from MT4/MT5 export files, or use the generic CSV mode for any other broker. No API keys or third-party connections required.</p>
             </div>
           </div>
         </div>
@@ -597,8 +625,8 @@ export default function Landing() {
       {/* CTA */}
       <section className="lp-cta-section">
         <div className="lp-cta-inner lp-reveal">
-          <h2>Ready to find your edge?</h2>
-          <p>Stop guessing. Start with your own data and discover exactly where your edge is — and where it isn't.</p>
+          <h2>Your edge is already<br/>in your data.</h2>
+          <p>Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Takes 2 minutes to set up.</p>
           <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start for free — no credit card</button>
         </div>
       </section>
@@ -608,12 +636,7 @@ export default function Landing() {
         <div className="lp-footer-top">
           <div className="lp-footer-brand">
             <div className="lp-nav-logo" style={{ cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <div className="lp-nav-logo-mark">
-                <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M2 11L6 7L9 10L14 4" stroke="#050505" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                  <path d="M11 4H14V7" stroke="#050505" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
+              <img src="/favicon.svg" alt="EdgeFlow" className="lp-nav-logo-img" />
               EdgeFlow
             </div>
             <p>The trading journal and analytics platform for traders who take their performance seriously. Works for any market, any strategy, any broker.</p>
@@ -649,6 +672,15 @@ export default function Landing() {
           <span>Built for traders, by traders.</span>
         </div>
       </footer>
+
+      {/* SCROLL TO TOP */}
+      <button
+        className={`lp-scroll-top${showScrollTop ? ' visible' : ''}`}
+        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+        aria-label="Back to top"
+      >
+        ↑
+      </button>
     </div>
   );
 }
