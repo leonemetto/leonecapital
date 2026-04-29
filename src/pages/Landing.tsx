@@ -275,24 +275,7 @@ export default function Landing() {
           <div className="lp-steps-grid">
             <div className="lp-step-card lp-reveal lp-delay-1">
               <div className="lp-step-mockup">
-                <div className="lp-mock-row">
-                  <span className="lp-mock-dot" style={{ background: 'rgb(140,255,46)' }}></span>
-                  <div className="lp-mock-line" style={{ flex: 1, background: 'rgba(255,255,255,0.08)' }}></div>
-                  <span className="lp-mock-tag" style={{ background: 'rgba(140,255,46,0.12)', color: 'rgb(140,255,46)' }}>WIN</span>
-                  <span className="lp-mock-val" style={{ color: 'rgb(140,255,46)' }}>+$340</span>
-                </div>
-                <div className="lp-mock-row">
-                  <span className="lp-mock-dot" style={{ background: 'rgb(255,80,80)' }}></span>
-                  <div className="lp-mock-line" style={{ flex: 1, background: 'rgba(255,255,255,0.08)' }}></div>
-                  <span className="lp-mock-tag" style={{ background: 'rgba(255,80,80,0.12)', color: 'rgb(255,80,80)' }}>LOSS</span>
-                  <span className="lp-mock-val" style={{ color: 'rgb(255,80,80)' }}>−$120</span>
-                </div>
-                <div className="lp-mock-row">
-                  <span className="lp-mock-dot" style={{ background: 'rgb(140,255,46)' }}></span>
-                  <div className="lp-mock-line" style={{ flex: 1, background: 'rgba(255,255,255,0.08)' }}></div>
-                  <span className="lp-mock-tag" style={{ background: 'rgba(140,255,46,0.12)', color: 'rgb(140,255,46)' }}>WIN</span>
-                  <span className="lp-mock-val" style={{ color: 'rgb(140,255,46)' }}>+$210</span>
-                </div>
+                <img src="/screenshot-trades.png" alt="Trades DB — log and review all your trades" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
               </div>
               <div className="lp-step-body">
                 <div className="lp-step-num">01</div>
@@ -303,18 +286,7 @@ export default function Landing() {
 
             <div className="lp-step-card lp-reveal lp-delay-2">
               <div className="lp-step-mockup">
-                <div className="lp-mock-row">
-                  <div className="lp-mock-bar-wrap"><div className="lp-mock-bar" style={{ width: '88%', background: 'rgb(140,255,46)' }}></div></div>
-                  <span className="lp-mock-val" style={{ color: 'rgb(140,255,46)' }}>72%</span>
-                </div>
-                <div className="lp-mock-row">
-                  <div className="lp-mock-bar-wrap"><div className="lp-mock-bar" style={{ width: '58%', background: 'rgba(140,255,46,0.6)' }}></div></div>
-                  <span className="lp-mock-val" style={{ color: 'rgba(140,255,46,0.7)' }}>54%</span>
-                </div>
-                <div className="lp-mock-row">
-                  <div className="lp-mock-bar-wrap"><div className="lp-mock-bar" style={{ width: '28%', background: 'rgb(255,80,80)' }}></div></div>
-                  <span className="lp-mock-val" style={{ color: 'rgb(255,80,80)' }}>28%</span>
-                </div>
+                <img src="/screenshot-analytic.png" alt="Analytics — win rate and expectancy by instrument, session, and strategy" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
               </div>
               <div className="lp-step-body">
                 <div className="lp-step-num">02</div>
@@ -325,15 +297,7 @@ export default function Landing() {
 
             <div className="lp-step-card lp-reveal lp-delay-3">
               <div className="lp-step-mockup">
-                <div className="lp-mock-row" style={{ background: 'rgba(255,80,80,0.06)', border: '1px solid rgba(255,80,80,0.15)' }}>
-                  <span style={{ fontSize: 12, color: 'rgb(255,100,100)', fontWeight: 700 }}>⚠ Revenge trades detected</span>
-                </div>
-                <div className="lp-mock-row" style={{ background: 'rgba(255,160,0,0.06)', border: '1px solid rgba(255,160,0,0.15)' }}>
-                  <span style={{ fontSize: 12, color: 'rgb(255,180,0)', fontWeight: 700 }}>⚠ Overtrading on Fridays</span>
-                </div>
-                <div className="lp-mock-row">
-                  <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.4)' }}>Asian session win rate: 28%</span>
-                </div>
+                <img src="/screenshot-leaks.png" alt="Leak Detection — pinpoint patterns draining your P&L" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', borderRadius: 6 }} />
               </div>
               <div className="lp-step-body">
                 <div className="lp-step-num">03</div>
@@ -403,140 +367,24 @@ export default function Landing() {
               <img src="/app-screenshot.png" alt="EdgeFlow dashboard" />
             </div>
 
-            {/* Analytics mockup */}
+            {/* Analytics — real screenshot */}
             <div className={`lp-preview-body${activeTab === 1 ? ' active' : ''}`}>
-              <div className="lp-mock-analytics">
-                <div className="lp-mock-analytics-title">Performance by Instrument</div>
-                <table className="lp-mock-table">
-                  <thead>
-                    <tr>
-                      <th>Instrument</th>
-                      <th>Trades</th>
-                      <th>Win %</th>
-                      <th>Avg R</th>
-                      <th>Expectancy</th>
-                      <th>Net P&L</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>EURUSD</td><td>38</td>
-                      <td><span className="lp-mock-badge pos">72%</span></td>
-                      <td className="lp-mock-pos">1.8R</td>
-                      <td className="lp-mock-pos">+0.42</td>
-                      <td className="lp-mock-pos">+$2,840</td>
-                    </tr>
-                    <tr>
-                      <td>NQ Futures</td><td>24</td>
-                      <td><span className="lp-mock-badge pos">63%</span></td>
-                      <td className="lp-mock-pos">1.4R</td>
-                      <td className="lp-mock-pos">+0.28</td>
-                      <td className="lp-mock-pos">+$1,420</td>
-                    </tr>
-                    <tr>
-                      <td>GBPUSD</td><td>19</td>
-                      <td><span className="lp-mock-badge" style={{ background: 'rgba(255,160,0,0.12)', color: 'rgb(255,180,0)' }}>47%</span></td>
-                      <td className="lp-mock-neg">0.9R</td>
-                      <td className="lp-mock-neg">−0.06</td>
-                      <td className="lp-mock-neg">−$340</td>
-                    </tr>
-                    <tr>
-                      <td>XAUUSD</td><td>15</td>
-                      <td><span className="lp-mock-badge neg">33%</span></td>
-                      <td className="lp-mock-neg">0.7R</td>
-                      <td className="lp-mock-neg">−0.24</td>
-                      <td className="lp-mock-neg">−$890</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
+              <img src="/screenshot-analytic.png" alt="EdgeFlow Analytics — performance breakdown by instrument, session, and strategy" />
             </div>
 
-            {/* AI Advisor mockup */}
+            {/* AI Advisor — real screenshot */}
             <div className={`lp-preview-body${activeTab === 2 ? ' active' : ''}`}>
-              <div className="lp-mock-ai">
-                <div className="lp-mock-ai-header">
-                  <span className="lp-mock-ai-status"></span>
-                  AI Advisor
-                </div>
-                <div className="lp-chat-msg ai">
-                  <div className="lp-chat-avatar">AI</div>
-                  <div className="lp-chat-bubble">Your XAUUSD trades have a 33% win rate and negative expectancy of −0.24R across 15 trades. That's not a sample size problem — it's a pattern. You're entering on Asian session breakouts but your edge only shows up in London open reversals. I'd recommend pausing XAUUSD until you define a specific entry for that session.</div>
-                </div>
-                <div className="lp-chat-msg user">
-                  <div className="lp-chat-avatar">Y</div>
-                  <div className="lp-chat-bubble">Why do I keep losing on Fridays?</div>
-                </div>
-                <div className="lp-chat-msg ai">
-                  <div className="lp-chat-avatar">AI</div>
-                  <div className="lp-chat-bubble">Friday trades make up 22% of your volume but only 11% of your profits. Your Friday win rate is 38% vs 64% Mon–Thu. The pattern: you're taking trades after 14:00 EST when liquidity drops. Your losing Friday trades average −1.4R vs your average −0.9R. Cut Friday afternoon trading and you reclaim roughly $600/month.</div>
-                </div>
-              </div>
+              <img src="/screenshot-ai.png" alt="EdgeFlow AI Advisor — Claude-powered trading coach" />
             </div>
 
-            {/* Leak Detection mockup */}
+            {/* Leak Detection — real screenshot */}
             <div className={`lp-preview-body${activeTab === 3 ? ' active' : ''}`}>
-              <div className="lp-mock-leaks">
-                <div className="lp-mock-leak-card">
-                  <div className="lp-mock-leak-header">
-                    <div className="lp-mock-leak-title">XAUUSD — Negative Expectancy</div>
-                    <div className="lp-mock-leak-badge">−0.24R</div>
-                  </div>
-                  <div className="lp-mock-leak-desc">15 trades with a 33% win rate. This instrument is actively losing you money. Your edge on other pairs doesn't transfer here.</div>
-                  <div className="lp-mock-leak-stats">
-                    <div className="lp-mock-leak-stat"><span>Win rate</span><span>33%</span></div>
-                    <div className="lp-mock-leak-stat"><span>Net loss</span><span>−$890</span></div>
-                    <div className="lp-mock-leak-stat"><span>Trades</span><span>15</span></div>
-                  </div>
-                </div>
-                <div className="lp-mock-leak-card warn">
-                  <div className="lp-mock-leak-header">
-                    <div className="lp-mock-leak-title">Friday Afternoon Trading</div>
-                    <div className="lp-mock-leak-badge">Warning</div>
-                  </div>
-                  <div className="lp-mock-leak-desc">Win rate drops to 38% after 14:00 EST on Fridays. Liquidity thins out and your setups stop working in this window.</div>
-                  <div className="lp-mock-leak-stats">
-                    <div className="lp-mock-leak-stat"><span>Win rate</span><span>38%</span></div>
-                    <div className="lp-mock-leak-stat"><span>Avg loss</span><span>−1.4R</span></div>
-                    <div className="lp-mock-leak-stat"><span>Trades</span><span>11</span></div>
-                  </div>
-                </div>
-              </div>
+              <img src="/screenshot-leaks.png" alt="EdgeFlow Leak Detection — find negative-expectancy patterns" />
             </div>
 
-            {/* Optimizer mockup */}
+            {/* Optimizer — real screenshot */}
             <div className={`lp-preview-body${activeTab === 4 ? ' active' : ''}`}>
-              <div className="lp-mock-optimizer">
-                <div className="lp-mock-optimizer-title">Strategy Optimizer</div>
-                <div className="lp-mock-optimizer-sub">Simulate removing a filter and see the equity curve impact</div>
-                <div className="lp-mock-curve">
-                  <svg viewBox="0 0 400 100" preserveAspectRatio="none">
-                    <defs>
-                      <linearGradient id="og1" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor="rgba(140,255,46,0.3)" />
-                        <stop offset="100%" stopColor="rgba(140,255,46,0)" />
-                      </linearGradient>
-                    </defs>
-                    <path d="M0 80 L40 72 L80 65 L120 55 L160 48 L200 38 L240 45 L280 30 L320 20 L360 12 L400 5" stroke="rgb(140,255,46)" strokeWidth="2" fill="none" />
-                    <path d="M0 80 L40 72 L80 65 L120 55 L160 48 L200 38 L240 45 L280 30 L320 20 L360 12 L400 5 L400 100 L0 100Z" fill="url(#og1)" />
-                    <path d="M0 80 L40 78 L80 82 L120 78 L160 80 L200 85 L240 90 L280 87 L320 92 L360 95 L400 98" stroke="rgba(255,80,80,0.4)" strokeWidth="1.5" fill="none" strokeDasharray="4 4" />
-                  </svg>
-                </div>
-                <div className="lp-mock-filter-list">
-                  <div className="lp-mock-filter-row">
-                    <span className="lp-mock-filter-label">Remove XAUUSD trades</span>
-                    <span className="lp-mock-filter-delta" style={{ color: 'rgb(140,255,46)' }}>+$890 profit recovered</span>
-                  </div>
-                  <div className="lp-mock-filter-row">
-                    <span className="lp-mock-filter-label">Remove Friday afternoon trades</span>
-                    <span className="lp-mock-filter-delta" style={{ color: 'rgb(140,255,46)' }}>+22% win rate</span>
-                  </div>
-                  <div className="lp-mock-filter-row">
-                    <span className="lp-mock-filter-label">Remove Asian session only</span>
-                    <span className="lp-mock-filter-delta" style={{ color: 'rgba(255,255,255,0.4)' }}>−12 trades, +6% win rate</span>
-                  </div>
-                </div>
-              </div>
+              <img src="/screenshot-optimizer.png" alt="EdgeFlow Strategy Optimizer — simulate removing losing filters" />
             </div>
           </div>
         </div>
