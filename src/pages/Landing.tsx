@@ -381,6 +381,11 @@ export default function Landing() {
           <span className="lp-hero-trust-item">Set up in under 5 minutes</span>
         </div>
 
+        <a href="#preview" className="lp-hero-scroll-hint" aria-label="See it in action">
+          <span className="lp-hero-scroll-label">See it in action</span>
+          <span className="lp-hero-scroll-arrow">↓</span>
+        </a>
+
         <div className="lp-hero-tilt-glow"></div>
 
         <div className="lp-hero-tilt-wrap">
