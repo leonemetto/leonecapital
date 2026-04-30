@@ -8,7 +8,7 @@ import { TradeFormData } from '@/types/trade';
 import { cn } from '@/lib/utils';
 
 // ─── Column mapping templates ───────────────────────────────────────────────
-const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record<string, string>) => Partial<TradeFormData> | null }> = {
+const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[]; map: (row: Record<string, string>) => Partial<TradeFormData> | null }> = {
   edgeflow: {
     label: 'EdgeFlow Export',
     hint: 'CSV exported from EdgeFlow Trades DB',
@@ -40,6 +40,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   mt4: {
     label: 'MT4 / MT5',
     hint: 'MetaTrader 4 or 5 Account History export',
+    brokers: ['Exness', 'XM', 'Pepperstone', 'IC Markets', 'HFM', 'FBS', 'Admirals', 'BlackBull', 'Vantage', 'and 100+ more'],
     map: (row) => {
       const ticket = row['Ticket'] || row['ticket'];
       const symbol = row['Item'] || row['Symbol'] || row['symbol'];
@@ -66,6 +67,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   tradingview: {
     label: 'TradingView',
     hint: 'Strategy Tester → List of Trades → Export CSV',
+    brokers: ['TradingView Paper Trading', 'TradingView Strategy Tester'],
     map: (row) => {
       // Only process Exit rows — they carry the realised P&L
       const type = (row['Type'] || '').toLowerCase();
@@ -91,6 +93,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   ctrader: {
     label: 'cTrader',
     hint: 'History → Deals → Export to CSV',
+    brokers: ['Pepperstone', 'IC Markets', 'FxPro', 'Axiory', 'FXCM', 'ThinkMarkets'],
     map: (row) => {
       // cTrader: Position ID, Symbol, Direction, Volume (lots), Entry Price, Close Price, Commission, Swap, Net Profit, Open Time, Close Time
       const symbol = row['Symbol'] || row['symbol'];
@@ -115,6 +118,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   deriv: {
     label: 'Deriv',
     hint: 'Reports → Profit/Loss → Export CSV',
+    brokers: ['Deriv', 'Binary.com'],
     map: (row) => {
       // Deriv Trade History: Date, Trade ID, Trade type, Asset, Buy price, Sell price, Profit/Loss
       // Deriv Statement: Date, Ref., Description, Action, Credit/Debit, Balance
@@ -143,6 +147,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   binance: {
     label: 'Binance',
     hint: 'Futures → Orders → Closed Positions → Export',
+    brokers: ['Binance Futures', 'Binance Spot'],
     map: (row) => {
       // Binance Futures Closed Positions: Symbol, Closed PNL, Avg Entry Price, Avg Close Price, Open Time, Close Time
       // Binance Trade History: Time, Symbol, Side, Price, Qty, Realized Profit
@@ -168,6 +173,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   ibkr: {
     label: 'Interactive Brokers',
     hint: 'Reports → Activity Statement → Trades section',
+    brokers: ['IBKR', 'Interactive Brokers'],
     map: (row) => {
       // IBKR Activity Statement Trades section
       // Symbol, Date/Time, Quantity, T. Price, Proceeds, Comm/Fee, Basis, Realized P/L, Asset Category
@@ -194,6 +200,7 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   tradestation: {
     label: 'TradeStation',
     hint: 'TradeManager → Closed Positions → Export',
+    brokers: ['TradeStation'],
     map: (row) => {
       // TradeStation: Symbol, Entry Date, Exit Date, Direction (Long/Short), Quantity, Entry Price, Exit Price, Commissions, Profit/Loss
       const symbol = row['Symbol'] || row['symbol'];
@@ -211,6 +218,139 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
         pnl: profit,
         notes: 'TradeStation',
         strategy: '',
+        session: '',
+      };
+    },
+  },
+  bybit: {
+    label: 'Bybit',
+    hint: 'Orders → Closed PnL → Export CSV',
+    brokers: ['Bybit Futures', 'Bybit Spot'],
+    map: (row) => {
+      // Bybit Closed PnL: Symbol, Side, Qty, Entry Price, Exit Price, Closed P&L, Open Time, Close Time
+      // Bybit Trade History: Symbol, Side, Order Price, Filled Price, Qty, Closed P&L, Create Time
+      const symbol = row['Symbol'] || row['symbol'] || row['Pair'] || '';
+      const profitRaw = row['Closed P&L'] || row['Closed PnL'] || row['Realized P&L'] || row['PnL'] || row['Profit'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const closeTime = row['Close Time'] || row['Create Time'] || row['Time'] || row['Date'] || '';
+      if (!symbol || !closeTime) return null;
+      const side = (row['Side'] || row['side'] || row['Direction'] || '').toLowerCase();
+      const isLong = side.includes('long') || side.includes('buy');
+      return {
+        date: closeTime.slice(0, 10),
+        instrument: symbol,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['Order ID'] ? `Bybit #${row['Order ID']}` : 'Bybit',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  oanda: {
+    label: 'OANDA',
+    hint: 'Account → Transaction History → Export CSV',
+    brokers: ['OANDA'],
+    map: (row) => {
+      // OANDA Transaction History: Transaction ID, Time, Type, Instrument, Units, Price, P&L, Account Balance
+      const instrument = row['Instrument'] || row['instrument'] || row['Market'] || '';
+      const profitRaw = row['P&L'] || row['P/L'] || row['Profit'] || row['Realized P&L'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const timeRaw = row['Time'] || row['Date'] || row['Close Time'] || '';
+      const type = (row['Type'] || row['Transaction'] || '').toLowerCase();
+      // Only process closing transactions
+      if (type && !type.includes('close') && !type.includes('fill') && !type.includes('trade') && type !== '') {
+        if (type.includes('deposit') || type.includes('withdrawal') || type.includes('fund')) return null;
+      }
+      if (!instrument || !timeRaw) return null;
+      const units = parseFloat(row['Units'] || row['units'] || '0');
+      return {
+        date: timeRaw.slice(0, 10),
+        instrument,
+        direction: units >= 0 ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['Transaction ID'] ? `OANDA #${row['Transaction ID']}` : 'OANDA',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  thinkorswim: {
+    label: 'Thinkorswim',
+    hint: 'Account Statement → Trade History → Export CSV',
+    brokers: ['Thinkorswim', 'TD Ameritrade', 'Charles Schwab'],
+    map: (row) => {
+      // TOS Account Statement: Date, Time, Type, Symbol, Quantity, Price, Commission, Net Amount
+      const symbol = row['Symbol'] || row['symbol'] || row['Instrument'] || '';
+      const netAmount = parseFloat((row['Net Amount'] || row['Net amount'] || row['Amount'] || row['P/L'] || '0').replace(/[^0-9.\-]/g, '')) || 0;
+      const dateRaw = row['Date'] || row['date'] || row['Trade Date'] || '';
+      const type = (row['Type'] || row['type'] || row['Action'] || '').toLowerCase();
+      // Skip non-trade rows (money movements, dividends, etc.)
+      if (type.includes('money') || type.includes('dividend') || type.includes('interest') || type.includes('journal')) return null;
+      if (!symbol || !dateRaw) return null;
+      const qty = parseFloat(row['Quantity'] || row['Qty'] || row['quantity'] || '0');
+      const action = (row['Action'] || row['Side'] || row['Type'] || '').toLowerCase();
+      const isLong = action.includes('buy') || action.includes('long') || qty > 0;
+      return {
+        date: dateRaw.slice(0, 10),
+        instrument: symbol,
+        direction: isLong ? 'long' : 'short',
+        outcome: netAmount > 0 ? 'win' : netAmount < 0 ? 'loss' : 'breakeven',
+        pnl: netAmount,
+        notes: 'Thinkorswim',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  ig: {
+    label: 'IG Markets',
+    hint: 'My IG → History → Transaction History → Export',
+    brokers: ['IG Markets', 'IG'],
+    map: (row) => {
+      // IG Transaction History: Date/Time Opened, Date/Time Closed, Market, Direction, Size, Opening, Closing, Profit/Loss
+      const market = row['Market'] || row['Symbol'] || row['Instrument'] || '';
+      const profitRaw = row['Profit/Loss'] || row['P&L'] || row['Net Profit'] || row['Profit'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[$(£€),]/g, '').trim()) || 0;
+      const closedTime = row['Date/Time Closed'] || row['Close Date'] || row['Date'] || '';
+      if (!market || !closedTime) return null;
+      const direction = (row['Direction'] || row['Side'] || row['Type'] || '').toLowerCase();
+      const isLong = direction.includes('buy') || direction.includes('long');
+      return {
+        date: closedTime.slice(0, 10),
+        instrument: market,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['Reference'] ? `IG #${row['Reference']}` : 'IG Markets',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  ninjatrader: {
+    label: 'NinjaTrader',
+    hint: 'Trade Performance → Export → CSV',
+    brokers: ['NinjaTrader'],
+    map: (row) => {
+      // NinjaTrader Trade Performance: Instrument, Account, Strategy, Market Pos., Quantity, Entry Price, Exit Price, Profit, Entry Time, Exit Time
+      const instrument = row['Instrument'] || row['Symbol'] || row['instrument'] || '';
+      const profitRaw = row['Profit'] || row['Net Profit'] || row['P&L'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const exitTime = row['Exit Time'] || row['Exit Date'] || row['Close Time'] || row['Date'] || '';
+      if (!instrument || !exitTime) return null;
+      const marketPos = (row['Market Pos.'] || row['Direction'] || row['Side'] || '').toLowerCase();
+      const isLong = marketPos.includes('long') || marketPos.includes('buy');
+      return {
+        date: exitTime.slice(0, 10),
+        instrument,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['Strategy'] ? `NT · ${row['Strategy']}` : 'NinjaTrader',
+        strategy: row['Strategy'] || '',
         session: '',
       };
     },
@@ -360,7 +500,7 @@ export default function ImportTrades() {
           </button>
           <div>
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Import Trades</h1>
-            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Supports EdgeFlow, MT4/MT5, TradingView, cTrader, Deriv, Binance, IBKR, TradeStation</div>
+            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Supports 13 formats — MT4/MT5, cTrader, TradingView, Binance, Bybit, OANDA, IG, IBKR, and more</div>
           </div>
         </div>
 
@@ -381,7 +521,7 @@ export default function ImportTrades() {
           <div className="space-y-4">
             {/* Step 1 — Template */}
             <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">1. Select Format</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">1. Select Your Broker / Format</p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {(Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]).map((key) => (
                   <button
@@ -395,7 +535,16 @@ export default function ImportTrades() {
                     )}
                   >
                     <p className="text-sm font-semibold text-foreground mb-0.5">{TEMPLATES[key].label}</p>
-                    <p className="text-[11px] text-muted-foreground/60 leading-snug">{TEMPLATES[key].hint}</p>
+                    <p className="text-[11px] text-muted-foreground/60 leading-snug mb-1.5">{TEMPLATES[key].hint}</p>
+                    {TEMPLATES[key].brokers && (
+                      <div className="flex flex-wrap gap-1 mt-1">
+                        {TEMPLATES[key].brokers!.map((b) => (
+                          <span key={b} className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: 'var(--ef-bg-sunken)', color: 'var(--ef-ink-3)', border: '1px solid var(--ef-line)' }}>
+                            {b}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </button>
                 ))}
               </div>

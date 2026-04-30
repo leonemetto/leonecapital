@@ -107,7 +107,7 @@ const FAQS = [
   },
   {
     q: 'Can I import my existing trade history?',
-    a: 'Yes — import directly from MT4/MT5 export files, or use the generic CSV mode for any other broker or platform. Your historical data loads immediately and appears in all analytics from day one. No data is lost on the free tier — if you upgrade later, your full history carries over.',
+    a: 'Yes — EdgeFlow supports direct CSV import from MT4/MT5, TradingView, cTrader, Deriv, Binance, Bybit, OANDA, IG Markets, Interactive Brokers, TradeStation, Thinkorswim, NinjaTrader, and any generic CSV. Brokers like Exness, XM, Pepperstone, IC Markets, and HFM all export MT4/MT5 files — so they work too. Your historical data loads immediately and appears in all analytics from day one.',
   },
   {
     q: 'Is my trading data secure and private?',
@@ -126,7 +126,7 @@ const FAQS = [
 const FEATURE_GROUPS = [
   {
     heading: 'Track every trade',
-    sub: 'Manual entry in seconds. MT4/MT5 CSV import. Screenshot at entry. Everything in one place.',
+    sub: 'Manual entry in seconds. Import from MT4/MT5, TradingView, cTrader, Binance, Bybit, OANDA, IBKR, and more. Screenshot at entry.',
     features: [
       { name: 'Trade Log', desc: 'Log any market — forex, futures, stocks, crypto, options, indices. Manual or CSV. Attach a screenshot of your chart at entry.' },
       { name: 'Multiple Accounts', desc: 'Separate live, demo, and prop firm accounts. Analyse each independently or aggregate all at once with one click.' },
@@ -436,7 +436,7 @@ export default function Landing() {
               <div className="lp-step-body">
                 <div className="lp-step-num">01</div>
                 <h3>Log your trades</h3>
-                <p>Enter trades manually in seconds, or import a CSV from your broker. Works with MT4/MT5 and any generic export. No API keys, no setup.</p>
+                <p>Enter trades manually in seconds, or import a CSV from your broker. Supports MT4/MT5, TradingView, cTrader, Binance, Bybit, OANDA, IG, IBKR, Thinkorswim, TradeStation, NinjaTrader, and more. No API keys, no setup.</p>
               </div>
             </div>
             <div className="lp-step-card lp-reveal lp-delay-2">
@@ -595,7 +595,7 @@ export default function Landing() {
               ['No behavioral data', 'Emotional state, plan adherence, and confidence tracked per trade'],
               ['ChatGPT with a pasted CSV', 'Atlas — live AI analyst with full context of every trade you\'ve logged'],
               ['Another tab per account', 'Multi-account analytics, unified in one dashboard'],
-              ['Manual broker export and paste', 'MT4/MT5 and generic CSV import built in'],
+              ['Manual broker export and paste', 'MT4/MT5, cTrader, TradingView, Binance, Bybit, OANDA, IBKR, IG, Thinkorswim, NinjaTrader — all supported'],
               ['Screenshot of a chart', 'One-click PDF performance report'],
             ].map(([bad, good], i) => (
               <div key={i} className="lp-vs-row">
@@ -686,7 +686,7 @@ export default function Landing() {
                 <li><span className="lp-price-check">✓</span> Strategy Optimizer</li>
                 <li><span className="lp-price-check">✓</span> Trading Plan enforcement</li>
                 <li><span className="lp-price-check">✓</span> PDF performance reports</li>
-                <li><span className="lp-price-check">✓</span> CSV import (MT4/MT5 + generic)</li>
+                <li><span className="lp-price-check">✓</span> Import from 13 brokers &amp; platforms</li>
                 <li><span className="lp-price-check">✓</span> Multiple accounts</li>
                 <li><span className="lp-price-check">✓</span> Weekly AI digest email</li>
               </ul>
