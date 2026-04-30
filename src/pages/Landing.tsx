@@ -332,6 +332,7 @@ export default function Landing() {
           <li><a href="#brokers" onClick={() => setMobileMenuOpen(false)}>Brokers</a></li>
           <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
           <li><a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
+          <li><a href="/how-to-use" onClick={() => setMobileMenuOpen(false)}>Docs</a></li>
         </ul>
         <div className="lp-nav-actions">
           <button className="lp-btn-ghost" onClick={() => navigate('/auth')}>Log in</button>

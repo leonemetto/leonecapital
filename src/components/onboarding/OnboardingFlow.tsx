@@ -4,52 +4,69 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { Activity, ArrowLeft, Check, X, Plus, Database, BarChart2, Brain } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import {
+  ArrowLeft, Check, ChartLineUp, MagnifyingGlass, Brain,
+  ArrowRight, Sparkle, Database,
+} from '@phosphor-icons/react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import logoImg from '@/assets/logo.svg';
 
-/* ─────────────────────────────────────────────────────── types */
 type Step = 1 | 2 | 3 | 4 | 'done';
 type AccountType = 'live' | 'demo' | 'prop';
-type Direction   = 'long' | 'short';
-type Outcome     = 'win' | 'loss' | 'breakeven';
-type TSession    = 'London' | 'New York' | 'Asian' | 'London/NY Overlap';
 
 interface Props {
   nickname: string;
   onComplete: () => Promise<void>;
 }
 
-/* ─────────────────────────────────────────────────────── constants */
-const DEFAULT_CHECKLIST: string[] = [];
-const SESSIONS: TSession[] = ['London', 'New York', 'Asian', 'London/NY Overlap'];
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF'];
-const TOTAL_STEPS = 4;
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'JPY', 'AUD', 'CAD', 'CHF', 'KES'];
 
-/* ─────────────────────────────────────────────────────── sub-components */
+const METHODOLOGIES = [
+  'Price Action', 'ICT / Smart Money', 'Order Flow',
+  'Supply & Demand', 'Macro / Fundamentals', 'Quantitative', 'Other',
+];
 
-function ProgressDots({ step }: { step: Step }) {
+const INSTRUMENTS = [
+  'Forex', 'NAS100 / QQQ', 'S&P500 / ES', 'US30 / Dow', 'XAUUSD / Gold',
+  'Oil / WTI', 'Stocks', 'Crypto', 'Futures', 'Options',
+];
+
+const SESSIONS = ['London', 'New York', 'Asian', 'London/NY Overlap'];
+
+const CHECKLIST_DEFAULTS: Record<string, string[]> = {
+  'ICT / Smart Money': ['HTF bias confirmed', 'Key level identified', 'Entry model present', 'R:R above 1:2', 'Risk defined'],
+  'Order Flow': ['Directional bias confirmed', 'Volume context checked', 'Entry level defined', 'R:R above 1:2', 'Risk defined'],
+  'Supply & Demand': ['Zone identified', 'Fresh zone (untested)', 'Trend alignment confirmed', 'R:R above 1:2', 'Risk defined'],
+  'Price Action': ['Trend confirmed', 'Key level identified', 'Entry signal present', 'R:R above 1:2', 'Risk defined'],
+  default: ['Trend confirmed', 'Key level identified', 'Entry signal present', 'R:R above 1:2', 'Risk defined'],
+};
+
+/* ── shared components ── */
+
+function ProgressBar({ step }: { step: Step }) {
+  if (step === 'done') return null;
+  const pct = typeof step === 'number' ? (step / 4) * 100 : 100;
+  return (
+    <div className="absolute top-0 left-0 right-0 h-[2px] rounded-t-2xl overflow-hidden bg-white/5">
+      <motion.div
+        className="h-full"
+        style={{ background: 'oklch(0.65 0.17 155)' }}
+        initial={{ width: 0 }}
+        animate={{ width: `${pct}%` }}
+        transition={{ duration: 0.4, ease: 'easeOut' }}
+      />
+    </div>
+  );
+}
+
+function StepLabel({ step }: { step: Step }) {
   if (step === 'done') return null;
   return (
-    <div className="flex items-center gap-2 justify-center mb-8">
-      {Array.from({ length: TOTAL_STEPS }, (_, i) => {
-        const n = i + 1;
-        const isActive    = n === step;
-        const isCompleted = typeof step === 'number' && n < step;
-        return (
-          <div
-            key={n}
-            className={cn(
-              'rounded-full transition-all duration-300',
-              isCompleted ? 'w-2.5 h-2.5 bg-white' :
-              isActive    ? 'w-2.5 h-2.5 bg-white' :
-                            'w-2 h-2 bg-muted-foreground/30',
-            )}
-          />
-        );
-      })}
+    <div className="flex items-center justify-between mb-6">
+      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        Step {step} of 4
+      </span>
     </div>
   );
 }
@@ -59,107 +76,153 @@ function BackButton({ onClick }: { onClick: () => void }) {
     <button
       type="button"
       onClick={onClick}
-      className="flex items-center gap-1.5 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors mb-6"
+      className="flex items-center gap-1.5 mb-5 transition-colors"
+      style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+      onMouseEnter={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+      onMouseLeave={e => (e.currentTarget.style.color = 'rgba(255,255,255,0.35)')}
     >
-      <ArrowLeft className="h-3.5 w-3.5" /> Back
+      <ArrowLeft size={13} /> Back
     </button>
   );
 }
 
-function PillButton<T extends string>({
-  value, active, onClick, children,
+function Chip({
+  active, onClick, children,
 }: {
-  value: T; active: boolean; onClick: (v: T) => void; children: React.ReactNode;
+  active: boolean; onClick: () => void; children: React.ReactNode;
 }) {
   return (
     <button
       type="button"
-      onClick={() => onClick(value)}
-      className={cn(
-        'px-4 py-2 rounded-full text-[13px] font-medium transition-all border',
-        active
-          ? 'bg-foreground text-background border-transparent'
-          : 'bg-muted text-muted-foreground border-border hover:text-foreground',
-      )}
+      onClick={onClick}
+      style={{
+        padding: '7px 14px',
+        borderRadius: 99,
+        fontSize: 13,
+        fontWeight: 500,
+        border: active ? '1px solid rgba(255,255,255,0.9)' : '1px solid rgba(255,255,255,0.12)',
+        background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+        color: active ? '#fff' : 'rgba(255,255,255,0.45)',
+        cursor: 'pointer',
+        transition: 'all 0.15s',
+      }}
+      onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.3)'; e.currentTarget.style.color = 'rgba(255,255,255,0.7)'; } }}
+      onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.12)'; e.currentTarget.style.color = 'rgba(255,255,255,0.45)'; } }}
     >
       {children}
     </button>
   );
 }
 
-function GreenButton({
-  onClick, disabled, loading, children,
+function PrimaryButton({
+  onClick, disabled, loading, children, fullWidth = true,
 }: {
-  onClick?: () => void; disabled?: boolean; loading?: boolean; children: React.ReactNode;
+  onClick?: () => void; disabled?: boolean; loading?: boolean; children: React.ReactNode; fullWidth?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled || loading}
-      className={cn(
-        'w-full py-3.5 rounded-[24px] text-[14px] font-bold transition-all',
-        'bg-foreground text-background hover:bg-foreground/90',
-        (disabled || loading) && 'opacity-50 cursor-not-allowed',
-      )}
+      style={{
+        width: fullWidth ? '100%' : 'auto',
+        padding: '13px 24px',
+        borderRadius: 24,
+        fontSize: 14,
+        fontWeight: 700,
+        background: (disabled || loading) ? 'rgba(255,255,255,0.15)' : '#fff',
+        color: (disabled || loading) ? 'rgba(255,255,255,0.4)' : '#000',
+        border: 'none',
+        cursor: (disabled || loading) ? 'not-allowed' : 'pointer',
+        transition: 'all 0.15s',
+        letterSpacing: '-0.01em',
+      }}
     >
       {loading ? 'Saving…' : children}
     </button>
   );
 }
 
-/* ─────────────────────────────────────────────────────── main component */
+/* ── card wrapper ── */
+
+function card(step: Step, content: React.ReactNode) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      style={{ background: '#080807' }}
+    >
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={String(step)}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -14 }}
+          transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          style={{ width: '100%', maxWidth: 560 }}
+        >
+          <div
+            style={{
+              position: 'relative',
+              background: '#141413',
+              border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 20,
+              padding: '40px 40px 36px',
+              overflow: 'hidden',
+            }}
+          >
+            <ProgressBar step={step} />
+            {content}
+          </div>
+        </motion.div>
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════ main component */
 
 export function OnboardingFlow({ nickname, onComplete }: Props) {
   const navigate = useNavigate();
 
-  /* ── step state */
   const [step, setStep] = useState<Step>(1);
   const [saving, setSaving] = useState(false);
 
-  /* ── step 2: account */
-  const [accountName, setAccountName]       = useState('');
-  const [accountType, setAccountType]       = useState<AccountType>('live');
+  /* step 2 */
+  const [accountName, setAccountName] = useState('');
+  const [accountType, setAccountType] = useState<AccountType>('live');
   const [startingBalance, setStartingBalance] = useState('');
-  const [currency, setCurrency]             = useState('USD');
+  const [currency, setCurrency] = useState('USD');
   const [createdAccountId, setCreatedAccountId] = useState<string | null>(null);
 
-  /* ── step 3: checklist */
-  const [items, setItems]     = useState<string[]>([...DEFAULT_CHECKLIST]);
-  const [newItem, setNewItem] = useState('');
+  /* step 3 */
+  const [methodology, setMethodology] = useState('');
+  const [instruments, setInstruments] = useState<string[]>([]);
+  const [sessions, setSessions] = useState<string[]>([]);
+  const [riskPerTrade, setRiskPerTrade] = useState('');
 
-  /* ── step 4: trade */
-  const [instrument, setInstrument]   = useState('');
-  const [direction, setDirection]     = useState<Direction>('long');
-  const [outcome, setOutcome]         = useState<Outcome>('win');
-  const [pnl, setPnl]                 = useState('');
-  const [tradeSession, setTradeSession] = useState<TSession>('New York');
+  const toggleArr = (arr: string[], val: string, setArr: (v: string[]) => void) => {
+    setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
+  };
 
-  /* ─────────────────── step handlers */
+  /* ── step handlers ── */
 
   const handleStep2 = async () => {
-    if (!accountName.trim()) { toast.error('Please enter an account name'); return; }
+    if (!accountName.trim()) { toast.error('Enter an account name'); return; }
     const bal = parseFloat(startingBalance);
-    if (!startingBalance || isNaN(bal) || bal <= 0) { toast.error('Please enter a valid starting balance'); return; }
+    if (!startingBalance || isNaN(bal) || bal <= 0) { toast.error('Enter a valid starting balance'); return; }
 
     setSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
-
-      const { data, error } = await supabase
-        .from('accounts')
-        .insert({
-          user_id: user.id,
-          name: accountName.trim(),
-          type: accountType,
-          starting_balance: bal,
-          current_balance: bal,
-          currency,
-        })
-        .select()
-        .single();
-
+      const { data, error } = await supabase.from('accounts').insert({
+        user_id: user.id,
+        name: accountName.trim(),
+        type: accountType,
+        starting_balance: bal,
+        current_balance: bal,
+        currency,
+      }).select().single();
       if (error) throw error;
       setCreatedAccountId(data.id);
       setStep(3);
@@ -170,78 +233,39 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
     }
   };
 
-  const handleStep3 = async () => {
-    if (items.length === 0) { toast.error('Add at least one checklist item'); return; }
-
-    setSaving(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
-
-      const rows = items.map((label, i) => ({
-        user_id: user.id,
-        label,
-        category: 'General',
-        is_active: true,
-        sort_order: i,
-      }));
-
-      const { error } = await supabase.from('criteria_settings' as any).insert(rows);
-      if (error) throw error;
-      setStep(4);
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to save checklist');
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleStep4 = async (skip = false) => {
-    if (!skip) {
-      if (!instrument.trim()) { toast.error('Please enter an instrument'); return; }
-      const pnlVal = parseFloat(pnl);
-      if (!pnl || isNaN(pnlVal)) { toast.error('Please enter a P&L amount'); return; }
-    }
-
+  const handleStep3 = async (skip = false) => {
     setSaving(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
 
       if (!skip) {
-        const pnlVal = parseFloat(pnl);
-        const { error: tradeError } = await supabase.from('trades').insert({
+        /* save trader profile */
+        const profileData: any = {
           user_id: user.id,
-          account_id: createdAccountId || null,
-          date: new Date().toISOString().split('T')[0],
-          instrument: instrument.trim(),
-          direction,
-          outcome,
-          pnl: pnlVal,
-          session: tradeSession,
-        });
-        if (tradeError) throw tradeError;
+          trading_style: methodology || null,
+          favorite_instruments: instruments.length > 0 ? instruments.join(', ') : null,
+          favorite_sessions: sessions.length > 0 ? sessions.join(', ') : null,
+          risk_per_trade: riskPerTrade.trim() || null,
+        };
+        const { error: profErr } = await supabase
+          .from('trader_profiles' as any)
+          .upsert(profileData, { onConflict: 'user_id' });
+        if (profErr) console.warn('Profile save error (non-fatal):', profErr.message);
 
-        // Update account current_balance to reflect the logged trade
-        if (createdAccountId) {
-          const { data: acc } = await supabase
-            .from('accounts')
-            .select('current_balance')
-            .eq('id', createdAccountId)
-            .single();
-          if (acc) {
-            await supabase
-              .from('accounts')
-              .update({ current_balance: Number(acc.current_balance) + pnlVal })
-              .eq('id', createdAccountId);
-          }
-        }
+        /* silently seed checklist with smart defaults */
+        const defaults = CHECKLIST_DEFAULTS[methodology] ?? CHECKLIST_DEFAULTS.default;
+        const rows = defaults.map((label, i) => ({
+          user_id: user.id,
+          label,
+          category: 'General',
+          is_active: true,
+          sort_order: i,
+        }));
+        await supabase.from('criteria_settings' as any).insert(rows);
       }
 
-      await onComplete();
-      setStep('done');
-
-      setTimeout(() => navigate('/dashboard', { replace: true }), 1500);
+      setStep(4);
     } catch (err: any) {
       toast.error(err.message || 'Something went wrong');
     } finally {
@@ -249,369 +273,324 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
     }
   };
 
-  /* ─────────────────── card wrapper */
-  const card = (content: React.ReactNode) => (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
-      style={{ background: 'rgba(0,0,0,0.95)' }}
-    >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={String(step)}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -16 }}
-          transition={{ duration: 0.28 }}
-          className="w-full"
-          style={{ maxWidth: 520 }}
-        >
-          <div
-            className="w-full"
-            style={{
-              background: 'var(--card)',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: 16,
-              padding: 40,
-            }}
-          >
-            <ProgressDots step={step} />
-            {content}
-          </div>
-        </motion.div>
-      </AnimatePresence>
-    </div>
-  );
+  const handleFinish = async (loadDemo: boolean) => {
+    setSaving(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
 
-  /* ─────────────────── STEP 1 */
-  if (step === 1) return card(
-    <div className="space-y-6">
-      <div className="text-center">
-        <img src={logoImg} alt="EdgeFlow" className="h-12 w-12 rounded-2xl mx-auto mb-5" />
-        <h1 className="text-[22px] font-black tracking-tight mb-2">
-          Your trades are lying to you, {nickname}.
+      if (loadDemo) {
+        const { generateDemoTrades } = await import('@/lib/demoData');
+
+        /* use existing account or create a demo one */
+        let accountId = createdAccountId;
+        if (!accountId) {
+          const { data: acc } = await supabase.from('accounts').insert({
+            user_id: user.id,
+            name: 'Demo Account',
+            type: 'demo',
+            starting_balance: 10000,
+            current_balance: 10000,
+            currency: 'USD',
+          }).select().single();
+          accountId = acc?.id ?? null;
+        }
+
+        const demoTrades = generateDemoTrades();
+        const totalPnl = demoTrades.reduce((s, t) => s + t.pnl, 0);
+        const rows = demoTrades.map(t => ({
+          user_id: user.id,
+          account_id: accountId,
+          date: t.date, instrument: t.instrument, direction: t.direction,
+          outcome: t.outcome, pnl: t.pnl, strategy: t.strategy, session: t.session,
+          htf_bias: t.htf_bias, notes: t.notes, r_multiple: t.r_multiple,
+          risk_percent: t.risk_percent, confidence_level: t.confidence_level,
+          emotional_state: t.emotional_state, followed_plan: t.followed_plan,
+          time_in_trade: t.time_in_trade, is_demo: true,
+        }));
+        await supabase.from('trades').insert(rows);
+        if (accountId) {
+          await supabase.from('accounts')
+            .update({ current_balance: 10000 + totalPnl })
+            .eq('id', accountId);
+        }
+      }
+
+      await onComplete();
+      setStep('done');
+      setTimeout(() => navigate('/dashboard', { replace: true }), 1400);
+    } catch (err: any) {
+      toast.error(err.message || 'Something went wrong');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* ══════════════════════════════════════════════════ STEP 1 — Welcome */
+  if (step === 1) return card(step,
+    <div>
+      <StepLabel step={step} />
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <img src={logoImg} alt="EdgeFlow" style={{ height: 48, width: 48, borderRadius: 14, margin: '0 auto 20px' }} />
+        <h1 style={{ fontSize: 26, fontWeight: 800, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 10px', lineHeight: 1.15 }}>
+          Hey {nickname}. Let's build<br />your actual edge.
         </h1>
-        <p className="text-[13px] text-muted-foreground/70 leading-relaxed">
-          Not intentionally — but without data, you're running on gut feeling. EdgeFlow turns every trade into evidence.
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, margin: 0 }}>
+          Most traders run on gut feeling. EdgeFlow turns every trade into data — so you know exactly what works, what leaks, and what to do about it.
         </p>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex gap-4 p-4 rounded-xl bg-muted/50 border border-border">
-          <Activity className="h-5 w-5 text-muted-foreground/70 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-[13px] font-semibold text-foreground mb-0.5">Find your actual edge</p>
-            <p className="text-[12px] text-muted-foreground/60 leading-relaxed">
-              Not what you think works. What the data proves works — by instrument, session, and setup.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex gap-4 p-4 rounded-xl bg-muted/50 border border-border">
-          <BarChart2 className="h-5 w-5 text-muted-foreground/70 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-[13px] font-semibold text-foreground mb-0.5">Cut the leaks</p>
-            <p className="text-[12px] text-muted-foreground/60 leading-relaxed">
-              Most traders lose 20–40% to avoidable patterns. EdgeFlow shows you exactly which ones are costing you.
-            </p>
-          </div>
-        </div>
-
-        <div className="flex gap-4 p-4 rounded-xl bg-muted/50 border border-border">
-          <Brain className="h-5 w-5 text-muted-foreground/70 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-[13px] font-semibold text-foreground mb-0.5">Trade the same way every time</p>
-            <p className="text-[12px] text-muted-foreground/60 leading-relaxed">
-              Consistency beats brilliance. EdgeFlow makes your consistency measurable — and improvable.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <GreenButton onClick={() => setStep(2)}>
-        Let's build my edge →
-      </GreenButton>
-    </div>
-  );
-
-  /* ─────────────────── STEP 2 */
-  if (step === 2) return card(
-    <div className="space-y-5">
-      <BackButton onClick={() => setStep(1)} />
-
-      <div>
-        <h2 className="text-[20px] font-black tracking-tight mb-1">Set up your trading account</h2>
-        <p className="text-[13px] text-muted-foreground/60">
-          This is where your trades will be logged and tracked.
-        </p>
-      </div>
-
-      <div className="space-y-4">
-        {/* Account Name */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
-            Account Name
-          </Label>
-          <Input
-            value={accountName}
-            onChange={e => setAccountName(e.target.value)}
-            placeholder="My Futures Account"
-            className="mt-1.5 h-10"
-          />
-        </div>
-
-        {/* Account Type */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
-            Account Type
-          </Label>
-          <div className="flex gap-2 mt-1.5">
-            {(['live', 'demo', 'prop'] as AccountType[]).map(t => (
-              <PillButton key={t} value={t} active={accountType === t} onClick={setAccountType}>
-                {t === 'prop' ? 'Prop Firm' : t.charAt(0).toUpperCase() + t.slice(1)}
-              </PillButton>
-            ))}
-          </div>
-        </div>
-
-        {/* Starting Balance */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
-            Starting Balance
-          </Label>
-          <div className="relative mt-1.5">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-sm">$</span>
-            <Input
-              type="number"
-              value={startingBalance}
-              onChange={e => setStartingBalance(e.target.value)}
-              placeholder="10,000"
-              className="h-10 pl-7"
-            />
-          </div>
-        </div>
-
-        {/* Currency */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">
-            Currency
-          </Label>
-          <div className="flex gap-2 mt-1.5 flex-wrap">
-            {CURRENCIES.map(c => (
-              <PillButton key={c} value={c} active={currency === c} onClick={setCurrency}>
-                {c}
-              </PillButton>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <GreenButton onClick={handleStep2} loading={saving}>
-        Create Account →
-      </GreenButton>
-
-      <p className="text-center text-[11px] text-muted-foreground/40">
-        You can add more accounts later
-      </p>
-    </div>
-  );
-
-  /* ─────────────────── STEP 3 */
-  if (step === 3) return card(
-    <div className="space-y-5">
-      <BackButton onClick={() => setStep(2)} />
-
-      <div>
-        <h2 className="text-[20px] font-black tracking-tight mb-1">What does a valid trade look like?</h2>
-        <p className="text-[13px] text-muted-foreground/60 leading-relaxed">
-          Add the criteria every trade must meet before you enter. This becomes your pre-trade checklist.
-        </p>
-      </div>
-
-      {/* Checklist items */}
-      <div className="space-y-2">
-        {items.map((item, i) => (
-          <div
-            key={i}
-            className="flex items-center gap-2 px-3 py-2.5 rounded-lg bg-muted/40 border border-border"
-          >
-            <Check className="h-3.5 w-3.5 text-white shrink-0" />
-            <span className="flex-1 text-[13px] text-foreground">{item}</span>
-            <button
-              type="button"
-              onClick={() => setItems(prev => prev.filter((_, j) => j !== i))}
-              className="text-muted-foreground/40 hover:text-muted-foreground transition-colors"
-            >
-              <X className="h-3.5 w-3.5" />
-            </button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
+        {[
+          { icon: ChartLineUp, title: 'Find your actual edge', body: 'Not what feels right. What the data proves — by instrument, session, and setup.' },
+          { icon: MagnifyingGlass, title: 'Cut the leaks', body: 'Most traders bleed 20–40% to avoidable patterns. EdgeFlow finds exactly which ones.' },
+          { icon: Brain, title: 'Atlas — your data analyst', body: 'AI that reads your trades and tells you specifically what to fix and why.' },
+        ].map(({ icon: Icon, title, body }) => (
+          <div key={title} style={{ display: 'flex', gap: 14, padding: '14px 16px', borderRadius: 12, background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}>
+            <div style={{ width: 32, height: 32, borderRadius: 8, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
+              <Icon size={16} color="rgba(255,255,255,0.6)" />
+            </div>
+            <div>
+              <p style={{ fontSize: 13, fontWeight: 600, color: '#fff', margin: '0 0 3px', letterSpacing: '-0.01em' }}>{title}</p>
+              <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.55 }}>{body}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Add new item */}
-      {items.length < 8 && (
-        <div className="flex gap-2">
-          <Input
-            value={newItem}
-            onChange={e => setNewItem(e.target.value)}
-            placeholder="e.g. Trend confirmed, entry near key level, risk defined…"
-            className="h-9 text-sm"
-            onKeyDown={e => {
-              if (e.key === 'Enter' && newItem.trim()) {
-                setItems(prev => [...prev, newItem.trim()]);
-                setNewItem('');
-              }
-            }}
-          />
-          <button
-            type="button"
-            disabled={!newItem.trim()}
-            onClick={() => {
-              if (newItem.trim()) {
-                setItems(prev => [...prev, newItem.trim()]);
-                setNewItem('');
-              }
-            }}
-            className={cn(
-              'px-3 rounded-lg border text-sm transition-colors',
-              newItem.trim()
-                ? 'bg-white text-black border-transparent'
-                : 'bg-transparent text-muted-foreground/30 border-border cursor-not-allowed',
-            )}
-          >
-            <Plus className="h-4 w-4" />
-          </button>
-        </div>
-      )}
-      {items.length >= 8 && (
-        <p className="text-[11px] text-muted-foreground/40">Maximum 8 items reached</p>
-      )}
+      <PrimaryButton onClick={() => setStep(2)}>
+        Let's go →
+      </PrimaryButton>
 
-      <GreenButton onClick={handleStep3} loading={saving} disabled={items.length === 0}>
-        Set My Checklist →
-      </GreenButton>
-
-      <p className="text-center text-[11px] text-muted-foreground/40">
-        Don't overthink this — you can customize it anytime in settings
+      <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.2)', marginTop: 14 }}>
+        Takes 2 minutes · Skippable at any point
       </p>
     </div>
   );
 
-  /* ─────────────────── STEP 4 */
-  if (step === 4) return card(
-    <div className="space-y-5">
-      <BackButton onClick={() => setStep(3)} />
+  /* ══════════════════════════════════════════════════ STEP 2 — Account */
+  if (step === 2) return card(step,
+    <div>
+      <StepLabel step={step} />
+      <BackButton onClick={() => setStep(1)} />
 
-      <div>
-        <h2 className="text-[20px] font-black tracking-tight mb-1">Log your first trade</h2>
-        <p className="text-[13px] text-muted-foreground/60">
-          It takes 30 seconds. The more you log, the smarter EdgeFlow gets.
-        </p>
+      <div style={{ marginBottom: 24 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 6px' }}>Set up your account</h2>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0 }}>This is where your trades get tracked. You can add more accounts later.</p>
       </div>
 
-      <div className="space-y-4">
-        {/* Instrument */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
         <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Instrument</Label>
-          <Input
-            value={instrument}
-            onChange={e => setInstrument(e.target.value)}
-            placeholder="NQ, ES, EURUSD…"
-            className="mt-1.5 h-10"
-          />
+          <Label style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>Account Name</Label>
+          <Input value={accountName} onChange={e => setAccountName(e.target.value)} placeholder="My Futures Account" className="mt-1.5 h-10" />
         </div>
 
-        {/* Direction */}
         <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Direction</Label>
-          <div className="flex gap-2 mt-1.5">
-            <PillButton value="long"  active={direction === 'long'}  onClick={setDirection}>Long</PillButton>
-            <PillButton value="short" active={direction === 'short'} onClick={setDirection}>Short</PillButton>
-          </div>
-        </div>
-
-        {/* Result */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Result</Label>
-          <div className="flex gap-2 mt-1.5">
-            <PillButton value="win"        active={outcome === 'win'}        onClick={setOutcome}>Win</PillButton>
-            <PillButton value="loss"       active={outcome === 'loss'}       onClick={setOutcome}>Loss</PillButton>
-            <PillButton value="breakeven"  active={outcome === 'breakeven'}  onClick={setOutcome}>BE</PillButton>
-          </div>
-        </div>
-
-        {/* P&L */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">P&amp;L Amount</Label>
-          <div className="relative mt-1.5">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground/50 text-sm">$</span>
-            <Input
-              type="number"
-              value={pnl}
-              onChange={e => setPnl(e.target.value)}
-              placeholder="0.00"
-              className="h-10 pl-7"
-            />
-          </div>
-        </div>
-
-        {/* Session */}
-        <div>
-          <Label className="text-[10px] text-muted-foreground/60 uppercase tracking-wider">Session</Label>
-          <div className="flex flex-wrap gap-2 mt-1.5">
-            {SESSIONS.map(s => (
-              <PillButton key={s} value={s} active={tradeSession === s} onClick={setTradeSession}>
-                {s}
-              </PillButton>
+          <Label style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>Account Type</Label>
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            {(['live', 'demo', 'prop'] as AccountType[]).map(t => (
+              <Chip key={t} active={accountType === t} onClick={() => setAccountType(t)}>
+                {t === 'prop' ? 'Prop Firm' : t.charAt(0).toUpperCase() + t.slice(1)}
+              </Chip>
             ))}
           </div>
         </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div>
+            <Label style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>Starting Balance</Label>
+            <div style={{ position: 'relative', marginTop: 6 }}>
+              <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', color: 'rgba(255,255,255,0.3)', fontSize: 13 }}>$</span>
+              <Input type="number" value={startingBalance} onChange={e => setStartingBalance(e.target.value)} placeholder="10,000" className="h-10 pl-7" />
+            </div>
+          </div>
+          <div>
+            <Label style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600 }}>Currency</Label>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6 }}>
+              {CURRENCIES.map(c => (
+                <Chip key={c} active={currency === c} onClick={() => setCurrency(c)}>{c}</Chip>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
 
-      <GreenButton onClick={() => handleStep4(false)} loading={saving}>
-        Log Trade &amp; Enter EdgeFlow →
-      </GreenButton>
+      <div style={{ marginTop: 28 }}>
+        <PrimaryButton onClick={handleStep2} loading={saving} disabled={!accountName.trim() || !startingBalance}>
+          Continue →
+        </PrimaryButton>
+      </div>
+    </div>
+  );
 
-      <div className="pt-1 border-t border-border">
+  /* ══════════════════════════════════════════════════ STEP 3 — Trading Style */
+  if (step === 3) return card(step,
+    <div>
+      <StepLabel step={step} />
+      <BackButton onClick={() => setStep(2)} />
+
+      <div style={{ marginBottom: 22 }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 6px' }}>How do you trade?</h2>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0 }}>
+          Atlas uses this to give you methodology-matched advice. Skip anything you're not sure about — you can update it anytime in your profile.
+        </p>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+        <div>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, margin: '0 0 8px' }}>Methodology</p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {METHODOLOGIES.map(m => (
+              <Chip key={m} active={methodology === m} onClick={() => setMethodology(methodology === m ? '' : m)}>{m}</Chip>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, margin: '0 0 8px' }}>Instruments <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(pick all that apply)</span></p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {INSTRUMENTS.map(i => (
+              <Chip key={i} active={instruments.includes(i)} onClick={() => toggleArr(instruments, i, setInstruments)}>{i}</Chip>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, margin: '0 0 8px' }}>Sessions <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>(pick all that apply)</span></p>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 7 }}>
+            {SESSIONS.map(s => (
+              <Chip key={s} active={sessions.includes(s)} onClick={() => toggleArr(sessions, s, setSessions)}>{s}</Chip>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, margin: '0 0 8px' }}>Risk Per Trade</p>
+          <Input
+            value={riskPerTrade}
+            onChange={e => setRiskPerTrade(e.target.value)}
+            placeholder="e.g. 1%, 2%, $200"
+            style={{ maxWidth: 200 }}
+            className="h-10"
+          />
+        </div>
+      </div>
+
+      <div style={{ marginTop: 26, display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <PrimaryButton onClick={() => handleStep3(false)} loading={saving}>
+          Continue →
+        </PrimaryButton>
         <button
           type="button"
-          onClick={() => handleStep4(true)}
+          onClick={() => handleStep3(true)}
           disabled={saving}
-          className="w-full text-center text-[13px] text-muted-foreground/60 hover:text-foreground underline underline-offset-2 transition-colors pt-3"
+          style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0' }}
         >
-          Skip for now, I'll log trades later
+          Skip for now
         </button>
       </div>
     </div>
   );
 
-  /* ─────────────────── COMPLETION */
+  /* ══════════════════════════════════════════════════ STEP 4 — Demo data */
+  if (step === 4) return card(step,
+    <div>
+      <StepLabel step={step} />
+      <BackButton onClick={() => setStep(3)} />
+
+      <div style={{ marginBottom: 24, textAlign: 'center' }}>
+        <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.03em', color: '#fff', margin: '0 0 8px' }}>One last thing</h2>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0, lineHeight: 1.6 }}>
+          Want to see EdgeFlow working with real-looking data before you start? Or jump straight in with a blank slate.
+        </p>
+      </div>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 24 }}>
+        {/* Demo data card */}
+        <button
+          type="button"
+          onClick={() => !saving && handleFinish(true)}
+          disabled={saving}
+          style={{
+            padding: '22px 18px',
+            borderRadius: 14,
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.04)',
+            cursor: saving ? 'not-allowed' : 'pointer',
+            textAlign: 'left',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+        >
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <Sparkle size={18} color="rgba(255,255,255,0.7)" />
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '0 0 5px', letterSpacing: '-0.01em' }}>Load demo data</p>
+          <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.38)', margin: 0, lineHeight: 1.55 }}>
+            25 sample trades so you can explore every feature immediately. Deletable anytime.
+          </p>
+        </button>
+
+        {/* Start fresh card */}
+        <button
+          type="button"
+          onClick={() => !saving && handleFinish(false)}
+          disabled={saving}
+          style={{
+            padding: '22px 18px',
+            borderRadius: 14,
+            border: '1px solid rgba(255,255,255,0.1)',
+            background: 'rgba(255,255,255,0.04)',
+            cursor: saving ? 'not-allowed' : 'pointer',
+            textAlign: 'left',
+            transition: 'all 0.15s',
+          }}
+          onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.22)'; e.currentTarget.style.background = 'rgba(255,255,255,0.07)'; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'; e.currentTarget.style.background = 'rgba(255,255,255,0.04)'; }}
+        >
+          <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(255,255,255,0.08)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+            <Database size={18} color="rgba(255,255,255,0.7)" />
+          </div>
+          <p style={{ fontSize: 13, fontWeight: 700, color: '#fff', margin: '0 0 5px', letterSpacing: '-0.01em' }}>Start fresh</p>
+          <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.38)', margin: 0, lineHeight: 1.55 }}>
+            Log your own trades from the start. Your data only.
+          </p>
+        </button>
+      </div>
+
+      {saving && (
+        <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.35)', margin: 0 }}>
+          Setting up your account…
+        </p>
+      )}
+    </div>
+  );
+
+  /* ══════════════════════════════════════════════════ DONE */
   if (step === 'done') return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: 'rgba(0,0,0,0.95)' }}
+      style={{ background: '#080807' }}
     >
       <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
+        initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, ease: [0.34, 1.56, 0.64, 1] }}
-        className="text-center space-y-4"
+        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
+        style={{ textAlign: 'center' }}
       >
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          className="mx-auto w-16 h-16 rounded-full bg-white flex items-center justify-center"
+          style={{ width: 64, height: 64, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}
         >
-          <Check className="h-8 w-8 text-black stroke-[3]" />
+          <Check size={28} color="#000" weight="bold" />
         </motion.div>
-        <motion.p
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="text-[18px] font-bold text-white"
-        >
-          Your EdgeFlow is ready.
-        </motion.p>
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+          <p style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.02em' }}>You're in.</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Taking you to your dashboard…</p>
+        </motion.div>
       </motion.div>
     </div>
   );

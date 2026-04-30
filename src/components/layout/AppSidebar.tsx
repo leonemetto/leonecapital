@@ -16,6 +16,7 @@ import {
   ClipboardText,
   Drop,
   Scales,
+  Question,
 } from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -200,6 +201,13 @@ export function AppSidebar() {
           {collapsed ? (
             <>
               <button
+                onClick={() => navigate('/how-to-use')}
+                className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none"
+              >
+                <Question className="h-[17px] w-[17px]" weight="regular" />
+                <span className="text-[8px] font-medium tracking-[0.04em] opacity-60">Help</span>
+              </button>
+              <button
                 onClick={() => navigate('/profile')}
                 className="flex flex-col items-center justify-center gap-1 w-full py-2.5 px-1 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none"
               >
@@ -219,6 +227,13 @@ export function AppSidebar() {
             </>
           ) : (
             <>
+              <button
+                onClick={() => navigate('/how-to-use')}
+                className="flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-[13px] font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none"
+              >
+                <Question className="h-[16px] w-[16px] shrink-0" weight="regular" />
+                <span>Help & Features</span>
+              </button>
               <button
                 onClick={() => navigate('/profile')}
                 className="group flex items-center gap-2.5 w-full px-2.5 py-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted transition-all outline-none"

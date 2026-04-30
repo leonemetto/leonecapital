@@ -35,6 +35,7 @@ const Guide = lazy(() => import("./pages/Guide"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const Landing = lazy(() => import("./pages/Landing"));
+const HowToUse = lazy(() => import("./pages/HowToUse"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const ImportTrades = lazy(() => import("./pages/ImportTrades"));
@@ -181,6 +182,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/how-to-use" element={<HowToUse />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
             <Route path="/reset-password" element={<ResetPassword />} />
