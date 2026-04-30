@@ -280,14 +280,6 @@ export default function Landing() {
     document.head.appendChild(link);
   }, []);
 
-  /* Hero stat badges: staggered pop-in after page load (Remotion SceneReveal style) */
-  useEffect(() => {
-    const badges = document.querySelectorAll<HTMLElement>('#lp .lp-stat-badge-el');
-    badges.forEach((badge, i) => {
-      setTimeout(() => badge.classList.add('active'), 900 + i * 220);
-    });
-  }, []);
-
   /* Count-up: animate numeric values in .lp-count-up when they scroll into view */
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>('#lp .lp-count-up');
@@ -391,19 +383,6 @@ export default function Landing() {
 
         <div className="lp-hero-tilt-wrap">
           <div className="lp-hero-tilt-inner" ref={tiltInnerRef}>
-            {/* Floating stat badges — animate in after hero loads (Remotion SceneReveal style) */}
-            <div className="lp-hero-stat-badge lp-badge-winrate lp-stat-badge-el">
-              <div className="lp-hero-stat-badge-label">Win Rate</div>
-              <div className="lp-hero-stat-badge-value pos">64%</div>
-            </div>
-            <div className="lp-hero-stat-badge lp-badge-pnl lp-stat-badge-el">
-              <div className="lp-hero-stat-badge-label">Net P&L</div>
-              <div className="lp-hero-stat-badge-value pos">+$4,820</div>
-            </div>
-            <div className="lp-hero-stat-badge lp-badge-streak lp-stat-badge-el">
-              <div className="lp-hero-stat-badge-label">Expectancy</div>
-              <div className="lp-hero-stat-badge-value pos">+1.3R</div>
-            </div>
             <div className="lp-hero-preview-bezel">
             <div className="lp-hero-preview">
               <div className="lp-hero-preview-chrome">
