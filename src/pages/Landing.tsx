@@ -478,9 +478,9 @@ export default function Landing() {
                 <div className="lp-mock-leaks">
                   <div className="lp-mock-leaks-title">Detected leaks <span className="lp-mock-leaks-badge">3</span></div>
                   {[
-                    { label: 'Asian Session', detail: '31% win rate · −$1,240 net', severity: 'high' },
-                    { label: 'Revenge trading', detail: 'Avg −2.8R after a loss', severity: 'high' },
-                    { label: 'Friday trades', detail: '39% win rate · −$480 net', severity: 'med' },
+                    { label: 'Asian Session', detail: '31% WR · −$1,240', severity: 'high' },
+                    { label: 'Revenge trading', detail: '−2.8R avg after loss', severity: 'high' },
+                    { label: 'Friday trades', detail: '39% WR · −$480', severity: 'med' },
                   ].map(leak => (
                     <div className="lp-mock-leak-row" key={leak.label}>
                       <div className={`lp-mock-leak-dot lp-mock-leak-dot--${leak.severity}`} />
@@ -488,12 +488,12 @@ export default function Landing() {
                         <div className="lp-mock-leak-name">{leak.label}</div>
                         <div className="lp-mock-leak-detail">{leak.detail}</div>
                       </div>
-                      <div className="lp-mock-leak-tag">Cut it</div>
+                      <div className="lp-mock-leak-tag">Cut</div>
                     </div>
                   ))}
                   <div className="lp-mock-leaks-atlas">
                     <span className="lp-mock-leaks-atlas-dot" />
-                    Atlas: <em>"Stop trading the Asian session entirely. Your edge is in London open."</em>
+                    <em>"Stop trading Asian session. Your edge is in London open."</em>
                   </div>
                 </div>
               </div>
