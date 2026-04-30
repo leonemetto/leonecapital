@@ -371,7 +371,7 @@ export default function Landing() {
           <span className="lp-hero-kicker-dot"></span>
           Free to start — no credit card needed
         </div>
-        <h1>Your data knows<br/>where you're losing <em>money.</em></h1>
+        <h1>Your edge is already<br/>in your <em>data.</em></h1>
         <p className="lp-hero-sub">
           Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
         </p>
