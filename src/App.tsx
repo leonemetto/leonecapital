@@ -131,6 +131,24 @@ function ChecklistGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
+function PagePrefetcher() {
+  useEffect(() => {
+    const t = setTimeout(() => {
+      import('./pages/Journal');
+      import('./pages/PerformanceAnalyst');
+      import('./pages/LeakDetection');
+      import('./pages/WhatIfSimulator');
+      import('./pages/AIAdvisor');
+      import('./pages/TradingPlan');
+      import('./pages/Accounts');
+      import('./pages/ProfileSettings');
+      import('./pages/ImportTrades');
+    }, 2000);
+    return () => clearTimeout(t);
+  }, []);
+  return null;
+}
+
 function ProfileGate({ children }: { children: React.ReactNode }) {
   const { isLoading, needsNickname, setNickname, profile } = useProfile();
   const { onboardingCompleted, completeOnboarding } = useOnboarding();
@@ -156,7 +174,7 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return <><PagePrefetcher />{children}</>;
 }
 
 const App = () => (

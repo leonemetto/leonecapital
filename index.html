@@ -34,10 +34,12 @@
     <link rel="manifest" href="/manifest.json" />
     <meta name="theme-color" content="#0a0a0a" />
 
-    <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap" rel="stylesheet" />
+    <!-- Fonts — self-hosted, preload to eliminate render-blocking -->
+    <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/GeistMono-Variable.woff2" as="font" type="font/woff2" crossorigin />
+
+    <!-- Hero image — preload so it's ready before React renders -->
+    <link rel="preload" href="/app-screenshot.webp" as="image" type="image/webp" />
 
     <!-- JSON-LD Structured Data -->
     <script type="application/ld+json">
