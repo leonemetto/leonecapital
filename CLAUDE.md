@@ -358,9 +358,16 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [x] Per-user rate limiting on AI edge functions ✅
 - [x] All Supabase tables have RLS + user_id policies ✅
 - [x] trader_profiles FK constraint added ✅
+- [x] HTTP security headers (X-Frame-Options, HSTS, CSP, etc.) in vercel.json ✅
+- [x] File upload type/size validation on screenshot upload ✅
+- [x] XSS fix on screenshot img src (safeImgSrc helper) ✅
+- [x] Password minimum 8 chars enforced on signup + reset ✅
+- [x] extract-insight edge function switched from Gemini → Claude Haiku ✅
+- [x] SECURITY.md vulnerability disclosure policy created ✅
+- [x] Log Trade double-submit guard (useRef sync lock) ✅
 
 ### BRAND & SEO ✅ ALL DONE
-- [x] New EdgeFlow favicon + apple-touch-icon + manifest.json ✅
+- [x] New EdgeFlow favicon (E letterform) + apple-touch-icon + manifest.json ✅
 - [x] Page title + meta tags updated to leone.capital ✅
 - [x] Google Search Console verified + indexed ✅
 
@@ -371,16 +378,39 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [x] PDF export (performance report) ✅
 - [x] Error monitoring — Sentry ✅ (add VITE_SENTRY_DSN to Vercel env vars)
 
+### ATLAS AI ✅ ALL DONE
+- [x] Adaptive advice quality standards (no blanket prohibitions, conditional filters) ✅
+- [x] Mandatory market context (macro regime, session dynamics, instrument drivers) ✅
+- [x] Methodology-agnostic base prompt (no ICT-specific language) ✅
+- [x] Style detection priority: trader profile → notes → both → neither (universal fallback) ✅
+
+### UX ✅ ALL DONE
+- [x] Onboarding flow full rewrite — 4 steps: Welcome → Account → Trading Style → Demo/Fresh ✅
+  - Step 3 collects methodology, instruments, sessions, risk/trade → saves to trader_profiles
+  - Step 3 silently seeds entry checklist with methodology-matched defaults
+  - Step 4 replaces "log first trade" with demo data vs fresh start choice
+- [x] Help & Features page — public /how-to-use, 11 features documented ✅
+- [x] Sidebar: Help & Features link added, nav reordered by workflow ✅
+  - Order: Dashboard → Trades DB → Analytics → Leak Detection → Optimizer → Atlas → Trading Plan → Accounts
+- [x] Landing page: scroll hint in hero pointing to #preview section ✅
+- [x] Landing page: How it Works cards use live code mockups (analytics table, leak detection) ✅
+- [x] Landing nav: Docs link added pointing to /how-to-use ✅
+
+### PERFORMANCE ✅ ALL DONE
+- [x] Removed redundant Google Fonts request (fonts are self-hosted at /fonts/) ✅
+- [x] Added <link rel="preload"> for fonts + hero image in index.html ✅
+- [x] 1-year immutable cache headers for /assets/*, /fonts/*, all images in vercel.json ✅
+- [x] PagePrefetcher: all lazy page chunks background-downloaded 2s after app load ✅
+
 ### INFRASTRUCTURE
 - [ ] Upgrade Supabase to Pro ($25/mo) — free tier 1GB storage won't handle screenshots at scale
-- [x] Cron jobs active — re-engagement (0 8 * * *) and weekly-digest (0 7 * * 1) confirmed running ✅
-- [x] RESEND_API_KEY secret set in Supabase edge functions ✅
 
-### MONETISATION — Last step
+### MONETISATION — Build this before public launch
 - [ ] Payment integration — Lemon Squeezy (international cards)
 - [ ] Payment integration — Intasend (Kenya M-Pesa)
 - [ ] subscriptions table in Supabase + tier enforcement (free/pro/elite feature gating)
 - [ ] Upgrade prompts / paywall screens for gated features
+- Design doc: ~/.gstack/projects/leonemetto-leonecapital/ceo-plans/2026-04-24-paywall.md
 
 ### GROWTH (post-launch)
 - [ ] Prop firm challenge mode — per-phase drawdown limits, FTMO/Topstep/MFF rules, live headroom tracking (Elite feature)
