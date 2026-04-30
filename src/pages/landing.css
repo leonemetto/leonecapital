@@ -383,6 +383,63 @@
   width: 100%; height: 100%; object-fit: cover; object-position: top left;
   border-radius: 0; display: block;
 }
+#lp .lp-step-mockup--code { padding: 20px; height: 340px; justify-content: center; }
+
+/* Analytics mockup */
+#lp .lp-mock-analytics { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+#lp .lp-mock-analytics-header {
+  display: grid; grid-template-columns: 56px 1fr 52px 64px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.3); padding-bottom: 6px; border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+#lp .lp-mock-analytics-row {
+  display: grid; grid-template-columns: 56px 1fr 52px 64px;
+  align-items: center; gap: 0; padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+#lp .lp-mock-analytics-name { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.85); font-family: monospace; }
+#lp .lp-mock-analytics-bar-wrap { position: relative; height: 18px; display: flex; align-items: center; }
+#lp .lp-mock-analytics-bar { height: 10px; border-radius: 3px; display: block; min-width: 4px; }
+#lp .lp-mock-analytics-bar-label { font-size: 10px; color: rgba(255,255,255,0.5); margin-left: 6px; font-family: monospace; }
+
+/* Leaks mockup */
+#lp .lp-mock-leaks { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+#lp .lp-mock-leaks-title {
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em;
+  color: rgba(255,255,255,0.4); display: flex; align-items: center; gap: 8px; margin-bottom: 4px;
+}
+#lp .lp-mock-leaks-badge {
+  background: rgba(248,113,113,0.15); border: 1px solid rgba(248,113,113,0.3);
+  color: #f87171; font-size: 10px; font-weight: 800; border-radius: 6px; padding: 1px 6px;
+}
+#lp .lp-mock-leak-row {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  background: rgba(248,113,113,0.05); border: 1px solid rgba(248,113,113,0.12);
+  border-radius: 8px;
+}
+#lp .lp-mock-leak-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+#lp .lp-mock-leak-dot--high { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.6); }
+#lp .lp-mock-leak-dot--med  { background: #fb923c; box-shadow: 0 0 6px rgba(251,146,60,0.5); }
+#lp .lp-mock-leak-info { flex: 1; min-width: 0; }
+#lp .lp-mock-leak-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); }
+#lp .lp-mock-leak-detail { font-size: 10px; color: rgba(255,255,255,0.4); font-family: monospace; margin-top: 1px; }
+#lp .lp-mock-leak-tag {
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+  color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2);
+  border-radius: 5px; padding: 2px 7px; flex-shrink: 0;
+}
+#lp .lp-mock-leaks-atlas {
+  display: flex; align-items: flex-start; gap: 8px; padding: 10px 12px;
+  background: rgba(140,255,46,0.04); border: 1px solid rgba(140,255,46,0.12);
+  border-radius: 8px; font-size: 11px; color: rgba(255,255,255,0.5); line-height: 1.5;
+}
+#lp .lp-mock-leaks-atlas em { color: rgba(140,255,46,0.8); font-style: normal; }
+#lp .lp-mock-leaks-atlas-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: rgb(140,255,46);
+  flex-shrink: 0; margin-top: 3px; box-shadow: 0 0 6px rgba(140,255,46,0.6);
+}
 #lp .lp-step-body { padding: 24px; }
 #lp .lp-step-num {
   display: inline-flex; align-items: center; justify-content: center;
