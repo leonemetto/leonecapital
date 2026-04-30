@@ -14,6 +14,65 @@ function EdgeFlowMark({ size = 18 }: { size?: number }) {
   );
 }
 
+const SECTIONS = [
+  {
+    title: '1. Who We Are',
+    body: `EdgeFlow ("we", "us", "our") operates the trading journal and analytics platform available at leone.capital. This Privacy Policy explains how we collect, use, store, and protect your personal data when you use our Service.\n\nBy creating an account or using EdgeFlow, you acknowledge that you have read and understood this Privacy Policy.`,
+  },
+  {
+    title: '2. Information We Collect',
+    body: `Account Information: When you register, we collect your email address, and optionally a display name (nickname) and profile picture.\n\nTrade Data: All trade records you enter manually or import via CSV — including instruments, direction, P&L, strategy, session, emotional state, notes, and screenshots.\n\nTrader Profile: Trading style, preferred instruments, sessions, rules, goals, and behavioural patterns you provide or that are inferred by the AI.\n\nUsage Data: We automatically collect your IP address, browser type, device type, pages visited, and session duration for security and service improvement purposes.\n\nCommunication Data: If you contact us by email, we retain that correspondence.`,
+  },
+  {
+    title: '3. How We Use Your Information',
+    body: `We use your data for the following purposes:\n\n• To provide and operate the EdgeFlow platform and all its features\n• To power Atlas — your trade data is sent to our AI service to generate personalised analysis\n• To send transactional emails (account confirmation, password reset)\n• To send performance digest emails and re-engagement emails (you may opt out at any time)\n• To monitor for security incidents, fraud, and abuse\n• To comply with applicable legal obligations\n• To improve the Service based on aggregated, anonymised usage patterns\n\nWe do not use your personal trading data for advertising, profiling for third-party purposes, or AI model training.`,
+  },
+  {
+    title: '4. Legal Basis for Processing (GDPR)',
+    body: `If you are located in the European Economic Area (EEA) or United Kingdom, we process your personal data under the following legal bases:\n\n• Contract performance: Processing necessary to provide the Service you have signed up for\n• Legitimate interests: Security monitoring, fraud prevention, and service improvement\n• Consent: Marketing emails (you may withdraw consent at any time)\n• Legal obligation: Where processing is required to comply with applicable law\n\nYou have the right to object to processing based on legitimate interests by contacting us at support@leone.capital.`,
+  },
+  {
+    title: '5. Sub-Processors and Third-Party Services',
+    body: `To deliver the Service, we share data with the following trusted sub-processors. Each is contractually bound to process data only as instructed and to maintain appropriate security standards:\n\n• Supabase (supabase.com) — Database, authentication, and file storage. Your trade data is stored on Supabase infrastructure with row-level security. Data is hosted on AWS infrastructure.\n\n• Anthropic (anthropic.com) — Powers the Atlas AI analyst. Your most recent trade data and trader profile are sent to Anthropic's Claude API when you use Atlas. Anthropic does not use your data to train its models under standard API terms.\n\n• Resend (resend.com) — Email delivery for account notifications, re-engagement emails, and weekly digest emails. Your email address is shared with Resend for this purpose.\n\n• Sentry (sentry.io) — Error monitoring in production. Sentry may receive anonymised error reports including browser and device information. We strip personally identifiable information before errors are reported.\n\n• Vercel (vercel.com) — Hosting and content delivery for the frontend application. Vercel processes request logs including IP addresses.\n\nWe do not sell your data to any third party. We do not share your trade data with advertisers or data brokers.`,
+  },
+  {
+    title: '6. Data Security',
+    body: `We implement the following security measures to protect your data:\n\n• Row-level security (RLS) on all database tables — every query is scoped to your user ID, preventing any cross-account data access\n• JWT authentication required for all API and edge function requests\n• Per-user rate limiting on all AI endpoints\n• HTTPS encryption for all data in transit\n• Data encrypted at rest on Supabase (SOC 2 compliant infrastructure)\n• No raw stack traces or internal error details are exposed to clients\n\nDespite these measures, no system is completely secure. In the event of a data breach that is likely to result in a risk to your rights and freedoms, we will notify you without undue delay and in accordance with applicable law.`,
+  },
+  {
+    title: '7. AI and Atlas — How Your Data Is Used',
+    body: `When you send a message to Atlas, the following data is transmitted to Anthropic's Claude API:\n\n• Your most recent 50 trade records (all fields)\n• Aggregated performance statistics (win rate, P&L, profit factor, session breakdowns)\n• Your trader profile (style, instruments, rules, and behavioural memory)\n• Your pre-trade criteria definitions\n\nThis data is sent over HTTPS and is used solely to generate your response. Anthropic does not use API inputs to train Claude models under their standard API usage policy.\n\nBehavioural insights extracted from Atlas conversations are stored in your trader profile within our database and used to provide continuity across future Atlas sessions. You can view these insights in your Settings page.`,
+  },
+  {
+    title: '8. Data Retention',
+    body: `We retain your account data and trade records for as long as your account remains active.\n\nIf you delete your account, all personal data and trade records associated with your account will be permanently and irreversibly deleted within 30 days of the deletion request.\n\nYou may delete demo data at any time from the Settings page. Anonymised, aggregated statistical data that cannot be linked back to you may be retained indefinitely for service improvement purposes.`,
+  },
+  {
+    title: '9. Your Rights',
+    body: `Depending on your location, you may have the following rights regarding your personal data:\n\n• Access: Request a copy of the personal data we hold about you\n• Correction: Request correction of inaccurate or incomplete data\n• Deletion: Request permanent deletion of your data ("right to be forgotten")\n• Portability: Export your trade data as CSV at any time from the Trades DB page\n• Restriction: Request that we restrict processing of your data in certain circumstances\n• Objection: Object to processing based on legitimate interests\n• Withdrawal of consent: Unsubscribe from marketing emails at any time via the link in any email\n\nTo exercise any of these rights, contact us at support@leone.capital. We will respond within 30 days. We may need to verify your identity before processing certain requests.`,
+  },
+  {
+    title: '10. Children\'s Privacy',
+    body: `EdgeFlow is not directed at or intended for use by individuals under the age of 18. We do not knowingly collect personal data from anyone under 18. If you believe we have inadvertently collected data from a minor, please contact us at support@leone.capital and we will delete it promptly.`,
+  },
+  {
+    title: '11. Cookies',
+    body: `We use only essential session cookies required to maintain your authenticated login state. These cookies are strictly necessary for the Service to function.\n\nWe do not use:\n• Advertising or tracking cookies\n• Third-party analytics cookies\n• Social media tracking pixels\n\nYou may disable cookies in your browser, but this will prevent you from remaining logged in to EdgeFlow.`,
+  },
+  {
+    title: '12. International Data Transfers',
+    body: `EdgeFlow is operated globally. Your data may be processed in countries outside your country of residence, including the United States, where our sub-processors (Supabase, Anthropic, Resend, Vercel) operate their infrastructure.\n\nWhere data is transferred outside the EEA or UK, we ensure appropriate safeguards are in place, including reliance on Standard Contractual Clauses or the adequacy decisions of the relevant supervisory authority.`,
+  },
+  {
+    title: '13. Changes to This Policy',
+    body: `We may update this Privacy Policy from time to time to reflect changes in our practices, technology, or legal requirements. We will notify you of material changes by email to your registered address or via an in-app notice at least 14 days before the changes take effect.\n\nThe "Last updated" date at the top of this page always reflects the most recent revision. We encourage you to review this policy periodically.`,
+  },
+  {
+    title: '14. Contact and Complaints',
+    body: `If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your data, please contact us at:\n\nsupport@leone.capital\n\nWe aim to respond to all privacy enquiries within 5 business days.\n\nIf you are located in the EEA or UK and are not satisfied with our response, you have the right to lodge a complaint with your local data protection authority.`,
+  },
+];
+
 export default function Privacy() {
   const navigate = useNavigate();
   return (
@@ -38,46 +97,9 @@ export default function Privacy() {
           <span style={{ fontSize: 13, color: G, fontWeight: 600 }}>Legal</span>
         </div>
         <h1 style={{ fontSize: 'clamp(40px, 5vw, 72px)', fontWeight: 800, letterSpacing: '-2.5px', lineHeight: 1.0, marginBottom: 16 }}>Privacy Policy</h1>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 64 }}>Last updated: January 2025</p>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 64 }}>Last updated: April 2026</p>
 
-        {[
-          {
-            title: '1. Information We Collect',
-            body: `We collect information you provide directly to us when you create an account, log trades, or contact us. This includes your email address, trading data you enter (instruments, P&L, notes, strategies), and profile information such as your nickname and trading style preferences.\n\nWe also collect usage data automatically, including your IP address, browser type, pages visited, and the time and date of your visit.`,
-          },
-          {
-            title: '2. How We Use Your Information',
-            body: `We use your information to provide, maintain, and improve EdgeFlow. Specifically, we use it to:\n\n• Provide your trading journal and analytics services\n• Power the Atlas with your trade data context\n• Send re-engagement and weekly digest emails (opt-out available)\n• Detect and prevent fraud or abuse\n• Comply with legal obligations`,
-          },
-          {
-            title: '3. Data Security',
-            body: `Your trade data is stored in Supabase with row-level security. Every database query is scoped to your user ID — no other user can access your trades, accounts, or profile. API calls to our AI edge functions require JWT authentication and are rate-limited per user.\n\nWe never share, sell, or rent your personal data or trading data to third parties.`,
-          },
-          {
-            title: '4. AI and Data Processing',
-            body: `When you use Atlas, your most recent trades and trader profile are sent to Claude (Anthropic) to generate responses. This data is transmitted securely over HTTPS. We do not use your trading data to train AI models.\n\nBehavioural insights extracted from AI conversations are stored in your trader profile and used only to improve future Atlas responses for your account.`,
-          },
-          {
-            title: '5. Data Retention',
-            body: `We retain your account and trade data for as long as your account is active. If you delete your account, your data is permanently deleted within 30 days. You can delete your demo data at any time from the Settings page.`,
-          },
-          {
-            title: '6. Your Rights',
-            body: `You have the right to access, correct, or delete your personal data at any time. You can export your trade data as CSV from the Trades DB page. To request full data deletion, email us at support@leone.capital.`,
-          },
-          {
-            title: '7. Cookies',
-            body: `We use essential cookies to maintain your login session. We do not use tracking cookies or advertising cookies. You can disable cookies in your browser settings, though this will prevent you from staying logged in.`,
-          },
-          {
-            title: '8. Changes to This Policy',
-            body: `We may update this Privacy Policy from time to time. We will notify you of material changes by email or by posting a notice on the app. Continued use of EdgeFlow after changes constitutes acceptance of the updated policy.`,
-          },
-          {
-            title: '9. Contact',
-            body: `If you have questions about this Privacy Policy or how we handle your data, contact us at:\n\nsupport@leone.capital`,
-          },
-        ].map(({ title, body }) => (
+        {SECTIONS.map(({ title, body }) => (
           <div key={title} style={{ marginBottom: 52 }}>
             <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.5px', marginBottom: 16 }}>{title}</h2>
             {body.split('\n\n').map((para, i) => (
@@ -93,7 +115,7 @@ export default function Privacy() {
           <EdgeFlowMark size={16}/>
           <span style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>EdgeFlow</span>
         </div>
-        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>© 2025 EdgeFlow. All rights reserved.</p>
+        <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.25)' }}>© 2026 EdgeFlow. All rights reserved.</p>
       </footer>
     </div>
   );
