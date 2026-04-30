@@ -377,13 +377,13 @@ export default function Landing() {
         </p>
         <div className="lp-hero-ctas">
           <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>
-            Start journaling free<span className="lp-cta-arrow-wrap">→</span>
+            Analyse my trades free<span className="lp-cta-arrow-wrap">→</span>
           </button>
           <a href="#how" className="lp-btn-secondary-lg">See how it works</a>
         </div>
         <div className="lp-hero-trust">
-          <span className="lp-hero-trust-item">Start free — no credit card</span>
-          <span className="lp-hero-trust-item">50 trades included</span>
+          <span className="lp-hero-trust-item">No credit card needed</span>
+          <span className="lp-hero-trust-item">50 trades on the free tier</span>
           <span className="lp-hero-trust-item">Set up in under 5 minutes</span>
         </div>
 
@@ -446,8 +446,8 @@ export default function Landing() {
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> How it works</div>
-            <h2 className="lp-section-title">From raw trades to<br/>real insights</h2>
-            <p className="lp-section-sub">Three simple steps between your brokerage and the clarity you've been missing.</p>
+            <h2 className="lp-section-title">Three steps from<br/>trade to edge.</h2>
+            <p className="lp-section-sub">Log it. Analyse it. Cut what's losing and double down on what works.</p>
           </div>
           <div className="lp-steps-grid">
             <div className="lp-step-card lp-reveal lp-delay-1">
@@ -489,8 +489,8 @@ export default function Landing() {
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> See it in action</div>
-            <h2 className="lp-section-title">Every tool you need,<br/>in one place</h2>
-            <p className="lp-section-sub">Click through to explore the dashboard and every major feature.</p>
+            <h2 className="lp-section-title">Your entire trading brain,<br/>in one tab.</h2>
+            <p className="lp-section-sub">From trade log to leak detection to AI analyst — click through each tool below.</p>
           </div>
           <div className="lp-preview-tabs lp-reveal">
             {PREVIEW_TABS.map((tab, i) => (
@@ -660,8 +660,8 @@ export default function Landing() {
         <div className="lp-container">
           <div className="lp-reveal" style={{ textAlign: 'center' }}>
             <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Pricing</div>
-            <h2 className="lp-section-title">Simple plans.</h2>
-            <p className="lp-section-sub" style={{ margin: '0 auto' }}>Start free. Upgrade when your edge needs more power.</p>
+            <h2 className="lp-section-title">Start free.<br/>Upgrade when you're ready to go deep.</h2>
+            <p className="lp-section-sub" style={{ margin: '0 auto' }}>No commitment. Your trade history carries over on any plan.</p>
             <div className="lp-billing-toggle">
               <span className={`lp-billing-label${!annualBilling ? ' active' : ''}`}>Monthly</span>
               <button
@@ -740,7 +740,7 @@ export default function Landing() {
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> FAQ</div>
-            <h2 className="lp-section-title">Got questions?<br/>We've got answers.</h2>
+            <h2 className="lp-section-title">Questions traders ask.</h2>
           </div>
           <div className="lp-faq-list lp-reveal">
             {FAQS.map((item, i) => (
@@ -809,7 +809,7 @@ export default function Landing() {
         </div>
         <div className="lp-footer-bottom">
           <span>© 2026 EdgeFlow. All rights reserved.</span>
-          <span>Built for traders, by traders.</span>
+          <span>Powered by Claude · Built on Supabase · Hosted on Vercel</span>
         </div>
       </footer>
 
