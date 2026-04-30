@@ -376,7 +376,7 @@
 #lp .lp-step-card:hover { border-color: rgba(140,255,46,0.2); }
 #lp .lp-step-mockup {
   width: 100%; background: #0a0a0a; border-bottom: 1px solid var(--lp-border);
-  padding: 0; height: 240px; display: flex; flex-direction: column; gap: 8px;
+  padding: 0; height: 340px; display: flex; flex-direction: column; gap: 8px;
   overflow: hidden;
 }
 #lp .lp-step-mockup img {
