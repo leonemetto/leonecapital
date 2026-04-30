@@ -39,9 +39,8 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
   },
   mt4: {
     label: 'MT4 / MT5',
-    hint: 'Export from MetaTrader 4 or 5 Account History',
+    hint: 'MetaTrader 4 or 5 Account History export',
     map: (row) => {
-      // MT4 columns: Ticket, Open Time, Type, Size, Item, Price, S/L, T/P, Close Time, Price, Commission, Swap, Profit
       const ticket = row['Ticket'] || row['ticket'];
       const symbol = row['Item'] || row['Symbol'] || row['symbol'];
       const type = (row['Type'] || row['type'] || '').toLowerCase();
@@ -59,6 +58,158 @@ const TEMPLATES: Record<string, { label: string; hint: string; map: (row: Record
         outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
         pnl: profit,
         notes: ticket ? `MT4 Ticket #${ticket}` : '',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  tradingview: {
+    label: 'TradingView',
+    hint: 'Strategy Tester → List of Trades → Export CSV',
+    map: (row) => {
+      // Only process Exit rows — they carry the realised P&L
+      const type = (row['Type'] || '').toLowerCase();
+      if (!type.includes('exit')) return null;
+      const dateTime = row['Date/Time'] || row['Date'] || '';
+      if (!dateTime) return null;
+      const profitRaw = row['Profit'] || row['Profit USDT'] || row['Profit USD'] || row['Profit, USDT'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const symbol = row['Symbol'] || row['Ticker'] || row['Instrument'] || 'Unknown';
+      const isLong = type.includes('long');
+      return {
+        date: dateTime.slice(0, 10),
+        instrument: symbol,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['Trade #'] ? `TradingView Trade #${row['Trade #']}` : 'TradingView',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  ctrader: {
+    label: 'cTrader',
+    hint: 'History → Deals → Export to CSV',
+    map: (row) => {
+      // cTrader: Position ID, Symbol, Direction, Volume (lots), Entry Price, Close Price, Commission, Swap, Net Profit, Open Time, Close Time
+      const symbol = row['Symbol'] || row['symbol'];
+      const direction = (row['Direction'] || row['direction'] || row['Side'] || '').toLowerCase();
+      const profit = parseFloat(row['Net Profit'] || row['Net profit'] || row['Profit'] || row['profit'] || '0');
+      const closeTime = row['Close Time'] || row['close_time'] || row['CloseTime'] || row['Date'] || '';
+      if (!symbol || !closeTime) return null;
+      const isBuy = direction.includes('buy') || direction.includes('long');
+      const posId = row['Position ID'] || row['Deal ID'] || '';
+      return {
+        date: closeTime.slice(0, 10),
+        instrument: symbol,
+        direction: isBuy ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: posId ? `cTrader Position #${posId}` : 'cTrader',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  deriv: {
+    label: 'Deriv',
+    hint: 'Reports → Profit/Loss → Export CSV',
+    map: (row) => {
+      // Deriv Trade History: Date, Trade ID, Trade type, Asset, Buy price, Sell price, Profit/Loss
+      // Deriv Statement: Date, Ref., Description, Action, Credit/Debit, Balance
+      const asset = row['Asset'] || row['Symbol'] || row['Instrument'] || row['Description'] || '';
+      const profitRaw = row['Profit/Loss'] || row['Profit / Loss'] || row['Credit/Debit'] || row['Net P&L'] || '';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const dateRaw = row['Date'] || row['Close Time'] || row['Sell Time'] || '';
+      if (!dateRaw || !asset) return null;
+      const tradeType = (row['Trade type'] || row['Type'] || row['Action'] || '').toLowerCase();
+      // Skip deposits / withdrawals
+      if (tradeType && (tradeType.includes('deposit') || tradeType.includes('withdrawal') || tradeType.includes('transfer'))) return null;
+      const isLong = tradeType.includes('call') || tradeType.includes('rise') || tradeType.includes('buy') || tradeType.includes('long');
+      const ref = row['Ref.'] || row['Trade ID'] || '';
+      return {
+        date: dateRaw.slice(0, 10),
+        instrument: asset,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: ref ? `Deriv Ref #${ref}` : 'Deriv',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  binance: {
+    label: 'Binance',
+    hint: 'Futures → Orders → Closed Positions → Export',
+    map: (row) => {
+      // Binance Futures Closed Positions: Symbol, Closed PNL, Avg Entry Price, Avg Close Price, Open Time, Close Time
+      // Binance Trade History: Time, Symbol, Side, Price, Qty, Realized Profit
+      const symbol = row['Symbol'] || row['symbol'] || row['Pair'] || '';
+      const profitRaw = row['Closed PNL'] || row['Realized Profit'] || row['realizedProfit'] || row['PNL'] || row['Profit'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const closeTime = row['Close Time'] || row['closeTime'] || row['Time'] || row['time'] || row['Date'] || '';
+      if (!symbol || !closeTime) return null;
+      const side = (row['Side'] || row['side'] || row['Direction'] || '').toLowerCase();
+      const isLong = side.includes('long') || side.includes('buy');
+      return {
+        date: closeTime.slice(0, 10),
+        instrument: symbol,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['Order ID'] ? `Binance #${row['Order ID']}` : 'Binance',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  ibkr: {
+    label: 'Interactive Brokers',
+    hint: 'Reports → Activity Statement → Trades section',
+    map: (row) => {
+      // IBKR Activity Statement Trades section
+      // Symbol, Date/Time, Quantity, T. Price, Proceeds, Comm/Fee, Basis, Realized P/L, Asset Category
+      const symbol = row['Symbol'] || row['symbol'];
+      const realizedPL = parseFloat(row['Realized P/L'] || row['Realized PnL'] || row['Realized P&L'] || '0');
+      const dateTime = row['Date/Time'] || row['Date'] || '';
+      const assetCat = (row['Asset Category'] || row['DataDiscriminator'] || '').toLowerCase();
+      // Skip non-data rows (headers, totals, subtotals)
+      if (assetCat.includes('header') || assetCat.includes('total') || assetCat.includes('subtotal')) return null;
+      if (!symbol || !dateTime) return null;
+      const qty = parseFloat(row['Quantity'] || row['quantity'] || '0');
+      return {
+        date: dateTime.slice(0, 10),
+        instrument: symbol,
+        direction: qty >= 0 ? 'long' : 'short',
+        outcome: realizedPL > 0 ? 'win' : realizedPL < 0 ? 'loss' : 'breakeven',
+        pnl: realizedPL,
+        notes: 'IBKR',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
+  tradestation: {
+    label: 'TradeStation',
+    hint: 'TradeManager → Closed Positions → Export',
+    map: (row) => {
+      // TradeStation: Symbol, Entry Date, Exit Date, Direction (Long/Short), Quantity, Entry Price, Exit Price, Commissions, Profit/Loss
+      const symbol = row['Symbol'] || row['symbol'];
+      const profitRaw = row['Profit/Loss'] || row['P/L'] || row['Net Profit'] || row['Profit'] || '0';
+      const profit = parseFloat(profitRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const exitDate = row['Exit Date'] || row['Close Date'] || row['Date'] || '';
+      if (!symbol || !exitDate) return null;
+      const direction = (row['Direction'] || row['Side'] || row['Type'] || '').toLowerCase();
+      const isLong = direction.includes('long') || direction.includes('buy');
+      return {
+        date: exitDate.slice(0, 10),
+        instrument: symbol,
+        direction: isLong ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: 'TradeStation',
         strategy: '',
         session: '',
       };
@@ -209,7 +360,7 @@ export default function ImportTrades() {
           </button>
           <div>
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Import Trades</h1>
-            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Import from CSV — EdgeFlow export, MT4/MT5, or generic</div>
+            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Supports EdgeFlow, MT4/MT5, TradingView, cTrader, Deriv, Binance, IBKR, TradeStation</div>
           </div>
         </div>
 
@@ -231,7 +382,7 @@ export default function ImportTrades() {
             {/* Step 1 — Template */}
             <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
               <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">1. Select Format</p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {(Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]).map((key) => (
                   <button
                     key={key}
