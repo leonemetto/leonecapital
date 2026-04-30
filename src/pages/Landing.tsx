@@ -549,7 +549,7 @@ export default function Landing() {
         </div>
         <div className="lp-atlas-copy lp-reveal">
           <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> Meet Atlas</div>
-          <h2 className="lp-atlas-title">Your AI analyst.<br/>Not a chatbot.</h2>
+          <h2 className="lp-atlas-title">Your personal<br/>AI analyst.</h2>
           <p className="lp-atlas-body">Atlas has full context of every trade you've logged — win rates, expectancy by session, behavioral patterns, plan adherence, and your trader profile. Ask it anything. It gives direct, data-backed answers. No filler, no motivational fluff.</p>
           <ul className="lp-atlas-list">
             <li>Full context of your last 50 trades per message</li>
