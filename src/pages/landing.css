@@ -1163,6 +1163,106 @@
   #lp .lp-cta-section { padding: 80px 20px; }
 }
 
+/* ─── BROKERS SECTION ──────────────────────────────────────────────────────── */
+#lp .lp-brokers-section { padding: 120px 40px; }
+
+#lp .lp-brokers-steps {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  margin-bottom: 64px;
+}
+
+#lp .lp-brokers-step {
+  flex: 1;
+  padding: 32px;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+}
+
+#lp .lp-brokers-step-arrow {
+  flex-shrink: 0;
+  width: 48px;
+  text-align: center;
+  font-size: 22px;
+  color: var(--lp-green);
+  padding-top: 36px;
+}
+
+#lp .lp-brokers-step-num {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--lp-green);
+  letter-spacing: 0.12em;
+  margin-bottom: 12px;
+}
+
+#lp .lp-brokers-step-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--lp-ink);
+  letter-spacing: -0.3px;
+  margin-bottom: 8px;
+}
+
+#lp .lp-brokers-step-body {
+  font-size: 14px;
+  color: var(--lp-ink3);
+  line-height: 1.65;
+}
+
+#lp .lp-brokers-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+
+#lp .lp-broker-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--lp-surface);
+  border: 1px solid var(--lp-border);
+  border-radius: 99px;
+  transition: border-color 0.2s;
+}
+
+#lp .lp-broker-pill:hover { border-color: rgba(140,255,46,0.3); }
+
+#lp .lp-broker-pill-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lp-ink);
+}
+
+#lp .lp-broker-pill-cat {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--lp-ink4);
+  padding: 2px 7px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 99px;
+}
+
+#lp .lp-broker-pill-more {
+  border-style: dashed;
+  border-color: rgba(255,255,255,0.12);
+}
+
+#lp .lp-broker-pill-more .lp-broker-pill-name {
+  color: var(--lp-ink3);
+}
+
+@media (max-width: 768px) {
+  #lp .lp-brokers-section { padding: 80px 20px; }
+  #lp .lp-brokers-steps { flex-direction: column; gap: 12px; }
+  #lp .lp-brokers-step-arrow { display: none; }
+  #lp .lp-brokers-step { padding: 24px; }
+}
+
 @media (max-width: 480px) {
   #lp .lp-for-grid { grid-template-columns: 1fr; }
   #lp .lp-footer-top { grid-template-columns: 1fr; }

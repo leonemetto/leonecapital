@@ -329,6 +329,7 @@ export default function Landing() {
         <ul className="lp-nav-links">
           <li><a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a></li>
           <li><a href="#preview" onClick={() => setMobileMenuOpen(false)}>Features</a></li>
+          <li><a href="#brokers" onClick={() => setMobileMenuOpen(false)}>Brokers</a></li>
           <li><a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a></li>
           <li><a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a></li>
         </ul>
@@ -349,6 +350,7 @@ export default function Landing() {
       <div className={`lp-mobile-menu${mobileMenuOpen ? ' open' : ''}`}>
         <a href="#how" onClick={() => setMobileMenuOpen(false)}>How it works</a>
         <a href="#preview" onClick={() => setMobileMenuOpen(false)}>Features</a>
+        <a href="#brokers" onClick={() => setMobileMenuOpen(false)}>Brokers</a>
         <a href="#pricing" onClick={() => setMobileMenuOpen(false)}>Pricing</a>
         <a href="#faq" onClick={() => setMobileMenuOpen(false)}>FAQ</a>
         <div className="lp-mobile-menu-actions">
@@ -593,9 +595,8 @@ export default function Landing() {
               ['SUM() formulas you built and maintain', 'Win rate, expectancy, profit factor, max drawdown — built in'],
               ['You have to notice your own patterns', 'Leak Detection flags negative-expectancy patterns automatically'],
               ['No behavioral data', 'Emotional state, plan adherence, and confidence tracked per trade'],
-              ['ChatGPT with a pasted CSV', 'Atlas — live AI analyst with full context of every trade you\'ve logged'],
+              ['No way to ask questions about your data', 'Atlas — AI analyst with full context of every trade you\'ve logged'],
               ['Another tab per account', 'Multi-account analytics, unified in one dashboard'],
-              ['Manual broker export and paste', 'MT4/MT5, cTrader, TradingView, Binance, Bybit, OANDA, IBKR, IG, Thinkorswim, NinjaTrader — all supported'],
               ['Screenshot of a chart', 'One-click PDF performance report'],
             ].map(([bad, good], i) => (
               <div key={i} className="lp-vs-row">
@@ -630,6 +631,72 @@ export default function Landing() {
                 </div>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* BROKERS */}
+      <section id="brokers" className="lp-brokers-section">
+        <div className="lp-container">
+          <div className="lp-reveal" style={{ textAlign: 'center', marginBottom: 56 }}>
+            <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Broker support</div>
+            <h2 className="lp-section-title">Works with your broker.<br/>Already.</h2>
+            <p className="lp-section-sub" style={{ margin: '0 auto', maxWidth: 520 }}>No integrations to set up. No API keys. Every major broker lets you export your trade history as a file — upload it to EdgeFlow and your data is ready in seconds.</p>
+          </div>
+
+          {/* 3 steps */}
+          <div className="lp-brokers-steps lp-reveal">
+            <div className="lp-brokers-step">
+              <div className="lp-brokers-step-num">01</div>
+              <h3 className="lp-brokers-step-title">Export from your broker</h3>
+              <p className="lp-brokers-step-body">Every broker has a built-in export. Go to your trade history, click export, and save the file. Takes under a minute.</p>
+            </div>
+            <div className="lp-brokers-step-arrow">→</div>
+            <div className="lp-brokers-step">
+              <div className="lp-brokers-step-num">02</div>
+              <h3 className="lp-brokers-step-title">Upload to EdgeFlow</h3>
+              <p className="lp-brokers-step-body">Go to Import Trades, select your broker from the list, and drop the file. EdgeFlow reads it automatically.</p>
+            </div>
+            <div className="lp-brokers-step-arrow">→</div>
+            <div className="lp-brokers-step">
+              <div className="lp-brokers-step-num">03</div>
+              <h3 className="lp-brokers-step-title">Your analytics are ready</h3>
+              <p className="lp-brokers-step-body">Your full trade history appears instantly across every report, chart, and AI analysis. Nothing to configure.</p>
+            </div>
+          </div>
+
+          {/* Broker grid */}
+          <div className="lp-brokers-grid lp-reveal">
+            {[
+              { name: 'Exness', cat: 'Forex / CFD' },
+              { name: 'XM', cat: 'Forex / CFD' },
+              { name: 'Pepperstone', cat: 'Forex / CFD' },
+              { name: 'IC Markets', cat: 'Forex / CFD' },
+              { name: 'HFM', cat: 'Forex / CFD' },
+              { name: 'FBS', cat: 'Forex / CFD' },
+              { name: 'Admirals', cat: 'Forex / CFD' },
+              { name: 'Vantage', cat: 'Forex / CFD' },
+              { name: 'Deriv', cat: 'Forex / CFD' },
+              { name: 'OANDA', cat: 'Forex' },
+              { name: 'IG Markets', cat: 'CFD' },
+              { name: 'FxPro', cat: 'Forex / CFD' },
+              { name: 'TradingView', cat: 'Multi-asset' },
+              { name: 'cTrader', cat: 'Platform' },
+              { name: 'Binance', cat: 'Crypto' },
+              { name: 'Bybit', cat: 'Crypto' },
+              { name: 'Interactive Brokers', cat: 'Multi-asset' },
+              { name: 'Thinkorswim', cat: 'US Markets' },
+              { name: 'TradeStation', cat: 'US Markets' },
+              { name: 'NinjaTrader', cat: 'Futures' },
+            ].map((b) => (
+              <div key={b.name} className="lp-broker-pill">
+                <span className="lp-broker-pill-name">{b.name}</span>
+                <span className="lp-broker-pill-cat">{b.cat}</span>
+              </div>
+            ))}
+            <div className="lp-broker-pill lp-broker-pill-more">
+              <span className="lp-broker-pill-name">+ any MT4/MT5 broker</span>
+            </div>
           </div>
         </div>
       </section>
