@@ -446,14 +446,14 @@ export default function Landing() {
                 {/* Analytics mockup */}
                 <div className="lp-mock-analytics">
                   <div className="lp-mock-analytics-header">
-                    <span>Instrument</span><span>Win %</span><span>Expect.</span><span>Net P&L</span>
+                    <span>Instrument</span><span>Win %</span><span>Expect.</span>
                   </div>
                   {[
-                    { name: 'EURUSD', win: 71, exp: '+2.4R', pnl: '+$1,840', pos: true },
-                    { name: 'NAS100', win: 64, exp: '+1.8R', pnl: '+$1,220', pos: true },
-                    { name: 'GBPUSD', win: 58, exp: '+0.6R', pnl: '+$340', pos: true },
-                    { name: 'XAUUSD', win: 38, exp: '−1.2R', pnl: '−$680', pos: false },
-                    { name: 'US30',   win: 31, exp: '−2.1R', pnl: '−$950', pos: false },
+                    { name: 'EURUSD', win: 71, exp: '+2.4R', pos: true },
+                    { name: 'NAS100', win: 64, exp: '+1.8R', pos: true },
+                    { name: 'GBPUSD', win: 58, exp: '+0.6R', pos: true },
+                    { name: 'XAUUSD', win: 38, exp: '−1.2R', pos: false },
+                    { name: 'US30',   win: 31, exp: '−2.1R', pos: false },
                   ].map(row => (
                     <div className="lp-mock-analytics-row" key={row.name}>
                       <span className="lp-mock-analytics-name">{row.name}</span>
@@ -462,7 +462,6 @@ export default function Landing() {
                         <span className="lp-mock-analytics-bar-label">{row.win}%</span>
                       </span>
                       <span style={{ color: row.pos ? 'rgb(140,255,46)' : '#f87171', fontFamily: 'monospace', fontSize: 11 }}>{row.exp}</span>
-                      <span style={{ color: row.pos ? 'rgb(140,255,46)' : '#f87171', fontFamily: 'monospace', fontSize: 11 }}>{row.pnl}</span>
                     </div>
                   ))}
                 </div>
