@@ -136,6 +136,13 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     setScreenshotPreview(URL.createObjectURL(file));
   };
 
+  const safeImgSrc = (url: string | null | undefined): string => {
+    if (!url) return '';
+    // Only allow blob: (local preview) and https: (Supabase signed URLs)
+    if (url.startsWith('blob:') || url.startsWith('https://')) return url;
+    return '';
+  };
+
   const clearScreenshot = () => {
     setScreenshotFile(null);
     setScreenshotPreview(null);
@@ -467,7 +474,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                 {screenshotPreview || initialData?.screenshotUrl ? (
                   <div className="mt-1 relative inline-block">
                     <img
-                      src={screenshotPreview ?? ''}
+                      src={safeImgSrc(screenshotPreview ?? initialData?.screenshotUrl)}
                       alt="Chart screenshot"
                       className="h-28 w-auto rounded-lg border border-border object-cover"
                     />
