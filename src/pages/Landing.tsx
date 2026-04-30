@@ -280,12 +280,52 @@ export default function Landing() {
     document.head.appendChild(link);
   }, []);
 
+  /* Hero stat badges: staggered pop-in after page load (Remotion SceneReveal style) */
+  useEffect(() => {
+    const badges = document.querySelectorAll<HTMLElement>('#lp .lp-stat-badge-el');
+    badges.forEach((badge, i) => {
+      setTimeout(() => badge.classList.add('active'), 900 + i * 220);
+    });
+  }, []);
+
+  /* Count-up: animate numeric values in .lp-count-up when they scroll into view */
+  useEffect(() => {
+    const els = document.querySelectorAll<HTMLElement>('#lp .lp-count-up');
+    if (!els.length) return;
+    function countUp(el: HTMLElement) {
+      const target = parseFloat(el.dataset.target ?? '0');
+      const suffix = el.dataset.suffix ?? '';
+      const prefix = el.dataset.prefix ?? '';
+      const decimals = el.dataset.decimals ? parseInt(el.dataset.decimals) : 0;
+      const duration = 900;
+      const start = performance.now();
+      function frame(now: number) {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const val = target * eased;
+        el.textContent = prefix + val.toFixed(decimals) + suffix;
+        if (t < 1) requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    }
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          countUp(entry.target as HTMLElement);
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    els.forEach(el => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div id="lp">
       {/* NAV */}
       <nav className={`lp-nav${navScrolled ? ' scrolled' : ''}`}>
         <div className="lp-nav-logo" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>
-          <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'rgb(140,255,46)', flexShrink: 0 }}>
+          <svg className="lp-nav-logo-mark" width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'rgb(140,255,46)', flexShrink: 0 }}>
             <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
             <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
             <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
@@ -351,6 +391,19 @@ export default function Landing() {
 
         <div className="lp-hero-tilt-wrap">
           <div className="lp-hero-tilt-inner" ref={tiltInnerRef}>
+            {/* Floating stat badges — animate in after hero loads (Remotion SceneReveal style) */}
+            <div className="lp-hero-stat-badge lp-badge-winrate lp-stat-badge-el">
+              <div className="lp-hero-stat-badge-label">Win Rate</div>
+              <div className="lp-hero-stat-badge-value pos">64%</div>
+            </div>
+            <div className="lp-hero-stat-badge lp-badge-pnl lp-stat-badge-el">
+              <div className="lp-hero-stat-badge-label">Net P&L</div>
+              <div className="lp-hero-stat-badge-value pos">+$4,820</div>
+            </div>
+            <div className="lp-hero-stat-badge lp-badge-streak lp-stat-badge-el">
+              <div className="lp-hero-stat-badge-label">Expectancy</div>
+              <div className="lp-hero-stat-badge-value pos">+1.3R</div>
+            </div>
             <div className="lp-hero-preview-bezel">
             <div className="lp-hero-preview">
               <div className="lp-hero-preview-chrome">
@@ -371,11 +424,11 @@ export default function Landing() {
       {/* HERO STRIP */}
       <div className="lp-hero-strip">
         <div className="lp-hero-strip-item">
-          <div className="lp-hero-strip-num">20<span>+</span></div>
+          <div className="lp-hero-strip-num"><span className="lp-count-up" data-target="20" data-suffix="+">20+</span></div>
           <div className="lp-hero-strip-label">Data points captured per trade</div>
         </div>
         <div className="lp-hero-strip-item">
-          <div className="lp-hero-strip-num">8<span>+</span></div>
+          <div className="lp-hero-strip-num"><span className="lp-count-up" data-target="8" data-suffix="+">8+</span></div>
           <div className="lp-hero-strip-label">Performance breakdowns built in</div>
         </div>
         <div className="lp-hero-strip-item">
@@ -383,7 +436,7 @@ export default function Landing() {
           <div className="lp-hero-strip-label">Powered by Claude (Anthropic)</div>
         </div>
         <div className="lp-hero-strip-item">
-          <div className="lp-hero-strip-num">$0</div>
+          <div className="lp-hero-strip-num"><span className="lp-count-up" data-target="0" data-prefix="$">$0</span></div>
           <div className="lp-hero-strip-label">Free to start — no card needed</div>
         </div>
       </div>
