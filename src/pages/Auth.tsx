@@ -102,6 +102,12 @@ export default function Auth() {
     e.preventDefault();
     setLoading(true);
 
+    if (!isLogin && password.length < 8) {
+      toast.error('Password must be at least 8 characters');
+      setLoading(false);
+      return;
+    }
+
     if (isLogin) {
       const { error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {

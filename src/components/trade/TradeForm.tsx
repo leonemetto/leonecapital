@@ -120,7 +120,18 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     }
   };
 
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'];
+  const MAX_SCREENSHOT_BYTES = 10 * 1024 * 1024; // 10 MB
+
   const handleScreenshotSelect = (file: File) => {
+    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      toast({ title: 'Invalid file type', description: 'Please upload a JPEG, PNG, GIF, WebP or SVG image.', variant: 'destructive' });
+      return;
+    }
+    if (file.size > MAX_SCREENSHOT_BYTES) {
+      toast({ title: 'File too large', description: 'Screenshot must be under 10 MB.', variant: 'destructive' });
+      return;
+    }
     setScreenshotFile(file);
     setScreenshotPreview(URL.createObjectURL(file));
   };
