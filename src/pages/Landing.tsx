@@ -809,7 +809,7 @@ export default function Landing() {
         </div>
         <div className="lp-footer-bottom">
           <span>© 2026 EdgeFlow. All rights reserved.</span>
-          <span>Powered by Claude · Built on Supabase · Hosted on Vercel</span>
+          <span>The professional trading journal.</span>
         </div>
       </footer>
 
