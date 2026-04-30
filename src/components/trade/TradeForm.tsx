@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Trade, TradeFormData, SESSIONS, HTF_BIASES } from '@/types/trade';
@@ -78,6 +78,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
   const { activeCriteria } = useCriteria();
   const [checks, setChecks] = useState<Record<string, boolean>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const submitLock = useRef(false);
   const [screenshotFile, setScreenshotFile] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   // Show advanced by default when editing an existing trade that has advanced fields
@@ -177,7 +178,8 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     const outcome = form.outcome as 'win' | 'loss' | 'breakeven';
     const pnl = outcome === 'breakeven' ? 0 : outcome === 'loss' ? -Math.abs(rawPnl) : Math.abs(rawPnl);
 
-    if (isSubmitting) return;
+    if (submitLock.current) return;
+    submitLock.current = true;
     setIsSubmitting(true);
     try {
       // Upload screenshot first so we can store path in one insert
@@ -249,6 +251,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         toast.error(err.message || 'Failed to save trade');
       }
     } finally {
+      submitLock.current = false;
       setIsSubmitting(false);
     }
   };

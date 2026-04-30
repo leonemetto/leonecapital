@@ -40,13 +40,13 @@ function EdgeFlowMark({ size = 20 }: { size?: number }) {
 
 const baseNavItems = [
   { title: 'Dashboard',       short: 'Dash',    path: '/dashboard',       Icon: ChartLineUp },
-  { title: 'Analytics',       short: 'Stats',   path: '/analyst',         Icon: ChartBar },
   { title: 'Trades DB',       short: 'Trades',  path: '/journal',         Icon: Rows },
-  { title: 'Accounts',        short: 'Accounts',path: '/accounts',        Icon: CurrencyDollar },
-  { title: 'Atlas',           short: 'AI',      path: '/ai',              Icon: Brain },
-  { title: 'Trading Plan',    short: 'Plan',    path: '/trading-plan',    Icon: ClipboardText },
+  { title: 'Analytics',       short: 'Stats',   path: '/analyst',         Icon: ChartBar },
   { title: 'Leak Detection',  short: 'Leaks',   path: '/leak-detection',  Icon: Drop,   badge: true },
   { title: 'Optimizer',       short: 'Optim.',  path: '/what-if',         Icon: Scales },
+  { title: 'Atlas',           short: 'AI',      path: '/ai',              Icon: Brain },
+  { title: 'Trading Plan',    short: 'Plan',    path: '/trading-plan',    Icon: ClipboardText },
+  { title: 'Accounts',        short: 'Accts',   path: '/accounts',        Icon: CurrencyDollar },
 ];
 
 export function AppSidebar() {
