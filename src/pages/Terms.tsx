@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 
-const G = '#adff2f';
+const G = 'rgb(140,255,46)';
 
 function EdgeFlowMark({ size = 18 }: { size?: number }) {
   return (
