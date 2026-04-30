@@ -649,19 +649,19 @@ export default function Landing() {
             <div className="lp-brokers-step">
               <div className="lp-brokers-step-num">01</div>
               <h3 className="lp-brokers-step-title">Export from your broker</h3>
-              <p className="lp-brokers-step-body">Every broker has a built-in export. Go to your trade history, click export, and save the file. Takes under a minute.</p>
+              <p className="lp-brokers-step-body">Go to your broker's trade history and export your trades as a file. Every platform supports this — it takes one click.</p>
             </div>
             <div className="lp-brokers-step-arrow">→</div>
             <div className="lp-brokers-step">
               <div className="lp-brokers-step-num">02</div>
-              <h3 className="lp-brokers-step-title">Upload to EdgeFlow</h3>
-              <p className="lp-brokers-step-body">Go to Import Trades, select your broker from the list, and drop the file. EdgeFlow reads it automatically.</p>
+              <h3 className="lp-brokers-step-title">Import into EdgeFlow</h3>
+              <p className="lp-brokers-step-body">Select your broker from the list and upload the file. EdgeFlow reads it, maps every trade, and handles the rest automatically.</p>
             </div>
             <div className="lp-brokers-step-arrow">→</div>
             <div className="lp-brokers-step">
               <div className="lp-brokers-step-num">03</div>
               <h3 className="lp-brokers-step-title">Your analytics are ready</h3>
-              <p className="lp-brokers-step-body">Your full trade history appears instantly across every report, chart, and AI analysis. Nothing to configure.</p>
+              <p className="lp-brokers-step-body">Your full trade history loads instantly across every report, chart, and AI analysis. Nothing else to set up.</p>
             </div>
           </div>
 
