@@ -355,6 +355,31 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
       };
     },
   },
+  tradovate: {
+    label: 'Tradovate',
+    hint: 'Performance → Trade History → Export CSV',
+    brokers: ['Tradovate'],
+    map: (row) => {
+      // Tradovate columns: id, accountId, contractName, orderId, fillId, action, qty, price, fees, realizedPnL, commission, tradeDate
+      const symbol = row['contractName'] || row['Contract'] || row['Symbol'] || '';
+      const action = (row['action'] || row['Action'] || row['Side'] || '').toLowerCase();
+      const pnlRaw = row['realizedPnL'] || row['Realized P&L'] || row['PnL'] || row['P&L'] || '0';
+      const profit = parseFloat(pnlRaw.replace(/[^0-9.\-]/g, '')) || 0;
+      const tradeDate = row['tradeDate'] || row['Trade Date'] || row['Date'] || row['fillTime'] || '';
+      if (!symbol || !tradeDate) return null;
+      const isBuy = action.includes('buy') || action.includes('long');
+      return {
+        date: tradeDate.slice(0, 10),
+        instrument: symbol,
+        direction: isBuy ? 'long' : 'short',
+        outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
+        pnl: profit,
+        notes: row['id'] ? `Tradovate #${row['id']}` : 'Tradovate',
+        strategy: '',
+        session: '',
+      };
+    },
+  },
   generic: {
     label: 'Generic CSV',
     hint: 'Map any CSV with date, instrument, direction, outcome, P&L columns',
@@ -500,7 +525,7 @@ export default function ImportTrades() {
           </button>
           <div>
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Import Trades</h1>
-            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Supports 13 formats — MT4/MT5, cTrader, TradingView, Binance, Bybit, OANDA, IG, IBKR, and more</div>
+            <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Supports 14 formats — MT4/MT5, cTrader, TradingView, Tradovate, Binance, Bybit, OANDA, IG, IBKR, and more</div>
           </div>
         </div>
 
