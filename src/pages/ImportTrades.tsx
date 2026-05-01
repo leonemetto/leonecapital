@@ -357,24 +357,76 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
   },
   tradovate: {
     label: 'Tradovate',
-    hint: 'Performance → Trade History → Export CSV',
+    hint: 'Reports → Performance → Export CSV  (or Position History CSV)',
     brokers: ['Tradovate'],
     map: (row) => {
-      // Tradovate columns: id, accountId, contractName, orderId, fillId, action, qty, price, fees, realizedPnL, commission, tradeDate
-      const symbol = row['contractName'] || row['Contract'] || row['Symbol'] || '';
-      const action = (row['action'] || row['Action'] || row['Side'] || '').toLowerCase();
-      const pnlRaw = row['realizedPnL'] || row['Realized P&L'] || row['PnL'] || row['P&L'] || '0';
-      const profit = parseFloat(pnlRaw.replace(/[^0-9.\-]/g, '')) || 0;
-      const tradeDate = row['tradeDate'] || row['Trade Date'] || row['Date'] || row['fillTime'] || '';
-      if (!symbol || !tradeDate) return null;
-      const isBuy = action.includes('buy') || action.includes('long');
+      // Supports two Tradovate export formats:
+      // 1. Performance CSV: symbol, pnl ($65.00 / $(240.00)), boughtTimestamp, soldTimestamp
+      // 2. Position History CSV: Contract, P/L (plain number), Trade Date, Bought Timestamp, Sold Timestamp
+
+      // Detect format by checking which columns exist
+      const isPerformance = 'boughtTimestamp' in row;
+      const isPositionHistory = 'Trade Date' in row || 'Contract' in row;
+
+      const symbol = row['symbol'] || row['Contract'] || '';
+      if (!symbol) return null;
+
+      // Parse P&L — Performance uses "$65.00" / "$(240.00)", Position History uses plain "-240.00"
+      let profit = 0;
+      const pnlRaw = row['pnl'] || row['P/L'] || row['P&L'] || '0';
+      if (pnlRaw.includes('(')) {
+        profit = -(parseFloat(pnlRaw.replace(/[$(),\s]/g, '')) || 0);
+      } else {
+        profit = parseFloat(pnlRaw.replace(/[$,\s]/g, '')) || 0;
+      }
+
+      // Parse date — Performance: "MM/DD/YYYY HH:MM:SS", Position History: "YYYY-MM-DD"
+      const boughtTs = row['boughtTimestamp'] || row['Bought Timestamp'] || '';
+      const soldTs = row['soldTimestamp'] || row['Sold Timestamp'] || '';
+      const tradeDate = row['Trade Date'] || '';
+
+      let date = '';
+      let isLong = true;
+
+      if (boughtTs && soldTs) {
+        const buyTime = new Date(boughtTs).getTime();
+        const sellTime = new Date(soldTs).getTime();
+        isLong = buyTime < sellTime; // bought before sold = long
+        const entryStr = isLong ? boughtTs : soldTs;
+        // Convert MM/DD/YYYY to YYYY-MM-DD
+        const parts = entryStr.split(' ')[0].split('/');
+        date = parts.length === 3 ? `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}` : entryStr.slice(0, 10);
+      } else if (tradeDate) {
+        date = tradeDate.slice(0, 10);
+        // Position History: determine direction from Bought/Sold timestamps if available
+        if (row['Bought Timestamp'] && row['Sold Timestamp']) {
+          const buyTime = new Date(row['Bought Timestamp']).getTime();
+          const sellTime = new Date(row['Sold Timestamp']).getTime();
+          isLong = buyTime < sellTime;
+        }
+      }
+
+      if (!date) return null;
+
+      // Parse duration for timeInTrade
+      let timeInTrade: number | undefined;
+      const dur = row['duration'] || '';
+      if (dur) {
+        const minMatch = dur.match(/(\d+)min/);
+        const secMatch = dur.match(/(\d+)sec/);
+        const mins = minMatch ? parseInt(minMatch[1]) : 0;
+        const secs = secMatch ? parseInt(secMatch[1]) : 0;
+        timeInTrade = mins + Math.round(secs / 60) || undefined;
+      }
+
       return {
-        date: tradeDate.slice(0, 10),
+        date,
         instrument: symbol,
-        direction: isBuy ? 'long' : 'short',
+        direction: isLong ? 'long' : 'short',
         outcome: profit > 0 ? 'win' : profit < 0 ? 'loss' : 'breakeven',
         pnl: profit,
-        notes: row['id'] ? `Tradovate #${row['id']}` : 'Tradovate',
+        timeInTrade,
+        notes: 'Tradovate',
         strategy: '',
         session: '',
       };
