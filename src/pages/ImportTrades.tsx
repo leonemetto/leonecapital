@@ -361,28 +361,29 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
     hint: 'Reports → Performance → Export CSV  (or Position History CSV)',
     brokers: ['Tradovate'],
     preprocess: (rows) => {
-      // Position History: group rows by Position ID + Bought Timestamp (same entry = same trade)
-      // This merges partial fills into one trade by summing P&L
-      if (!rows.length || !('Position ID' in rows[0])) return rows; // not Position History, skip
+      // Position History: group partial fills into one trade per entry
+      // Tradovate assigns slightly different timestamps to partial fills of the same entry,
+      // so we group by Position ID + entry minute (truncated to MM/DD/YYYY HH:MM)
+      if (!rows.length || !('Position ID' in rows[0])) return rows;
       const groups = new Map<string, Record<string, string>>();
       for (const row of rows) {
         const posId = row['Position ID'] || '';
         const boughtTs = row['Bought Timestamp'] || '';
         const soldTs = row['Sold Timestamp'] || '';
-        // Use posId + entry timestamp as unique key per trade
-        const key = `${posId}-${boughtTs}-${soldTs}`;
+        // Determine entry side: whichever timestamp is earlier is the entry
+        const buyTime = boughtTs ? new Date(boughtTs).getTime() : Infinity;
+        const sellTime = soldTs ? new Date(soldTs).getTime() : Infinity;
+        const entryTs = buyTime < sellTime ? boughtTs : soldTs;
+        // Truncate to minute to absorb sub-second differences between partial fills
+        const entryMinute = entryTs.slice(0, 16);
+        const key = `${posId}-${entryMinute}`;
         if (!groups.has(key)) {
           groups.set(key, { ...row });
         } else {
-          // Same trade — sum the P&L
           const existing = groups.get(key)!;
-          const existingPnl = parseFloat(existing['P/L'] || '0');
-          const newPnl = parseFloat(row['P/L'] || '0');
-          existing['P/L'] = String(existingPnl + newPnl);
-          // Sum qty
-          const existingQty = parseFloat(existing['Paired Qty'] || '0');
-          const newQty = parseFloat(row['Paired Qty'] || '0');
-          existing['Paired Qty'] = String(existingQty + newQty);
+          // Sum P&L and qty across partial fills
+          existing['P/L'] = String((parseFloat(existing['P/L'] || '0')) + (parseFloat(row['P/L'] || '0')));
+          existing['Paired Qty'] = String((parseFloat(existing['Paired Qty'] || '0')) + (parseFloat(row['Paired Qty'] || '0')));
         }
       }
       return Array.from(groups.values());
