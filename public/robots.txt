@@ -11,4 +11,4 @@ Disallow: /import-trades
 Disallow: /trading-plan
 Disallow: /onboarding
 
-Sitemap: https://www.leone.capital/sitemap.xml
+Sitemap: https://www.edgeflow.capital/sitemap.xml

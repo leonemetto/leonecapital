@@ -190,7 +190,7 @@ export default function Auth() {
     e.preventDefault();
     setResetLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(resetEmail, {
-      redirectTo: 'https://leone.capital/auth/callback',
+      redirectTo: 'https://www.edgeflow.capital/auth/callback',
     });
     if (error) {
       toast.error(error.message);
