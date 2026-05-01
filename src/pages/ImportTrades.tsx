@@ -8,7 +8,8 @@ import { TradeFormData } from '@/types/trade';
 import { cn } from '@/lib/utils';
 
 // ─── Column mapping templates ───────────────────────────────────────────────
-const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[]; map: (row: Record<string, string>) => Partial<TradeFormData> | null }> = {
+// preprocess: optional fn to merge/group rows before row-by-row mapping (e.g. partial fills)
+const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[]; preprocess?: (rows: Record<string, string>[]) => Record<string, string>[]; map: (row: Record<string, string>) => Partial<TradeFormData> | null }> = {
   edgeflow: {
     label: 'EdgeFlow Export',
     hint: 'CSV exported from EdgeFlow Trades DB',
@@ -359,6 +360,33 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
     label: 'Tradovate',
     hint: 'Reports → Performance → Export CSV  (or Position History CSV)',
     brokers: ['Tradovate'],
+    preprocess: (rows) => {
+      // Position History: group rows by Position ID + Bought Timestamp (same entry = same trade)
+      // This merges partial fills into one trade by summing P&L
+      if (!rows.length || !('Position ID' in rows[0])) return rows; // not Position History, skip
+      const groups = new Map<string, Record<string, string>>();
+      for (const row of rows) {
+        const posId = row['Position ID'] || '';
+        const boughtTs = row['Bought Timestamp'] || '';
+        const soldTs = row['Sold Timestamp'] || '';
+        // Use posId + entry timestamp as unique key per trade
+        const key = `${posId}-${boughtTs}-${soldTs}`;
+        if (!groups.has(key)) {
+          groups.set(key, { ...row });
+        } else {
+          // Same trade — sum the P&L
+          const existing = groups.get(key)!;
+          const existingPnl = parseFloat(existing['P/L'] || '0');
+          const newPnl = parseFloat(row['P/L'] || '0');
+          existing['P/L'] = String(existingPnl + newPnl);
+          // Sum qty
+          const existingQty = parseFloat(existing['Paired Qty'] || '0');
+          const newQty = parseFloat(row['Paired Qty'] || '0');
+          existing['Paired Qty'] = String(existingQty + newQty);
+        }
+      }
+      return Array.from(groups.values());
+    },
     map: (row) => {
       // Supports two Tradovate export formats:
       // 1. Performance CSV: symbol, pnl ($65.00 / $(240.00)), boughtTimestamp, soldTimestamp
@@ -511,9 +539,10 @@ export default function ImportTrades() {
     reader.onload = (e) => {
       const text = e.target?.result as string;
       const parsed = parseCSV(text);
-      setRows(parsed);
       const tmpl = TEMPLATES[template];
-      setPreview(parsed.slice(0, 5).map((r) => ({ parsed: tmpl.map(r), raw: r })));
+      const processed = tmpl.preprocess ? tmpl.preprocess(parsed) : parsed;
+      setRows(processed);
+      setPreview(processed.slice(0, 5).map((r) => ({ parsed: tmpl.map(r), raw: r })));
     };
     reader.readAsText(file);
   }
@@ -522,7 +551,9 @@ export default function ImportTrades() {
     setTemplate(t);
     if (rows.length > 0) {
       const tmpl = TEMPLATES[t];
-      setPreview(rows.slice(0, 5).map((r) => ({ parsed: tmpl.map(r), raw: r })));
+      const processed = tmpl.preprocess ? tmpl.preprocess(rows) : rows;
+      setRows(processed);
+      setPreview(processed.slice(0, 5).map((r) => ({ parsed: tmpl.map(r), raw: r })));
     }
   }
 
