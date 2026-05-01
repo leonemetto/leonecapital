@@ -7,9 +7,56 @@ import { ArrowLeft, UploadSimple, CheckCircle, Warning, FileText, X } from '@pho
 import { TradeFormData } from '@/types/trade';
 import { cn } from '@/lib/utils';
 
+// ─── Post-parse fill aggregator ─────────────────────────────────────────────
+// Runs after map(). Groups typed Trade records by broker-supplied key, then merges
+// pnl/size. Brokers that export one row per fill (cTrader, IBKR, TOS) declare a
+// groupKey function; brokers that already emit one row per trade omit it.
+type MappedPair = { trade: Partial<TradeFormData>; raw: Record<string, string> };
+
+function aggregateFills(
+  pairs: MappedPair[],
+  keyFn: (trade: Partial<TradeFormData>, raw: Record<string, string>) => string | null,
+): Partial<TradeFormData>[] {
+  const groups = new Map<string, MappedPair[]>();
+  const ungrouped: Partial<TradeFormData>[] = [];
+
+  for (const pair of pairs) {
+    const key = keyFn(pair.trade, pair.raw);
+    if (!key) { ungrouped.push(pair.trade); continue; }
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(pair);
+  }
+
+  const merged: Partial<TradeFormData>[] = [];
+  for (const [, group] of groups) {
+    // Sort ascending so date = entry date (minimum)
+    group.sort((a, b) => (a.trade.date ?? '').localeCompare(b.trade.date ?? ''));
+    const first = group[0].trade;
+    const totalPnl = group.reduce((sum, p) => sum + (p.trade.pnl ?? 0), 0);
+    // Skip zero-size groups (cancellations / internal transfers)
+    if (group.length > 1 && totalPnl === 0 && group.every(p => (p.trade.pnl ?? 0) === 0)) continue;
+    merged.push({
+      ...first,
+      pnl: totalPnl,
+      outcome: totalPnl > 0 ? 'win' : totalPnl < 0 ? 'loss' : 'breakeven',
+    });
+  }
+
+  return [...merged, ...ungrouped];
+}
+
 // ─── Column mapping templates ───────────────────────────────────────────────
 // preprocess: optional fn to merge/group rows before row-by-row mapping (e.g. partial fills)
-const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[]; preprocess?: (rows: Record<string, string>[]) => Record<string, string>[]; map: (row: Record<string, string>) => Partial<TradeFormData> | null }> = {
+// groupKey:   optional fn run AFTER map() — returns a string key for fill aggregation,
+//             or null to leave a record ungrouped (pass-through).
+const TEMPLATES: Record<string, {
+  label: string;
+  hint: string;
+  brokers?: string[];
+  preprocess?: (rows: Record<string, string>[]) => Record<string, string>[];
+  groupKey?: (trade: Partial<TradeFormData>, raw: Record<string, string>) => string | null;
+  map: (row: Record<string, string>) => Partial<TradeFormData> | null;
+}> = {
   edgeflow: {
     label: 'EdgeFlow Export',
     hint: 'CSV exported from EdgeFlow Trades DB',
@@ -95,6 +142,9 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
     label: 'cTrader',
     hint: 'History → Deals → Export to CSV',
     brokers: ['Pepperstone', 'IC Markets', 'FxPro', 'Axiory', 'FXCM', 'ThinkMarkets'],
+    // cTrader exports one row per deal (fill). Multiple deals share a Position ID.
+    // Aggregate by Position ID so partial fills collapse into one trade.
+    groupKey: (_trade, raw) => raw['Position ID'] || raw['PositionId'] || null,
     map: (row) => {
       // cTrader: Position ID, Symbol, Direction, Volume (lots), Entry Price, Close Price, Commission, Swap, Net Profit, Open Time, Close Time
       const symbol = row['Symbol'] || row['symbol'];
@@ -175,6 +225,10 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
     label: 'Interactive Brokers',
     hint: 'Reports → Activity Statement → Trades section',
     brokers: ['IBKR', 'Interactive Brokers'],
+    // IBKR can export multiple execution rows per order (partial fills).
+    // Group by IBOrderID when present; fall back to null (no grouping) for brokers
+    // that don't include it.
+    groupKey: (_trade, raw) => raw['IBOrderID'] || raw['Order ID'] || null,
     map: (row) => {
       // IBKR Activity Statement Trades section
       // Symbol, Date/Time, Quantity, T. Price, Proceeds, Comm/Fee, Basis, Realized P/L, Asset Category
@@ -282,6 +336,8 @@ const TEMPLATES: Record<string, { label: string; hint: string; brokers?: string[
     label: 'Thinkorswim',
     hint: 'Account Statement → Trade History → Export CSV',
     brokers: ['Thinkorswim', 'TD Ameritrade', 'Charles Schwab'],
+    // TOS exports one row per execution. Group by Order ID to merge partial fills.
+    groupKey: (_trade, raw) => raw['Order ID'] || raw['Order #'] || raw['OrderID'] || null,
     map: (row) => {
       // TOS Account Statement: Date, Time, Type, Symbol, Quantity, Price, Commission, Net Amount
       const symbol = row['Symbol'] || row['symbol'] || row['Instrument'] || '';
@@ -565,9 +621,21 @@ export default function ImportTrades() {
     const tmpl = TEMPLATES[template];
     let imported = 0, skipped = 0;
 
+    // Map raw rows → typed trade records
+    const pairs: MappedPair[] = [];
     for (const row of rows) {
-      const parsed = tmpl.map(row);
-      if (!parsed || !parsed.date || !parsed.instrument) { skipped++; continue; }
+      const trade = tmpl.map(row);
+      if (trade) pairs.push({ trade, raw: row });
+      else skipped++;
+    }
+
+    // Aggregate partial fills into single trades when broker provides a groupKey
+    const trades: Partial<TradeFormData>[] = tmpl.groupKey
+      ? aggregateFills(pairs, tmpl.groupKey)
+      : pairs.map(p => p.trade);
+
+    for (const parsed of trades) {
+      if (!parsed.date || !parsed.instrument) { skipped++; continue; }
       try {
         await addTrade({
           date: parsed.date,
