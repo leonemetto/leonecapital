@@ -314,6 +314,12 @@ export default function Landing() {
 
   return (
     <div id="lp">
+      {/* ANNOUNCEMENT BAR */}
+      <div className="lp-announce-bar">
+        <span className="lp-announce-badge">Early access</span>
+        Free for the first 100 traders — no card required.
+        <a href="/auth" className="lp-announce-cta">Get started →</a>
+      </div>
       {/* NAV */}
       <nav className={`lp-nav${navScrolled ? ' scrolled' : ''}`}>
         <div className="lp-nav-logo" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>

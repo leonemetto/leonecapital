@@ -25,9 +25,35 @@
 }
 #lp *, #lp *::before, #lp *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+/* ─── ANNOUNCEMENT BAR ─── */
+#lp .lp-announce-bar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 200;
+  background: var(--lp-green);
+  color: #000;
+  font-size: 13px; font-weight: 600;
+  text-align: center;
+  padding: 9px 16px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-family: var(--lp-font);
+}
+#lp .lp-announce-badge {
+  background: rgba(0,0,0,0.15);
+  border-radius: 99px;
+  padding: 2px 9px;
+  font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;
+}
+#lp .lp-announce-cta {
+  color: #000; text-decoration: none; font-weight: 700;
+  border-bottom: 1px solid rgba(0,0,0,0.3);
+  padding-bottom: 1px;
+  transition: border-color 0.15s;
+}
+#lp .lp-announce-cta:hover { border-color: #000; }
+
 /* ─── NAV ─── */
 #lp .lp-nav {
-  position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+  position: fixed; top: 52px; left: 50%; transform: translateX(-50%);
   z-index: 100;
   display: flex; align-items: center; justify-content: space-between;
   width: calc(100% - 48px); max-width: 1100px;
@@ -123,7 +149,7 @@
 
 /* ─── HERO ─── */
 #lp .lp-hero {
-  padding: 128px 60px 0; text-align: center; position: relative;
+  padding: 162px 60px 0; text-align: center; position: relative;
   overflow: visible; display: flex; flex-direction: column; align-items: center;
 }
 #lp .lp-hero::before {
@@ -1211,7 +1237,7 @@
   #lp .lp-hamburger { display: flex; }
   #lp .lp-scroll-top { bottom: 20px; right: 20px; }
   #lp section { padding: 80px 20px; }
-  #lp .lp-hero { padding: 100px 24px 0; }
+  #lp .lp-hero { padding: 134px 24px 0; }
   #lp .lp-hero h1 { letter-spacing: -2px; font-size: clamp(36px, 8vw, 52px); }
   #lp .lp-hero-sub { font-size: 16px; }
   #lp .lp-hero-ctas { flex-direction: column; align-items: stretch; }
