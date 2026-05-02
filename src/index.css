@@ -27,19 +27,19 @@
     --card-foreground: 30 8% 7%;
     --popover: 0 0% 100%;
     --popover-foreground: 30 8% 7%;
-    --primary: 155 60% 38%;          /* green accent */
+    --primary: 38 92% 46%;           /* amber accent */
     --primary-foreground: 0 0% 100%;
     --secondary: 40 20% 95%;         /* #f3f2ed sunken */
     --secondary-foreground: 30 8% 22%;
     --muted: 40 20% 95%;
     --muted-foreground: 35 6% 43%;   /* #6b6b64 */
-    --accent: 155 40% 93%;
-    --accent-foreground: 155 50% 25%;
+    --accent: 38 80% 93%;
+    --accent-foreground: 38 75% 22%;
     --destructive: 15 80% 56%;
     --destructive-foreground: 0 0% 98%;
     --border: 38 18% 88%;            /* #e8e6df */
     --input: 38 18% 88%;
-    --ring: 155 60% 38%;
+    --ring: 38 92% 46%;
     --radius: 0.75rem;
     --profit: 155 60% 38%;
     --loss: 15 80% 56%;
@@ -55,7 +55,7 @@
     --sidebar-accent: 40 20% 95%;
     --sidebar-accent-foreground: 30 8% 12%;
     --sidebar-border: 38 18% 88%;
-    --sidebar-ring: 155 60% 38%;
+    --sidebar-ring: 38 92% 46%;
 
     /* Design token aliases for fintech components */
     --ff-mono: 'Roboto Mono', 'Courier New', monospace;
@@ -92,19 +92,19 @@
     --card-foreground: 40 15% 93%;
     --popover: 30 8% 8%;
     --popover-foreground: 40 15% 93%;
-    --primary: 155 55% 42%;
+    --primary: 38 92% 54%;
     --primary-foreground: 30 8% 4%;
     --secondary: 30 6% 12%;
     --secondary-foreground: 40 10% 78%;
     --muted: 30 6% 12%;
     --muted-foreground: 35 4% 53%;
-    --accent: 155 35% 16%;
+    --accent: 38 55% 15%;
     --accent-foreground: 40 15% 93%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
     --border: 30 8% 14%;             /* #23221f */
     --input: 30 8% 14%;
-    --ring: 155 55% 42%;
+    --ring: 38 92% 54%;
     --profit: 155 55% 45%;
     --loss: 0 84% 60%;
     --chart-1: 155 55% 45%;
@@ -119,7 +119,7 @@
     --sidebar-accent: 30 6% 11%;
     --sidebar-accent-foreground: 40 15% 88%;
     --sidebar-border: 30 8% 14%;
-    --sidebar-ring: 155 55% 42%;
+    --sidebar-ring: 38 92% 54%;
 
     /* Dark mode design token aliases */
     --ef-bg: #000000;
