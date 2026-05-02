@@ -3,58 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
-import { ArrowLeft, UploadSimple, CheckCircle, Warning, FileText, X } from '@phosphor-icons/react';
+import { ArrowLeft, UploadSimple, CheckCircle, Warning, FileText, X, Info } from '@phosphor-icons/react';
 import { TradeFormData } from '@/types/trade';
 import { cn } from '@/lib/utils';
-
-// ─── Post-parse fill aggregator ─────────────────────────────────────────────
-// Runs after map(). Groups typed Trade records by broker-supplied key, then merges
-// pnl/size. Brokers that export one row per fill (cTrader, IBKR, TOS) declare a
-// groupKey function; brokers that already emit one row per trade omit it.
-type MappedPair = { trade: Partial<TradeFormData>; raw: Record<string, string> };
-
-function aggregateFills(
-  pairs: MappedPair[],
-  keyFn: (trade: Partial<TradeFormData>, raw: Record<string, string>) => string | null,
-): Partial<TradeFormData>[] {
-  const groups = new Map<string, MappedPair[]>();
-  const ungrouped: Partial<TradeFormData>[] = [];
-
-  for (const pair of pairs) {
-    const key = keyFn(pair.trade, pair.raw);
-    if (!key) { ungrouped.push(pair.trade); continue; }
-    if (!groups.has(key)) groups.set(key, []);
-    groups.get(key)!.push(pair);
-  }
-
-  const merged: Partial<TradeFormData>[] = [];
-  for (const [, group] of groups) {
-    // Sort ascending so date = entry date (minimum)
-    group.sort((a, b) => (a.trade.date ?? '').localeCompare(b.trade.date ?? ''));
-    const first = group[0].trade;
-    const totalPnl = group.reduce((sum, p) => sum + (p.trade.pnl ?? 0), 0);
-    // Skip zero-size groups (cancellations / internal transfers)
-    if (group.length > 1 && totalPnl === 0 && group.every(p => (p.trade.pnl ?? 0) === 0)) continue;
-    merged.push({
-      ...first,
-      pnl: totalPnl,
-      outcome: totalPnl > 0 ? 'win' : totalPnl < 0 ? 'loss' : 'breakeven',
-    });
-  }
-
-  return [...merged, ...ungrouped];
-}
+import { groupFills, detectPartialFills, type FillMapper } from '@/lib/importers/groupFills';
 
 // ─── Column mapping templates ───────────────────────────────────────────────
-// preprocess: optional fn to merge/group rows before row-by-row mapping (e.g. partial fills)
-// groupKey:   optional fn run AFTER map() — returns a string key for fill aggregation,
-//             or null to leave a record ungrouped (pass-through).
+// preprocess:      optional fn to merge/group rows before row-by-row mapping
+// groupKeyColumn:  column name whose value identifies which trade a fill belongs to.
+//                  When set, groupFills() runs after map() to collapse partial fills.
 const TEMPLATES: Record<string, {
   label: string;
   hint: string;
   brokers?: string[];
   preprocess?: (rows: Record<string, string>[]) => Record<string, string>[];
-  groupKey?: (trade: Partial<TradeFormData>, raw: Record<string, string>) => string | null;
+  groupKeyColumn?: string;
   map: (row: Record<string, string>) => Partial<TradeFormData> | null;
 }> = {
   edgeflow: {
@@ -143,8 +106,7 @@ const TEMPLATES: Record<string, {
     hint: 'History → Deals → Export to CSV',
     brokers: ['Pepperstone', 'IC Markets', 'FxPro', 'Axiory', 'FXCM', 'ThinkMarkets'],
     // cTrader exports one row per deal (fill). Multiple deals share a Position ID.
-    // Aggregate by Position ID so partial fills collapse into one trade.
-    groupKey: (_trade, raw) => raw['Position ID'] || raw['PositionId'] || null,
+    groupKeyColumn: 'Position ID',
     map: (row) => {
       // cTrader: Position ID, Symbol, Direction, Volume (lots), Entry Price, Close Price, Commission, Swap, Net Profit, Open Time, Close Time
       const symbol = row['Symbol'] || row['symbol'];
@@ -226,9 +188,7 @@ const TEMPLATES: Record<string, {
     hint: 'Reports → Activity Statement → Trades section',
     brokers: ['IBKR', 'Interactive Brokers'],
     // IBKR can export multiple execution rows per order (partial fills).
-    // Group by IBOrderID when present; fall back to null (no grouping) for brokers
-    // that don't include it.
-    groupKey: (_trade, raw) => raw['IBOrderID'] || raw['Order ID'] || null,
+    groupKeyColumn: 'IBOrderID',
     map: (row) => {
       // IBKR Activity Statement Trades section
       // Symbol, Date/Time, Quantity, T. Price, Proceeds, Comm/Fee, Basis, Realized P/L, Asset Category
@@ -337,7 +297,7 @@ const TEMPLATES: Record<string, {
     hint: 'Account Statement → Trade History → Export CSV',
     brokers: ['Thinkorswim', 'TD Ameritrade', 'Charles Schwab'],
     // TOS exports one row per execution. Group by Order ID to merge partial fills.
-    groupKey: (_trade, raw) => raw['Order ID'] || raw['Order #'] || raw['OrderID'] || null,
+    groupKeyColumn: 'Order ID',
     map: (row) => {
       // TOS Account Statement: Date, Time, Type, Symbol, Quantity, Price, Commission, Net Amount
       const symbol = row['Symbol'] || row['symbol'] || row['Instrument'] || '';
@@ -585,8 +545,9 @@ export default function ImportTrades() {
   const [fileName, setFileName] = useState('');
   const [preview, setPreview] = useState<Array<{ parsed: Partial<TradeFormData> | null; raw: Record<string, string> }>>([]);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ imported: number; skipped: number } | null>(null);
+  const [result, setResult] = useState<{ imported: number; skipped: number; mergedGroups: number } | null>(null);
   const [error, setError] = useState('');
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
 
   function handleFile(file: File) {
     setResult(null);
@@ -618,51 +579,102 @@ export default function ImportTrades() {
     if (rows.length === 0) return;
     setImporting(true);
     setError('');
+    setImportWarnings([]);
     const tmpl = TEMPLATES[template];
-    let imported = 0, skipped = 0;
+    let imported = 0, skipped = 0, mergedGroups = 0;
 
-    // Map raw rows → typed trade records
-    const pairs: MappedPair[] = [];
-    for (const row of rows) {
-      const trade = tmpl.map(row);
-      if (trade) pairs.push({ trade, raw: row });
-      else skipped++;
-    }
+    if (tmpl.groupKeyColumn) {
+      // ── Brokers with partial fills: use groupFills for safe aggregation ──────
+      // Build a thin FillMapper from the existing map() so we reuse broker logic.
+      // groupFills needs a timestamp — we parse the date string from map() output.
+      const fillMapper: FillMapper = (row, _idx) => {
+        const trade = tmpl.map(row);
+        if (!trade?.instrument || !trade?.date) return null;
+        return {
+          symbol: trade.instrument,
+          direction: trade.direction ?? 'long',
+          // Date-level precision only — stable sort tiebreaks by csvRowIndex
+          timestamp: new Date(trade.date + 'T00:00:00'),
+          pnl: trade.pnl ?? 0,
+          size: 1, // size not in current schema; needed only for VWAP which requires price too
+        };
+      };
 
-    // Aggregate partial fills into single trades when broker provides a groupKey
-    const trades: Partial<TradeFormData>[] = tmpl.groupKey
-      ? aggregateFills(pairs, tmpl.groupKey)
-      : pairs.map(p => p.trade);
+      // Pre-map all rows to preserve metadata (notes, strategy, session, etc.)
+      const mappedRows = rows.map(row => tmpl.map(row));
 
-    for (const parsed of trades) {
-      if (!parsed.date || !parsed.instrument) { skipped++; continue; }
-      try {
-        await addTrade({
-          date: parsed.date,
-          instrument: parsed.instrument,
-          direction: parsed.direction ?? 'long',
-          outcome: parsed.outcome ?? 'breakeven',
-          pnl: parsed.pnl ?? 0,
-          strategy: parsed.strategy ?? '',
-          session: parsed.session ?? '',
-          notes: parsed.notes ?? '',
-          rMultiple: parsed.rMultiple,
-          riskPercent: parsed.riskPercent,
-          htfBias: parsed.htfBias,
-          emotionalState: parsed.emotionalState,
-          confidenceLevel: parsed.confidenceLevel,
-          timeInTrade: parsed.timeInTrade,
-          followedPlan: parsed.followedPlan,
-          accountId: selectedAccountId || undefined,
-        });
-        imported++;
-      } catch {
-        skipped++;
+      const result = groupFills(rows, tmpl.groupKeyColumn, fillMapper);
+      mergedGroups = result.mergedCount;
+
+      if (result.warnings.length > 0) setImportWarnings(result.warnings);
+      skipped += result.skippedCount;
+
+      for (const merged of result.trades) {
+        // Carry notes/strategy/session from the first fill's mapped TradeFormData
+        const meta = mappedRows[merged.sourceRows[0]];
+        if (!meta?.date || !meta?.instrument) { skipped++; continue; }
+
+        const notes = merged.needsReview
+          ? `[Needs review: ${merged.reviewReason ?? 'direction conflict'}] ${meta.notes ?? ''}`.trim()
+          : meta.notes ?? '';
+
+        try {
+          await addTrade({
+            date: merged.entryTime.toISOString().slice(0, 10),
+            instrument: merged.symbol,
+            direction: merged.direction,
+            outcome: merged.pnl > 0 ? 'win' : merged.pnl < 0 ? 'loss' : 'breakeven',
+            pnl: merged.pnl,
+            strategy: meta.strategy ?? '',
+            session: meta.session ?? '',
+            notes,
+            rMultiple: meta.rMultiple,
+            riskPercent: meta.riskPercent,
+            htfBias: meta.htfBias,
+            emotionalState: meta.emotionalState,
+            confidenceLevel: meta.confidenceLevel,
+            timeInTrade: meta.timeInTrade,
+            followedPlan: meta.followedPlan,
+            accountId: selectedAccountId || undefined,
+          });
+          imported++;
+        } catch {
+          skipped++;
+        }
+      }
+    } else {
+      // ── Standard row-by-row import (no partial fill grouping needed) ─────────
+      for (const row of rows) {
+        const parsed = tmpl.map(row);
+        if (!parsed?.date || !parsed?.instrument) { skipped++; continue; }
+        try {
+          await addTrade({
+            date: parsed.date,
+            instrument: parsed.instrument,
+            direction: parsed.direction ?? 'long',
+            outcome: parsed.outcome ?? 'breakeven',
+            pnl: parsed.pnl ?? 0,
+            strategy: parsed.strategy ?? '',
+            session: parsed.session ?? '',
+            notes: parsed.notes ?? '',
+            rMultiple: parsed.rMultiple,
+            riskPercent: parsed.riskPercent,
+            htfBias: parsed.htfBias,
+            emotionalState: parsed.emotionalState,
+            confidenceLevel: parsed.confidenceLevel,
+            timeInTrade: parsed.timeInTrade,
+            followedPlan: parsed.followedPlan,
+            accountId: selectedAccountId || undefined,
+          });
+          imported++;
+        } catch {
+          skipped++;
+        }
       }
     }
 
     setImporting(false);
-    setResult({ imported, skipped });
+    setResult({ imported, skipped, mergedGroups });
   }
 
   const validCount = preview.filter((p) => p.parsed !== null).length;
@@ -687,11 +699,27 @@ export default function ImportTrades() {
             <CheckCircle size={40} color="var(--ef-pos)" weight="fill" style={{ margin: '0 auto 16px' }} />
             <div>
               <p style={{ fontSize: 20, fontWeight: 500, color: 'var(--ef-ink)', margin: '0 0 4px' }}>{result.imported} trades imported</p>
-              {result.skipped > 0 && <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', margin: 0 }}>{result.skipped} rows skipped (missing required fields)</p>}
+              {result.mergedGroups > 0 && (
+                <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', margin: '2px 0 0' }}>
+                  Partial fills detected — {result.mergedGroups} groups merged into single trades
+                </p>
+              )}
+              {result.skipped > 0 && <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', margin: '2px 0 0' }}>{result.skipped} rows skipped (missing required fields)</p>}
             </div>
-            <div className="flex gap-3 justify-center pt-2">
+            {importWarnings.length > 0 && (
+              <div style={{ marginTop: 16, padding: '10px 14px', background: 'var(--ef-warn-wash)', border: '1px solid var(--ef-warn)', borderRadius: 10, textAlign: 'left' }}>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <Info size={13} color="var(--ef-warn-high)" weight="fill" />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ef-warn-high)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Import notices</span>
+                </div>
+                {importWarnings.map((w, i) => (
+                  <p key={i} style={{ fontSize: 11.5, color: 'var(--ef-ink-2)', margin: '2px 0 0', lineHeight: 1.5 }}>{w}</p>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-3 justify-center pt-4">
               <button onClick={() => navigate('/journal')} className="px-5 py-2 rounded-[24px] bg-foreground text-background text-sm font-semibold">View Trades</button>
-              <button onClick={() => { setResult(null); setRows([]); setFileName(''); setPreview([]); }} className="px-5 py-2 rounded-[24px] border border-border text-foreground text-sm">Import More</button>
+              <button onClick={() => { setResult(null); setRows([]); setFileName(''); setPreview([]); setImportWarnings([]); }} className="px-5 py-2 rounded-[24px] border border-border text-foreground text-sm">Import More</button>
             </div>
           </div>
         ) : (
