@@ -323,7 +323,7 @@ export default function Landing() {
       {/* NAV */}
       <nav className={`lp-nav${navScrolled ? ' scrolled' : ''}`}>
         <div className="lp-nav-logo" onClick={() => { window.scrollTo({ top: 0, behavior: 'smooth' }); setMobileMenuOpen(false); }}>
-          <svg className="lp-nav-logo-mark" width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'rgb(140,255,46)', flexShrink: 0 }}>
+          <svg className="lp-nav-logo-mark" width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'var(--lp-green)', flexShrink: 0 }}>
             <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
             <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
             <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
@@ -368,6 +368,7 @@ export default function Landing() {
 
       {/* HERO */}
       <section className="lp-hero">
+        <div className="lp-hero-grid-overlay" aria-hidden />
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-dot"></span>
           Free to start — no credit card needed
@@ -434,6 +435,103 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* BENTO FEATURES */}
+      <section className="lp-bento-section">
+        <div style={{ maxWidth: 1000, margin: '0 auto' }}>
+          <div className="lp-reveal">
+            <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> The full system</div>
+            <h2 className="lp-section-title">Everything you need<br/>to find your edge.</h2>
+          </div>
+          <div className="lp-bento-grid lp-reveal">
+
+            {/* Wide: broker import */}
+            <div className="lp-bento-card lp-bento-card--wide">
+              <div className="lp-bento-eyebrow">01 / Import</div>
+              <h3>Works with your broker. Already.</h3>
+              <p>Export from any broker, upload the file. Your full history loads in seconds — MT4/MT5, cTrader, Binance, IBKR, Thinkorswim, and more.</p>
+              <div className="lp-bento-broker-grid">
+                {['MT4/MT5','cTrader','IBKR','Binance','Bybit','ThinkorSwim','TradeStation','NinjaTrader','OANDA','Exness','XM','Deriv'].map(b => (
+                  <div key={b} className="lp-bento-broker-tag">{b}</div>
+                ))}
+              </div>
+            </div>
+
+            {/* Mid: AI Atlas */}
+            <div className="lp-bento-card lp-bento-card--mid">
+              <div className="lp-bento-eyebrow">02 / AI</div>
+              <h3>Atlas AI Analyst</h3>
+              <p>Full context of every trade you've logged. Ask anything. Direct answers, no filler.</p>
+              <div className="lp-bento-stats">
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">Monday win rate</span>
+                  <span className="lp-bento-stat-value neg">31%</span>
+                </div>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">Rest of week</span>
+                  <span className="lp-bento-stat-value pos">58%</span>
+                </div>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">London open expectancy</span>
+                  <span className="lp-bento-stat-value pos">+1.3R</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Third: Leak Detection */}
+            <div className="lp-bento-card lp-bento-card--third">
+              <div className="lp-bento-eyebrow">03 / Leaks</div>
+              <h3>Leak Detection</h3>
+              <p>Flags negative-expectancy combos automatically. Not a dashboard — a diagnostic.</p>
+              <div className="lp-bento-stats" style={{ marginTop: 18 }}>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">XAUUSD · New York</span>
+                  <span className="lp-bento-stat-value neg">−1.4R</span>
+                </div>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">Friday sessions</span>
+                  <span className="lp-bento-stat-value neg">−0.9R</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Third: Analytics */}
+            <div className="lp-bento-card lp-bento-card--third">
+              <div className="lp-bento-eyebrow">04 / Analytics</div>
+              <h3>Session &amp; strategy breakdowns</h3>
+              <p>Win rate, expectancy, and P&amp;L by session, instrument, strategy, and direction.</p>
+              <div className="lp-bento-stats" style={{ marginTop: 18 }}>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">London open</span>
+                  <span className="lp-bento-stat-value pos">74% WR</span>
+                </div>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">New York</span>
+                  <span className="lp-bento-stat-value neg">31% WR</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Third: Risk */}
+            <div className="lp-bento-card lp-bento-card--third">
+              <div className="lp-bento-eyebrow">05 / Discipline</div>
+              <h3>Plan enforcement</h3>
+              <p>Custom pre-trade checklist. Track every rule you break and see the exact P&amp;L cost.</p>
+              <div className="lp-bento-stats" style={{ marginTop: 18 }}>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">When plan followed</span>
+                  <span className="lp-bento-stat-value pos">64% WR</span>
+                </div>
+                <div className="lp-bento-stat-row">
+                  <span className="lp-bento-stat-label">When violated</span>
+                  <span className="lp-bento-stat-value neg">38% WR</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
       {/* HOW IT WORKS */}
       <section id="how">
         <div className="lp-container">
@@ -470,10 +568,10 @@ export default function Landing() {
                     <div className="lp-mock-analytics-row" key={row.name}>
                       <span className="lp-mock-analytics-name">{row.name}</span>
                       <span className="lp-mock-analytics-bar-wrap">
-                        <span className="lp-mock-analytics-bar" style={{ width: `${row.win}%`, background: row.pos ? 'rgba(140,255,46,0.7)' : 'rgba(248,113,113,0.7)' }} />
+                        <span className="lp-mock-analytics-bar" style={{ width: `${row.win}%`, background: row.pos ? 'rgba(248,248,242,0.55)' : 'rgba(248,113,113,0.7)' }} />
                         <span className="lp-mock-analytics-bar-label">{row.win}%</span>
                       </span>
-                      <span style={{ color: row.pos ? 'rgb(140,255,46)' : '#f87171', fontFamily: 'monospace', fontSize: 11 }}>{row.exp}</span>
+                      <span style={{ color: row.pos ? 'oklch(0.65 0.17 155)' : '#f87171', fontFamily: 'monospace', fontSize: 11 }}>{row.exp}</span>
                     </div>
                   ))}
                 </div>
@@ -870,7 +968,7 @@ export default function Landing() {
         <div className="lp-footer-top">
           <div className="lp-footer-brand">
             <div className="lp-nav-logo" style={{ cursor: 'pointer' }} onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'rgb(140,255,46)', flexShrink: 0 }}>
+              <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden style={{ color: 'var(--lp-green)', flexShrink: 0 }}>
                 <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
                 <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
                 <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" strokeWidth="2.4" strokeLinecap="square"/>
