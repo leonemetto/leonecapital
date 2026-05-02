@@ -419,6 +419,14 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         <PrimaryButton onClick={handleStep2} loading={saving} disabled={!accountName.trim() || !startingBalance}>
           Continue →
         </PrimaryButton>
+        <button
+          type="button"
+          onClick={async () => { await onComplete(); navigate('/dashboard', { replace: true }); }}
+          disabled={saving}
+          style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0' }}
+        >
+          Skip setup, go to dashboard →
+        </button>
       </div>
     </div>
   );
@@ -564,6 +572,17 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
           Setting up your account…
         </p>
       )}
+
+      <div style={{ textAlign: 'center', marginTop: 8 }}>
+        <button
+          type="button"
+          onClick={async () => { await onComplete(); navigate('/dashboard', { replace: true }); }}
+          disabled={saving}
+          style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0' }}
+        >
+          Skip setup, go to dashboard →
+        </button>
+      </div>
     </div>
   );
 
