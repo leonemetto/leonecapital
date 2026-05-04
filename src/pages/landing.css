@@ -13,10 +13,11 @@
   --lp-mono:       'Geist Mono', 'Courier New', monospace;
   --lp-radius:     16px;
   --lp-radius-lg:  24px;
-  /* Brand gradient — purple/violet */
-  --lp-p1:         oklch(0.72 0.22 285);
-  --lp-p2:         oklch(0.58 0.22 272);
-  --lp-p-glow:     oklch(0.72 0.22 285 / 0.35);
+  /* Brand — green */
+  --lp-p1:         oklch(0.72 0.18 155);
+  --lp-p2:         oklch(0.58 0.18 155);
+  --lp-p-glow:     oklch(0.72 0.18 155 / 0.30);
+  --lp-green:      oklch(0.72 0.18 155);
   --lp-success:    oklch(0.72 0.18 155);
   --lp-danger:     oklch(0.62 0.22 25);
 
@@ -66,7 +67,7 @@
 /* ─── ANNOUNCE BAR ─── */
 #lp .lp-announce-bar {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
-  background: linear-gradient(90deg, var(--lp-p2), var(--lp-p1));
+  background: linear-gradient(90deg, oklch(0.45 0.18 155), oklch(0.58 0.18 155));
   color: #fff; font-size: 13px; font-weight: 600;
   text-align: center; padding: 9px 16px;
   display: flex; align-items: center; justify-content: center; gap: 10px;
