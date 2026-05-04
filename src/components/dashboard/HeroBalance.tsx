@@ -38,9 +38,9 @@ function MicroSparkline({ values }: { values: (number | null)[] }) {
 export function HeroBalance({ nickname, stats, trades, accounts, selectedAccountId }: Props) {
   const startingBalance = useMemo(() => {
     if (selectedAccountId === '__all__') {
-      return accounts.reduce((sum, a) => sum + (a.startingBalance ?? 0), 0);
+      return accounts.reduce((sum, a) => sum + (a.currentBalance ?? 0), 0);
     }
-    return accounts.find(a => a.id === selectedAccountId)?.startingBalance ?? 0;
+    return accounts.find(a => a.id === selectedAccountId)?.currentBalance ?? 0;
   }, [accounts, selectedAccountId]);
 
   const currentBalance = startingBalance + stats.netPnl;
