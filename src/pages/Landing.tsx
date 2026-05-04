@@ -369,7 +369,11 @@ export default function Landing() {
       {/* HERO */}
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
-        <div className="lp-hero-green-glow" aria-hidden />
+        {/* Layered orb background */}
+        <div className="lp-hero-orb-outer" aria-hidden />
+        <div className="lp-hero-orb-mid" aria-hidden />
+        <div className="lp-hero-orb-core" aria-hidden />
+        <div className="lp-hero-orb-highlight" aria-hidden />
 
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-tag">AI-Powered</span>
@@ -377,7 +381,11 @@ export default function Landing() {
           Professional Trading Journal
         </div>
 
-        <h1>Your trading data knows<br/>more than you do.</h1>
+        <h1>
+          <span className="lp-h1-bright">Your trading data knows</span>
+          <br/>
+          <span className="lp-h1-dim">more than you do.</span>
+        </h1>
 
         <p className="lp-hero-sub">
           EdgeFlow turns your trade history into a statistical edge. Win rate, leak detection, and AI analysis — all in one place.
