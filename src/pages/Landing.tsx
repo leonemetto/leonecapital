@@ -369,30 +369,32 @@ export default function Landing() {
       {/* HERO */}
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
+        <div className="lp-hero-green-glow" aria-hidden />
+
         <div className="lp-hero-kicker">
-          <span className="lp-hero-kicker-dot"></span>
-          Free to start — no credit card needed
-        </div>
-        <h1>Your edge is in your data.<br/><em>EdgeFlow finds it.</em></h1>
-        <p className="lp-hero-sub">
-          Log every trade. EdgeFlow automatically surfaces where your edge is, where it leaks, and exactly what to fix — no spreadsheets, no guesswork.
-        </p>
-        <div className="lp-hero-ctas">
-          <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>
-            Analyse my trades free<span className="lp-cta-arrow-wrap">→</span>
-          </button>
-          <a href="#how" className="lp-btn-secondary-lg">See how it works</a>
-        </div>
-        <div className="lp-hero-trust">
-          <span className="lp-hero-trust-item">No credit card needed</span>
-          <span className="lp-hero-trust-item">50 trades on the free tier</span>
-          <span className="lp-hero-trust-item">Set up in under 5 minutes</span>
+          <span className="lp-hero-kicker-tag">AI-Powered</span>
+          <span className="lp-hero-kicker-sep">·</span>
+          Professional Trading Journal
         </div>
 
-        <a href="#preview" className="lp-hero-scroll-hint" aria-label="See it in action">
-          <span className="lp-hero-scroll-label">See it in action</span>
-          <span className="lp-hero-scroll-arrow">↓</span>
-        </a>
+        <h1>Your trading data knows<br/>more than you do.</h1>
+
+        <p className="lp-hero-sub">
+          EdgeFlow turns your trade history into a statistical edge. Win rate, leak detection, and AI analysis — all in one place.
+        </p>
+
+        <div className="lp-hero-ctas">
+          <button className="lp-btn-hero-outline" onClick={() => navigate('/auth')}>Get started</button>
+          <button className="lp-btn-hero-white" onClick={() => navigate('/auth')}>Start for Free</button>
+        </div>
+
+        <div className="lp-hero-trust">
+          <span className="lp-hero-trust-item">Easy setup</span>
+          <span className="lp-hero-trust-item">No credit card needed</span>
+          <span className="lp-hero-trust-item">Set up in 5 minutes</span>
+          <span className="lp-hero-trust-item">Works with MT4/MT5</span>
+          <span className="lp-hero-trust-item">Import in seconds</span>
+        </div>
 
         <div className="lp-hero-tilt-glow"></div>
 
@@ -406,7 +408,7 @@ export default function Landing() {
                   <div className="lp-hero-preview-dot" style={{ background: '#febc2e' }}></div>
                   <div className="lp-hero-preview-dot" style={{ background: '#28c840' }}></div>
                 </div>
-                <div className="lp-hero-preview-url">edgeflow.app/dashboard</div>
+                <div className="lp-hero-preview-url">leone.capital/dashboard</div>
               </div>
               <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
             </div>
