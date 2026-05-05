@@ -89,17 +89,24 @@
     border-radius: 999px;
     padding: 5px;
   }
+  .nav-pill { position: relative; }
   .nav-pill a {
     padding: 8px 16px; border-radius: 999px;
     font-size: 13px; color: rgba(251,247,253,0.75);
-    letter-spacing: 0; transition: color .15s, background .15s;
+    letter-spacing: 0; transition: color .2s;
     display: inline-flex; align-items: center;
+    position: relative; z-index: 1;
   }
   .nav-pill a:hover { color: #fff; }
-  .nav-pill a.active {
-    color: #fff;
+  .nav-pill a.active { color: #fff; }
+  /* sliding pill indicator */
+  .nav-pill-indicator {
+    position: absolute; top: 5px; bottom: 5px;
+    border-radius: 999px;
     background: rgba(255,255,255,0.10);
     box-shadow: inset 1px 1px 1px -0.5px rgba(255,255,255,0.7), inset -1px -1px 1px -0.5px rgba(255,255,255,0.5), 0 0 14px rgba(58,255,157,0.3);
+    transition: left .25s cubic-bezier(.4,0,.2,1), width .25s cubic-bezier(.4,0,.2,1);
+    pointer-events: none; z-index: 0;
   }
   .btn-primary {
     padding: 11px 22px; border-radius: 999px;
@@ -955,19 +962,17 @@
 
     <div class="hero-preview-wrap">
       <div class="hero-glow"></div>
-      <div class="hero-preview-tilt" id="hero-tilt">
-        <div class="hero-preview-bezel">
-          <div class="hero-preview-chrome">
-            <div class="hero-preview-dots">
-              <div class="hero-preview-dot" style="background:#ff5f57"></div>
-              <div class="hero-preview-dot" style="background:#febc2e"></div>
-              <div class="hero-preview-dot" style="background:#28c840"></div>
-            </div>
-            <div class="hero-preview-url">leone.capital/dashboard</div>
+      <div class="hero-preview-bezel">
+        <div class="hero-preview-chrome">
+          <div class="hero-preview-dots">
+            <div class="hero-preview-dot" style="background:#ff5f57"></div>
+            <div class="hero-preview-dot" style="background:#febc2e"></div>
+            <div class="hero-preview-dot" style="background:#28c840"></div>
           </div>
-          <div class="hero-preview-body">
-            <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
-          </div>
+          <div class="hero-preview-url">leone.capital/dashboard</div>
+        </div>
+        <div class="hero-preview-body">
+          <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
         </div>
       </div>
     </div>
@@ -1640,25 +1645,64 @@
 </footer>
 
 <script>
-  // Hero tilt on scroll
-  const tiltEl = document.getElementById('hero-tilt');
-  let cur = { r: 14, s: 0.96 }, tgt = { r: 14, s: 0.96 };
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function updateTilt() {
-    const heroH = document.querySelector('.hero').offsetHeight || 600;
-    const progress = Math.min(1, window.scrollY / (heroH * 0.8));
-    const eased = 1 - Math.pow(1 - progress, 2);
-    tgt.r = lerp(14, 0, eased);
-    tgt.s = lerp(0.96, 1.0, eased);
+  // ---- Sliding nav pill indicator ----
+  const navPill = document.querySelector('.nav-pill');
+  const navLinks = navPill ? Array.from(navPill.querySelectorAll('a')) : [];
+
+  // inject indicator element
+  const indicator = document.createElement('span');
+  indicator.className = 'nav-pill-indicator';
+  if (navPill) navPill.appendChild(indicator);
+
+  function moveIndicatorTo(link) {
+    const pillRect = navPill.getBoundingClientRect();
+    const linkRect = link.getBoundingClientRect();
+    indicator.style.left = (linkRect.left - pillRect.left) + 'px';
+    indicator.style.width = linkRect.width + 'px';
   }
-  function animateTilt() {
-    cur.r += (tgt.r - cur.r) * 0.1;
-    cur.s += (tgt.s - cur.s) * 0.1;
-    if (tiltEl) tiltEl.style.transform = `rotateX(${cur.r.toFixed(3)}deg) scale(${cur.s.toFixed(4)})`;
-    requestAnimationFrame(animateTilt);
+
+  function setActiveLink(link) {
+    navLinks.forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+    moveIndicatorTo(link);
   }
-  window.addEventListener('scroll', updateTilt, { passive: true });
-  updateTilt(); animateTilt();
+
+  // click: set active immediately
+  navLinks.forEach(link => {
+    link.addEventListener('click', () => setActiveLink(link));
+  });
+
+  // scroll spy: watch sections and update active link
+  const sectionMap = [
+    { id: 'how',     href: '#how' },
+    { id: 'preview', href: '#preview' },
+    { id: 'brokers', href: '#brokers' },
+    { id: 'pricing', href: '#pricing' },
+    { id: 'faq',     href: '#faq' },
+  ];
+
+  const spyObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const match = sectionMap.find(s => s.id === entry.target.id);
+        if (match) {
+          const link = navLinks.find(a => a.getAttribute('href') === match.href);
+          if (link) setActiveLink(link);
+        }
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' });
+
+  sectionMap.forEach(({ id }) => {
+    const el = document.getElementById(id);
+    if (el) spyObserver.observe(el);
+  });
+
+  // init: position indicator on the default active link
+  window.addEventListener('load', () => {
+    const initActive = navLinks.find(a => a.classList.contains('active')) || navLinks[0];
+    if (initActive) setActiveLink(initActive);
+  });
 
   // Preview tab switching
   const tabScreenshots = [
