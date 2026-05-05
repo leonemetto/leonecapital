@@ -9,7 +9,7 @@
   --lp-muted:      rgba(255,255,255,0.5);
   --lp-muted2:     rgba(255,255,255,0.35);
   --lp-white:      #f4f3ff;
-  --lp-font:       'Manrope', system-ui, sans-serif;
+  --lp-font:       'Inter Tight', system-ui, sans-serif;
   --lp-mono:       'Geist Mono', 'Courier New', monospace;
   --lp-radius:     16px;
   --lp-radius-lg:  24px;
@@ -260,13 +260,95 @@
   mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, rgba(0,0,0,0.6) 0%, transparent 100%);
 }
 
-/* ── TOPOGRAPHIC CONTOUR LINES ── */
-#lp .lp-topo {
-  position: absolute;
-  top: 0; left: 0;
-  width: 100%; height: 100%;
+/* ── AURORA STREAK HERO BACKGROUND ── */
+#lp .lp-hero-aurora {
+  position: absolute; inset: 0;
+  z-index: 0; pointer-events: none; overflow: hidden;
+}
+#lp .lp-hero-aurora svg {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+/* Bottom-center glow */
+#lp .lp-hero-aurora::after {
+  content: "";
+  position: absolute; left: 50%; bottom: -180px; transform: translateX(-50%);
+  width: 900px; height: 360px;
+  background: radial-gradient(ellipse at center, rgba(58,255,157,0.45) 0%, rgba(30,211,134,0.22) 25%, rgba(26,143,90,0.10) 50%, transparent 70%);
+  filter: blur(40px);
   pointer-events: none;
-  z-index: 0;
+}
+/* Left/right ambient corners */
+#lp .lp-hero-aurora::before {
+  content: "";
+  position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+  background:
+    radial-gradient(ellipse 500px 600px at 5% 30%, rgba(58,255,157,0.14), transparent 60%),
+    radial-gradient(ellipse 500px 600px at 95% 35%, rgba(118,223,168,0.12), transparent 60%);
+  pointer-events: none;
+}
+
+/* ── LIQUID GLASS ── */
+#lp .lp-lg {
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px; white-space: nowrap;
+  background: rgba(255,255,255,0.04);
+  backdrop-filter: blur(8px) saturate(140%);
+  -webkit-backdrop-filter: blur(8px) saturate(140%);
+  border: 0; cursor: pointer; isolation: isolate;
+  box-shadow:
+    0 4px 14px rgba(0,0,0,0.35),
+    inset 3px 3px 0.5px -3.5px rgba(255,255,255,0.6),
+    inset -3px -3px 0.5px -3.5px rgba(255,255,255,0.85),
+    inset 1px 1px 1px -0.5px rgba(255,255,255,0.6),
+    inset -1px -1px 1px -0.5px rgba(255,255,255,0.55),
+    inset 0 0 6px 6px rgba(255,255,255,0.10),
+    inset 0 0 2px 2px rgba(255,255,255,0.05);
+  transition: transform .25s cubic-bezier(.1,.4,.2,1), filter .25s, background .25s;
+}
+#lp .lp-lg:hover { transform: scale(1.03); filter: brightness(1.08); }
+#lp .lp-lg:active { transform: scale(.98); filter: brightness(.92); }
+
+/* ── GIANT WORDMARK ── */
+#lp .lp-brand-wash {
+  position: relative; overflow: hidden;
+  padding: 50px 0 0; margin-bottom: 0;
+  background: #050505; isolation: isolate;
+}
+#lp .lp-brand-wash::before {
+  content: "";
+  position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+  width: 80%; height: 80%;
+  background: radial-gradient(ellipse 55% 60% at 50% 50%, rgba(30,211,134,0.22) 0%, rgba(30,211,134,0.10) 30%, transparent 65%);
+  filter: blur(50px); z-index: 0; pointer-events: none;
+}
+#lp .lp-brand-wash::after {
+  content: "";
+  position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+  width: 60%; height: 60%;
+  background: radial-gradient(ellipse at center, rgba(58,255,157,0.10) 0%, transparent 65%);
+  filter: blur(50px); mix-blend-mode: screen; z-index: 3; pointer-events: none;
+}
+#lp .lp-brand-wordmark {
+  position: relative; z-index: 1;
+  text-align: center;
+  font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+  font-weight: 700;
+  font-size: 24.5vw;
+  line-height: 0.88;
+  letter-spacing: -0.055em;
+  margin: 0; padding: 0;
+  white-space: nowrap;
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.95) 0%,
+    rgba(240,240,240,0.88) 20%,
+    rgba(180,180,180,0.60) 50%,
+    rgba(110,110,110,0.38) 75%,
+    rgba(60,60,60,0.22) 100%
+  );
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent;
+  user-select: none;
 }
 
 /* Hero badge — two-part pill */

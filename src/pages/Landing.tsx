@@ -272,11 +272,11 @@ export default function Landing() {
   }, []);
 
   useEffect(() => {
-    if (document.querySelector('#lp-manrope-font')) return;
+    if (document.querySelector('#lp-inter-tight-font')) return;
     const link = document.createElement('link');
-    link.id = 'lp-manrope-font';
+    link.id = 'lp-inter-tight-font';
     link.rel = 'stylesheet';
-    link.href = 'https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap';
+    link.href = 'https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap';
     document.head.appendChild(link);
   }, []);
 
@@ -370,21 +370,49 @@ export default function Landing() {
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
 
-        {/* Topographic contour lines — background of hero */}
-        <svg className="lp-topo" viewBox="0 0 1440 1000" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden preserveAspectRatio="xMidYMid slice">
-          <ellipse cx="720" cy="380" rx="80"  ry="38"  stroke="#22c55e" strokeOpacity="0.30" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="160" ry="72"  stroke="#22c55e" strokeOpacity="0.28" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="248" ry="110" stroke="#22c55e" strokeOpacity="0.26" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="340" ry="152" stroke="#1a9e4a" strokeOpacity="0.24" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="436" ry="196" stroke="#1a9e4a" strokeOpacity="0.22" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="536" ry="242" stroke="#16a34a" strokeOpacity="0.19" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="640" ry="290" stroke="#16a34a" strokeOpacity="0.16" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="748" ry="340" stroke="#15803d" strokeOpacity="0.13" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="860" ry="392" stroke="#15803d" strokeOpacity="0.10" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="976" ry="446" stroke="#14532d" strokeOpacity="0.08" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="1096" ry="502" stroke="#14532d" strokeOpacity="0.06" strokeWidth="0.75"/>
-          <ellipse cx="720" cy="380" rx="1220" ry="560" stroke="#14532d" strokeOpacity="0.04" strokeWidth="0.75"/>
-        </svg>
+        {/* Aurora streak background */}
+        <div className="lp-hero-aurora" aria-hidden>
+          <svg viewBox="0 0 1920 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="lp-streakL" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#3aff9d" stopOpacity="0"/>
+                <stop offset="50%" stopColor="#3aff9d" stopOpacity="0.55"/>
+                <stop offset="100%" stopColor="#1ed386" stopOpacity="0"/>
+              </linearGradient>
+              <linearGradient id="lp-streakR" x1="1" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#76dfa8" stopOpacity="0"/>
+                <stop offset="50%" stopColor="#76dfa8" stopOpacity="0.5"/>
+                <stop offset="100%" stopColor="#1ed386" stopOpacity="0"/>
+              </linearGradient>
+              <filter id="lp-auroraBlur" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="6"/>
+              </filter>
+              <filter id="lp-auroraBlurSoft" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="14"/>
+              </filter>
+            </defs>
+            {/* Left side curved streaks */}
+            <g filter="url(#lp-auroraBlur)" opacity="0.9">
+              <path d="M -50 100 Q 200 250 120 500 T 280 950" stroke="url(#lp-streakL)" strokeWidth="2" fill="none"/>
+              <path d="M -100 200 Q 250 380 180 620 T 380 1050" stroke="url(#lp-streakL)" strokeWidth="1.5" fill="none" opacity="0.7"/>
+              <path d="M 0 50 Q 320 220 220 480 T 420 980" stroke="url(#lp-streakL)" strokeWidth="1" fill="none" opacity="0.5"/>
+              <path d="M -80 350 Q 180 520 100 760 T 260 1100" stroke="url(#lp-streakL)" strokeWidth="1.2" fill="none" opacity="0.6"/>
+            </g>
+            <g filter="url(#lp-auroraBlurSoft)" opacity="0.6">
+              <path d="M -120 150 Q 220 320 140 580 T 320 1000" stroke="url(#lp-streakL)" strokeWidth="6" fill="none"/>
+            </g>
+            {/* Right side curved streaks */}
+            <g filter="url(#lp-auroraBlur)" opacity="0.9">
+              <path d="M 1970 80 Q 1700 240 1780 480 T 1620 940" stroke="url(#lp-streakR)" strokeWidth="2" fill="none"/>
+              <path d="M 2020 220 Q 1680 400 1740 640 T 1540 1060" stroke="url(#lp-streakR)" strokeWidth="1.5" fill="none" opacity="0.7"/>
+              <path d="M 1920 30 Q 1620 200 1700 460 T 1500 970" stroke="url(#lp-streakR)" strokeWidth="1" fill="none" opacity="0.5"/>
+              <path d="M 2000 380 Q 1740 540 1820 780 T 1660 1110" stroke="url(#lp-streakR)" strokeWidth="1.2" fill="none" opacity="0.6"/>
+            </g>
+            <g filter="url(#lp-auroraBlurSoft)" opacity="0.6">
+              <path d="M 2040 180 Q 1700 340 1780 600 T 1600 1020" stroke="url(#lp-streakR)" strokeWidth="6" fill="none"/>
+            </g>
+          </svg>
+        </div>
 
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-tag">AI-Powered</span>
@@ -983,6 +1011,11 @@ export default function Landing() {
           <button className="lp-btn-primary-lg" onClick={() => navigate('/auth')}>Start free — no credit card<span className="lp-cta-arrow-wrap">→</span></button>
         </div>
       </section>
+
+      {/* GIANT WORDMARK */}
+      <div className="lp-brand-wash" aria-hidden>
+        <div className="lp-brand-wordmark">EdgeFlow</div>
+      </div>
 
       {/* FOOTER */}
       <footer className="lp-footer">
