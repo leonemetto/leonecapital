@@ -276,13 +276,18 @@
   mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, rgba(0,0,0,0.6) 0%, transparent 100%);
 }
 
-/* ── SVG ORB ── */
-#lp .lp-hero-orb-svg {
-  position: absolute;
-  top: -80px; left: 50%; transform: translateX(-50%);
-  width: 860px; height: 700px;
-  pointer-events: none; z-index: 0;
-  overflow: visible;
+/* ── FLANKING CIRCLES ── */
+#lp .lp-hero-circle {
+  position: absolute; pointer-events: none; z-index: 0;
+  top: 50%; width: 560px; height: 560px;
+}
+#lp .lp-hero-circle--left  {
+  left: -260px;
+  transform: translateY(-44%);
+}
+#lp .lp-hero-circle--right {
+  right: -260px;
+  transform: translateY(-44%);
 }
 
 /* Hero badge — two-part pill */

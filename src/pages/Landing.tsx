@@ -370,68 +370,85 @@ export default function Landing() {
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
 
-        {/* SVG Orb — atmospheric sphere with subsurface depth */}
-        <svg className="lp-hero-orb-svg" viewBox="0 0 1000 800" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <defs>
-            {/* Outer atmospheric haze — wide ellipse, no hard edge */}
-            <radialGradient id="atmos" cx="50%" cy="48%" r="50%">
-              <stop offset="0%"   stopColor="#16a34a" stopOpacity="0.22"/>
-              <stop offset="45%"  stopColor="#15803d" stopOpacity="0.10"/>
-              <stop offset="75%"  stopColor="#14532d" stopOpacity="0.04"/>
-              <stop offset="100%" stopColor="#000"    stopOpacity="0"/>
-            </radialGradient>
-            {/* Sphere body — dark green mass, light offset top-left like a lit sphere */}
-            <radialGradient id="sphere" cx="40%" cy="35%" r="58%" fx="40%" fy="35%">
-              <stop offset="0%"   stopColor="#1a4731" stopOpacity="1"/>
-              <stop offset="28%"  stopColor="#14532d" stopOpacity="1"/>
-              <stop offset="58%"  stopColor="#052e16" stopOpacity="1"/>
-              <stop offset="82%"  stopColor="#011a0c" stopOpacity="1"/>
-              <stop offset="100%" stopColor="#000"    stopOpacity="1"/>
-            </radialGradient>
-            {/* Rim glow — green light wrapping around the sphere edge */}
-            <radialGradient id="rim" cx="50%" cy="50%" r="50%">
-              <stop offset="62%"  stopColor="transparent"  stopOpacity="0"/>
-              <stop offset="80%"  stopColor="#22c55e"      stopOpacity="0.30"/>
-              <stop offset="91%"  stopColor="#4ade80"      stopOpacity="0.14"/>
-              <stop offset="100%" stopColor="transparent"  stopOpacity="0"/>
-            </radialGradient>
-            {/* Specular highlight — top-left catch light */}
-            <radialGradient id="spec" cx="38%" cy="30%" r="38%">
-              <stop offset="0%"   stopColor="#86efac" stopOpacity="0.55"/>
-              <stop offset="55%"  stopColor="#4ade80" stopOpacity="0.15"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            {/* Bottom glow bleed — light escaping at the bottom */}
-            <radialGradient id="bottomBleed" cx="50%" cy="90%" r="40%">
-              <stop offset="0%"   stopColor="#22c55e" stopOpacity="0.18"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <clipPath id="sphereClip">
-              <circle cx="500" cy="390" r="268"/>
-            </clipPath>
-            <filter id="atmosBlur" x="-40%" y="-40%" width="180%" height="180%">
-              <feGaussianBlur stdDeviation="38"/>
-            </filter>
-            <filter id="specBlur">
-              <feGaussianBlur stdDeviation="14"/>
-            </filter>
-          </defs>
+        {/* Left flanking circle — partially cropped by viewport edge */}
+        <div className="lp-hero-circle lp-hero-circle--left" aria-hidden>
+          <svg viewBox="0 0 560 560" fill="none" xmlns="http://www.w3.org/2000/svg" width="560" height="560">
+            <defs>
+              <radialGradient id="cL" cx="62%" cy="40%" r="55%" fx="62%" fy="40%">
+                <stop offset="0%"   stopColor="#1e5c38"/>
+                <stop offset="30%"  stopColor="#14532d"/>
+                <stop offset="62%"  stopColor="#052e16"/>
+                <stop offset="85%"  stopColor="#011508"/>
+                <stop offset="100%" stopColor="#000"/>
+              </radialGradient>
+              <radialGradient id="cLrim" cx="50%" cy="50%" r="50%">
+                <stop offset="65%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="82%"  stopColor="#22c55e" stopOpacity="0.35"/>
+                <stop offset="93%"  stopColor="#4ade80" stopOpacity="0.12"/>
+                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+              </radialGradient>
+              <radialGradient id="cLspec" cx="65%" cy="33%" r="32%">
+                <stop offset="0%"   stopColor="#86efac" stopOpacity="0.50"/>
+                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+              </radialGradient>
+              <radialGradient id="cLglow" cx="50%" cy="50%" r="50%">
+                <stop offset="60%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.20"/>
+              </radialGradient>
+              <filter id="cLspecBlur"><feGaussianBlur stdDeviation="12"/></filter>
+              <filter id="cLglow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="22"/>
+              </filter>
+              <clipPath id="cLclip"><circle cx="280" cy="280" r="270"/></clipPath>
+            </defs>
+            {/* Outer atmospheric glow ring */}
+            <circle cx="280" cy="280" r="270" fill="url(#cLglow)" filter="url(#cLglow)"/>
+            {/* Sphere body */}
+            <circle cx="280" cy="280" r="268" fill="url(#cL)"/>
+            {/* Rim glow */}
+            <circle cx="280" cy="280" r="268" fill="url(#cLrim)"/>
+            {/* Specular highlight */}
+            <ellipse cx="330" cy="160" rx="90" ry="62" fill="url(#cLspec)" clipPath="url(#cLclip)" filter="url(#cLspecBlur)"/>
+          </svg>
+        </div>
 
-          {/* 1. Atmospheric outer haze */}
-          <ellipse cx="500" cy="390" rx="440" ry="360" fill="url(#atmos)" filter="url(#atmosBlur)"/>
-
-          {/* 2. Sphere body */}
-          <circle cx="500" cy="390" r="268" fill="url(#sphere)"/>
-
-          {/* 3. Rim glow on top of sphere */}
-          <circle cx="500" cy="390" r="268" fill="url(#rim)"/>
-
-          {/* 4. Specular highlight — clipped inside sphere */}
-          <ellipse cx="415" cy="295" rx="115" ry="80" fill="url(#spec)" clipPath="url(#sphereClip)" filter="url(#specBlur)"/>
-
-          {/* 5. Bottom light bleed — atmospheric leak below sphere */}
-          <ellipse cx="500" cy="660" rx="300" ry="120" fill="url(#bottomBleed)" filter="url(#atmosBlur)"/>
-        </svg>
+        {/* Right flanking circle — partially cropped by viewport edge */}
+        <div className="lp-hero-circle lp-hero-circle--right" aria-hidden>
+          <svg viewBox="0 0 560 560" fill="none" xmlns="http://www.w3.org/2000/svg" width="560" height="560">
+            <defs>
+              <radialGradient id="cR" cx="38%" cy="40%" r="55%" fx="38%" fy="40%">
+                <stop offset="0%"   stopColor="#1e5c38"/>
+                <stop offset="30%"  stopColor="#14532d"/>
+                <stop offset="62%"  stopColor="#052e16"/>
+                <stop offset="85%"  stopColor="#011508"/>
+                <stop offset="100%" stopColor="#000"/>
+              </radialGradient>
+              <radialGradient id="cRrim" cx="50%" cy="50%" r="50%">
+                <stop offset="65%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="82%"  stopColor="#22c55e" stopOpacity="0.35"/>
+                <stop offset="93%"  stopColor="#4ade80" stopOpacity="0.12"/>
+                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+              </radialGradient>
+              <radialGradient id="cRspec" cx="35%" cy="33%" r="32%">
+                <stop offset="0%"   stopColor="#86efac" stopOpacity="0.50"/>
+                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+              </radialGradient>
+              <radialGradient id="cRglow" cx="50%" cy="50%" r="50%">
+                <stop offset="60%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.20"/>
+              </radialGradient>
+              <filter id="cRspecBlur"><feGaussianBlur stdDeviation="12"/></filter>
+              <filter id="cRglow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="22"/>
+              </filter>
+              <clipPath id="cRclip"><circle cx="280" cy="280" r="270"/></clipPath>
+            </defs>
+            <circle cx="280" cy="280" r="270" fill="url(#cRglow)" filter="url(#cRglow)"/>
+            <circle cx="280" cy="280" r="268" fill="url(#cR)"/>
+            <circle cx="280" cy="280" r="268" fill="url(#cRrim)"/>
+            <ellipse cx="230" cy="160" rx="90" ry="62" fill="url(#cRspec)" clipPath="url(#cRclip)" filter="url(#cRspecBlur)"/>
+          </svg>
+        </div>
 
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-tag">AI-Powered</span>
