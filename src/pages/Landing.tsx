@@ -369,11 +369,69 @@ export default function Landing() {
       {/* HERO */}
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
-        {/* Layered orb background */}
-        <div className="lp-hero-orb-outer" aria-hidden />
-        <div className="lp-hero-orb-mid" aria-hidden />
-        <div className="lp-hero-orb-core" aria-hidden />
-        <div className="lp-hero-orb-highlight" aria-hidden />
+
+        {/* SVG Orb — atmospheric sphere with subsurface depth */}
+        <svg className="lp-hero-orb-svg" viewBox="0 0 1000 800" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <defs>
+            {/* Outer atmospheric haze — wide ellipse, no hard edge */}
+            <radialGradient id="atmos" cx="50%" cy="48%" r="50%">
+              <stop offset="0%"   stopColor="#16a34a" stopOpacity="0.22"/>
+              <stop offset="45%"  stopColor="#15803d" stopOpacity="0.10"/>
+              <stop offset="75%"  stopColor="#14532d" stopOpacity="0.04"/>
+              <stop offset="100%" stopColor="#000"    stopOpacity="0"/>
+            </radialGradient>
+            {/* Sphere body — dark green mass, light offset top-left like a lit sphere */}
+            <radialGradient id="sphere" cx="40%" cy="35%" r="58%" fx="40%" fy="35%">
+              <stop offset="0%"   stopColor="#1a4731" stopOpacity="1"/>
+              <stop offset="28%"  stopColor="#14532d" stopOpacity="1"/>
+              <stop offset="58%"  stopColor="#052e16" stopOpacity="1"/>
+              <stop offset="82%"  stopColor="#011a0c" stopOpacity="1"/>
+              <stop offset="100%" stopColor="#000"    stopOpacity="1"/>
+            </radialGradient>
+            {/* Rim glow — green light wrapping around the sphere edge */}
+            <radialGradient id="rim" cx="50%" cy="50%" r="50%">
+              <stop offset="62%"  stopColor="transparent"  stopOpacity="0"/>
+              <stop offset="80%"  stopColor="#22c55e"      stopOpacity="0.30"/>
+              <stop offset="91%"  stopColor="#4ade80"      stopOpacity="0.14"/>
+              <stop offset="100%" stopColor="transparent"  stopOpacity="0"/>
+            </radialGradient>
+            {/* Specular highlight — top-left catch light */}
+            <radialGradient id="spec" cx="38%" cy="30%" r="38%">
+              <stop offset="0%"   stopColor="#86efac" stopOpacity="0.55"/>
+              <stop offset="55%"  stopColor="#4ade80" stopOpacity="0.15"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            {/* Bottom glow bleed — light escaping at the bottom */}
+            <radialGradient id="bottomBleed" cx="50%" cy="90%" r="40%">
+              <stop offset="0%"   stopColor="#22c55e" stopOpacity="0.18"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <clipPath id="sphereClip">
+              <circle cx="500" cy="390" r="268"/>
+            </clipPath>
+            <filter id="atmosBlur" x="-40%" y="-40%" width="180%" height="180%">
+              <feGaussianBlur stdDeviation="38"/>
+            </filter>
+            <filter id="specBlur">
+              <feGaussianBlur stdDeviation="14"/>
+            </filter>
+          </defs>
+
+          {/* 1. Atmospheric outer haze */}
+          <ellipse cx="500" cy="390" rx="440" ry="360" fill="url(#atmos)" filter="url(#atmosBlur)"/>
+
+          {/* 2. Sphere body */}
+          <circle cx="500" cy="390" r="268" fill="url(#sphere)"/>
+
+          {/* 3. Rim glow on top of sphere */}
+          <circle cx="500" cy="390" r="268" fill="url(#rim)"/>
+
+          {/* 4. Specular highlight — clipped inside sphere */}
+          <ellipse cx="415" cy="295" rx="115" ry="80" fill="url(#spec)" clipPath="url(#sphereClip)" filter="url(#specBlur)"/>
+
+          {/* 5. Bottom light bleed — atmospheric leak below sphere */}
+          <ellipse cx="500" cy="660" rx="300" ry="120" fill="url(#bottomBleed)" filter="url(#atmosBlur)"/>
+        </svg>
 
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-tag">AI-Powered</span>
