@@ -279,15 +279,15 @@
 /* ── FLANKING CIRCLES ── */
 #lp .lp-hero-circle {
   position: absolute; pointer-events: none; z-index: 0;
-  top: 50%; width: 560px; height: 560px;
+  top: 50%; width: 700px; height: 700px;
 }
 #lp .lp-hero-circle--left  {
-  left: -260px;
-  transform: translateY(-44%);
+  left: -360px;
+  transform: translateY(-48%);
 }
 #lp .lp-hero-circle--right {
-  right: -260px;
-  transform: translateY(-44%);
+  right: -360px;
+  transform: translateY(-48%);
 }
 
 /* Hero badge — two-part pill */

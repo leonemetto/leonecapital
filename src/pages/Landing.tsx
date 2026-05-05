@@ -370,83 +370,104 @@ export default function Landing() {
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
 
-        {/* Left flanking circle — partially cropped by viewport edge */}
+        {/* Left flanking circle — large dark sphere, half-cropped by left viewport edge */}
         <div className="lp-hero-circle lp-hero-circle--left" aria-hidden>
-          <svg viewBox="0 0 560 560" fill="none" xmlns="http://www.w3.org/2000/svg" width="560" height="560">
+          <svg viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg" width="700" height="700">
             <defs>
-              <radialGradient id="cL" cx="62%" cy="40%" r="55%" fx="62%" fy="40%">
-                <stop offset="0%"   stopColor="#1e5c38"/>
-                <stop offset="30%"  stopColor="#14532d"/>
-                <stop offset="62%"  stopColor="#052e16"/>
-                <stop offset="85%"  stopColor="#011508"/>
-                <stop offset="100%" stopColor="#000"/>
+              {/* Deep dark sphere body — light source upper-right */}
+              <radialGradient id="cL" cx="64%" cy="36%" r="52%" fx="64%" fy="36%">
+                <stop offset="0%"   stopColor="#0f3d20"/>
+                <stop offset="18%"  stopColor="#072010"/>
+                <stop offset="45%"  stopColor="#030e07"/>
+                <stop offset="75%"  stopColor="#010704"/>
+                <stop offset="100%" stopColor="#000000"/>
               </radialGradient>
+              {/* Rim glow — tight bright ring at sphere edge */}
               <radialGradient id="cLrim" cx="50%" cy="50%" r="50%">
-                <stop offset="65%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="82%"  stopColor="#22c55e" stopOpacity="0.35"/>
-                <stop offset="93%"  stopColor="#4ade80" stopOpacity="0.12"/>
+                <stop offset="0%"   stopColor="transparent" stopOpacity="0"/>
+                <stop offset="76%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="84%"  stopColor="#22c55e" stopOpacity="0.55"/>
+                <stop offset="90%"  stopColor="#4ade80" stopOpacity="0.22"/>
+                <stop offset="96%"  stopColor="#86efac" stopOpacity="0.06"/>
                 <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
               </radialGradient>
-              <radialGradient id="cLspec" cx="65%" cy="33%" r="32%">
-                <stop offset="0%"   stopColor="#86efac" stopOpacity="0.50"/>
+              {/* Specular — soft lit zone upper-right */}
+              <radialGradient id="cLspec" cx="66%" cy="32%" r="28%">
+                <stop offset="0%"   stopColor="#4ade80" stopOpacity="0.28"/>
                 <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
               </radialGradient>
-              <radialGradient id="cLglow" cx="50%" cy="50%" r="50%">
-                <stop offset="60%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.20"/>
+              {/* Outer atmospheric haze */}
+              <radialGradient id="cLatm" cx="50%" cy="50%" r="50%">
+                <stop offset="70%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.12"/>
               </radialGradient>
-              <filter id="cLspecBlur"><feGaussianBlur stdDeviation="12"/></filter>
-              <filter id="cLglow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="22"/>
+              <filter id="cLspecBlur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="18"/>
               </filter>
-              <clipPath id="cLclip"><circle cx="280" cy="280" r="270"/></clipPath>
+              <filter id="cLatmBlur" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="28"/>
+              </filter>
+              <clipPath id="cLclip"><circle cx="350" cy="350" r="338"/></clipPath>
             </defs>
-            {/* Outer atmospheric glow ring */}
-            <circle cx="280" cy="280" r="270" fill="url(#cLglow)" filter="url(#cLglow)"/>
-            {/* Sphere body */}
-            <circle cx="280" cy="280" r="268" fill="url(#cL)"/>
-            {/* Rim glow */}
-            <circle cx="280" cy="280" r="268" fill="url(#cLrim)"/>
-            {/* Specular highlight */}
-            <ellipse cx="330" cy="160" rx="90" ry="62" fill="url(#cLspec)" clipPath="url(#cLclip)" filter="url(#cLspecBlur)"/>
+            {/* Atmospheric outer haze */}
+            <circle cx="350" cy="350" r="345" fill="url(#cLatm)" filter="url(#cLatmBlur)"/>
+            {/* Deep dark sphere body */}
+            <circle cx="350" cy="350" r="338" fill="url(#cL)"/>
+            {/* Shade layer — dark ellipse on lower-left to add volume */}
+            <ellipse cx="290" cy="410" rx="280" ry="240" fill="#000000" fillOpacity="0.45" clipPath="url(#cLclip)"/>
+            {/* Light layer — subtly lighter ellipse upper-right for depth */}
+            <ellipse cx="430" cy="270" rx="200" ry="170" fill="#0d3320" fillOpacity="0.35" clipPath="url(#cLclip)"/>
+            {/* Rim glow ring */}
+            <circle cx="350" cy="350" r="338" fill="url(#cLrim)"/>
+            {/* Specular highlight — small bright zone upper-right */}
+            <ellipse cx="430" cy="195" rx="90" ry="58" fill="url(#cLspec)" clipPath="url(#cLclip)" filter="url(#cLspecBlur)"/>
           </svg>
         </div>
 
-        {/* Right flanking circle — partially cropped by viewport edge */}
+        {/* Right flanking circle — large dark sphere, half-cropped by right viewport edge */}
         <div className="lp-hero-circle lp-hero-circle--right" aria-hidden>
-          <svg viewBox="0 0 560 560" fill="none" xmlns="http://www.w3.org/2000/svg" width="560" height="560">
+          <svg viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg" width="700" height="700">
             <defs>
-              <radialGradient id="cR" cx="38%" cy="40%" r="55%" fx="38%" fy="40%">
-                <stop offset="0%"   stopColor="#1e5c38"/>
-                <stop offset="30%"  stopColor="#14532d"/>
-                <stop offset="62%"  stopColor="#052e16"/>
-                <stop offset="85%"  stopColor="#011508"/>
-                <stop offset="100%" stopColor="#000"/>
+              {/* Deep dark sphere body — light source upper-left */}
+              <radialGradient id="cR" cx="36%" cy="36%" r="52%" fx="36%" fy="36%">
+                <stop offset="0%"   stopColor="#0f3d20"/>
+                <stop offset="18%"  stopColor="#072010"/>
+                <stop offset="45%"  stopColor="#030e07"/>
+                <stop offset="75%"  stopColor="#010704"/>
+                <stop offset="100%" stopColor="#000000"/>
               </radialGradient>
               <radialGradient id="cRrim" cx="50%" cy="50%" r="50%">
-                <stop offset="65%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="82%"  stopColor="#22c55e" stopOpacity="0.35"/>
-                <stop offset="93%"  stopColor="#4ade80" stopOpacity="0.12"/>
+                <stop offset="0%"   stopColor="transparent" stopOpacity="0"/>
+                <stop offset="76%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="84%"  stopColor="#22c55e" stopOpacity="0.55"/>
+                <stop offset="90%"  stopColor="#4ade80" stopOpacity="0.22"/>
+                <stop offset="96%"  stopColor="#86efac" stopOpacity="0.06"/>
                 <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
               </radialGradient>
-              <radialGradient id="cRspec" cx="35%" cy="33%" r="32%">
-                <stop offset="0%"   stopColor="#86efac" stopOpacity="0.50"/>
+              <radialGradient id="cRspec" cx="34%" cy="32%" r="28%">
+                <stop offset="0%"   stopColor="#4ade80" stopOpacity="0.28"/>
                 <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
               </radialGradient>
-              <radialGradient id="cRglow" cx="50%" cy="50%" r="50%">
-                <stop offset="60%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.20"/>
+              <radialGradient id="cRatm" cx="50%" cy="50%" r="50%">
+                <stop offset="70%"  stopColor="transparent" stopOpacity="0"/>
+                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.12"/>
               </radialGradient>
-              <filter id="cRspecBlur"><feGaussianBlur stdDeviation="12"/></filter>
-              <filter id="cRglow" x="-20%" y="-20%" width="140%" height="140%">
-                <feGaussianBlur stdDeviation="22"/>
+              <filter id="cRspecBlur" x="-50%" y="-50%" width="200%" height="200%">
+                <feGaussianBlur stdDeviation="18"/>
               </filter>
-              <clipPath id="cRclip"><circle cx="280" cy="280" r="270"/></clipPath>
+              <filter id="cRatmBlur" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="28"/>
+              </filter>
+              <clipPath id="cRclip"><circle cx="350" cy="350" r="338"/></clipPath>
             </defs>
-            <circle cx="280" cy="280" r="270" fill="url(#cRglow)" filter="url(#cRglow)"/>
-            <circle cx="280" cy="280" r="268" fill="url(#cR)"/>
-            <circle cx="280" cy="280" r="268" fill="url(#cRrim)"/>
-            <ellipse cx="230" cy="160" rx="90" ry="62" fill="url(#cRspec)" clipPath="url(#cRclip)" filter="url(#cRspecBlur)"/>
+            <circle cx="350" cy="350" r="345" fill="url(#cRatm)" filter="url(#cRatmBlur)"/>
+            <circle cx="350" cy="350" r="338" fill="url(#cR)"/>
+            {/* Shade layer — lower-right */}
+            <ellipse cx="410" cy="410" rx="280" ry="240" fill="#000000" fillOpacity="0.45" clipPath="url(#cRclip)"/>
+            {/* Light layer — upper-left */}
+            <ellipse cx="270" cy="270" rx="200" ry="170" fill="#0d3320" fillOpacity="0.35" clipPath="url(#cRclip)"/>
+            <circle cx="350" cy="350" r="338" fill="url(#cRrim)"/>
+            <ellipse cx="270" cy="195" rx="90" ry="58" fill="url(#cRspec)" clipPath="url(#cRclip)" filter="url(#cRspecBlur)"/>
           </svg>
         </div>
 
