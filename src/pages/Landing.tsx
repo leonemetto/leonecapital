@@ -370,106 +370,12 @@ export default function Landing() {
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
 
-        {/* Left flanking circle — large dark sphere, half-cropped by left viewport edge */}
-        <div className="lp-hero-circle lp-hero-circle--left" aria-hidden>
-          <svg viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg" width="700" height="700">
-            <defs>
-              {/* Deep dark sphere body — light source upper-right */}
-              <radialGradient id="cL" cx="64%" cy="36%" r="52%" fx="64%" fy="36%">
-                <stop offset="0%"   stopColor="#0f3d20"/>
-                <stop offset="18%"  stopColor="#072010"/>
-                <stop offset="45%"  stopColor="#030e07"/>
-                <stop offset="75%"  stopColor="#010704"/>
-                <stop offset="100%" stopColor="#000000"/>
-              </radialGradient>
-              {/* Rim glow — tight bright ring at sphere edge */}
-              <radialGradient id="cLrim" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"   stopColor="transparent" stopOpacity="0"/>
-                <stop offset="76%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="84%"  stopColor="#22c55e" stopOpacity="0.55"/>
-                <stop offset="90%"  stopColor="#4ade80" stopOpacity="0.22"/>
-                <stop offset="96%"  stopColor="#86efac" stopOpacity="0.06"/>
-                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-              </radialGradient>
-              {/* Specular — soft lit zone upper-right */}
-              <radialGradient id="cLspec" cx="66%" cy="32%" r="28%">
-                <stop offset="0%"   stopColor="#4ade80" stopOpacity="0.28"/>
-                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-              </radialGradient>
-              {/* Outer atmospheric haze */}
-              <radialGradient id="cLatm" cx="50%" cy="50%" r="50%">
-                <stop offset="70%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.12"/>
-              </radialGradient>
-              <filter id="cLspecBlur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="18"/>
-              </filter>
-              <filter id="cLatmBlur" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="28"/>
-              </filter>
-              <clipPath id="cLclip"><circle cx="350" cy="350" r="338"/></clipPath>
-            </defs>
-            {/* Atmospheric outer haze */}
-            <circle cx="350" cy="350" r="345" fill="url(#cLatm)" filter="url(#cLatmBlur)"/>
-            {/* Deep dark sphere body */}
-            <circle cx="350" cy="350" r="338" fill="url(#cL)"/>
-            {/* Shade layer — dark ellipse on lower-left to add volume */}
-            <ellipse cx="290" cy="410" rx="280" ry="240" fill="#000000" fillOpacity="0.45" clipPath="url(#cLclip)"/>
-            {/* Light layer — subtly lighter ellipse upper-right for depth */}
-            <ellipse cx="430" cy="270" rx="200" ry="170" fill="#0d3320" fillOpacity="0.35" clipPath="url(#cLclip)"/>
-            {/* Rim glow ring */}
-            <circle cx="350" cy="350" r="338" fill="url(#cLrim)"/>
-            {/* Specular highlight — small bright zone upper-right */}
-            <ellipse cx="430" cy="195" rx="90" ry="58" fill="url(#cLspec)" clipPath="url(#cLclip)" filter="url(#cLspecBlur)"/>
-          </svg>
-        </div>
-
-        {/* Right flanking circle — large dark sphere, half-cropped by right viewport edge */}
-        <div className="lp-hero-circle lp-hero-circle--right" aria-hidden>
-          <svg viewBox="0 0 700 700" fill="none" xmlns="http://www.w3.org/2000/svg" width="700" height="700">
-            <defs>
-              {/* Deep dark sphere body — light source upper-left */}
-              <radialGradient id="cR" cx="36%" cy="36%" r="52%" fx="36%" fy="36%">
-                <stop offset="0%"   stopColor="#0f3d20"/>
-                <stop offset="18%"  stopColor="#072010"/>
-                <stop offset="45%"  stopColor="#030e07"/>
-                <stop offset="75%"  stopColor="#010704"/>
-                <stop offset="100%" stopColor="#000000"/>
-              </radialGradient>
-              <radialGradient id="cRrim" cx="50%" cy="50%" r="50%">
-                <stop offset="0%"   stopColor="transparent" stopOpacity="0"/>
-                <stop offset="76%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="84%"  stopColor="#22c55e" stopOpacity="0.55"/>
-                <stop offset="90%"  stopColor="#4ade80" stopOpacity="0.22"/>
-                <stop offset="96%"  stopColor="#86efac" stopOpacity="0.06"/>
-                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-              </radialGradient>
-              <radialGradient id="cRspec" cx="34%" cy="32%" r="28%">
-                <stop offset="0%"   stopColor="#4ade80" stopOpacity="0.28"/>
-                <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-              </radialGradient>
-              <radialGradient id="cRatm" cx="50%" cy="50%" r="50%">
-                <stop offset="70%"  stopColor="transparent" stopOpacity="0"/>
-                <stop offset="100%" stopColor="#16a34a" stopOpacity="0.12"/>
-              </radialGradient>
-              <filter id="cRspecBlur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="18"/>
-              </filter>
-              <filter id="cRatmBlur" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="28"/>
-              </filter>
-              <clipPath id="cRclip"><circle cx="350" cy="350" r="338"/></clipPath>
-            </defs>
-            <circle cx="350" cy="350" r="345" fill="url(#cRatm)" filter="url(#cRatmBlur)"/>
-            <circle cx="350" cy="350" r="338" fill="url(#cR)"/>
-            {/* Shade layer — lower-right */}
-            <ellipse cx="410" cy="410" rx="280" ry="240" fill="#000000" fillOpacity="0.45" clipPath="url(#cRclip)"/>
-            {/* Light layer — upper-left */}
-            <ellipse cx="270" cy="270" rx="200" ry="170" fill="#0d3320" fillOpacity="0.35" clipPath="url(#cRclip)"/>
-            <circle cx="350" cy="350" r="338" fill="url(#cRrim)"/>
-            <ellipse cx="270" cy="195" rx="90" ry="58" fill="url(#cRspec)" clipPath="url(#cRclip)" filter="url(#cRspecBlur)"/>
-          </svg>
-        </div>
+        {/* Oval 1 — largest, behind everything including image and text */}
+        <div className="lp-oval lp-oval--1" aria-hidden />
+        {/* Oval 2 — medium, between title and product screenshot */}
+        <div className="lp-oval lp-oval--2" aria-hidden />
+        {/* Oval 3 — smallest, around the CTA buttons */}
+        <div className="lp-oval lp-oval--3" aria-hidden />
 
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-tag">AI-Powered</span>
@@ -640,32 +546,6 @@ export default function Landing() {
 
       {/* HOW IT WORKS */}
       <section id="how" style={{ position: 'relative' }}>
-        <svg className="lp-section-orb lp-section-orb--left" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <defs>
-            <radialGradient id="howAtmos" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"  stopColor="#22c55e" stopOpacity="0.18"/>
-              <stop offset="50%" stopColor="#16a34a" stopOpacity="0.07"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="howSphere" cx="42%" cy="38%" r="52%">
-              <stop offset="0%"  stopColor="#1a4731" stopOpacity="0.9"/>
-              <stop offset="45%" stopColor="#052e16" stopOpacity="0.8"/>
-              <stop offset="85%" stopColor="#000" stopOpacity="0.6"/>
-              <stop offset="100%" stopColor="#000" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="howRim" cx="50%" cy="50%" r="50%">
-              <stop offset="65%" stopColor="transparent" stopOpacity="0"/>
-              <stop offset="83%" stopColor="#22c55e" stopOpacity="0.22"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <filter id="howBlur" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="35"/>
-            </filter>
-          </defs>
-          <ellipse cx="180" cy="250" rx="280" ry="240" fill="url(#howAtmos)" filter="url(#howBlur)"/>
-          <circle cx="180" cy="250" r="140" fill="url(#howSphere)"/>
-          <circle cx="180" cy="250" r="140" fill="url(#howRim)"/>
-        </svg>
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> How it works</div>
@@ -987,43 +867,6 @@ export default function Landing() {
 
       {/* PRICING */}
       <section id="pricing" style={{ position: 'relative' }}>
-        <svg className="lp-section-orb lp-section-orb--right" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <defs>
-            <radialGradient id="priceAtmos" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"  stopColor="#22c55e" stopOpacity="0.20"/>
-              <stop offset="50%" stopColor="#16a34a" stopOpacity="0.08"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="priceSphere" cx="44%" cy="36%" r="54%">
-              <stop offset="0%"  stopColor="#1a4731" stopOpacity="0.9"/>
-              <stop offset="42%" stopColor="#052e16" stopOpacity="0.85"/>
-              <stop offset="80%" stopColor="#000" stopOpacity="0.6"/>
-              <stop offset="100%" stopColor="#000" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="priceRim" cx="50%" cy="50%" r="50%">
-              <stop offset="62%" stopColor="transparent" stopOpacity="0"/>
-              <stop offset="82%" stopColor="#22c55e" stopOpacity="0.28"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="priceSpec" cx="38%" cy="30%" r="38%">
-              <stop offset="0%"  stopColor="#86efac" stopOpacity="0.45"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <filter id="priceBlur" x="-60%" y="-60%" width="220%" height="220%">
-              <feGaussianBlur stdDeviation="38"/>
-            </filter>
-            <filter id="priceSpecBlur">
-              <feGaussianBlur stdDeviation="12"/>
-            </filter>
-            <clipPath id="priceClip">
-              <circle cx="420" cy="250" r="155"/>
-            </clipPath>
-          </defs>
-          <ellipse cx="420" cy="250" rx="290" ry="250" fill="url(#priceAtmos)" filter="url(#priceBlur)"/>
-          <circle cx="420" cy="250" r="155" fill="url(#priceSphere)"/>
-          <circle cx="420" cy="250" r="155" fill="url(#priceRim)"/>
-          <ellipse cx="350" cy="175" rx="80" ry="55" fill="url(#priceSpec)" clipPath="url(#priceClip)" filter="url(#priceSpecBlur)"/>
-        </svg>
         <div className="lp-container">
           <div className="lp-reveal" style={{ textAlign: 'center' }}>
             <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Pricing</div>
@@ -1125,45 +968,6 @@ export default function Landing() {
 
       {/* CTA */}
       <section className="lp-cta-section" style={{ position: 'relative' }}>
-        <svg className="lp-section-orb lp-section-orb--center" viewBox="0 0 1000 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
-          <defs>
-            <radialGradient id="ctaAtmos" cx="50%" cy="50%" r="50%">
-              <stop offset="0%"  stopColor="#22c55e" stopOpacity="0.22"/>
-              <stop offset="45%" stopColor="#16a34a" stopOpacity="0.09"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="ctaSphere" cx="43%" cy="37%" r="54%">
-              <stop offset="0%"  stopColor="#1e5c38" stopOpacity="0.95"/>
-              <stop offset="38%" stopColor="#14532d" stopOpacity="0.9"/>
-              <stop offset="65%" stopColor="#052e16" stopOpacity="0.8"/>
-              <stop offset="88%" stopColor="#000" stopOpacity="0.5"/>
-              <stop offset="100%" stopColor="#000" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="ctaRim" cx="50%" cy="50%" r="50%">
-              <stop offset="60%" stopColor="transparent" stopOpacity="0"/>
-              <stop offset="80%" stopColor="#22c55e" stopOpacity="0.32"/>
-              <stop offset="93%" stopColor="#4ade80" stopOpacity="0.12"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <radialGradient id="ctaSpec" cx="37%" cy="29%" r="38%">
-              <stop offset="0%"  stopColor="#86efac" stopOpacity="0.55"/>
-              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
-            </radialGradient>
-            <filter id="ctaBlur" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur stdDeviation="45"/>
-            </filter>
-            <filter id="ctaSpecBlur">
-              <feGaussianBlur stdDeviation="16"/>
-            </filter>
-            <clipPath id="ctaClip">
-              <circle cx="500" cy="300" r="200"/>
-            </clipPath>
-          </defs>
-          <ellipse cx="500" cy="300" rx="480" ry="360" fill="url(#ctaAtmos)" filter="url(#ctaBlur)"/>
-          <circle cx="500" cy="300" r="200" fill="url(#ctaSphere)"/>
-          <circle cx="500" cy="300" r="200" fill="url(#ctaRim)"/>
-          <ellipse cx="425" cy="215" rx="100" ry="70" fill="url(#ctaSpec)" clipPath="url(#ctaClip)" filter="url(#ctaSpecBlur)"/>
-        </svg>
         <div className="lp-cta-inner lp-reveal">
           <h2>Your edge is already<br/>in your data.</h2>
           <p>Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>

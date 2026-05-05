@@ -225,24 +225,8 @@
 @keyframes lp-tab-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 #lp .lp-tab-fade { animation: lp-tab-fade 0.22s cubic-bezier(0.16,1,0.3,1); }
 
-/* ── SECTION ORBS — ambient sphere accents throughout the page ── */
-#lp .lp-section-orb {
-  position: absolute; pointer-events: none; z-index: 0; overflow: visible;
-}
-#lp .lp-section-orb--left {
-  left: -120px; top: 50%; transform: translateY(-50%);
-  width: 520px; height: 440px;
-}
-#lp .lp-section-orb--right {
-  right: -120px; top: 50%; transform: translateY(-50%);
-  width: 520px; height: 440px;
-}
-#lp .lp-section-orb--center {
-  left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: 900px; height: 560px;
-}
-/* Ensure section content sits above its orb */
-#lp section > *:not(.lp-section-orb) { position: relative; z-index: 1; }
+/* Ensure section content sits above background elements */
+#lp section > *:not(.lp-oval) { position: relative; z-index: 1; }
 
 /* Scroll to top */
 #lp .lp-scroll-top {
@@ -276,18 +260,35 @@
   mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, rgba(0,0,0,0.6) 0%, transparent 100%);
 }
 
-/* ── FLANKING CIRCLES ── */
-#lp .lp-hero-circle {
-  position: absolute; pointer-events: none; z-index: 0;
-  top: 50%; width: 700px; height: 700px;
+/* ── HERO OVALS — three stacked centered ellipses ── */
+#lp .lp-oval {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: 50%;
 }
-#lp .lp-hero-circle--left  {
-  left: -360px;
-  transform: translateY(-48%);
+/* Oval 1 — largest, behind all hero content including the product screenshot */
+#lp .lp-oval--1 {
+  width: 1000px;
+  height: 680px;
+  top: -60px;
+  background: radial-gradient(ellipse at 50% 50%, #0d2b1a 0%, #062013 30%, #020d08 60%, transparent 80%);
 }
-#lp .lp-hero-circle--right {
-  right: -360px;
-  transform: translateY(-48%);
+/* Oval 2 — medium, between title and screenshot (description + badge row area) */
+#lp .lp-oval--2 {
+  width: 700px;
+  height: 380px;
+  top: 260px;
+  background: radial-gradient(ellipse at 50% 50%, #0a2416 0%, #051208 45%, transparent 75%);
+}
+/* Oval 3 — smallest, tight around the CTA buttons */
+#lp .lp-oval--3 {
+  width: 460px;
+  height: 200px;
+  top: 420px;
+  background: radial-gradient(ellipse at 50% 50%, #0f3320 0%, #072514 50%, transparent 78%);
 }
 
 /* Hero badge — two-part pill */
