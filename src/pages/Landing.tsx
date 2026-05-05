@@ -370,12 +370,21 @@ export default function Landing() {
       <section className="lp-hero">
         <div className="lp-hero-grid-overlay" aria-hidden />
 
-        {/* Oval 1 — largest, behind everything including image and text */}
-        <div className="lp-oval lp-oval--1" aria-hidden />
-        {/* Oval 2 — medium, between title and product screenshot */}
-        <div className="lp-oval lp-oval--2" aria-hidden />
-        {/* Oval 3 — smallest, around the CTA buttons */}
-        <div className="lp-oval lp-oval--3" aria-hidden />
+        {/* Topographic contour lines — background of hero */}
+        <svg className="lp-topo" viewBox="0 0 1440 1000" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden preserveAspectRatio="xMidYMid slice">
+          <ellipse cx="720" cy="380" rx="80"  ry="38"  stroke="#22c55e" strokeOpacity="0.30" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="160" ry="72"  stroke="#22c55e" strokeOpacity="0.28" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="248" ry="110" stroke="#22c55e" strokeOpacity="0.26" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="340" ry="152" stroke="#1a9e4a" strokeOpacity="0.24" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="436" ry="196" stroke="#1a9e4a" strokeOpacity="0.22" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="536" ry="242" stroke="#16a34a" strokeOpacity="0.19" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="640" ry="290" stroke="#16a34a" strokeOpacity="0.16" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="748" ry="340" stroke="#15803d" strokeOpacity="0.13" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="860" ry="392" stroke="#15803d" strokeOpacity="0.10" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="976" ry="446" stroke="#14532d" strokeOpacity="0.08" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="1096" ry="502" stroke="#14532d" strokeOpacity="0.06" strokeWidth="0.75"/>
+          <ellipse cx="720" cy="380" rx="1220" ry="560" stroke="#14532d" strokeOpacity="0.04" strokeWidth="0.75"/>
+        </svg>
 
         <div className="lp-hero-kicker">
           <span className="lp-hero-kicker-tag">AI-Powered</span>
