@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Edgeflow — Your intelligent way to manage money</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050505;
+    --bg-2: #0a0a0a;
+    --card: #0f0f10;
+    --card-2: #131314;
+    --line: rgba(255,255,255,0.08);
+    --line-2: rgba(255,255,255,0.14);
+    --text: #fbf7fd;
+    --muted: #989494;
+    --muted-2: #6e6c6c;
+    --pink: #1ed386;
+    --pink-2: #3aff9d;
+    --purple: #76dfa8;
+    --purple-2: #1a8f5a;
+    --yellow: #d7e60d;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  body { font-size: 16px; line-height: 1.5; letter-spacing: -0.01em; }
+  a { color: inherit; text-decoration: none; }
+  img { max-width: 100%; display: block; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+
+  /* ============ NAV ============ */
+  .nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+    background: rgba(5,5,5,0.55);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav-inner {
+    height: 72px;
+    display: flex; align-items: center; justify-content: space-between;
+    max-width: 1280px; margin: 0 auto; padding: 0 32px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.02em; font-size: 19px; }
+  .logo-mark {
+    width: 26px; height: 26px; border-radius: 8px;
+    background: conic-gradient(from 220deg, #76dfa8, #1ed386, #1a8f5a, #76dfa8);
+    position: relative;
+  }
+  .logo-mark::after {
+    content: ""; position: absolute; inset: 5px; border-radius: 4px;
+    background: #0a0a0a;
+  }
+  .logo-mark::before {
+    content: ""; position: absolute; inset: 9px; border-radius: 2px;
+    background: #fff;
+  }
+  /* ============ LIQUID GLASS PILL ============ */
+  .lg {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 8px;
+    white-space: nowrap;
+    color: #fff;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    border: 0;
+    cursor: pointer;
+    isolation: isolate;
+    box-shadow:
+      0 4px 14px rgba(0,0,0,0.35),
+      inset 3px 3px 0.5px -3.5px rgba(255,255,255,0.6),
+      inset -3px -3px 0.5px -3.5px rgba(255,255,255,0.85),
+      inset 1px 1px 1px -0.5px rgba(255,255,255,0.6),
+      inset -1px -1px 1px -0.5px rgba(255,255,255,0.55),
+      inset 0 0 6px 6px rgba(255,255,255,0.10),
+      inset 0 0 2px 2px rgba(255,255,255,0.05);
+    transition: transform .25s cubic-bezier(.1,.4,.2,1), filter .25s, background .25s;
+  }
+  .lg:hover { transform: scale(1.03); filter: brightness(1.08); }
+  .lg:active { transform: scale(.98); filter: brightness(.92); }
+  .lg > * { position: relative; }
+
+  /* ============ NAV / BUTTONS ============ */
+  .nav-pill {
+    display: inline-flex; align-items: center; gap: 4px;
+    border-radius: 999px;
+    padding: 5px;
+  }
+  .nav-pill a {
+    padding: 9px 18px; border-radius: 999px;
+    font-size: 13.5px; color: rgba(251,247,253,0.75);
+    letter-spacing: 0.02em; transition: color .15s, background .15s, box-shadow .15s;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .nav-pill a:hover { color: #fff; }
+  .nav-pill a.active {
+    color: #fff;
+    background: rgba(255,255,255,0.10);
+    box-shadow:
+      inset 1px 1px 1px -0.5px rgba(255,255,255,0.7),
+      inset -1px -1px 1px -0.5px rgba(255,255,255,0.5),
+      0 0 14px rgba(58,255,157,0.3);
+  }
+  .dot { width: 7px; height: 7px; border-radius: 99px; background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+  .btn-primary {
+    padding: 13px 26px; border-radius: 999px;
+    font-weight: 500; font-size: 14px; letter-spacing: 0.01em;
+    color: #0a0a0a;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(215,215,215,0.92));
+    box-shadow:
+      0 6px 18px rgba(0,0,0,0.35),
+      0 2px 4px rgba(0,0,0,0.2),
+      inset 0 1px 0 rgba(255,255,255,1),
+      inset 0 -1px 0 rgba(0,0,0,0.12),
+      inset 1px 0 1px -0.5px rgba(255,255,255,0.95),
+      inset -1px 0 1px -0.5px rgba(0,0,0,0.1);
+  }
+  .btn-ghost {
+    padding: 13px 26px; border-radius: 999px;
+    font-weight: 500; font-size: 14px;
+  }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative; padding-top: 180px; padding-bottom: 80px;
+    text-align: center; overflow: hidden;
+  }
+  .hero-aurora {
+    position: absolute; inset: 0;
+    z-index: 0; pointer-events: none; overflow: hidden;
+  }
+  .hero-aurora svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .hero-aurora::after {
+    content: "";
+    position: absolute; left: 50%; bottom: -180px; transform: translateX(-50%);
+    width: 900px; height: 360px;
+    background: radial-gradient(ellipse at center, rgba(58,255,157,0.55) 0%, rgba(30,211,134,0.28) 25%, rgba(26,143,90,0.12) 50%, transparent 70%);
+    filter: blur(40px);
+    pointer-events: none;
+  }
+  .hero-aurora::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background:
+      radial-gradient(ellipse 500px 600px at 5% 30%, rgba(58,255,157,0.18), transparent 60%),
+      radial-gradient(ellipse 500px 600px at 95% 35%, rgba(118,223,168,0.16), transparent 60%);
+    pointer-events: none;
+  }
+  .hero-inner { position: relative; z-index: 1; }
+  .badge {
+    padding: 7px 16px 7px 9px; border-radius: 999px;
+    font-size: 12.5px; color: rgba(251,247,253,0.9);
+    letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .badge-dot {
+    width: 18px; height: 18px; border-radius: 99px;
+    background: linear-gradient(135deg, #76dfa8, #1ed386);
+    box-shadow: 0 0 12px rgba(118,223,168,0.6);
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 10px; color: #fff;
+  }
+  .hero h1 {
+    margin-top: 28px;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 1.0;
+    font-weight: 500;
+    letter-spacing: -0.04em;
+    background: linear-gradient(180deg, #ffffff 30%, rgba(255,255,255,0.45) 120%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    margin: 26px auto 0; max-width: 600px;
+    font-size: 17px; color: var(--muted); font-weight: 400; letter-spacing: -0.005em;
+  }
+  .hero-cta {
+    margin-top: 38px; display: flex; gap: 12px; justify-content: center;
+  }
+
+  /* ============ DASHBOARD MOCK ============ */
+  .dashboard {
+    margin-top: 70px; position: relative; z-index: 1;
+    max-width: 1180px; margin-left: auto; margin-right: auto;
+    border-radius: 22px;
+    background: linear-gradient(180deg, #16161a, #0d0d10);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow:
+      0 0 0 1px rgba(255,255,255,0.02) inset,
+      0 30px 80px -20px rgba(118,223,168,0.18),
+      0 80px 200px -40px rgba(30,211,134,0.14);
+    padding: 16px;
+  }
+  .dash-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px 14px; }
+  .dash-bar-l { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
+  .dash-bar-r { display: flex; gap: 8px; }
+  .dash-tag {
+    font-size: 11px; padding: 6px 12px; border-radius: 999px;
+    color: rgba(255,255,255,0.85);
+  }
+  .dash-tag--live::before {
+    content: ""; width: 6px; height: 6px; background: #6ee7b7;
+    border-radius: 99px; display: inline-block; margin-right: 6px; vertical-align: middle;
+  }
+  .dash-grid {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px;
+  }
+  .panel {
+    background: #0a0a0c; border: 1px solid var(--line);
+    border-radius: 14px; padding: 22px;
+  }
+  .panel-head {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 22px;
+  }
+  .panel-title { font-size: 14px; font-weight: 500; }
+  .panel-sub { font-size: 11.5px; color: var(--muted-2); }
+  .bars {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    gap: 18px; align-items: end; height: 180px;
+  }
+  .bar {
+    width: 100%; border-radius: 6px 6px 2px 2px; position: relative;
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  }
+  .bar.active {
+    background: linear-gradient(180deg, #3aff9d 0%, #1ed386 100%);
+    box-shadow: 0 0 25px rgba(30,211,134,0.5);
+  }
+  .bar-labels {
+    display: grid; grid-template-columns: repeat(7,1fr); gap: 18px;
+    margin-top: 12px; font-size: 11px; color: var(--muted-2); text-align: center;
+  }
+  .stat-card {
+    background: #0a0a0c; border: 1px solid var(--line);
+    border-radius: 14px; padding: 18px;
+  }
+  .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+  .stat-label { font-size: 12px; color: var(--muted); }
+  .stat-num { font-size: 26px; font-weight: 500; letter-spacing: -0.03em; margin-top: 6px; }
+  .stat-delta { font-size: 11px; color: #6ee7b7; }
+  .upgrade {
+    background: linear-gradient(135deg, rgba(118,223,168,0.18), rgba(26,143,90,0.1));
+    border: 1px solid rgba(118,223,168,0.25);
+    padding: 18px; border-radius: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .upgrade h4 { font-size: 14px; font-weight: 500; }
+  .upgrade p { font-size: 12px; color: rgba(255,255,255,0.65); }
+  .upgrade-btn {
+    align-self: flex-start; padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 11.5px; color: #fff;
+  }
+  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .quick {
+    padding: 12px; border-radius: 10px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+    font-size: 11.5px; color: var(--muted);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .quick-icon { width: 16px; height: 16px; border-radius: 4px; background: rgba(118,223,168,0.4); }
+  .tx-row {
+    display: flex; justify-content: space-between; padding: 10px 0;
+    border-bottom: 1px solid var(--line); font-size: 12px;
+  }
+  .tx-row:last-child { border: none; }
+  .tx-name { color: var(--text); }
+  .tx-amt { font-variant-numeric: tabular-nums; color: var(--muted); }
+  .tx-amt.pos { color: #6ee7b7; }
+  .dash-side { display: flex; flex-direction: column; gap: 14px; }
+
+  /* ============ TICKER ============ */
+  .ticker-section { padding: 100px 0 40px; text-align: center; }
+  .trust-label { font-size: 12.5px; color: var(--muted); letter-spacing: 0.05em; }
+  .ticker {
+    margin-top: 32px; overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  }
+  .ticker-track {
+    display: flex; gap: 80px; width: max-content;
+    animation: ticker 32s linear infinite;
+  }
+  .ticker-item {
+    color: rgba(255,255,255,0.55); font-size: 18px;
+    font-weight: 500; letter-spacing: -0.01em;
+    display: flex; align-items: center; gap: 10px; white-space: nowrap;
+  }
+  .ticker-mark { width: 22px; height: 22px; border-radius: 6px; background: rgba(255,255,255,0.6); display: inline-block; }
+  .ticker-mark.m2 { border-radius: 50%; }
+  .ticker-mark.m3 { transform: rotate(45deg); border-radius: 4px; }
+  .ticker-mark.m4 { background: linear-gradient(135deg, #76dfa8, #1ed386); }
+  .ticker-mark.m5 { background: rgba(255,255,255,0.4); border-radius: 99px; }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ============ SECTION HEAD ============ */
+  .section { padding: 110px 0; position: relative; }
+  .section-head { text-align: center; margin-bottom: 60px; }
+  .eyebrow {
+    padding: 7px 16px; border-radius: 999px;
+    font-size: 11.5px; color: var(--muted);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; background: var(--purple); border-radius: 99px; }
+  .section-title {
+    margin-top: 22px; font-size: clamp(36px, 4.5vw, 56px);
+    line-height: 1.05; font-weight: 500; letter-spacing: -0.035em;
+    background: linear-gradient(180deg, #fff, rgba(255,255,255,0.5));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .section-sub { margin-top: 16px; color: var(--muted); font-size: 16px; max-width: 520px; margin-left: auto; margin-right: auto; }
+
+  /* ============ FEATURES GRID ============ */
+  .features { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
+  .feature-card {
+    position: relative; overflow: hidden; border-radius: 18px;
+    background: linear-gradient(180deg, #0e0e10 0%, #0a0a0c 100%);
+    border: 1px solid var(--line);
+    padding: 32px;
+    min-height: 320px;
+    display: flex; flex-direction: column; justify-content: space-between;
+  }
+  .feature-card::after {
+    content: ""; position: absolute; pointer-events: none;
+    width: 400px; height: 400px; right: -150px; bottom: -200px;
+    background: radial-gradient(circle, rgba(118,223,168,0.18), transparent 60%);
+    filter: blur(30px);
+  }
+  .feature-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 5px 10px; border-radius: 6px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid var(--line);
+    font-size: 11px; color: var(--muted);
+    align-self: flex-start; letter-spacing: 0.02em;
+  }
+  .feature-title { font-size: 24px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+  .feature-desc { font-size: 14px; color: var(--muted); margin-top: 10px; }
+  .feature-vis { flex: 1; position: relative; margin: 18px 0; }
+
+  /* feature 1: budgeting rings */
+  .ring-vis {
+    width: 220px; height: 220px; margin: 0 auto;
+    position: relative;
+  }
+  .ring {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255,255,255,0.06);
+  }
+  .ring.r1 { inset: 0; background: conic-gradient(#1ed386 0deg 220deg, transparent 220deg); -webkit-mask: radial-gradient(circle, transparent 78px, #000 79px, #000 105px, transparent 106px); mask: radial-gradient(circle, transparent 78px, #000 79px, #000 105px, transparent 106px); border: none; }
+  .ring.r2 { inset: 28px; background: conic-gradient(from 90deg, #76dfa8 0deg 160deg, transparent 160deg); -webkit-mask: radial-gradient(circle, transparent 50px, #000 51px, #000 77px, transparent 78px); mask: radial-gradient(circle, transparent 50px, #000 51px, #000 77px, transparent 78px); border: none; }
+  .ring.r3 { inset: 56px; background: conic-gradient(from 180deg, #1a8f5a 0deg 100deg, transparent 100deg); -webkit-mask: radial-gradient(circle, transparent 22px, #000 23px, #000 49px, transparent 50px); mask: radial-gradient(circle, transparent 22px, #000 23px, #000 49px, transparent 50px); border: none; }
+  .ring-center {
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    justify-content: center; align-items: center; text-align: center;
+  }
+  .ring-center .v { font-size: 32px; font-weight: 500; letter-spacing: -0.03em; }
+  .ring-center .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+  /* feature 2: spending mini line */
+  .line-vis {
+    height: 140px; position: relative; margin-top: 20px;
+    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 100% 28px;
+    border-radius: 8px;
+  }
+  .line-svg { width: 100%; height: 100%; }
+  .line-row { display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--muted-2); }
+
+  /* feature 3: account icons */
+  .acct-stack { display: flex; gap: -10px; margin-top: 16px; }
+  .acct {
+    width: 46px; height: 46px; border-radius: 12px;
+    background: linear-gradient(135deg, #1a1a1e, #0e0e10);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 500; margin-left: -8px;
+    color: rgba(255,255,255,0.8);
+  }
+  .acct:first-child { margin-left: 0; }
+  .acct.a1 { background: linear-gradient(135deg, #1ed386, #1a8f5a); }
+  .acct.a2 { background: linear-gradient(135deg, #76dfa8, #1a8f5a); }
+  .acct.a3 { background: linear-gradient(135deg, #d7e60d, #1ed386); color: #000; }
+
+  /* feature 4: AI goal */
+  .goal-vis { position: relative; margin-top: 20px; }
+  .goal-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
+  .goal-fill { height: 100%; width: 73%; background: linear-gradient(90deg, #76dfa8, #1ed386); border-radius: 4px; }
+  .goal-meta { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; }
+  .goal-meta .a { color: var(--text); font-weight: 500; }
+  .goal-meta .b { color: var(--muted); }
+
+  /* ============ INTEGRATIONS ============ */
+  .integration-cluster {
+    position: relative; max-width: 700px; margin: 60px auto 0; height: 360px;
+  }
+  .int-orb {
+    position: absolute; width: 80px; height: 80px;
+    border-radius: 22px;
+    background: linear-gradient(135deg, #1a1a1e, #0a0a0c);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    color: rgba(255,255,255,0.85);
+    font-weight: 500; font-size: 13px;
+  }
+  .int-center {
+    width: 110px; height: 110px;
+    background: radial-gradient(circle at 30% 30%, #3aff9d, #76dfa8 60%, #1a8f5a);
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 0 80px rgba(30,211,134,0.5);
+    border-radius: 50%;
+    color: #fff;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+  }
+  .int-orb.p1 { top: 40px; left: 70px; }
+  .int-orb.p2 { top: 40px; right: 70px; }
+  .int-orb.p3 { bottom: 40px; left: 70px; }
+  .int-orb.p4 { bottom: 40px; right: 70px; }
+  .int-orb.p5 { top: 50%; left: 0; transform: translateY(-50%); }
+  .int-orb.p6 { top: 50%; right: 0; transform: translateY(-50%); }
+  .int-line {
+    position: absolute; top: 50%; left: 50%; width: 1px; height: 200px;
+    background: linear-gradient(180deg, rgba(118,223,168,0.4), transparent);
+    transform-origin: top center;
+  }
+
+  /* ============ HOW IT WORKS ============ */
+  .how-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+  }
+  .how-card {
+    background: #0a0a0c; border: 1px solid var(--line);
+    border-radius: 16px; padding: 28px; min-height: 320px;
+    display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; overflow: hidden;
+  }
+  .how-num {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+  .how-title { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; margin-top: 16px; }
+  .how-desc { font-size: 13.5px; color: var(--muted); margin-top: 8px; }
+  .how-vis {
+    margin-top: 22px; padding: 16px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    min-height: 140px;
+  }
+  .how-input {
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--muted);
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .how-chip {
+    padding: 5px 12px; border-radius: 999px;
+    font-size: 10.5px; color: rgba(255,255,255,0.85);
+  }
+
+  /* ============ STATS ============ */
+  .stats-section {
+    padding: 100px 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(26,143,90,0.18), transparent 50%),
+      radial-gradient(ellipse at 80% 50%, rgba(30,211,134,0.15), transparent 50%),
+      #050505;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 32px; margin-top: 60px;
+  }
+  .stat-block { text-align: left; }
+  .stat-eyebrow {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11.5px; color: var(--muted); letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .stat-eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--purple); }
+  .stat-value {
+    margin-top: 18px;
+    font-size: clamp(48px, 5.5vw, 72px);
+    font-weight: 500; letter-spacing: -0.04em; line-height: 1;
+    background: linear-gradient(180deg, #fff, rgba(255,255,255,0.6));
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat-cap { font-size: 13px; color: var(--muted); margin-top: 12px; }
+
+  /* ============ BENEFITS / TICKER 2 ============ */
+  .benefits-section { padding: 100px 0; }
+  .benefit-track {
+    display: flex; gap: 18px; padding: 30px 0;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  }
+  .benefit-row { display: flex; gap: 18px; animation: ticker 40s linear infinite; }
+  .benefit-card {
+    flex: 0 0 320px; background: #0a0a0c; border: 1px solid var(--line);
+    border-radius: 16px; padding: 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    min-height: 220px;
+  }
+  .benefit-icon {
+    width: 38px; height: 38px; border-radius: 10px;
+    background: linear-gradient(135deg, rgba(118,223,168,0.25), rgba(26,143,90,0.15));
+    border: 1px solid rgba(118,223,168,0.3);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.9);
+  }
+  .benefit-h { font-size: 17px; font-weight: 500; letter-spacing: -0.015em; }
+  .benefit-p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  /* ============ TESTIMONIAL ============ */
+  .testimonial-section { padding: 110px 0; text-align: center; position: relative; }
+  .testimonial-section::before {
+    content: ""; position: absolute; left: 50%; top: 50%;
+    width: 600px; height: 600px; transform: translate(-50%, -50%);
+    background: radial-gradient(circle, rgba(30,211,134,0.15), transparent 50%);
+    z-index: 0; pointer-events: none;
+  }
+  .testimonial-card {
+    position: relative; z-index: 1;
+    max-width: 560px; margin: 50px auto 0;
+    background: linear-gradient(180deg, #0e0e10, #0a0a0c);
+    border: 1px solid var(--line);
+    border-radius: 22px; padding: 40px 32px;
+  }
+  .test-quote { font-size: 18px; line-height: 1.5; font-weight: 400; letter-spacing: -0.01em; color: rgba(255,255,255,0.92); }
+  .test-quote::before, .test-quote::after { color: var(--purple); font-size: 28px; line-height: 0; }
+  .test-author {
+    display: flex; align-items: center; gap: 12px; justify-content: center;
+    margin-top: 24px;
+  }
+  .test-avatar {
+    width: 42px; height: 42px; border-radius: 50%;
+    background: linear-gradient(135deg, #76dfa8, #1ed386);
+  }
+  .test-name { font-size: 14px; font-weight: 500; }
+  .test-role { font-size: 12px; color: var(--muted); }
+  .test-dots { display: flex; gap: 6px; justify-content: center; margin-top: 30px; }
+  .test-dot { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,0.15); }
+  .test-dot.active { background: #fff; width: 18px; }
+  .test-trust { margin-top: 60px; font-size: 12.5px; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 12px; }
+
+  /* ============ PRICING ============ */
+  .pricing-section { padding: 110px 0; }
+  .pricing-toggle {
+    display: inline-flex; padding: 5px; border-radius: 999px;
+    margin: 30px auto 0; align-items: center;
+  }
+  .pricing-toggle button {
+    position: relative; z-index: 2;
+    padding: 9px 22px; border-radius: 999px; font-size: 13px;
+    color: var(--muted); transition: all .15s; background: transparent; border: 0;
+  }
+  .pricing-toggle button.active {
+    color: #fff;
+    background: rgba(255,255,255,0.10);
+    box-shadow:
+      inset 1px 1px 1px -0.5px rgba(255,255,255,0.6),
+      inset -1px -1px 1px -0.5px rgba(255,255,255,0.4),
+      0 0 12px rgba(58,255,157,0.25);
+  }
+  .save-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(110,231,183,0.15); color: #6ee7b7; margin-left: 6px; }
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    margin-top: 50px;
+  }
+  .price-card {
+    background:
+      radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.04), transparent 60%),
+      linear-gradient(180deg, #1a1a1c 0%, #0a0a0c 100%);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 22px; padding: 36px 36px 40px;
+    display: flex; flex-direction: column;
+    position: relative;
+  }
+  .price-card.featured {
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 0 60px rgba(118,223,168,0.08);
+  }
+  .price-head {
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .price-name { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; color: #fff; }
+  .price-popular {
+    font-size: 12px; padding: 7px 16px; border-radius: 999px;
+    color: #fff; letter-spacing: 0; text-transform: none; font-weight: 400;
+  }
+  .price-amount {
+    display: flex; align-items: baseline; margin-top: 36px;
+    font-size: 44px; font-weight: 500; letter-spacing: -0.035em; line-height: 1;
+  }
+  .price-amount .num { color: #fff; }
+  .price-amount .per { color: var(--muted); font-weight: 400; }
+  .price-desc {
+    font-size: 15px; color: var(--muted);
+    margin-top: 22px; line-height: 1.45;
+    min-height: 44px;
+  }
+  .price-cta {
+    margin-top: 28px; padding: 18px 20px; border-radius: 999px;
+    color: #0a0a0a; font-size: 15px; text-align: center; font-weight: 500;
+    width: 100%; display: flex; justify-content: center;
+  }
+  .price-cta:hover { transform: translateY(-1px); }
+  .price-divider {
+    margin-top: 36px;
+    display: flex; align-items: center; gap: 12px;
+    color: var(--muted-2); font-size: 12px;
+    letter-spacing: 0.18em;
+  }
+  .price-divider::before,
+  .price-divider::after {
+    content: ""; flex: 1; height: 1px;
+    background: rgba(255,255,255,0.1);
+    position: relative;
+  }
+  .price-divider span {
+    position: relative; padding: 0 4px;
+  }
+  .price-divider .dot-l, .price-divider .dot-r {
+    width: 5px; height: 5px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); flex-shrink: 0;
+  }
+  .price-features {
+    list-style: none; margin-top: 28px;
+    display: flex; flex-direction: column; gap: 18px;
+  }
+  .price-features li {
+    display: flex; gap: 14px; align-items: center;
+    font-size: 15px; color: #fff; font-weight: 500; letter-spacing: -0.005em;
+  }
+  .check {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
+    font-size: 11px;
+  }
+  .pricing-note {
+    text-align: center; margin-top: 30px; font-size: 12.5px; color: var(--muted);
+  }
+
+  /* ============ FAQ ============ */
+  .faq-section { padding: 110px 0; }
+  .faq-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; }
+  .faq-list { display: flex; flex-direction: column; gap: 8px; }
+  .faq-item {
+    background: #0a0a0c; border: 1px solid var(--line);
+    border-radius: 14px; overflow: hidden;
+    transition: all .2s;
+  }
+  .faq-item.open { border-color: rgba(118,223,168,0.3); }
+  .faq-q {
+    width: 100%; padding: 18px 22px; text-align: left;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 15px; font-weight: 500; letter-spacing: -0.01em;
+    color: #fff;
+  }
+  .faq-q-icon {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;
+    transition: transform .2s;
+  }
+  .faq-item.open .faq-q-icon { transform: rotate(45deg); background: rgba(118,223,168,0.2); }
+  .faq-a {
+    max-height: 0; overflow: hidden;
+    padding: 0 22px;
+    font-size: 13.5px; color: var(--muted); line-height: 1.6;
+    transition: max-height .25s ease, padding .2s;
+  }
+  .faq-item.open .faq-a { max-height: 200px; padding: 0 22px 20px; }
+
+  /* ============ CTA ============ */
+  .cta-section {
+    padding: 130px 0 60px; text-align: center; position: relative;
+    overflow: hidden;
+  }
+  .cta-inner { position: relative; z-index: 1; }
+  .cta-title {
+    font-size: clamp(40px, 5vw, 64px);
+    font-weight: 500; letter-spacing: -0.035em; line-height: 1.05;
+    margin-top: 22px;
+    background: linear-gradient(180deg, #fff, rgba(255,255,255,0.5));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .cta-sub { color: var(--muted); margin-top: 18px; font-size: 16px; max-width: 480px; margin-left: auto; margin-right: auto; }
+  .cta-btns { margin-top: 36px; display: flex; gap: 12px; justify-content: center; }
+  .cta-spacer { height: 0; }
+
+  /* ============ GIANT WORDMARK ============ */
+  .brand-wash {
+    position: relative;
+    overflow: hidden;
+    padding: 50px 0 0;
+    margin-bottom: 0;
+    background: #050505;
+    isolation: isolate;
+  }
+  .brand-wash::before {
+    content: "";
+    position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+    width: 80%; height: 80%;
+    background:
+      radial-gradient(ellipse 55% 60% at 50% 50%, rgba(30,211,134,0.30) 0%, rgba(30,211,134,0.14) 30%, transparent 65%);
+    filter: blur(50px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .brand-wash::after {
+    content: "";
+    position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse at center, rgba(58,255,157,0.12) 0%, transparent 65%);
+    filter: blur(50px);
+    mix-blend-mode: screen;
+    z-index: 3;
+    pointer-events: none;
+  }
+  .brand-wordmark {
+    position: relative; z-index: 1;
+    text-align: center;
+    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 24.5vw;
+    line-height: 0.88;
+    letter-spacing: -0.055em;
+    margin: 0;
+    padding: 0;
+    white-space: nowrap;
+    background: linear-gradient(180deg,
+      rgba(255,255,255,0.95) 0%,
+      rgba(240,240,240,0.88) 20%,
+      rgba(180,180,180,0.60) 50%,
+      rgba(110,110,110,0.38) 75%,
+      rgba(60,60,60,0.22) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    user-select: none;
+  }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    background: #0a110e;
+    border-top: 1px solid rgba(118,223,168,0.06);
+    padding: 70px 0 40px;
+    position: relative; z-index: 2;
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;
+    padding-bottom: 60px; border-bottom: 1px solid var(--line);
+  }
+  .footer-brand { display: flex; flex-direction: column; gap: 16px; max-width: 320px; }
+  .footer-brand p { color: var(--muted); font-size: 13px; }
+  .footer-form {
+    display: flex; gap: 8px; margin-top: 8px;
+    padding: 5px; border-radius: 999px;
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px) saturate(140%);
+    -webkit-backdrop-filter: blur(8px) saturate(140%);
+    box-shadow:
+      0 4px 14px rgba(0,0,0,0.3),
+      inset 1px 1px 1px -0.5px rgba(255,255,255,0.5),
+      inset -1px -1px 1px -0.5px rgba(255,255,255,0.4),
+      inset 0 0 6px 6px rgba(255,255,255,0.05);
+  }
+  .footer-form input {
+    flex: 1; background: transparent; border: none; outline: none;
+    padding: 8px 14px; color: var(--text); font-size: 13px;
+    font-family: inherit;
+  }
+  .footer-form button {
+    padding: 9px 18px; border-radius: 999px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(215,215,215,0.92));
+    color: #0a0a0a;
+    font-size: 12.5px; font-weight: 500;
+    border: 0; cursor: pointer;
+    box-shadow:
+      0 4px 12px rgba(0,0,0,0.3),
+      inset 0 1px 0 rgba(255,255,255,1),
+      inset 0 -1px 0 rgba(0,0,0,0.1);
+    transition: transform .2s, filter .2s;
+  }
+  .footer-form button:hover { filter: brightness(1.05); transform: scale(1.02); }
+  .footer-col h4 {
+    font-size: 11.5px; color: var(--muted-2);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 18px;
+    font-weight: 500;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
+  .footer-col a { font-size: 13.5px; color: var(--text); transition: color .15s; }
+  .footer-col a:hover { color: var(--purple); }
+  .footer-meta {
+    padding-top: 26px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 12.5px; color: var(--muted-2);
+  }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 900px) {
+    .nav-pill { display: none; }
+    .dash-grid, .features, .how-grid, .pricing-grid, .stats-grid, .faq-grid, .footer-grid { grid-template-columns: 1fr; }
+    .stats-grid { gap: 40px; }
+    .footer-grid { gap: 40px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============== NAV ============== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="logo">
+      <div class="logo-mark"></div>
+      Edgeflow
+    </div>
+    <div class="lg nav-pill">
+      <a href="#" class="active"><span class="dot"></span>Home</a>
+      <a href="#features">Features</a>
+      <a href="#benefits">Benefit</a>
+      <a href="#how">Works</a>
+    </div>
+    <a href="#cta" class="lg btn-primary">Get Started →</a>
+  </div>
+</nav>
+
+<!-- ============== HERO ============== -->
+<header class="hero">
+  <div class="hero-aurora">
+    <svg viewBox="0 0 1920 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="streakL" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#3aff9d" stop-opacity="0"></stop>
+          <stop offset="50%" stop-color="#3aff9d" stop-opacity="0.55"></stop>
+          <stop offset="100%" stop-color="#1ed386" stop-opacity="0"></stop>
+        </linearGradient>
+        <linearGradient id="streakR" x1="1" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#76dfa8" stop-opacity="0"></stop>
+          <stop offset="50%" stop-color="#76dfa8" stop-opacity="0.5"></stop>
+          <stop offset="100%" stop-color="#1ed386" stop-opacity="0"></stop>
+        </linearGradient>
+        <filter id="auroraBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="6"></feGaussianBlur>
+        </filter>
+        <filter id="auroraBlurSoft" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="14"></feGaussianBlur>
+        </filter>
+      </defs>
+      <!-- Left side curved streaks -->
+      <g filter="url(#auroraBlur)" opacity="0.9">
+        <path d="M -50 100 Q 200 250 120 500 T 280 950" stroke="url(#streakL)" stroke-width="2" fill="none"></path>
+        <path d="M -100 200 Q 250 380 180 620 T 380 1050" stroke="url(#streakL)" stroke-width="1.5" fill="none" opacity="0.7"></path>
+        <path d="M 0 50 Q 320 220 220 480 T 420 980" stroke="url(#streakL)" stroke-width="1" fill="none" opacity="0.5"></path>
+        <path d="M -80 350 Q 180 520 100 760 T 260 1100" stroke="url(#streakL)" stroke-width="1.2" fill="none" opacity="0.6"></path>
+      </g>
+      <g filter="url(#auroraBlurSoft)" opacity="0.6">
+        <path d="M -120 150 Q 220 320 140 580 T 320 1000" stroke="url(#streakL)" stroke-width="6" fill="none"></path>
+      </g>
+      <!-- Right side curved streaks -->
+      <g filter="url(#auroraBlur)" opacity="0.9">
+        <path d="M 1970 80 Q 1700 240 1780 480 T 1620 940" stroke="url(#streakR)" stroke-width="2" fill="none"></path>
+        <path d="M 2020 220 Q 1680 400 1740 640 T 1540 1060" stroke="url(#streakR)" stroke-width="1.5" fill="none" opacity="0.7"></path>
+        <path d="M 1920 30 Q 1620 200 1700 460 T 1500 970" stroke="url(#streakR)" stroke-width="1" fill="none" opacity="0.5"></path>
+        <path d="M 2000 380 Q 1740 540 1820 780 T 1660 1110" stroke="url(#streakR)" stroke-width="1.2" fill="none" opacity="0.6"></path>
+      </g>
+      <g filter="url(#auroraBlurSoft)" opacity="0.6">
+        <path d="M 2040 180 Q 1700 340 1780 600 T 1600 1020" stroke="url(#streakR)" stroke-width="6" fill="none"></path>
+      </g>
+    </svg>
+  </div>
+  <div class="wrap hero-inner">
+    <div class="lg badge">
+      <span class="badge-dot">★</span>
+      Real-time financial insights with AI
+    </div>
+    <h1>Your intelligent way<br>to manage money.</h1>
+    <p>Edgeflow turns scattered transactions and bank feeds into clear, actionable insight — so every dollar earns its place.</p>
+    <div class="hero-cta">
+      <a href="#cta" class="lg btn-primary">Get started</a>
+      <a href="#features" class="lg btn-ghost">Start for free</a>
+    </div>
+
+    <!-- Dashboard mock -->
+    <div class="dashboard">
+      <div class="dash-bar">
+        <div class="dash-bar-l">
+          <span style="display:inline-flex;width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#76dfa8,#1ed386);"></span>
+          Dashboard overview
+        </div>
+        <div class="dash-bar-r">
+          <span class="lg dash-tag dash-tag--live">Auto-sync</span>
+          <span class="lg dash-tag">$28,402.10</span>
+        </div>
+      </div>
+      <div class="dash-grid">
+        <div class="panel">
+          <div class="panel-head">
+            <div>
+              <div class="panel-title">Fund Balance Breakdown</div>
+              <div class="panel-sub">Last 7 days</div>
+            </div>
+            <div class="lg dash-tag">Weekly ▾</div>
+          </div>
+          <div class="bars">
+            <div class="bar" style="height:35%"></div>
+            <div class="bar" style="height:55%"></div>
+            <div class="bar" style="height:45%"></div>
+            <div class="bar active" style="height:88%"></div>
+            <div class="bar" style="height:68%"></div>
+            <div class="bar" style="height:50%"></div>
+            <div class="bar" style="height:60%"></div>
+          </div>
+          <div class="bar-labels">
+            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+          </div>
+        </div>
+        <div class="dash-side">
+          <div class="stat-card">
+            <div class="stat-row">
+              <span class="stat-label">Net worth</span>
+              <span class="stat-delta">+12.4%</span>
+            </div>
+            <div class="stat-num">$284,920</div>
+          </div>
+          <div class="upgrade">
+            <h4>Upgrade for More</h4>
+            <p>Unlock multi-account sync, AI insights and custom budgets.</p>
+            <button class="lg upgrade-btn">Upgrade plan →</button>
+          </div>
+          <div class="panel" style="padding:18px">
+            <div class="panel-head" style="margin-bottom:10px">
+              <div class="panel-title" style="font-size:12.5px">Transactions</div>
+              <div class="panel-sub">Today</div>
+            </div>
+            <div class="tx-row"><span class="tx-name">Stripe payout</span><span class="tx-amt pos">+$2,140</span></div>
+            <div class="tx-row"><span class="tx-name">AWS</span><span class="tx-amt">−$184.20</span></div>
+            <div class="tx-row"><span class="tx-name">Figma</span><span class="tx-amt">−$45.00</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============== TICKER ============== -->
+<section class="ticker-section">
+  <div class="trust-label">Trusted by 4,320 satisfied merchants</div>
+  <div class="ticker">
+    <div class="ticker-track" id="ticker-track"></div>
+  </div>
+</section>
+
+<!-- ============== FEATURES ============== -->
+<section class="section" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="lg eyebrow">Key feature</span>
+      <h2 class="section-title">Built to automate what<br>matters most</h2>
+    </div>
+    <div class="features">
+      <!-- Smart Budgeting -->
+      <div class="feature-card">
+        <div>
+          <span class="feature-tag">Smart budgeting</span>
+        </div>
+        <div class="feature-vis">
+          <div class="ring-vis">
+            <div class="ring r1"></div>
+            <div class="ring r2"></div>
+            <div class="ring r3"></div>
+            <div class="ring-center">
+              <div class="v">73%</div>
+              <div class="l">on budget</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h3 class="feature-title">Smart budgeting</h3>
+          <p class="feature-desc">Edgeflow auto-categorizes spending and forecasts where you'll land — before the month ends.</p>
+        </div>
+      </div>
+
+      <!-- Multi-account syncing -->
+      <div class="feature-card">
+        <div><span class="feature-tag">Multi-account syncing</span></div>
+        <div class="feature-vis">
+          <div class="acct-stack">
+            <div class="acct a1">CH</div>
+            <div class="acct a2">VS</div>
+            <div class="acct a3">PP</div>
+            <div class="acct">+9</div>
+          </div>
+          <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)">
+            <div style="display:flex;justify-content:space-between"><span>Chase ••4421</span><span style="color:#6ee7b7">Synced</span></div>
+            <div style="display:flex;justify-content:space-between"><span>Visa ••8810</span><span style="color:#6ee7b7">Synced</span></div>
+            <div style="display:flex;justify-content:space-between"><span>PayPal</span><span style="color:#6ee7b7">Synced</span></div>
+          </div>
+        </div>
+        <div>
+          <h3 class="feature-title">Multi-account syncing</h3>
+          <p class="feature-desc">Connect every bank, card and wallet in one place — kept fresh in real-time.</p>
+        </div>
+      </div>
+
+      <!-- Real-time spending insights -->
+      <div class="feature-card">
+        <div><span class="feature-tag">Real-time spending insights</span></div>
+        <div class="feature-vis">
+          <div class="line-vis">
+            <svg class="line-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
+              <defs>
+                <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#1ed386" stop-opacity="0.4"></stop>
+                  <stop offset="100%" stop-color="#1ed386" stop-opacity="0"></stop>
+                </linearGradient>
+              </defs>
+              <path d="M0,100 C40,80 80,90 120,70 S200,40 240,55 S320,30 400,40 L400,140 L0,140 Z" fill="url(#lg1)"></path>
+              <path d="M0,100 C40,80 80,90 120,70 S200,40 240,55 S320,30 400,40" fill="none" stroke="#3aff9d" stroke-width="1.5"></path>
+              <circle cx="240" cy="55" r="4" fill="#3aff9d"></circle>
+              <circle cx="240" cy="55" r="8" fill="#3aff9d" fill-opacity="0.3"></circle>
+            </svg>
+          </div>
+          <div class="line-row"><span>Apr 1</span><span>Apr 14</span><span>Apr 28</span></div>
+        </div>
+        <div>
+          <h3 class="feature-title">Real-time spending insights</h3>
+          <p class="feature-desc">Watch every transaction land — with anomaly alerts the moment something looks off.</p>
+        </div>
+      </div>
+
+      <!-- AI saving goals -->
+      <div class="feature-card">
+        <div><span class="feature-tag">AI-powered saving goals</span></div>
+        <div class="feature-vis">
+          <div class="goal-vis">
+            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px">
+              <span>Iceland trip</span><span style="color:#fff">$3,650 / $5,000</span>
+            </div>
+            <div class="goal-bar"><div class="goal-fill"></div></div>
+            <div class="goal-meta"><span class="a">+$220 this week</span><span class="b">est. Aug 14</span></div>
+          </div>
+          <div style="margin-top:18px;padding:12px;background:rgba(118,223,168,0.08);border:1px solid rgba(118,223,168,0.2);border-radius:10px;font-size:12px;color:rgba(255,255,255,0.85);display:flex;gap:10px;align-items:flex-start">
+            <span style="font-size:14px">✦</span>
+            <span>Reroute $40/wk from dining to hit your goal 3 weeks earlier.</span>
+          </div>
+        </div>
+        <div>
+          <h3 class="feature-title">AI-powered saving goals</h3>
+          <p class="feature-desc">Edgeflow watches the patterns and nudges money where it grows fastest.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== INTEGRATIONS ============== -->
+<section class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="lg eyebrow">Integration</span>
+      <h2 class="section-title">Seamless integration with<br>your tools syncing.</h2>
+    </div>
+    <div class="integration-cluster">
+      <div class="int-orb p1">$</div>
+      <div class="int-orb p2">€</div>
+      <div class="int-orb p3">⌘</div>
+      <div class="int-orb p4">◎</div>
+      <div class="int-orb p5">◆</div>
+      <div class="int-orb p6">▲</div>
+      <div class="int-orb int-center">EF</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== HOW IT WORKS ============== -->
+<section class="section" id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="lg eyebrow">How it works</span>
+      <h2 class="section-title">Your workflow,<br>streamlined by design</h2>
+    </div>
+    <div class="how-grid">
+      <div class="how-card">
+        <div>
+          <div class="how-num">01</div>
+          <h3 class="how-title">Account linking</h3>
+          <p class="how-desc">Securely link your bank, cards, and wallets in under 30 seconds.</p>
+        </div>
+        <div class="how-vis">
+          <div class="how-input">
+            <span>Search a bank…</span><span>⏎</span>
+          </div>
+          <div style="margin-top:10px">
+            <span class="lg how-chip">Chase</span>
+            <span class="lg how-chip">Wells Fargo</span>
+            <span class="lg how-chip">Capital One</span>
+            <span class="lg how-chip">Revolut</span>
+          </div>
+        </div>
+      </div>
+      <div class="how-card" style="border-color:rgba(118,223,168,0.3);background:linear-gradient(180deg,rgba(118,223,168,0.06),#0a0a0c)">
+        <div>
+          <div class="how-num">02</div>
+          <h3 class="how-title">AI analysis</h3>
+          <p class="how-desc">Our model categorizes, tags and surfaces the moves that move the needle.</p>
+        </div>
+        <div class="how-vis" style="background:rgba(0,0,0,0.3)">
+          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:8px"><span>Insight</span><span>Confidence</span></div>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Subscriptions up 18%</span><span style="color:#3aff9d">94%</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Dining trending high</span><span style="color:#76dfa8">87%</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Income on schedule</span><span style="color:#6ee7b7">99%</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="how-card">
+        <div>
+          <div class="how-num">03</div>
+          <h3 class="how-title">Smart guidance</h3>
+          <p class="how-desc">We use bank-level encryption to protect your financial data — always.</p>
+        </div>
+        <div class="how-vis">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">
+            <span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#6ee7b7,#1a8f5a);display:flex;align-items:center;justify-content:center;font-size:12px">✓</span>
+            <div><div style="color:#fff">256-bit AES encryption</div><div style="color:var(--muted-2);font-size:10.5px;margin-top:2px">SOC 2 Type II certified</div></div>
+          </div>
+          <div style="margin-top:10px;display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">
+            <span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#76dfa8,#1ed386);display:flex;align-items:center;justify-content:center;font-size:12px">⌬</span>
+            <div><div style="color:#fff">Read-only by default</div><div style="color:var(--muted-2);font-size:10.5px;margin-top:2px">Edgeflow never moves your money</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== STATS ============== -->
+<section class="stats-section">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:0;text-align:left">
+      <span class="lg eyebrow">Our impact</span>
+      <h2 class="section-title" style="max-width:680px">Key metrics that drive<br>financial success</h2>
+      <p class="section-sub" style="margin-left:0">Empowering smart financial decisions with scale and security.</p>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-block">
+        <div class="stat-eyebrow">Customer retention</div>
+        <div class="stat-value">92%</div>
+        <div class="stat-cap">Year-over-year retention across active workspaces.</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-eyebrow">Active users / month</div>
+        <div class="stat-value">57,204</div>
+        <div class="stat-cap">Daily decisions powered by Edgeflow's engine.</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-eyebrow">Transactions tracked</div>
+        <div class="stat-value">312,488</div>
+        <div class="stat-cap">Categorized, enriched and surfaced — every day.</div>
+      </div>
+      <div class="stat-block">
+        <div class="stat-eyebrow">Bank integrations</div>
+        <div class="stat-value">3,412</div>
+        <div class="stat-cap">Direct connections across 60+ countries.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== BENEFITS ============== -->
+<section class="benefits-section" id="benefits">
+  <div class="wrap section-head" style="margin-bottom:20px">
+    <span class="lg eyebrow">Our benefit</span>
+    <h2 class="section-title">Edgeflow template<br>will offer</h2>
+  </div>
+  <div class="benefit-track">
+    <div class="benefit-row" id="benefit-row"></div>
+  </div>
+</section>
+
+<!-- ============== TESTIMONIAL ============== -->
+<section class="testimonial-section">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:0">
+      <span class="lg eyebrow">Testimonials</span>
+      <h2 class="section-title">What our users are<br>saying?</h2>
+    </div>
+    <div class="testimonial-card">
+      <div class="test-quote">"Edgeflow turned three months of disorganized statements into a single dashboard I actually use. I caught $1,800 in unused subscriptions in the first week."</div>
+      <div class="test-author">
+        <div class="test-avatar"></div>
+        <div style="text-align:left">
+          <div class="test-name">Darlene Robertson</div>
+          <div class="test-role">Freelance designer</div>
+        </div>
+      </div>
+      <div class="test-dots">
+        <span class="test-dot"></span>
+        <span class="test-dot active"></span>
+        <span class="test-dot"></span>
+        <span class="test-dot"></span>
+      </div>
+    </div>
+    <div class="test-trust">
+      <div style="display:flex">
+        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#76dfa8,#1ed386);border:2px solid #050505"></div>
+        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#1a8f5a,#76dfa8);border:2px solid #050505;margin-left:-8px"></div>
+        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#d7e60d,#1ed386);border:2px solid #050505;margin-left:-8px"></div>
+      </div>
+      Join 14,321+ other loving customers
+    </div>
+  </div>
+</section>
+
+<!-- ============== PRICING ============== -->
+<section class="pricing-section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="lg eyebrow">Pricing plan</span>
+      <h2 class="section-title">Simple plans for<br>every stage.</h2>
+      <div class="lg pricing-toggle" id="pricing-toggle">
+        <button class="active" data-period="monthly">Monthly</button>
+        <button data-period="yearly">Yearly <span class="save-tag">−15%</span></button>
+      </div>
+    </div>
+    <div class="pricing-grid">
+      <div class="price-card">
+        <div class="price-head">
+          <div class="price-name">Standard Plan</div>
+        </div>
+        <div class="price-amount"><span class="num" data-monthly="$2,000" data-yearly="$1,700">$2,000</span><span class="per">/month</span></div>
+        <div class="price-desc">For individuals getting serious about tracking their money.</div>
+        <a href="#" class="lg btn-primary price-cta">Get started</a>
+        <div class="price-divider"><span class="dot-l"></span><span>FEATURE</span><span class="dot-r"></span></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Unlimited account scans</li>
+          <li><span class="check">✓</span> Basic categorization</li>
+          <li><span class="check">✓</span> AI-powered recommendations</li>
+          <li><span class="check">✓</span> Standard updates &amp; community support</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <div class="price-head">
+          <div class="price-name">Professional Plan</div>
+          <div class="lg price-popular">Most popular</div>
+        </div>
+        <div class="price-amount"><span class="num" data-monthly="$4,000" data-yearly="$3,400">$4,000</span><span class="per">/month</span></div>
+        <div class="price-desc">Designed for professionals and small teams who need high-performance.</div>
+        <a href="#" class="lg btn-primary price-cta">Get Started</a>
+        <div class="price-divider"><span class="dot-l"></span><span>FEATURE</span><span class="dot-r"></span></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Full performance suite unlocked</li>
+          <li><span class="check">✓</span> Unlimited site scans</li>
+          <li><span class="check">✓</span> Code &amp; asset cleanup</li>
+          <li><span class="check">✓</span> Smart recommendations engine</li>
+          <li><span class="check">✓</span> Priority support &amp; updates</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <div class="price-head">
+          <div class="price-name">Enterprise Plan</div>
+        </div>
+        <div class="price-amount"><span class="num" data-monthly="$10,000" data-yearly="$8,500">$10,000</span><span class="per">/month</span></div>
+        <div class="price-desc">For finance teams who need controls, audit logs and SSO.</div>
+        <a href="#" class="lg btn-primary price-cta">Get started</a>
+        <div class="price-divider"><span class="dot-l"></span><span>FEATURE</span><span class="dot-r"></span></div>
+        <ul class="price-features">
+          <li><span class="check">✓</span> Unlimited scans</li>
+          <li><span class="check">✓</span> Advanced cleanup tools</li>
+          <li><span class="check">✓</span> AI-powered insights</li>
+          <li><span class="check">✓</span> 24/7 premium support</li>
+        </ul>
+      </div>
+    </div>
+    <div class="pricing-note">New here? You'll get a 30-day free trial — no card required.</div>
+  </div>
+</section>
+
+<!-- ============== FAQ ============== -->
+<section class="faq-section">
+  <div class="wrap">
+    <div class="faq-grid">
+      <div>
+        <span class="lg eyebrow">FAQs</span>
+        <h2 class="section-title" style="font-size:44px;margin-top:18px">Got questions?<br>We've got answers.</h2>
+        <p class="section-sub" style="margin-left:0">Still curious? <a href="#" style="color:var(--purple);text-decoration:underline">Talk to our team →</a></p>
+      </div>
+      <div class="faq-list" id="faq-list">
+        <div class="faq-item open">
+          <button class="faq-q">Which banks or financial apps can I connect Edgeflow with? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Edgeflow supports integrations with 3,400+ banks across the US, EU, UK and Canada — plus Stripe, PayPal, Wise, Revolut and most major fintech apps.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Can I track my personal expenses with Edgeflow? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Yes. Edgeflow lets you track personal expenses with custom categories, tags, recurring detection and auto-imported receipts.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Is there a free trial available? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Yes. Every plan starts with a 30-day free trial, no credit card required. Cancel any time before it ends and you won't be charged.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Does Edgeflow have a mobile app? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Yes. The Edgeflow app is available on iOS and Android with full feature parity, including push alerts and biometric login.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">How does Edgeflow protect my data? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">We use 256-bit AES encryption at rest and in transit, are SOC 2 Type II certified, and Edgeflow connections are read-only by default — we never touch your money.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== CTA ============== -->
+<section class="cta-section" id="cta">
+  <div class="wrap cta-inner">
+    <span class="lg eyebrow">AI-Powered</span>
+    <h2 class="cta-title">Ready to take control of<br>your finances?</h2>
+    <p class="cta-sub">Join thousands who've transformed their money management with Edgeflow's AI-powered platform.</p>
+    <div class="cta-btns">
+      <a href="#" class="lg btn-primary">Start free trial →</a>
+    </div>
+  </div>
+  <div class="cta-spacer"></div>
+</section>
+
+<!-- ============== GIANT WORDMARK ============== -->
+<section class="brand-wash" aria-hidden="true">
+  <div class="brand-wordmark">Edgeflow</div>
+</section>
+
+<!-- ============== FOOTER ============== -->
+<footer class="footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="logo">
+          <div class="logo-mark"></div>
+          Edgeflow
+        </div>
+        <p>Subscribe to our newsletter.</p>
+        <form class="footer-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Sent';">
+          <input type="email" placeholder="Enter your email address">
+          <button type="submit">Submit</button>
+        </form>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="#">Home</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#how">How it works</a></li>
+          <li><a href="#cta">Get started</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Other Pages</h4>
+        <ul>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Changelog</a></li>
+          <li><a href="#">Privacy</a></li>
+          <li><a href="#">Terms</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Social Media</h4>
+        <ul>
+          <li><a href="#">Twitter</a></li>
+          <li><a href="#">LinkedIn</a></li>
+          <li><a href="#">Instagram</a></li>
+          <li><a href="#">YouTube</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-meta">
+      <span>© 2026 Edgeflow. All rights reserved.</span>
+      <span>Made with care.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Ticker logos
+  const tickerLogos = [
+    {label: "Stripe", cls: "m1"},
+    {label: "Plaid", cls: "m2"},
+    {label: "QuickBooks", cls: "m3"},
+    {label: "Notion", cls: "m4"},
+    {label: "Slack", cls: "m5"},
+    {label: "Linear", cls: "m1"},
+    {label: "Figma", cls: "m2"},
+  ];
+  const tickerEl = document.getElementById('ticker-track');
+  const html = tickerLogos.map(l =>
+    `<div class="ticker-item"><span class="ticker-mark ${l.cls}"></span>${l.label}</div>`
+  ).join('');
+  tickerEl.innerHTML = html + html;
+
+  // Benefits ticker
+  const benefits = [
+    { icon: "↻", h: "Daily transaction history", p: "Stay updated with your daily spending — all in one place." },
+    { icon: "◎", h: "Automated expense tracking", p: "Track and sort your spending — no manual work needed." },
+    { icon: "◐", h: "24/7 mobile access", p: "Manage your finances anytime, anywhere — right from your phone." },
+    { icon: "✦", h: "Smarter decisions, every day", p: "AI tracks your spending and offers smart tips to save more." },
+    { icon: "⊙", h: "Bank-level security", p: "256-bit encryption and SOC 2 Type II certified infrastructure." },
+    { icon: "▲", h: "Custom budgeting goals", p: "Set, track and adapt budgets that match your real life." },
+  ];
+  const brow = document.getElementById('benefit-row');
+  const benefitHTML = benefits.map(b =>
+    `<div class="benefit-card">
+      <div class="benefit-icon">${b.icon}</div>
+      <div class="benefit-h">${b.h}</div>
+      <div class="benefit-p">${b.p}</div>
+    </div>`
+  ).join('');
+  brow.innerHTML = benefitHTML + benefitHTML;
+
+  // Pricing toggle
+  const toggle = document.getElementById('pricing-toggle');
+  toggle.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const period = btn.dataset.period;
+    document.querySelectorAll('.price-amount .num').forEach(n => {
+      n.textContent = n.dataset[period];
+    });
+  });
+
+  // FAQ accordion
+  document.querySelectorAll('.faq-item').forEach(item => {
+    item.querySelector('.faq-q').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+</script>
+
+</body>
+</html>
