@@ -601,7 +601,33 @@ export default function Landing() {
       </section>
 
       {/* HOW IT WORKS */}
-      <section id="how">
+      <section id="how" style={{ position: 'relative' }}>
+        <svg className="lp-section-orb lp-section-orb--left" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <defs>
+            <radialGradient id="howAtmos" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stopColor="#22c55e" stopOpacity="0.18"/>
+              <stop offset="50%" stopColor="#16a34a" stopOpacity="0.07"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="howSphere" cx="42%" cy="38%" r="52%">
+              <stop offset="0%"  stopColor="#1a4731" stopOpacity="0.9"/>
+              <stop offset="45%" stopColor="#052e16" stopOpacity="0.8"/>
+              <stop offset="85%" stopColor="#000" stopOpacity="0.6"/>
+              <stop offset="100%" stopColor="#000" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="howRim" cx="50%" cy="50%" r="50%">
+              <stop offset="65%" stopColor="transparent" stopOpacity="0"/>
+              <stop offset="83%" stopColor="#22c55e" stopOpacity="0.22"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <filter id="howBlur" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="35"/>
+            </filter>
+          </defs>
+          <ellipse cx="180" cy="250" rx="280" ry="240" fill="url(#howAtmos)" filter="url(#howBlur)"/>
+          <circle cx="180" cy="250" r="140" fill="url(#howSphere)"/>
+          <circle cx="180" cy="250" r="140" fill="url(#howRim)"/>
+        </svg>
         <div className="lp-container">
           <div className="lp-reveal">
             <div className="lp-section-kicker"><span className="lp-section-kicker-dot"></span> How it works</div>
@@ -922,7 +948,44 @@ export default function Landing() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing">
+      <section id="pricing" style={{ position: 'relative' }}>
+        <svg className="lp-section-orb lp-section-orb--right" viewBox="0 0 600 500" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <defs>
+            <radialGradient id="priceAtmos" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stopColor="#22c55e" stopOpacity="0.20"/>
+              <stop offset="50%" stopColor="#16a34a" stopOpacity="0.08"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="priceSphere" cx="44%" cy="36%" r="54%">
+              <stop offset="0%"  stopColor="#1a4731" stopOpacity="0.9"/>
+              <stop offset="42%" stopColor="#052e16" stopOpacity="0.85"/>
+              <stop offset="80%" stopColor="#000" stopOpacity="0.6"/>
+              <stop offset="100%" stopColor="#000" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="priceRim" cx="50%" cy="50%" r="50%">
+              <stop offset="62%" stopColor="transparent" stopOpacity="0"/>
+              <stop offset="82%" stopColor="#22c55e" stopOpacity="0.28"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="priceSpec" cx="38%" cy="30%" r="38%">
+              <stop offset="0%"  stopColor="#86efac" stopOpacity="0.45"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <filter id="priceBlur" x="-60%" y="-60%" width="220%" height="220%">
+              <feGaussianBlur stdDeviation="38"/>
+            </filter>
+            <filter id="priceSpecBlur">
+              <feGaussianBlur stdDeviation="12"/>
+            </filter>
+            <clipPath id="priceClip">
+              <circle cx="420" cy="250" r="155"/>
+            </clipPath>
+          </defs>
+          <ellipse cx="420" cy="250" rx="290" ry="250" fill="url(#priceAtmos)" filter="url(#priceBlur)"/>
+          <circle cx="420" cy="250" r="155" fill="url(#priceSphere)"/>
+          <circle cx="420" cy="250" r="155" fill="url(#priceRim)"/>
+          <ellipse cx="350" cy="175" rx="80" ry="55" fill="url(#priceSpec)" clipPath="url(#priceClip)" filter="url(#priceSpecBlur)"/>
+        </svg>
         <div className="lp-container">
           <div className="lp-reveal" style={{ textAlign: 'center' }}>
             <div className="lp-section-kicker" style={{ justifyContent: 'center' }}><span className="lp-section-kicker-dot"></span> Pricing</div>
@@ -1023,7 +1086,46 @@ export default function Landing() {
       </section>
 
       {/* CTA */}
-      <section className="lp-cta-section">
+      <section className="lp-cta-section" style={{ position: 'relative' }}>
+        <svg className="lp-section-orb lp-section-orb--center" viewBox="0 0 1000 600" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+          <defs>
+            <radialGradient id="ctaAtmos" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"  stopColor="#22c55e" stopOpacity="0.22"/>
+              <stop offset="45%" stopColor="#16a34a" stopOpacity="0.09"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="ctaSphere" cx="43%" cy="37%" r="54%">
+              <stop offset="0%"  stopColor="#1e5c38" stopOpacity="0.95"/>
+              <stop offset="38%" stopColor="#14532d" stopOpacity="0.9"/>
+              <stop offset="65%" stopColor="#052e16" stopOpacity="0.8"/>
+              <stop offset="88%" stopColor="#000" stopOpacity="0.5"/>
+              <stop offset="100%" stopColor="#000" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="ctaRim" cx="50%" cy="50%" r="50%">
+              <stop offset="60%" stopColor="transparent" stopOpacity="0"/>
+              <stop offset="80%" stopColor="#22c55e" stopOpacity="0.32"/>
+              <stop offset="93%" stopColor="#4ade80" stopOpacity="0.12"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <radialGradient id="ctaSpec" cx="37%" cy="29%" r="38%">
+              <stop offset="0%"  stopColor="#86efac" stopOpacity="0.55"/>
+              <stop offset="100%" stopColor="transparent" stopOpacity="0"/>
+            </radialGradient>
+            <filter id="ctaBlur" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="45"/>
+            </filter>
+            <filter id="ctaSpecBlur">
+              <feGaussianBlur stdDeviation="16"/>
+            </filter>
+            <clipPath id="ctaClip">
+              <circle cx="500" cy="300" r="200"/>
+            </clipPath>
+          </defs>
+          <ellipse cx="500" cy="300" rx="480" ry="360" fill="url(#ctaAtmos)" filter="url(#ctaBlur)"/>
+          <circle cx="500" cy="300" r="200" fill="url(#ctaSphere)"/>
+          <circle cx="500" cy="300" r="200" fill="url(#ctaRim)"/>
+          <ellipse cx="425" cy="215" rx="100" ry="70" fill="url(#ctaSpec)" clipPath="url(#ctaClip)" filter="url(#ctaSpecBlur)"/>
+        </svg>
         <div className="lp-cta-inner lp-reveal">
           <h2>Your edge is already<br/>in your data.</h2>
           <p>Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
