@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Edgeflow — Your intelligent way to manage money</title>
+<title>EdgeFlow — The AI Trading Journal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -49,24 +48,14 @@
     border-bottom: 1px solid var(--line);
   }
   .nav-inner {
-    height: 72px;
+    height: 68px;
     display: flex; align-items: center; justify-content: space-between;
     max-width: 1280px; margin: 0 auto; padding: 0 32px;
+    gap: 24px;
   }
-  .logo { display: flex; align-items: center; gap: 10px; font-weight: 600; letter-spacing: -0.02em; font-size: 19px; }
-  .logo-mark {
-    width: 26px; height: 26px; border-radius: 8px;
-    background: conic-gradient(from 220deg, #76dfa8, #1ed386, #1a8f5a, #76dfa8);
-    position: relative;
-  }
-  .logo-mark::after {
-    content: ""; position: absolute; inset: 5px; border-radius: 4px;
-    background: #0a0a0a;
-  }
-  .logo-mark::before {
-    content: ""; position: absolute; inset: 9px; border-radius: 2px;
-    background: #fff;
-  }
+  .logo { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.02em; font-size: 18px; flex-shrink: 0; }
+  .logo-svg { color: #1ed386; flex-shrink: 0; }
+
   /* ============ LIQUID GLASS PILL ============ */
   .lg {
     position: relative;
@@ -101,42 +90,63 @@
     padding: 5px;
   }
   .nav-pill a {
-    padding: 9px 18px; border-radius: 999px;
-    font-size: 13.5px; color: rgba(251,247,253,0.75);
-    letter-spacing: 0.02em; transition: color .15s, background .15s, box-shadow .15s;
-    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 16px; border-radius: 999px;
+    font-size: 13px; color: rgba(251,247,253,0.75);
+    letter-spacing: 0; transition: color .15s, background .15s;
+    display: inline-flex; align-items: center;
   }
   .nav-pill a:hover { color: #fff; }
   .nav-pill a.active {
     color: #fff;
     background: rgba(255,255,255,0.10);
-    box-shadow:
-      inset 1px 1px 1px -0.5px rgba(255,255,255,0.7),
-      inset -1px -1px 1px -0.5px rgba(255,255,255,0.5),
-      0 0 14px rgba(58,255,157,0.3);
+    box-shadow: inset 1px 1px 1px -0.5px rgba(255,255,255,0.7), inset -1px -1px 1px -0.5px rgba(255,255,255,0.5), 0 0 14px rgba(58,255,157,0.3);
   }
-  .dot { width: 7px; height: 7px; border-radius: 99px; background: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
   .btn-primary {
-    padding: 13px 26px; border-radius: 999px;
-    font-weight: 500; font-size: 14px; letter-spacing: 0.01em;
+    padding: 11px 22px; border-radius: 999px;
+    font-weight: 500; font-size: 13.5px;
     color: #0a0a0a;
     background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(215,215,215,0.92));
-    box-shadow:
-      0 6px 18px rgba(0,0,0,0.35),
-      0 2px 4px rgba(0,0,0,0.2),
-      inset 0 1px 0 rgba(255,255,255,1),
-      inset 0 -1px 0 rgba(0,0,0,0.12),
-      inset 1px 0 1px -0.5px rgba(255,255,255,0.95),
-      inset -1px 0 1px -0.5px rgba(0,0,0,0.1);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,1), inset 0 -1px 0 rgba(0,0,0,0.12);
   }
-  .btn-ghost {
-    padding: 13px 26px; border-radius: 999px;
-    font-weight: 500; font-size: 14px;
+  .btn-ghost { padding: 11px 22px; border-radius: 999px; font-size: 13.5px; font-weight: 500; }
+  .btn-outline {
+    padding: 14px 28px; border-radius: 999px; font-size: 15px; font-weight: 500;
   }
+  .btn-white {
+    padding: 14px 28px; border-radius: 999px; font-size: 15px; font-weight: 500;
+    color: #0a0a0a;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(215,215,215,0.92));
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,1);
+  }
+  .btn-lg {
+    padding: 16px 32px; border-radius: 999px; font-size: 15px; font-weight: 500;
+    color: #0a0a0a;
+    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(215,215,215,0.92));
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,1);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-lg-ghost {
+    padding: 16px 32px; border-radius: 999px; font-size: 15px; font-weight: 500;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+
+  /* ============ ANNOUNCE BAR ============ */
+  .announce-bar {
+    background: rgba(30,211,134,0.08);
+    border-bottom: 1px solid rgba(30,211,134,0.15);
+    text-align: center; padding: 10px 16px;
+    font-size: 13px; color: rgba(251,247,253,0.8);
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+  }
+  .announce-badge {
+    background: rgba(30,211,134,0.2); color: #1ed386;
+    padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .announce-cta { color: #76dfa8; font-weight: 500; border-bottom: 1px solid rgba(118,223,168,0.4); }
 
   /* ============ HERO ============ */
   .hero {
-    position: relative; padding-top: 180px; padding-bottom: 80px;
+    position: relative; padding-top: 190px; padding-bottom: 0;
     text-align: center; overflow: hidden;
   }
   .hero-aurora {
@@ -149,8 +159,7 @@
     position: absolute; left: 50%; bottom: -180px; transform: translateX(-50%);
     width: 900px; height: 360px;
     background: radial-gradient(ellipse at center, rgba(58,255,157,0.55) 0%, rgba(30,211,134,0.28) 25%, rgba(26,143,90,0.12) 50%, transparent 70%);
-    filter: blur(40px);
-    pointer-events: none;
+    filter: blur(40px); pointer-events: none;
   }
   .hero-aurora::before {
     content: "";
@@ -161,409 +170,490 @@
     pointer-events: none;
   }
   .hero-inner { position: relative; z-index: 1; }
-  .badge {
-    padding: 7px 16px 7px 9px; border-radius: 999px;
-    font-size: 12.5px; color: rgba(251,247,253,0.9);
+  .hero-kicker {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 16px; border-radius: 999px;
+    font-size: 12px; color: rgba(251,247,253,0.85);
     letter-spacing: 0.04em; text-transform: uppercase;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    backdrop-filter: blur(8px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    margin-bottom: 28px;
   }
-  .badge-dot {
-    width: 18px; height: 18px; border-radius: 99px;
-    background: linear-gradient(135deg, #76dfa8, #1ed386);
-    box-shadow: 0 0 12px rgba(118,223,168,0.6);
-    display: inline-flex; align-items: center; justify-content: center;
-    font-size: 10px; color: #fff;
+  .kicker-dot {
+    width: 6px; height: 6px; border-radius: 99px;
+    background: #1ed386; box-shadow: 0 0 8px rgba(30,211,134,0.8);
   }
   .hero h1 {
-    margin-top: 28px;
-    font-size: clamp(48px, 7vw, 88px);
-    line-height: 1.0;
-    font-weight: 500;
-    letter-spacing: -0.04em;
+    font-size: clamp(46px, 6.5vw, 84px);
+    line-height: 1.02; font-weight: 500; letter-spacing: -0.04em;
     background: linear-gradient(180deg, #ffffff 30%, rgba(255,255,255,0.45) 120%);
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
+    max-width: 900px; margin: 0 auto;
   }
   .hero p {
-    margin: 26px auto 0; max-width: 600px;
+    margin: 24px auto 0; max-width: 560px;
     font-size: 17px; color: var(--muted); font-weight: 400; letter-spacing: -0.005em;
   }
   .hero-cta {
-    margin-top: 38px; display: flex; gap: 12px; justify-content: center;
+    margin-top: 36px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
+  }
+  .hero-trust {
+    margin-top: 24px; display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+  }
+  .hero-trust-item {
+    font-size: 12px; color: var(--muted-2);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .hero-trust-item::before {
+    content: "✓"; color: #1ed386; font-size: 11px; font-weight: 700;
   }
 
-  /* ============ DASHBOARD MOCK ============ */
-  .dashboard {
-    margin-top: 70px; position: relative; z-index: 1;
-    max-width: 1180px; margin-left: auto; margin-right: auto;
-    border-radius: 22px;
+  /* Hero screenshot */
+  .hero-preview-wrap {
+    margin-top: 60px; position: relative; z-index: 1;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
+    perspective: 1200px;
+  }
+  .hero-preview-tilt {
+    transform: rotateX(14deg) scale(0.96);
+    transform-origin: center top;
+    transition: transform .6s cubic-bezier(.1,.4,.2,1);
+  }
+  .hero-preview-bezel {
+    border-radius: 18px;
     background: linear-gradient(180deg, #16161a, #0d0d10);
     border: 1px solid rgba(255,255,255,0.08);
-    box-shadow:
-      0 0 0 1px rgba(255,255,255,0.02) inset,
-      0 30px 80px -20px rgba(118,223,168,0.18),
-      0 80px 200px -40px rgba(30,211,134,0.14);
-    padding: 16px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset,
+      0 30px 80px -20px rgba(118,223,168,0.22),
+      0 80px 200px -40px rgba(30,211,134,0.16);
+    padding: 14px;
   }
-  .dash-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 12px 14px; }
-  .dash-bar-l { display: flex; align-items: center; gap: 12px; font-size: 14px; font-weight: 500; }
-  .dash-bar-r { display: flex; gap: 8px; }
-  .dash-tag {
-    font-size: 11px; padding: 6px 12px; border-radius: 999px;
-    color: rgba(255,255,255,0.85);
+  .hero-preview-chrome {
+    display: flex; align-items: center; gap: 10px;
+    padding: 8px 12px 12px;
   }
-  .dash-tag--live::before {
-    content: ""; width: 6px; height: 6px; background: #6ee7b7;
-    border-radius: 99px; display: inline-block; margin-right: 6px; vertical-align: middle;
+  .hero-preview-dots { display: flex; gap: 6px; }
+  .hero-preview-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .hero-preview-url {
+    flex: 1; text-align: center; font-size: 12px; color: var(--muted-2);
+    background: rgba(255,255,255,0.04); border-radius: 6px; padding: 5px 12px;
+    max-width: 280px; margin: 0 auto;
   }
-  .dash-grid {
-    display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px;
+  .hero-preview-body { border-radius: 10px; overflow: hidden; line-height: 0; }
+  .hero-preview-body img { width: 100%; height: auto; border-radius: 10px; }
+  .hero-glow {
+    position: absolute; left: 50%; bottom: -60px; transform: translateX(-50%);
+    width: 800px; height: 200px;
+    background: radial-gradient(ellipse at center, rgba(30,211,134,0.3), transparent 70%);
+    filter: blur(40px); pointer-events: none; z-index: 0;
   }
-  .panel {
-    background: #0a0a0c; border: 1px solid var(--line);
-    border-radius: 14px; padding: 22px;
-  }
-  .panel-head {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 22px;
-  }
-  .panel-title { font-size: 14px; font-weight: 500; }
-  .panel-sub { font-size: 11.5px; color: var(--muted-2); }
-  .bars {
-    display: grid; grid-template-columns: repeat(7, 1fr);
-    gap: 18px; align-items: end; height: 180px;
-  }
-  .bar {
-    width: 100%; border-radius: 6px 6px 2px 2px; position: relative;
-    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-  }
-  .bar.active {
-    background: linear-gradient(180deg, #3aff9d 0%, #1ed386 100%);
-    box-shadow: 0 0 25px rgba(30,211,134,0.5);
-  }
-  .bar-labels {
-    display: grid; grid-template-columns: repeat(7,1fr); gap: 18px;
-    margin-top: 12px; font-size: 11px; color: var(--muted-2); text-align: center;
-  }
-  .stat-card {
-    background: #0a0a0c; border: 1px solid var(--line);
-    border-radius: 14px; padding: 18px;
-  }
-  .stat-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-  .stat-label { font-size: 12px; color: var(--muted); }
-  .stat-num { font-size: 26px; font-weight: 500; letter-spacing: -0.03em; margin-top: 6px; }
-  .stat-delta { font-size: 11px; color: #6ee7b7; }
-  .upgrade {
-    background: linear-gradient(135deg, rgba(118,223,168,0.18), rgba(26,143,90,0.1));
-    border: 1px solid rgba(118,223,168,0.25);
-    padding: 18px; border-radius: 14px;
-    display: flex; flex-direction: column; gap: 10px;
-  }
-  .upgrade h4 { font-size: 14px; font-weight: 500; }
-  .upgrade p { font-size: 12px; color: rgba(255,255,255,0.65); }
-  .upgrade-btn {
-    align-self: flex-start; padding: 8px 16px;
-    border-radius: 999px;
-    font-size: 11.5px; color: #fff;
-  }
-  .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .quick {
-    padding: 12px; border-radius: 10px;
-    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
-    font-size: 11.5px; color: var(--muted);
-    display: flex; align-items: center; gap: 8px;
-  }
-  .quick-icon { width: 16px; height: 16px; border-radius: 4px; background: rgba(118,223,168,0.4); }
-  .tx-row {
-    display: flex; justify-content: space-between; padding: 10px 0;
-    border-bottom: 1px solid var(--line); font-size: 12px;
-  }
-  .tx-row:last-child { border: none; }
-  .tx-name { color: var(--text); }
-  .tx-amt { font-variant-numeric: tabular-nums; color: var(--muted); }
-  .tx-amt.pos { color: #6ee7b7; }
-  .dash-side { display: flex; flex-direction: column; gap: 14px; }
 
-  /* ============ TICKER ============ */
-  .ticker-section { padding: 100px 0 40px; text-align: center; }
-  .trust-label { font-size: 12.5px; color: var(--muted); letter-spacing: 0.05em; }
-  .ticker {
-    margin-top: 32px; overflow: hidden;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 15%, #000 85%, transparent);
+  /* ============ STATS STRIP ============ */
+  .stats-strip {
+    background: var(--bg-2); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+    padding: 28px 0;
   }
-  .ticker-track {
-    display: flex; gap: 80px; width: max-content;
-    animation: ticker 32s linear infinite;
+  .stats-strip-inner {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    max-width: 1280px; margin: 0 auto; padding: 0 32px;
   }
-  .ticker-item {
-    color: rgba(255,255,255,0.55); font-size: 18px;
-    font-weight: 500; letter-spacing: -0.01em;
-    display: flex; align-items: center; gap: 10px; white-space: nowrap;
+  .stats-strip-item {
+    text-align: center; padding: 0 24px;
+    border-right: 1px solid var(--line);
   }
-  .ticker-mark { width: 22px; height: 22px; border-radius: 6px; background: rgba(255,255,255,0.6); display: inline-block; }
-  .ticker-mark.m2 { border-radius: 50%; }
-  .ticker-mark.m3 { transform: rotate(45deg); border-radius: 4px; }
-  .ticker-mark.m4 { background: linear-gradient(135deg, #76dfa8, #1ed386); }
-  .ticker-mark.m5 { background: rgba(255,255,255,0.4); border-radius: 99px; }
-  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .stats-strip-item:last-child { border-right: none; }
+  .stats-strip-num { font-size: 32px; font-weight: 500; letter-spacing: -0.04em; line-height: 1.1; }
+  .stats-strip-num.green { color: #1ed386; }
+  .stats-strip-label { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
 
-  /* ============ SECTION HEAD ============ */
+  /* ============ SECTION COMMON ============ */
   .section { padding: 110px 0; position: relative; }
   .section-head { text-align: center; margin-bottom: 60px; }
   .eyebrow {
+    display: inline-flex; align-items: center; gap: 7px;
     padding: 7px 16px; border-radius: 999px;
     font-size: 11.5px; color: var(--muted);
     letter-spacing: 0.06em; text-transform: uppercase;
   }
-  .eyebrow::before { content: ""; width: 6px; height: 6px; background: var(--purple); border-radius: 99px; }
+  .eyebrow::before { content: ""; width: 6px; height: 6px; background: var(--purple); border-radius: 99px; flex-shrink: 0; }
   .section-title {
-    margin-top: 22px; font-size: clamp(36px, 4.5vw, 56px);
-    line-height: 1.05; font-weight: 500; letter-spacing: -0.035em;
+    margin-top: 22px; font-size: clamp(34px, 4.2vw, 54px);
+    line-height: 1.06; font-weight: 500; letter-spacing: -0.035em;
     background: linear-gradient(180deg, #fff, rgba(255,255,255,0.5));
     -webkit-background-clip: text; background-clip: text;
     -webkit-text-fill-color: transparent;
   }
   .section-sub { margin-top: 16px; color: var(--muted); font-size: 16px; max-width: 520px; margin-left: auto; margin-right: auto; }
 
-  /* ============ FEATURES GRID ============ */
-  .features { display: grid; grid-template-columns: 1.3fr 1fr; gap: 18px; }
-  .feature-card {
-    position: relative; overflow: hidden; border-radius: 18px;
+  /* ============ BENTO ============ */
+  .bento-section { padding: 100px 0 80px; }
+  .bento-grid {
+    display: grid;
+    grid-template-columns: 1.6fr 1fr 1fr;
+    grid-template-rows: auto auto;
+    gap: 16px;
+    margin-top: 56px;
+  }
+  .bento-card {
     background: linear-gradient(180deg, #0e0e10 0%, #0a0a0c 100%);
     border: 1px solid var(--line);
-    padding: 32px;
-    min-height: 320px;
-    display: flex; flex-direction: column; justify-content: space-between;
+    border-radius: 20px; padding: 32px;
+    display: flex; flex-direction: column; gap: 12px;
+    position: relative; overflow: hidden;
   }
-  .feature-card::after {
+  .bento-card::after {
     content: ""; position: absolute; pointer-events: none;
-    width: 400px; height: 400px; right: -150px; bottom: -200px;
-    background: radial-gradient(circle, rgba(118,223,168,0.18), transparent 60%);
+    width: 300px; height: 300px; right: -100px; bottom: -150px;
+    background: radial-gradient(circle, rgba(118,223,168,0.12), transparent 60%);
     filter: blur(30px);
   }
-  .feature-tag {
-    display: inline-flex; align-items: center; gap: 6px;
-    padding: 5px 10px; border-radius: 6px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid var(--line);
-    font-size: 11px; color: var(--muted);
-    align-self: flex-start; letter-spacing: 0.02em;
+  .bento-card--wide { grid-column: 1; grid-row: 1; min-height: 260px; }
+  .bento-card--mid { grid-column: 2 / 4; grid-row: 1; }
+  .bento-card--third { grid-row: 2; }
+  .bento-eyebrow { font-size: 11px; color: var(--muted-2); letter-spacing: 0.08em; text-transform: uppercase; }
+  .bento-card h3 { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
+  .bento-card p { font-size: 13.5px; color: var(--muted); line-height: 1.55; }
+  .bento-broker-grid {
+    display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px;
   }
-  .feature-title { font-size: 24px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; }
-  .feature-desc { font-size: 14px; color: var(--muted); margin-top: 10px; }
-  .feature-vis { flex: 1; position: relative; margin: 18px 0; }
-
-  /* feature 1: budgeting rings */
-  .ring-vis {
-    width: 220px; height: 220px; margin: 0 auto;
-    position: relative;
+  .bento-broker-tag {
+    padding: 5px 12px; border-radius: 999px; font-size: 12px;
+    background: rgba(255,255,255,0.05); border: 1px solid var(--line);
+    color: rgba(255,255,255,0.75);
   }
-  .ring {
-    position: absolute; inset: 0;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255,255,255,0.06);
+  .bento-stats { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+  .bento-stat-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 9px 12px; border-radius: 8px;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+    font-size: 13px;
   }
-  .ring.r1 { inset: 0; background: conic-gradient(#1ed386 0deg 220deg, transparent 220deg); -webkit-mask: radial-gradient(circle, transparent 78px, #000 79px, #000 105px, transparent 106px); mask: radial-gradient(circle, transparent 78px, #000 79px, #000 105px, transparent 106px); border: none; }
-  .ring.r2 { inset: 28px; background: conic-gradient(from 90deg, #76dfa8 0deg 160deg, transparent 160deg); -webkit-mask: radial-gradient(circle, transparent 50px, #000 51px, #000 77px, transparent 78px); mask: radial-gradient(circle, transparent 50px, #000 51px, #000 77px, transparent 78px); border: none; }
-  .ring.r3 { inset: 56px; background: conic-gradient(from 180deg, #1a8f5a 0deg 100deg, transparent 100deg); -webkit-mask: radial-gradient(circle, transparent 22px, #000 23px, #000 49px, transparent 50px); mask: radial-gradient(circle, transparent 22px, #000 23px, #000 49px, transparent 50px); border: none; }
-  .ring-center {
-    position: absolute; inset: 0; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; text-align: center;
-  }
-  .ring-center .v { font-size: 32px; font-weight: 500; letter-spacing: -0.03em; }
-  .ring-center .l { font-size: 11px; color: var(--muted); margin-top: 2px; }
-
-  /* feature 2: spending mini line */
-  .line-vis {
-    height: 140px; position: relative; margin-top: 20px;
-    background-image: linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
-    background-size: 100% 28px;
-    border-radius: 8px;
-  }
-  .line-svg { width: 100%; height: 100%; }
-  .line-row { display: flex; justify-content: space-between; margin-top: 12px; font-size: 11px; color: var(--muted-2); }
-
-  /* feature 3: account icons */
-  .acct-stack { display: flex; gap: -10px; margin-top: 16px; }
-  .acct {
-    width: 46px; height: 46px; border-radius: 12px;
-    background: linear-gradient(135deg, #1a1a1e, #0e0e10);
-    border: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 500; margin-left: -8px;
-    color: rgba(255,255,255,0.8);
-  }
-  .acct:first-child { margin-left: 0; }
-  .acct.a1 { background: linear-gradient(135deg, #1ed386, #1a8f5a); }
-  .acct.a2 { background: linear-gradient(135deg, #76dfa8, #1a8f5a); }
-  .acct.a3 { background: linear-gradient(135deg, #d7e60d, #1ed386); color: #000; }
-
-  /* feature 4: AI goal */
-  .goal-vis { position: relative; margin-top: 20px; }
-  .goal-bar { height: 8px; border-radius: 4px; background: rgba(255,255,255,0.06); overflow: hidden; }
-  .goal-fill { height: 100%; width: 73%; background: linear-gradient(90deg, #76dfa8, #1ed386); border-radius: 4px; }
-  .goal-meta { display: flex; justify-content: space-between; margin-top: 12px; font-size: 12px; }
-  .goal-meta .a { color: var(--text); font-weight: 500; }
-  .goal-meta .b { color: var(--muted); }
-
-  /* ============ INTEGRATIONS ============ */
-  .integration-cluster {
-    position: relative; max-width: 700px; margin: 60px auto 0; height: 360px;
-  }
-  .int-orb {
-    position: absolute; width: 80px; height: 80px;
-    border-radius: 22px;
-    background: linear-gradient(135deg, #1a1a1e, #0a0a0c);
-    border: 1px solid var(--line);
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    color: rgba(255,255,255,0.85);
-    font-weight: 500; font-size: 13px;
-  }
-  .int-center {
-    width: 110px; height: 110px;
-    background: radial-gradient(circle at 30% 30%, #3aff9d, #76dfa8 60%, #1a8f5a);
-    border: 1px solid rgba(255,255,255,0.2);
-    box-shadow: 0 0 80px rgba(30,211,134,0.5);
-    border-radius: 50%;
-    color: #fff;
-    top: 50%; left: 50%; transform: translate(-50%, -50%);
-  }
-  .int-orb.p1 { top: 40px; left: 70px; }
-  .int-orb.p2 { top: 40px; right: 70px; }
-  .int-orb.p3 { bottom: 40px; left: 70px; }
-  .int-orb.p4 { bottom: 40px; right: 70px; }
-  .int-orb.p5 { top: 50%; left: 0; transform: translateY(-50%); }
-  .int-orb.p6 { top: 50%; right: 0; transform: translateY(-50%); }
-  .int-line {
-    position: absolute; top: 50%; left: 50%; width: 1px; height: 200px;
-    background: linear-gradient(180deg, rgba(118,223,168,0.4), transparent);
-    transform-origin: top center;
-  }
+  .bento-stat-label { color: var(--muted); }
+  .bento-stat-value { font-weight: 600; font-size: 13px; }
+  .bento-stat-value.pos { color: #3aff9d; }
+  .bento-stat-value.neg { color: #f87171; }
 
   /* ============ HOW IT WORKS ============ */
-  .how-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
-  }
+  .how-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
   .how-card {
     background: #0a0a0c; border: 1px solid var(--line);
-    border-radius: 16px; padding: 28px; min-height: 320px;
-    display: flex; flex-direction: column; justify-content: space-between;
+    border-radius: 16px; padding: 28px; min-height: 340px;
+    display: flex; flex-direction: column; gap: 0;
     position: relative; overflow: hidden;
+  }
+  .how-card--active {
+    border-color: rgba(118,223,168,0.3);
+    background: linear-gradient(180deg, rgba(118,223,168,0.05), #0a0a0c);
   }
   .how-num {
     width: 32px; height: 32px; border-radius: 8px;
     background: rgba(255,255,255,0.05); border: 1px solid var(--line);
     display: flex; align-items: center; justify-content: center;
-    font-size: 13px; color: var(--muted);
-    font-variant-numeric: tabular-nums;
+    font-size: 13px; color: var(--muted); font-weight: 500;
+    margin-bottom: 16px; flex-shrink: 0;
   }
-  .how-title { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.15; margin-top: 16px; }
-  .how-desc { font-size: 13.5px; color: var(--muted); margin-top: 8px; }
+  .how-title { font-size: 21px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; }
+  .how-desc { font-size: 13px; color: var(--muted); margin-top: 8px; line-height: 1.6; }
   .how-vis {
-    margin-top: 22px; padding: 16px;
+    margin-top: 20px; padding: 16px;
     background: rgba(255,255,255,0.02);
-    border: 1px solid var(--line);
-    border-radius: 10px;
-    min-height: 140px;
-  }
-  .how-input {
-    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
-    border-radius: 8px; padding: 10px 12px; font-size: 12px; color: var(--muted);
-    display: flex; justify-content: space-between; align-items: center;
+    border: 1px solid var(--line); border-radius: 10px;
+    flex: 1;
   }
   .how-chip {
     padding: 5px 12px; border-radius: 999px;
     font-size: 10.5px; color: rgba(255,255,255,0.85);
+    display: inline-flex; align-items: center;
   }
 
-  /* ============ STATS ============ */
-  .stats-section {
+  /* Analytics table mockup */
+  .mock-analytics { width: 100%; }
+  .mock-analytics-header {
+    display: grid; grid-template-columns: 1fr 60px 60px;
+    font-size: 10px; color: var(--muted-2); letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 0 0 8px; border-bottom: 1px solid var(--line); margin-bottom: 8px;
+  }
+  .mock-analytics-row {
+    display: grid; grid-template-columns: 1fr 1fr 50px;
+    align-items: center; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    gap: 8px;
+  }
+  .mock-analytics-name { font-size: 11.5px; color: rgba(255,255,255,0.85); font-weight: 500; }
+  .mock-analytics-bar-wrap { position: relative; height: 14px; display: flex; align-items: center; gap: 6px; }
+  .mock-analytics-bar { height: 6px; border-radius: 3px; display: block; min-width: 4px; }
+  .mock-analytics-bar-label { font-size: 10.5px; color: var(--muted); }
+
+  /* Leak mockup */
+  .mock-leaks { width: 100%; }
+  .mock-leaks-title { font-size: 12px; font-weight: 600; color: #f2f0ea; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .mock-leaks-badge { background: oklch(0.25 0.08 25); color: oklch(0.65 0.18 25); font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 99px; }
+  .mock-leak-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .mock-leak-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .mock-leak-dot--high { background: #f87171; box-shadow: 0 0 6px rgba(248,113,113,0.5); }
+  .mock-leak-dot--med { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.4); }
+  .mock-leak-name { font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.85); }
+  .mock-leak-detail { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .mock-leak-tag {
+    margin-left: auto; font-size: 10px; padding: 2px 8px; border-radius: 4px;
+    background: rgba(248,113,113,0.15); color: #f87171; font-weight: 600; flex-shrink: 0;
+  }
+  .mock-leaks-atlas {
+    margin-top: 10px; padding: 9px 12px;
+    background: oklch(0.25 0.07 155 / 0.25); border: 1px solid rgba(30,211,134,0.15); border-radius: 8px;
+    font-size: 11.5px; color: rgba(255,255,255,0.75); display: flex; align-items: center; gap: 8px;
+  }
+  .mock-leaks-atlas-dot { width: 6px; height: 6px; border-radius: 50%; background: #1ed386; box-shadow: 0 0 6px rgba(30,211,134,0.8); flex-shrink: 0; }
+
+  /* ============ APP PREVIEW ============ */
+  .preview-section { padding: 100px 0; }
+  .preview-tabs {
+    display: flex; gap: 6px; justify-content: center;
+    margin-top: 40px; flex-wrap: wrap;
+  }
+  .preview-tab-btn {
+    padding: 9px 20px; border-radius: 999px;
+    font-size: 13.5px; font-weight: 500;
+    color: var(--muted); transition: all .15s;
+    background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+  }
+  .preview-tab-btn:hover { color: #fff; background: rgba(255,255,255,0.06); }
+  .preview-tab-btn.active {
+    color: #fff;
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.14);
+    box-shadow: inset 1px 1px 1px -0.5px rgba(255,255,255,0.5), 0 0 12px rgba(58,255,157,0.2);
+  }
+  .preview-frame {
+    margin-top: 28px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, #16161a, #0d0d10);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 30px 80px -20px rgba(118,223,168,0.15), 0 60px 160px -40px rgba(30,211,134,0.1);
+    padding: 14px;
+    max-width: 1100px; margin-left: auto; margin-right: auto;
+  }
+  .preview-chrome {
+    display: flex; align-items: center; gap: 10px; padding: 6px 10px 12px;
+  }
+  .preview-dots { display: flex; gap: 6px; }
+  .preview-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .preview-url {
+    flex: 1; text-align: center; font-size: 12px; color: var(--muted-2);
+    background: rgba(255,255,255,0.04); border-radius: 6px; padding: 5px 12px;
+    max-width: 260px; margin: 0 auto;
+  }
+  .preview-body { border-radius: 10px; overflow: hidden; line-height: 0; }
+  .preview-body img { width: 100%; height: auto; border-radius: 10px; }
+
+  /* ============ LEAK SPOTLIGHT ============ */
+  .spotlight-section {
     padding: 100px 0;
-    background:
-      radial-gradient(ellipse at 20% 50%, rgba(26,143,90,0.18), transparent 50%),
-      radial-gradient(ellipse at 80% 50%, rgba(30,211,134,0.15), transparent 50%),
-      #050505;
-    border-top: 1px solid var(--line);
+  }
+  .spotlight-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+    max-width: 1280px; margin: 0 auto; padding: 0 32px;
+  }
+  .spotlight-inner.reverse { direction: rtl; }
+  .spotlight-inner.reverse > * { direction: ltr; }
+  .spotlight-copy h2 {
+    font-size: clamp(32px, 3.8vw, 50px); font-weight: 500; letter-spacing: -0.035em; line-height: 1.08;
+    background: linear-gradient(180deg, #fff, rgba(255,255,255,0.5));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-top: 18px;
+  }
+  .spotlight-copy p { font-size: 16px; color: var(--muted); line-height: 1.65; margin-top: 20px; }
+  .spotlight-list { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .spotlight-list li {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; color: rgba(255,255,255,0.8);
+  }
+  .spotlight-list li::before { content: "✓"; color: #1ed386; font-weight: 700; font-size: 13px; flex-shrink: 0; }
+  .spotlight-visual {
+    background: linear-gradient(180deg, #141413, #0d0d0e);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .spotlight-visual-header {
+    padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .spotlight-visual-title { font-size: 13px; font-weight: 600; color: #f2f0ea; letter-spacing: -0.2px; }
+  .spotlight-visual-badge {
+    font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px;
+    background: oklch(0.25 0.08 25); color: oklch(0.65 0.18 25);
+  }
+  .spotlight-visual-body { padding: 8px 0; }
+  .spotlight-visual-sub { padding: 8px 16px 8px; font-size: 11px; color: var(--muted-2); border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 4px; }
+  .leak-row {
+    padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .leak-icon {
+    width: 28px; height: 28px; border-radius: 6px;
+    background: oklch(0.25 0.08 25); display: flex; align-items: center; justify-content: center;
+    font-size: 14px; color: oklch(0.65 0.18 25); flex-shrink: 0; margin-top: 1px;
+  }
+  .leak-label { font-size: 12px; font-weight: 600; color: #f2f0ea; letter-spacing: -0.2px; }
+  .leak-type-pill {
+    display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 4px;
+    background: #1e1e1c; color: var(--muted-2); font-weight: 600; margin-top: 4px;
+  }
+  .leak-trades { font-size: 11px; color: var(--muted-2); margin-top: 4px; }
+  .leak-stats { text-align: right; margin-left: auto; flex-shrink: 0; }
+  .leak-exp { font-size: 13px; font-weight: 700; color: oklch(0.65 0.18 25); font-family: monospace; }
+  .leak-wr { font-size: 11px; color: var(--muted-2); margin-top: 2px; }
+  .leak-footer {
+    padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.05);
+    background: rgba(255,255,255,0.01);
+    font-size: 12px; color: var(--muted); line-height: 1.5;
+  }
+
+  /* Atlas chat mockup */
+  .atlas-visual {
+    background: linear-gradient(180deg, #141413, #0d0d0e);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px; overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .atlas-header {
+    padding: 12px 16px; border-bottom: 1px solid rgba(255,255,255,0.07);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .atlas-header-left { display: flex; align-items: center; gap: 8px; }
+  .atlas-dot { width: 6px; height: 6px; border-radius: 50%; background: #1ed386; box-shadow: 0 0 6px rgba(30,211,134,0.8); }
+  .atlas-title { font-size: 13px; font-weight: 600; color: #f2f0ea; }
+  .atlas-sub { font-size: 11px; color: var(--muted-2); }
+  .atlas-body { padding: 16px; display: flex; flex-direction: column; gap: 14px; min-height: 280px; }
+  .atlas-msg-user {
+    align-self: flex-end;
+    background: #1e1e1c; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px 12px 4px 12px; padding: 10px 14px; max-width: 80%;
+    font-size: 13px; color: #cfcdc5; line-height: 1.6;
+  }
+  .atlas-msg-ai {
+    align-self: flex-start;
+    background: oklch(0.25 0.07 155 / 0.3); border: 1px solid oklch(0.65 0.17 155 / 0.15);
+    border-radius: 4px 12px 12px 12px; padding: 10px 14px; max-width: 90%;
+    font-size: 13px; color: #cfcdc5; line-height: 1.7;
+  }
+  .atlas-input-row { padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.07); }
+  .atlas-input {
+    background: #1e1e1c; border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--muted-2);
+  }
+
+  /* ============ WHO IT'S FOR ============ */
+  .for-section { padding: 100px 0; }
+  .for-list { display: flex; flex-direction: column; gap: 1px; margin-top: 56px; }
+  .for-item {
+    display: grid; grid-template-columns: 48px 1fr 140px;
+    align-items: start; gap: 28px;
+    padding: 28px 32px;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px;
+    transition: border-color .2s;
+  }
+  .for-item:hover { border-color: rgba(118,223,168,0.25); }
+  .for-num { font-size: 13px; color: var(--muted-2); font-weight: 500; padding-top: 4px; }
+  .for-title { font-size: 18px; font-weight: 500; letter-spacing: -0.02em; line-height: 1.2; margin-bottom: 8px; }
+  .for-body { font-size: 14px; color: var(--muted); line-height: 1.6; }
+  .for-tag {
+    padding: 7px 14px; border-radius: 999px; font-size: 12px;
+    background: rgba(30,211,134,0.1); color: #76dfa8;
+    border: 1px solid rgba(30,211,134,0.2);
+    align-self: flex-start; white-space: nowrap;
+  }
+
+  /* ============ VS TABLE ============ */
+  .vs-section { padding: 100px 0; }
+  .vs-table { max-width: 900px; margin: 0 auto; border-radius: 16px; overflow: hidden; border: 1px solid var(--line); }
+  .vs-header {
+    display: grid; grid-template-columns: 1fr 1fr;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--line); padding: 16px 28px;
+    font-size: 13px; font-weight: 600;
+  }
+  .vs-label-bad { color: var(--muted-2); }
+  .vs-label-good { color: #76dfa8; }
+  .vs-row {
+    display: grid; grid-template-columns: 1fr 1fr;
     border-bottom: 1px solid var(--line);
   }
-  .stats-grid {
-    display: grid; grid-template-columns: repeat(4, 1fr);
-    gap: 32px; margin-top: 60px;
+  .vs-row:last-child { border-bottom: none; }
+  .vs-cell {
+    padding: 14px 28px; font-size: 13.5px;
+    display: flex; align-items: center; gap: 10px; line-height: 1.4;
   }
-  .stat-block { text-align: left; }
-  .stat-eyebrow {
-    display: flex; align-items: center; gap: 8px;
-    font-size: 11.5px; color: var(--muted); letter-spacing: 0.05em;
-    text-transform: uppercase;
+  .vs-cell-bad {
+    color: var(--muted); background: rgba(255,255,255,0.01);
+    border-right: 1px solid var(--line);
   }
-  .stat-eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--purple); }
-  .stat-value {
-    margin-top: 18px;
-    font-size: clamp(48px, 5.5vw, 72px);
-    font-weight: 500; letter-spacing: -0.04em; line-height: 1;
-    background: linear-gradient(180deg, #fff, rgba(255,255,255,0.6));
-    -webkit-background-clip: text; background-clip: text;
-    -webkit-text-fill-color: transparent;
-  }
-  .stat-cap { font-size: 13px; color: var(--muted); margin-top: 12px; }
+  .vs-cell-good { color: rgba(255,255,255,0.85); }
+  .vs-icon-bad { color: #f87171; font-size: 12px; flex-shrink: 0; }
+  .vs-icon-good { color: #1ed386; font-size: 12px; flex-shrink: 0; }
 
-  /* ============ BENEFITS / TICKER 2 ============ */
-  .benefits-section { padding: 100px 0; }
-  .benefit-track {
-    display: flex; gap: 18px; padding: 30px 0;
+  /* ============ TESTIMONIALS MARQUEE ============ */
+  .testi-section { padding: 100px 0 80px; overflow: hidden; }
+  .testi-marquee-wrap {
+    margin-top: 48px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
-    mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
   }
-  .benefit-row { display: flex; gap: 18px; animation: ticker 40s linear infinite; }
-  .benefit-card {
-    flex: 0 0 320px; background: #0a0a0c; border: 1px solid var(--line);
-    border-radius: 16px; padding: 24px;
-    display: flex; flex-direction: column; gap: 14px;
-    min-height: 220px;
+  .testi-marquee-track {
+    display: flex; gap: 18px; width: max-content;
+    animation: ticker 48s linear infinite;
   }
-  .benefit-icon {
-    width: 38px; height: 38px; border-radius: 10px;
-    background: linear-gradient(135deg, rgba(118,223,168,0.25), rgba(26,143,90,0.15));
-    border: 1px solid rgba(118,223,168,0.3);
-    display: flex; align-items: center; justify-content: center;
-    color: rgba(255,255,255,0.9);
-  }
-  .benefit-h { font-size: 17px; font-weight: 500; letter-spacing: -0.015em; }
-  .benefit-p { font-size: 13px; color: var(--muted); line-height: 1.5; }
-
-  /* ============ TESTIMONIAL ============ */
-  .testimonial-section { padding: 110px 0; text-align: center; position: relative; }
-  .testimonial-section::before {
-    content: ""; position: absolute; left: 50%; top: 50%;
-    width: 600px; height: 600px; transform: translate(-50%, -50%);
-    background: radial-gradient(circle, rgba(30,211,134,0.15), transparent 50%);
-    z-index: 0; pointer-events: none;
-  }
-  .testimonial-card {
-    position: relative; z-index: 1;
-    max-width: 560px; margin: 50px auto 0;
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+  .testi-card {
+    flex: 0 0 340px;
     background: linear-gradient(180deg, #0e0e10, #0a0a0c);
-    border: 1px solid var(--line);
-    border-radius: 22px; padding: 40px 32px;
+    border: 1px solid var(--line); border-radius: 18px; padding: 28px;
+    display: flex; flex-direction: column; gap: 14px;
   }
-  .test-quote { font-size: 18px; line-height: 1.5; font-weight: 400; letter-spacing: -0.01em; color: rgba(255,255,255,0.92); }
-  .test-quote::before, .test-quote::after { color: var(--purple); font-size: 28px; line-height: 0; }
-  .test-author {
-    display: flex; align-items: center; gap: 12px; justify-content: center;
-    margin-top: 24px;
-  }
-  .test-avatar {
-    width: 42px; height: 42px; border-radius: 50%;
+  .testi-stars { display: flex; gap: 3px; }
+  .testi-star { color: #1ed386; font-size: 13px; }
+  .testi-quote { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.65; flex: 1; }
+  .testi-author { display: flex; align-items: center; gap: 10px; }
+  .testi-avatar {
+    width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(135deg, #76dfa8, #1ed386);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 600; color: #0a0a0a; flex-shrink: 0;
   }
-  .test-name { font-size: 14px; font-weight: 500; }
-  .test-role { font-size: 12px; color: var(--muted); }
-  .test-dots { display: flex; gap: 6px; justify-content: center; margin-top: 30px; }
-  .test-dot { width: 6px; height: 6px; border-radius: 99px; background: rgba(255,255,255,0.15); }
-  .test-dot.active { background: #fff; width: 18px; }
-  .test-trust { margin-top: 60px; font-size: 12.5px; color: var(--muted); display: flex; align-items: center; justify-content: center; gap: 12px; }
+  .testi-name { font-size: 13.5px; font-weight: 500; }
+  .testi-role { font-size: 11.5px; color: var(--muted); }
+
+  /* ============ BROKERS ============ */
+  .brokers-section { padding: 100px 0; }
+  .brokers-steps {
+    display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 20px;
+    align-items: center; margin: 56px 0 64px;
+  }
+  .brokers-step { text-align: center; }
+  .brokers-step-num {
+    display: inline-block; font-size: 13px; font-weight: 600;
+    color: #1ed386; margin-bottom: 12px; letter-spacing: 0.04em;
+  }
+  .brokers-step-title { font-size: 17px; font-weight: 500; letter-spacing: -0.015em; margin-bottom: 8px; }
+  .brokers-step-body { font-size: 13.5px; color: var(--muted); line-height: 1.6; }
+  .brokers-step-arrow { font-size: 20px; color: var(--muted-2); }
+  .brokers-grid {
+    display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;
+  }
+  .broker-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 9px 18px; border-radius: 999px;
+    background: rgba(255,255,255,0.04); border: 1px solid var(--line);
+    transition: border-color .15s, background .15s;
+  }
+  .broker-pill:hover { border-color: rgba(118,223,168,0.3); background: rgba(118,223,168,0.05); }
+  .broker-pill-name { font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,0.85); }
+  .broker-pill-cat { font-size: 11px; color: var(--muted-2); }
+  .broker-pill-more { border-style: dashed; }
 
   /* ============ PRICING ============ */
   .pricing-section { padding: 110px 0; }
@@ -579,10 +669,7 @@
   .pricing-toggle button.active {
     color: #fff;
     background: rgba(255,255,255,0.10);
-    box-shadow:
-      inset 1px 1px 1px -0.5px rgba(255,255,255,0.6),
-      inset -1px -1px 1px -0.5px rgba(255,255,255,0.4),
-      0 0 12px rgba(58,255,157,0.25);
+    box-shadow: inset 1px 1px 1px -0.5px rgba(255,255,255,0.6), inset -1px -1px 1px -0.5px rgba(255,255,255,0.4), 0 0 12px rgba(58,255,157,0.25);
   }
   .save-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(110,231,183,0.15); color: #6ee7b7; margin-left: 6px; }
   .pricing-grid {
@@ -602,9 +689,7 @@
     border: 1px solid rgba(255,255,255,0.08);
     box-shadow: 0 0 60px rgba(118,223,168,0.08);
   }
-  .price-head {
-    display: flex; justify-content: space-between; align-items: center;
-  }
+  .price-head { display: flex; justify-content: space-between; align-items: center; }
   .price-name { font-size: 22px; font-weight: 500; letter-spacing: -0.02em; color: #fff; }
   .price-popular {
     font-size: 12px; padding: 7px 16px; border-radius: 999px;
@@ -615,12 +700,8 @@
     font-size: 44px; font-weight: 500; letter-spacing: -0.035em; line-height: 1;
   }
   .price-amount .num { color: #fff; }
-  .price-amount .per { color: var(--muted); font-weight: 400; }
-  .price-desc {
-    font-size: 15px; color: var(--muted);
-    margin-top: 22px; line-height: 1.45;
-    min-height: 44px;
-  }
+  .price-amount .per { color: var(--muted); font-weight: 400; font-size: 18px; margin-left: 4px; }
+  .price-per-label { font-size: 13px; color: var(--muted); margin-top: 8px; }
   .price-cta {
     margin-top: 28px; padding: 18px 20px; border-radius: 999px;
     color: #0a0a0a; font-size: 15px; text-align: center; font-weight: 500;
@@ -628,150 +709,108 @@
   }
   .price-cta:hover { transform: translateY(-1px); }
   .price-divider {
-    margin-top: 36px;
+    margin-top: 28px;
     display: flex; align-items: center; gap: 12px;
-    color: var(--muted-2); font-size: 12px;
-    letter-spacing: 0.18em;
+    color: var(--muted-2); font-size: 12px; letter-spacing: 0.18em;
   }
-  .price-divider::before,
-  .price-divider::after {
-    content: ""; flex: 1; height: 1px;
-    background: rgba(255,255,255,0.1);
-    position: relative;
-  }
-  .price-divider span {
-    position: relative; padding: 0 4px;
-  }
-  .price-divider .dot-l, .price-divider .dot-r {
-    width: 5px; height: 5px; border-radius: 50%;
-    background: rgba(255,255,255,0.25); flex-shrink: 0;
-  }
+  .price-divider::before, .price-divider::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+  .price-divider span { position: relative; padding: 0 4px; }
+  .price-divider .dot-l, .price-divider .dot-r { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,0.25); flex-shrink: 0; }
   .price-features {
-    list-style: none; margin-top: 28px;
-    display: flex; flex-direction: column; gap: 18px;
+    list-style: none; margin-top: 24px;
+    display: flex; flex-direction: column; gap: 14px;
   }
   .price-features li {
-    display: flex; gap: 14px; align-items: center;
-    font-size: 15px; color: #fff; font-weight: 500; letter-spacing: -0.005em;
+    display: flex; gap: 12px; align-items: flex-start;
+    font-size: 14.5px; color: #fff; font-weight: 500; letter-spacing: -0.005em; line-height: 1.4;
   }
   .check {
-    width: 22px; height: 22px; border-radius: 50%;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: #fff;
-    display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0;
-    font-size: 11px;
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+    color: #fff; display: inline-flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 10px; margin-top: 1px;
   }
-  .pricing-note {
-    text-align: center; margin-top: 30px; font-size: 12.5px; color: var(--muted);
-  }
+  .pricing-note { text-align: center; margin-top: 30px; font-size: 12.5px; color: var(--muted); }
 
   /* ============ FAQ ============ */
   .faq-section { padding: 110px 0; }
-  .faq-grid { display: grid; grid-template-columns: 1fr 1.4fr; gap: 60px; }
+  .faq-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 70px; }
   .faq-list { display: flex; flex-direction: column; gap: 8px; }
   .faq-item {
     background: #0a0a0c; border: 1px solid var(--line);
-    border-radius: 14px; overflow: hidden;
-    transition: all .2s;
+    border-radius: 14px; overflow: hidden; transition: all .2s;
   }
   .faq-item.open { border-color: rgba(118,223,168,0.3); }
   .faq-q {
     width: 100%; padding: 18px 22px; text-align: left;
     display: flex; justify-content: space-between; align-items: center;
-    font-size: 15px; font-weight: 500; letter-spacing: -0.01em;
-    color: #fff;
+    font-size: 15px; font-weight: 500; letter-spacing: -0.01em; color: #fff; gap: 12px;
   }
   .faq-q-icon {
     width: 24px; height: 24px; border-radius: 50%;
     background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center;
-    transition: transform .2s;
+    transition: transform .2s; flex-shrink: 0; font-size: 16px;
   }
   .faq-item.open .faq-q-icon { transform: rotate(45deg); background: rgba(118,223,168,0.2); }
   .faq-a {
-    max-height: 0; overflow: hidden;
-    padding: 0 22px;
-    font-size: 13.5px; color: var(--muted); line-height: 1.6;
-    transition: max-height .25s ease, padding .2s;
+    max-height: 0; overflow: hidden; padding: 0 22px;
+    font-size: 14px; color: var(--muted); line-height: 1.65;
+    transition: max-height .3s ease, padding .2s;
   }
-  .faq-item.open .faq-a { max-height: 200px; padding: 0 22px 20px; }
+  .faq-item.open .faq-a { max-height: 260px; padding: 0 22px 20px; }
 
   /* ============ CTA ============ */
   .cta-section {
-    padding: 130px 0 60px; text-align: center; position: relative;
-    overflow: hidden;
+    padding: 120px 0 80px; text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: "";
+    position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%);
+    width: 700px; height: 400px;
+    background: radial-gradient(ellipse at center, rgba(30,211,134,0.12), transparent 60%);
+    filter: blur(40px); pointer-events: none;
   }
   .cta-inner { position: relative; z-index: 1; }
   .cta-title {
-    font-size: clamp(40px, 5vw, 64px);
-    font-weight: 500; letter-spacing: -0.035em; line-height: 1.05;
-    margin-top: 22px;
+    font-size: clamp(38px, 4.8vw, 62px);
+    font-weight: 500; letter-spacing: -0.035em; line-height: 1.06; margin-top: 22px;
     background: linear-gradient(180deg, #fff, rgba(255,255,255,0.5));
     -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
   }
   .cta-sub { color: var(--muted); margin-top: 18px; font-size: 16px; max-width: 480px; margin-left: auto; margin-right: auto; }
-  .cta-btns { margin-top: 36px; display: flex; gap: 12px; justify-content: center; }
-  .cta-spacer { height: 0; }
+  .cta-btns { margin-top: 36px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 
   /* ============ GIANT WORDMARK ============ */
   .brand-wash {
-    position: relative;
-    overflow: hidden;
-    padding: 50px 0 0;
-    margin-bottom: 0;
-    background: #050505;
-    isolation: isolate;
+    position: relative; overflow: hidden; padding: 50px 0 0; margin-bottom: 0;
+    background: #050505; isolation: isolate;
   }
   .brand-wash::before {
-    content: "";
-    position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+    content: ""; position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
     width: 80%; height: 80%;
-    background:
-      radial-gradient(ellipse 55% 60% at 50% 50%, rgba(30,211,134,0.30) 0%, rgba(30,211,134,0.14) 30%, transparent 65%);
-    filter: blur(50px);
-    z-index: 0;
-    pointer-events: none;
+    background: radial-gradient(ellipse 55% 60% at 50% 50%, rgba(30,211,134,0.30) 0%, rgba(30,211,134,0.14) 30%, transparent 65%);
+    filter: blur(50px); z-index: 0; pointer-events: none;
   }
   .brand-wash::after {
-    content: "";
-    position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
+    content: ""; position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%);
     width: 60%; height: 60%;
     background: radial-gradient(ellipse at center, rgba(58,255,157,0.12) 0%, transparent 65%);
-    filter: blur(50px);
-    mix-blend-mode: screen;
-    z-index: 3;
-    pointer-events: none;
+    filter: blur(50px); mix-blend-mode: screen; z-index: 3; pointer-events: none;
   }
   .brand-wordmark {
-    position: relative; z-index: 1;
-    text-align: center;
-    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
-    font-weight: 700;
-    font-size: 24.5vw;
-    line-height: 0.88;
-    letter-spacing: -0.055em;
-    margin: 0;
-    padding: 0;
-    white-space: nowrap;
-    background: linear-gradient(180deg,
-      rgba(255,255,255,0.95) 0%,
-      rgba(240,240,240,0.88) 20%,
-      rgba(180,180,180,0.60) 50%,
-      rgba(110,110,110,0.38) 75%,
-      rgba(60,60,60,0.22) 100%
-    );
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    position: relative; z-index: 1; text-align: center;
+    font-family: "Inter Tight", system-ui, sans-serif;
+    font-weight: 700; font-size: 24.5vw; line-height: 0.88;
+    letter-spacing: -0.055em; margin: 0; padding: 0; white-space: nowrap;
+    background: linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.88) 20%, rgba(180,180,180,0.60) 50%, rgba(110,110,110,0.38) 75%, rgba(60,60,60,0.22) 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
     user-select: none;
   }
 
   /* ============ FOOTER ============ */
   .footer {
-    background: #0a110e;
-    border-top: 1px solid rgba(118,223,168,0.06);
-    padding: 70px 0 40px;
-    position: relative; z-index: 2;
+    background: #0a110e; border-top: 1px solid rgba(118,223,168,0.06);
+    padding: 70px 0 40px; position: relative; z-index: 2;
   }
   .footer-grid {
     display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 60px;
@@ -779,75 +818,80 @@
   }
   .footer-brand { display: flex; flex-direction: column; gap: 16px; max-width: 320px; }
   .footer-brand p { color: var(--muted); font-size: 13px; }
-  .footer-form {
-    display: flex; gap: 8px; margin-top: 8px;
-    padding: 5px; border-radius: 999px;
-    background: rgba(255,255,255,0.04);
-    backdrop-filter: blur(8px) saturate(140%);
-    -webkit-backdrop-filter: blur(8px) saturate(140%);
-    box-shadow:
-      0 4px 14px rgba(0,0,0,0.3),
-      inset 1px 1px 1px -0.5px rgba(255,255,255,0.5),
-      inset -1px -1px 1px -0.5px rgba(255,255,255,0.4),
-      inset 0 0 6px 6px rgba(255,255,255,0.05);
-  }
-  .footer-form input {
-    flex: 1; background: transparent; border: none; outline: none;
-    padding: 8px 14px; color: var(--text); font-size: 13px;
-    font-family: inherit;
-  }
-  .footer-form button {
-    padding: 9px 18px; border-radius: 999px;
-    background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(215,215,215,0.92));
-    color: #0a0a0a;
-    font-size: 12.5px; font-weight: 500;
-    border: 0; cursor: pointer;
-    box-shadow:
-      0 4px 12px rgba(0,0,0,0.3),
-      inset 0 1px 0 rgba(255,255,255,1),
-      inset 0 -1px 0 rgba(0,0,0,0.1);
-    transition: transform .2s, filter .2s;
-  }
-  .footer-form button:hover { filter: brightness(1.05); transform: scale(1.02); }
+  .footer-tagline { font-size: 12px; color: var(--muted-2); margin-top: 4px; }
   .footer-col h4 {
-    font-size: 11.5px; color: var(--muted-2);
-    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 18px;
-    font-weight: 500;
+    font-size: 11.5px; color: var(--muted-2); letter-spacing: 0.08em;
+    text-transform: uppercase; margin-bottom: 18px; font-weight: 500;
   }
   .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-  .footer-col a { font-size: 13.5px; color: var(--text); transition: color .15s; }
+  .footer-col a { font-size: 13.5px; color: var(--text); transition: color .15s; cursor: pointer; }
   .footer-col a:hover { color: var(--purple); }
   .footer-meta {
-    padding-top: 26px;
-    display: flex; justify-content: space-between; align-items: center;
+    padding-top: 26px; display: flex; justify-content: space-between; align-items: center;
     font-size: 12.5px; color: var(--muted-2);
   }
 
   /* ============ RESPONSIVE ============ */
-  @media (max-width: 900px) {
+  @media (max-width: 1000px) {
     .nav-pill { display: none; }
-    .dash-grid, .features, .how-grid, .pricing-grid, .stats-grid, .faq-grid, .footer-grid { grid-template-columns: 1fr; }
-    .stats-grid { gap: 40px; }
+    .bento-grid { grid-template-columns: 1fr; }
+    .bento-card--wide, .bento-card--mid { grid-column: 1; grid-row: auto; }
+    .how-grid, .pricing-grid, .faq-grid, .footer-grid { grid-template-columns: 1fr; }
     .footer-grid { gap: 40px; }
+    .spotlight-inner { grid-template-columns: 1fr; gap: 40px; }
+    .spotlight-inner.reverse { direction: ltr; }
+    .brokers-steps { grid-template-columns: 1fr; }
+    .brokers-step-arrow { display: none; }
+    .for-item { grid-template-columns: 1fr; }
+    .for-num { display: none; }
+    .vs-header, .vs-row { grid-template-columns: 1fr; }
+    .vs-cell-bad { border-right: none; border-bottom: 1px solid var(--line); }
+    .stats-strip-inner { grid-template-columns: 1fr 1fr; gap: 20px; }
+    .stats-strip-item { border-right: none; border-bottom: 1px solid var(--line); padding-bottom: 20px; }
+    .stats-strip-item:nth-child(2n) { border-bottom: 1px solid var(--line); }
+  }
+  @media (max-width: 600px) {
+    .wrap { padding: 0 18px; }
+    .stats-strip-inner { grid-template-columns: 1fr 1fr; padding: 0 18px; }
+    .hero h1 { font-size: clamp(36px, 9vw, 56px); }
+    .hero-cta { flex-direction: column; align-items: center; }
+    .cta-btns { flex-direction: column; align-items: center; }
   }
 </style>
 </head>
 <body>
 
+<!-- ============== ANNOUNCE BAR ============== -->
+<div class="announce-bar">
+  <span class="announce-badge">Early access</span>
+  Free for the first 100 traders — no card required.
+  <a href="/auth" class="announce-cta">Get started →</a>
+</div>
+
 <!-- ============== NAV ============== -->
 <nav class="nav">
   <div class="nav-inner">
     <div class="logo">
-      <div class="logo-mark"></div>
-      Edgeflow
+      <svg class="logo-svg" width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden>
+        <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+        <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+        <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+        <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+        <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+      </svg>
+      EdgeFlow
     </div>
     <div class="lg nav-pill">
-      <a href="#" class="active"><span class="dot"></span>Home</a>
-      <a href="#features">Features</a>
-      <a href="#benefits">Benefit</a>
-      <a href="#how">Works</a>
+      <a href="#how">How it works</a>
+      <a href="#preview" class="active">Features</a>
+      <a href="#brokers">Brokers</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
     </div>
-    <a href="#cta" class="lg btn-primary">Get Started →</a>
+    <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
+      <a href="/auth" class="lg btn-ghost">Log in</a>
+      <a href="/auth" class="lg btn-primary">Start free →</a>
+    </div>
   </div>
 </nav>
 
@@ -866,14 +910,9 @@
           <stop offset="50%" stop-color="#76dfa8" stop-opacity="0.5"></stop>
           <stop offset="100%" stop-color="#1ed386" stop-opacity="0"></stop>
         </linearGradient>
-        <filter id="auroraBlur" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="6"></feGaussianBlur>
-        </filter>
-        <filter id="auroraBlurSoft" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="14"></feGaussianBlur>
-        </filter>
+        <filter id="auroraBlur" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="6"></feGaussianBlur></filter>
+        <filter id="auroraBlurSoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="14"></feGaussianBlur></filter>
       </defs>
-      <!-- Left side curved streaks -->
       <g filter="url(#auroraBlur)" opacity="0.9">
         <path d="M -50 100 Q 200 250 120 500 T 280 950" stroke="url(#streakL)" stroke-width="2" fill="none"></path>
         <path d="M -100 200 Q 250 380 180 620 T 380 1050" stroke="url(#streakL)" stroke-width="1.5" fill="none" opacity="0.7"></path>
@@ -883,7 +922,6 @@
       <g filter="url(#auroraBlurSoft)" opacity="0.6">
         <path d="M -120 150 Q 220 320 140 580 T 320 1000" stroke="url(#streakL)" stroke-width="6" fill="none"></path>
       </g>
-      <!-- Right side curved streaks -->
       <g filter="url(#auroraBlur)" opacity="0.9">
         <path d="M 1970 80 Q 1700 240 1780 480 T 1620 940" stroke="url(#streakR)" stroke-width="2" fill="none"></path>
         <path d="M 2020 220 Q 1680 400 1740 640 T 1540 1060" stroke="url(#streakR)" stroke-width="1.5" fill="none" opacity="0.7"></path>
@@ -895,73 +933,40 @@
       </g>
     </svg>
   </div>
+
   <div class="wrap hero-inner">
-    <div class="lg badge">
-      <span class="badge-dot">★</span>
-      Real-time financial insights with AI
+    <div class="hero-kicker">
+      <span class="kicker-dot"></span>
+      AI-Powered · Professional Trading Journal
     </div>
-    <h1>Your intelligent way<br>to manage money.</h1>
-    <p>Edgeflow turns scattered transactions and bank feeds into clear, actionable insight — so every dollar earns its place.</p>
+    <h1>Your trading data knows<br>more than you do.</h1>
+    <p>EdgeFlow turns your trade history into a statistical edge. Win rate, leak detection, and AI analysis — all in one place.</p>
     <div class="hero-cta">
-      <a href="#cta" class="lg btn-primary">Get started</a>
-      <a href="#features" class="lg btn-ghost">Start for free</a>
+      <a href="/auth" class="lg btn-outline">Get started</a>
+      <a href="/auth" class="lg btn-white">Start for Free</a>
+    </div>
+    <div class="hero-trust">
+      <span class="hero-trust-item">Easy setup</span>
+      <span class="hero-trust-item">No credit card needed</span>
+      <span class="hero-trust-item">Set up in 5 minutes</span>
+      <span class="hero-trust-item">Works with MT4/MT5</span>
+      <span class="hero-trust-item">Import in seconds</span>
     </div>
 
-    <!-- Dashboard mock -->
-    <div class="dashboard">
-      <div class="dash-bar">
-        <div class="dash-bar-l">
-          <span style="display:inline-flex;width:18px;height:18px;border-radius:5px;background:linear-gradient(135deg,#76dfa8,#1ed386);"></span>
-          Dashboard overview
-        </div>
-        <div class="dash-bar-r">
-          <span class="lg dash-tag dash-tag--live">Auto-sync</span>
-          <span class="lg dash-tag">$28,402.10</span>
-        </div>
-      </div>
-      <div class="dash-grid">
-        <div class="panel">
-          <div class="panel-head">
-            <div>
-              <div class="panel-title">Fund Balance Breakdown</div>
-              <div class="panel-sub">Last 7 days</div>
+    <div class="hero-preview-wrap">
+      <div class="hero-glow"></div>
+      <div class="hero-preview-tilt" id="hero-tilt">
+        <div class="hero-preview-bezel">
+          <div class="hero-preview-chrome">
+            <div class="hero-preview-dots">
+              <div class="hero-preview-dot" style="background:#ff5f57"></div>
+              <div class="hero-preview-dot" style="background:#febc2e"></div>
+              <div class="hero-preview-dot" style="background:#28c840"></div>
             </div>
-            <div class="lg dash-tag">Weekly ▾</div>
+            <div class="hero-preview-url">leone.capital/dashboard</div>
           </div>
-          <div class="bars">
-            <div class="bar" style="height:35%"></div>
-            <div class="bar" style="height:55%"></div>
-            <div class="bar" style="height:45%"></div>
-            <div class="bar active" style="height:88%"></div>
-            <div class="bar" style="height:68%"></div>
-            <div class="bar" style="height:50%"></div>
-            <div class="bar" style="height:60%"></div>
-          </div>
-          <div class="bar-labels">
-            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-          </div>
-        </div>
-        <div class="dash-side">
-          <div class="stat-card">
-            <div class="stat-row">
-              <span class="stat-label">Net worth</span>
-              <span class="stat-delta">+12.4%</span>
-            </div>
-            <div class="stat-num">$284,920</div>
-          </div>
-          <div class="upgrade">
-            <h4>Upgrade for More</h4>
-            <p>Unlock multi-account sync, AI insights and custom budgets.</p>
-            <button class="lg upgrade-btn">Upgrade plan →</button>
-          </div>
-          <div class="panel" style="padding:18px">
-            <div class="panel-head" style="margin-bottom:10px">
-              <div class="panel-title" style="font-size:12.5px">Transactions</div>
-              <div class="panel-sub">Today</div>
-            </div>
-            <div class="tx-row"><span class="tx-name">Stripe payout</span><span class="tx-amt pos">+$2,140</span></div>
-            <div class="tx-row"><span class="tx-name">AWS</span><span class="tx-amt">−$184.20</span></div>
-            <div class="tx-row"><span class="tx-name">Figma</span><span class="tx-amt">−$45.00</span></div>
+          <div class="hero-preview-body">
+            <img src="/app-screenshot.webp" alt="EdgeFlow dashboard — equity curve, session performance, and trade log" />
           </div>
         </div>
       </div>
@@ -969,132 +974,124 @@
   </div>
 </header>
 
-<!-- ============== TICKER ============== -->
-<section class="ticker-section">
-  <div class="trust-label">Trusted by 4,320 satisfied merchants</div>
-  <div class="ticker">
-    <div class="ticker-track" id="ticker-track"></div>
-  </div>
-</section>
-
-<!-- ============== FEATURES ============== -->
-<section class="section" id="features">
-  <div class="wrap">
-    <div class="section-head">
-      <span class="lg eyebrow">Key feature</span>
-      <h2 class="section-title">Built to automate what<br>matters most</h2>
+<!-- ============== STATS STRIP ============== -->
+<div class="stats-strip">
+  <div class="stats-strip-inner">
+    <div class="stats-strip-item">
+      <div class="stats-strip-num">20+</div>
+      <div class="stats-strip-label">Data points captured per trade</div>
     </div>
-    <div class="features">
-      <!-- Smart Budgeting -->
-      <div class="feature-card">
-        <div>
-          <span class="feature-tag">Smart budgeting</span>
-        </div>
-        <div class="feature-vis">
-          <div class="ring-vis">
-            <div class="ring r1"></div>
-            <div class="ring r2"></div>
-            <div class="ring r3"></div>
-            <div class="ring-center">
-              <div class="v">73%</div>
-              <div class="l">on budget</div>
-            </div>
-          </div>
-        </div>
-        <div>
-          <h3 class="feature-title">Smart budgeting</h3>
-          <p class="feature-desc">Edgeflow auto-categorizes spending and forecasts where you'll land — before the month ends.</p>
-        </div>
-      </div>
-
-      <!-- Multi-account syncing -->
-      <div class="feature-card">
-        <div><span class="feature-tag">Multi-account syncing</span></div>
-        <div class="feature-vis">
-          <div class="acct-stack">
-            <div class="acct a1">CH</div>
-            <div class="acct a2">VS</div>
-            <div class="acct a3">PP</div>
-            <div class="acct">+9</div>
-          </div>
-          <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;font-size:12px;color:var(--muted)">
-            <div style="display:flex;justify-content:space-between"><span>Chase ••4421</span><span style="color:#6ee7b7">Synced</span></div>
-            <div style="display:flex;justify-content:space-between"><span>Visa ••8810</span><span style="color:#6ee7b7">Synced</span></div>
-            <div style="display:flex;justify-content:space-between"><span>PayPal</span><span style="color:#6ee7b7">Synced</span></div>
-          </div>
-        </div>
-        <div>
-          <h3 class="feature-title">Multi-account syncing</h3>
-          <p class="feature-desc">Connect every bank, card and wallet in one place — kept fresh in real-time.</p>
-        </div>
-      </div>
-
-      <!-- Real-time spending insights -->
-      <div class="feature-card">
-        <div><span class="feature-tag">Real-time spending insights</span></div>
-        <div class="feature-vis">
-          <div class="line-vis">
-            <svg class="line-svg" viewBox="0 0 400 140" preserveAspectRatio="none">
-              <defs>
-                <linearGradient id="lg1" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="0%" stop-color="#1ed386" stop-opacity="0.4"></stop>
-                  <stop offset="100%" stop-color="#1ed386" stop-opacity="0"></stop>
-                </linearGradient>
-              </defs>
-              <path d="M0,100 C40,80 80,90 120,70 S200,40 240,55 S320,30 400,40 L400,140 L0,140 Z" fill="url(#lg1)"></path>
-              <path d="M0,100 C40,80 80,90 120,70 S200,40 240,55 S320,30 400,40" fill="none" stroke="#3aff9d" stroke-width="1.5"></path>
-              <circle cx="240" cy="55" r="4" fill="#3aff9d"></circle>
-              <circle cx="240" cy="55" r="8" fill="#3aff9d" fill-opacity="0.3"></circle>
-            </svg>
-          </div>
-          <div class="line-row"><span>Apr 1</span><span>Apr 14</span><span>Apr 28</span></div>
-        </div>
-        <div>
-          <h3 class="feature-title">Real-time spending insights</h3>
-          <p class="feature-desc">Watch every transaction land — with anomaly alerts the moment something looks off.</p>
-        </div>
-      </div>
-
-      <!-- AI saving goals -->
-      <div class="feature-card">
-        <div><span class="feature-tag">AI-powered saving goals</span></div>
-        <div class="feature-vis">
-          <div class="goal-vis">
-            <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:10px">
-              <span>Iceland trip</span><span style="color:#fff">$3,650 / $5,000</span>
-            </div>
-            <div class="goal-bar"><div class="goal-fill"></div></div>
-            <div class="goal-meta"><span class="a">+$220 this week</span><span class="b">est. Aug 14</span></div>
-          </div>
-          <div style="margin-top:18px;padding:12px;background:rgba(118,223,168,0.08);border:1px solid rgba(118,223,168,0.2);border-radius:10px;font-size:12px;color:rgba(255,255,255,0.85);display:flex;gap:10px;align-items:flex-start">
-            <span style="font-size:14px">✦</span>
-            <span>Reroute $40/wk from dining to hit your goal 3 weeks earlier.</span>
-          </div>
-        </div>
-        <div>
-          <h3 class="feature-title">AI-powered saving goals</h3>
-          <p class="feature-desc">Edgeflow watches the patterns and nudges money where it grows fastest.</p>
-        </div>
-      </div>
+    <div class="stats-strip-item">
+      <div class="stats-strip-num">8+</div>
+      <div class="stats-strip-label">Performance breakdowns built in</div>
+    </div>
+    <div class="stats-strip-item">
+      <div class="stats-strip-num green">AI</div>
+      <div class="stats-strip-label">Powered by Claude (Anthropic)</div>
+    </div>
+    <div class="stats-strip-item">
+      <div class="stats-strip-num">$0</div>
+      <div class="stats-strip-label">Free to start — no card needed</div>
     </div>
   </div>
-</section>
+</div>
 
-<!-- ============== INTEGRATIONS ============== -->
-<section class="section">
+<!-- ============== BENTO FEATURES ============== -->
+<section class="bento-section">
   <div class="wrap">
-    <div class="section-head">
-      <span class="lg eyebrow">Integration</span>
-      <h2 class="section-title">Seamless integration with<br>your tools syncing.</h2>
+    <div class="section-head" style="text-align:left;margin-bottom:0">
+      <span class="lg eyebrow">The full system</span>
+      <h2 class="section-title">Everything you need<br>to find your edge.</h2>
     </div>
-    <div class="integration-cluster">
-      <div class="int-orb p1">$</div>
-      <div class="int-orb p2">€</div>
-      <div class="int-orb p3">⌘</div>
-      <div class="int-orb p4">◎</div>
-      <div class="int-orb p5">◆</div>
-      <div class="int-orb p6">▲</div>
-      <div class="int-orb int-center">EF</div>
+    <div class="bento-grid">
+      <!-- Wide: broker import -->
+      <div class="bento-card bento-card--wide">
+        <div class="bento-eyebrow">01 / Import</div>
+        <h3>Works with your broker. Already.</h3>
+        <p>Export from any broker, upload the file. Your full history loads in seconds — MT4/MT5, cTrader, Binance, IBKR, Thinkorswim, and more.</p>
+        <div class="bento-broker-grid">
+          <span class="bento-broker-tag">MT4/MT5</span>
+          <span class="bento-broker-tag">cTrader</span>
+          <span class="bento-broker-tag">IBKR</span>
+          <span class="bento-broker-tag">Binance</span>
+          <span class="bento-broker-tag">Bybit</span>
+          <span class="bento-broker-tag">ThinkorSwim</span>
+          <span class="bento-broker-tag">TradeStation</span>
+          <span class="bento-broker-tag">NinjaTrader</span>
+          <span class="bento-broker-tag">OANDA</span>
+          <span class="bento-broker-tag">Exness</span>
+          <span class="bento-broker-tag">XM</span>
+          <span class="bento-broker-tag">Deriv</span>
+        </div>
+      </div>
+      <!-- Mid: Atlas AI -->
+      <div class="bento-card bento-card--mid">
+        <div class="bento-eyebrow">02 / AI</div>
+        <h3>Atlas AI Analyst</h3>
+        <p>Full context of every trade you've logged. Ask anything. Direct answers, no filler.</p>
+        <div class="bento-stats">
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">Monday win rate</span>
+            <span class="bento-stat-value neg">31%</span>
+          </div>
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">Rest of week</span>
+            <span class="bento-stat-value pos">58%</span>
+          </div>
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">London open expectancy</span>
+            <span class="bento-stat-value pos">+1.3R</span>
+          </div>
+        </div>
+      </div>
+      <!-- Leak Detection -->
+      <div class="bento-card bento-card--third">
+        <div class="bento-eyebrow">03 / Leaks</div>
+        <h3>Leak Detection</h3>
+        <p>Flags negative-expectancy combos automatically. Not a dashboard — a diagnostic.</p>
+        <div class="bento-stats" style="margin-top:18px">
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">XAUUSD · New York</span>
+            <span class="bento-stat-value neg">−1.4R</span>
+          </div>
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">Friday sessions</span>
+            <span class="bento-stat-value neg">−0.9R</span>
+          </div>
+        </div>
+      </div>
+      <!-- Analytics -->
+      <div class="bento-card bento-card--third">
+        <div class="bento-eyebrow">04 / Analytics</div>
+        <h3>Session &amp; strategy breakdowns</h3>
+        <p>Win rate, expectancy, and P&amp;L by session, instrument, strategy, and direction.</p>
+        <div class="bento-stats" style="margin-top:18px">
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">London open</span>
+            <span class="bento-stat-value pos">74% WR</span>
+          </div>
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">New York</span>
+            <span class="bento-stat-value neg">31% WR</span>
+          </div>
+        </div>
+      </div>
+      <!-- Plan Enforcement -->
+      <div class="bento-card bento-card--third">
+        <div class="bento-eyebrow">05 / Discipline</div>
+        <h3>Plan enforcement</h3>
+        <p>Custom pre-trade checklist. Track every rule you break and see the exact P&amp;L cost.</p>
+        <div class="bento-stats" style="margin-top:18px">
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">When plan followed</span>
+            <span class="bento-stat-value pos">64% WR</span>
+          </div>
+          <div class="bento-stat-row">
+            <span class="bento-stat-label">When violated</span>
+            <span class="bento-stat-value neg">38% WR</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -1104,234 +1101,471 @@
   <div class="wrap">
     <div class="section-head">
       <span class="lg eyebrow">How it works</span>
-      <h2 class="section-title">Your workflow,<br>streamlined by design</h2>
+      <h2 class="section-title">Three steps from<br>trade to edge.</h2>
+      <p class="section-sub">Log it. Analyse it. Cut what's losing and double down on what works.</p>
     </div>
     <div class="how-grid">
+      <!-- Step 1 -->
       <div class="how-card">
-        <div>
-          <div class="how-num">01</div>
-          <h3 class="how-title">Account linking</h3>
-          <p class="how-desc">Securely link your bank, cards, and wallets in under 30 seconds.</p>
+        <div class="how-num">01</div>
+        <h3 class="how-title">Log your trades</h3>
+        <p class="how-desc">Manual entry in seconds, or import a CSV from your broker. MT4/MT5, cTrader, Binance, IBKR, and more. No API keys, no setup.</p>
+        <div class="how-vis" style="padding:0;overflow:hidden;border-radius:8px;border:none;background:transparent;margin-top:16px">
+          <img src="/screenshot-trades.webp" alt="Trades DB" loading="lazy" style="width:100%;height:180px;object-fit:cover;object-position:top;border-radius:8px;border:1px solid var(--line);" />
         </div>
-        <div class="how-vis">
-          <div class="how-input">
-            <span>Search a bank…</span><span>⏎</span>
-          </div>
-          <div style="margin-top:10px">
-            <span class="lg how-chip">Chase</span>
-            <span class="lg how-chip">Wells Fargo</span>
-            <span class="lg how-chip">Capital One</span>
-            <span class="lg how-chip">Revolut</span>
+      </div>
+      <!-- Step 2 -->
+      <div class="how-card how-card--active">
+        <div class="how-num">02</div>
+        <h3 class="how-title">Analyse performance</h3>
+        <p class="how-desc">Win rates, expectancy, and P&amp;L breakdowns by session, instrument, strategy, and direction. See exactly where your edge lives.</p>
+        <div class="how-vis" style="background:rgba(0,0,0,0.25)">
+          <div class="mock-analytics">
+            <div class="mock-analytics-header">
+              <span>Instrument</span><span>Win %</span><span>Exp.</span>
+            </div>
+            <div class="mock-analytics-row">
+              <span class="mock-analytics-name">EURUSD</span>
+              <span class="mock-analytics-bar-wrap"><span class="mock-analytics-bar" style="width:71%;background:rgba(248,248,242,0.55)"></span><span class="mock-analytics-bar-label">71%</span></span>
+              <span style="color:#3aff9d;font-family:monospace;font-size:11px">+2.4R</span>
+            </div>
+            <div class="mock-analytics-row">
+              <span class="mock-analytics-name">NAS100</span>
+              <span class="mock-analytics-bar-wrap"><span class="mock-analytics-bar" style="width:64%;background:rgba(248,248,242,0.45)"></span><span class="mock-analytics-bar-label">64%</span></span>
+              <span style="color:#3aff9d;font-family:monospace;font-size:11px">+1.8R</span>
+            </div>
+            <div class="mock-analytics-row">
+              <span class="mock-analytics-name">GBPUSD</span>
+              <span class="mock-analytics-bar-wrap"><span class="mock-analytics-bar" style="width:58%;background:rgba(248,248,242,0.35)"></span><span class="mock-analytics-bar-label">58%</span></span>
+              <span style="color:#76dfa8;font-family:monospace;font-size:11px">+0.6R</span>
+            </div>
+            <div class="mock-analytics-row">
+              <span class="mock-analytics-name">XAUUSD</span>
+              <span class="mock-analytics-bar-wrap"><span class="mock-analytics-bar" style="width:38%;background:rgba(248,113,113,0.7)"></span><span class="mock-analytics-bar-label">38%</span></span>
+              <span style="color:#f87171;font-family:monospace;font-size:11px">−1.2R</span>
+            </div>
+            <div class="mock-analytics-row">
+              <span class="mock-analytics-name">US30</span>
+              <span class="mock-analytics-bar-wrap"><span class="mock-analytics-bar" style="width:31%;background:rgba(248,113,113,0.7)"></span><span class="mock-analytics-bar-label">31%</span></span>
+              <span style="color:#f87171;font-family:monospace;font-size:11px">−2.1R</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="how-card" style="border-color:rgba(118,223,168,0.3);background:linear-gradient(180deg,rgba(118,223,168,0.06),#0a0a0c)">
-        <div>
-          <div class="how-num">02</div>
-          <h3 class="how-title">AI analysis</h3>
-          <p class="how-desc">Our model categorizes, tags and surfaces the moves that move the needle.</p>
-        </div>
-        <div class="how-vis" style="background:rgba(0,0,0,0.3)">
-          <div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-bottom:8px"><span>Insight</span><span>Confidence</span></div>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Subscriptions up 18%</span><span style="color:#3aff9d">94%</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Dining trending high</span><span style="color:#76dfa8">87%</span></div>
-            <div style="display:flex;justify-content:space-between;font-size:12.5px"><span>Income on schedule</span><span style="color:#6ee7b7">99%</span></div>
-          </div>
-        </div>
-      </div>
+      <!-- Step 3 -->
       <div class="how-card">
+        <div class="how-num">03</div>
+        <h3 class="how-title">Eliminate losing patterns</h3>
+        <p class="how-desc">Use the Leak Detector and Atlas to pinpoint exact behaviours draining your account — and cut them precisely.</p>
+        <div class="how-vis" style="background:rgba(0,0,0,0.25)">
+          <div class="mock-leaks">
+            <div class="mock-leaks-title">Detected leaks <span class="mock-leaks-badge">3</span></div>
+            <div class="mock-leak-row">
+              <div class="mock-leak-dot mock-leak-dot--high"></div>
+              <div><div class="mock-leak-name">Asian Session</div><div class="mock-leak-detail">31% WR · −$1,240</div></div>
+              <div class="mock-leak-tag">Cut</div>
+            </div>
+            <div class="mock-leak-row">
+              <div class="mock-leak-dot mock-leak-dot--high"></div>
+              <div><div class="mock-leak-name">Revenge trading</div><div class="mock-leak-detail">−2.8R avg after loss</div></div>
+              <div class="mock-leak-tag">Cut</div>
+            </div>
+            <div class="mock-leak-row">
+              <div class="mock-leak-dot mock-leak-dot--med"></div>
+              <div><div class="mock-leak-name">Friday trades</div><div class="mock-leak-detail">39% WR · −$480</div></div>
+              <div class="mock-leak-tag">Cut</div>
+            </div>
+            <div class="mock-leaks-atlas">
+              <span class="mock-leaks-atlas-dot"></span>
+              <em>"Stop trading Asian session. Your edge is in London open."</em>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== APP PREVIEW ============== -->
+<section class="preview-section" id="preview">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="lg eyebrow">See it in action</span>
+      <h2 class="section-title">Your entire trading brain,<br>in one tab.</h2>
+      <p class="section-sub">From trade log to leak detection to AI analyst — click through each tool below.</p>
+    </div>
+    <div class="preview-tabs">
+      <button class="preview-tab-btn active" onclick="switchTab(0,this)">Dashboard</button>
+      <button class="preview-tab-btn" onclick="switchTab(1,this)">Analytics</button>
+      <button class="preview-tab-btn" onclick="switchTab(2,this)">Atlas</button>
+      <button class="preview-tab-btn" onclick="switchTab(3,this)">Leak Detection</button>
+      <button class="preview-tab-btn" onclick="switchTab(4,this)">Optimizer</button>
+    </div>
+    <div class="preview-frame">
+      <div class="preview-chrome">
+        <div class="preview-dots">
+          <div class="preview-dot" style="background:#ff5f57"></div>
+          <div class="preview-dot" style="background:#febc2e"></div>
+          <div class="preview-dot" style="background:#28c840"></div>
+        </div>
+        <div class="preview-url" id="preview-url">leone.capital/dashboard</div>
+      </div>
+      <div class="preview-body">
+        <img id="preview-img" src="/app-screenshot.webp" alt="EdgeFlow dashboard" loading="lazy" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== LEAK DETECTION SPOTLIGHT ============== -->
+<section class="spotlight-section">
+  <div class="spotlight-inner">
+    <div class="spotlight-copy">
+      <span class="lg eyebrow">Unique to EdgeFlow</span>
+      <h2>Find the exact leaks<br>draining your edge.</h2>
+      <p>Most traders know something is off. They just can't pinpoint it. Leak Detection scans every combination of instrument, session, strategy, and direction — and surfaces only the ones with negative expectancy. Not a dashboard to explore. A diagnostic that tells you what to cut.</p>
+      <ul class="spotlight-list">
+        <li>Negative-expectancy combinations flagged automatically</li>
+        <li>Expectancy, win rate, and P&amp;L per combination</li>
+        <li>Simulate the impact of removing any leak on your equity curve</li>
+        <li>No other journal does this</li>
+      </ul>
+      <a href="/auth" class="lg btn-lg" style="margin-top:24px">See your leaks free <span>→</span></a>
+    </div>
+    <div>
+      <div class="spotlight-visual">
+        <div class="spotlight-visual-header">
+          <span class="spotlight-visual-title">Leak Detection</span>
+          <span class="spotlight-visual-badge">3 leaks found</span>
+        </div>
+        <div class="spotlight-visual-sub">Combinations with negative expectancy across your last 120 trades</div>
+        <div class="spotlight-visual-body">
+          <div class="leak-row">
+            <div class="leak-icon">↓</div>
+            <div style="flex:1">
+              <div class="leak-label">XAUUSD · New York</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                <span class="leak-type-pill">Instrument + Session</span>
+                <span style="font-size:11px;color:var(--muted-2)">11 trades</span>
+              </div>
+            </div>
+            <div class="leak-stats">
+              <div class="leak-exp">−1.4R</div>
+              <div class="leak-wr">26% win rate</div>
+            </div>
+          </div>
+          <div class="leak-row">
+            <div class="leak-icon">↓</div>
+            <div style="flex:1">
+              <div class="leak-label">Long · Friday sessions</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                <span class="leak-type-pill">Direction + Day</span>
+                <span style="font-size:11px;color:var(--muted-2)">8 trades</span>
+              </div>
+            </div>
+            <div class="leak-stats">
+              <div class="leak-exp">−0.9R</div>
+              <div class="leak-wr">31% win rate</div>
+            </div>
+          </div>
+          <div class="leak-row" style="border-bottom:none">
+            <div class="leak-icon">↓</div>
+            <div style="flex:1">
+              <div class="leak-label">EUR/USD · Asian overlap</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:4px">
+                <span class="leak-type-pill">Instrument + Session</span>
+                <span style="font-size:11px;color:var(--muted-2)">14 trades</span>
+              </div>
+            </div>
+            <div class="leak-stats">
+              <div class="leak-exp">−0.7R</div>
+              <div class="leak-wr">29% win rate</div>
+            </div>
+          </div>
+        </div>
+        <div class="leak-footer">
+          <span style="color:oklch(0.65 0.18 25);font-weight:700">Estimated impact: </span>
+          Removing these 3 leaks improves your monthly expectancy by <span style="color:#f2f0ea;font-weight:600">+0.8R</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== ATLAS SPOTLIGHT ============== -->
+<section class="spotlight-section" style="padding-top:0">
+  <div class="spotlight-inner reverse">
+    <div class="spotlight-copy">
+      <span class="lg eyebrow">Meet Atlas</span>
+      <h2>Your personal<br>AI analyst.</h2>
+      <p>Atlas has full context of every trade you've logged — win rates, expectancy by session, behavioral patterns, plan adherence, and your trader profile. Ask it anything. It gives direct, data-backed answers. No filler, no motivational fluff.</p>
+      <ul class="spotlight-list">
+        <li>Full context of your last 50 trades per message</li>
+        <li>Identifies revenge trading, overtrading, and loss clustering</li>
+        <li>Builds a behavioral memory across every conversation</li>
+        <li>Powered by Claude (Anthropic)</li>
+      </ul>
+      <a href="/auth" class="lg btn-lg" style="margin-top:24px">Try Atlas free <span>→</span></a>
+    </div>
+    <div>
+      <div class="atlas-visual">
+        <div class="atlas-header">
+          <div class="atlas-header-left">
+            <span class="atlas-dot"></span>
+            <span class="atlas-title">Atlas</span>
+          </div>
+          <span class="atlas-sub">120 trades loaded</span>
+        </div>
+        <div class="atlas-body">
+          <div class="atlas-msg-user">Why is my win rate dropping on Mondays?</div>
+          <div class="atlas-msg-ai">Your Monday win rate is <strong style="color:#f2f0ea">31%</strong> vs <strong style="color:#f2f0ea">58%</strong> the rest of the week. The gap appears in the first 90 minutes of London open — 9 of your last 12 Monday losses came before 9:30am. You're trading before the range is established. Try a rule: no entries on Mondays before 9:30 London.</div>
+          <div class="atlas-msg-user">What's my best performing session overall?</div>
+          <div class="atlas-msg-ai">London open — <strong style="color:#f2f0ea">64% win rate</strong>, <strong style="color:#3aff9d">+1.3R expectancy</strong> across 48 trades. New York is dragging your overall stats down to 51%.</div>
+        </div>
+        <div class="atlas-input-row">
+          <div class="atlas-input">Ask Atlas anything about your trading...</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============== WHO IT'S FOR ============== -->
+<section class="for-section">
+  <div class="wrap">
+    <div class="section-head" style="text-align:left;margin-bottom:0">
+      <span class="lg eyebrow">Who it's for</span>
+      <h2 class="section-title">Built for traders who<br>take data seriously.</h2>
+    </div>
+    <div class="for-list">
+      <div class="for-item">
+        <div class="for-num">01</div>
         <div>
-          <div class="how-num">03</div>
-          <h3 class="how-title">Smart guidance</h3>
-          <p class="how-desc">We use bank-level encryption to protect your financial data — always.</p>
+          <h3 class="for-title">You're losing — and you don't know why.</h3>
+          <p class="for-body">You're following a system but the results don't add up. EdgeFlow's Leak Detection surfaces the exact instruments, sessions, and setups that are quietly draining your account — with expectancy numbers attached.</p>
         </div>
-        <div class="how-vis">
-          <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">
-            <span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#6ee7b7,#1a8f5a);display:flex;align-items:center;justify-content:center;font-size:12px">✓</span>
-            <div><div style="color:#fff">256-bit AES encryption</div><div style="color:var(--muted-2);font-size:10.5px;margin-top:2px">SOC 2 Type II certified</div></div>
-          </div>
-          <div style="margin-top:10px;display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,0.03);border-radius:8px;font-size:12px">
-            <span style="width:24px;height:24px;border-radius:6px;background:linear-gradient(135deg,#76dfa8,#1ed386);display:flex;align-items:center;justify-content:center;font-size:12px">⌬</span>
-            <div><div style="color:#fff">Read-only by default</div><div style="color:var(--muted-2);font-size:10.5px;margin-top:2px">Edgeflow never moves your money</div></div>
-          </div>
+        <div class="for-tag">Leak Detection</div>
+      </div>
+      <div class="for-item" style="margin-top:10px">
+        <div class="for-num">02</div>
+        <div>
+          <h3 class="for-title">You're breakeven — trying to go profitable.</h3>
+          <p class="for-body">The data is in your trades but you can't see the pattern. Atlas reads your full trade history and behavioral profile to tell you exactly what to cut and what to double down on.</p>
         </div>
+        <div class="for-tag">Atlas AI</div>
+      </div>
+      <div class="for-item" style="margin-top:10px">
+        <div class="for-num">03</div>
+        <div>
+          <h3 class="for-title">You're profitable — and want to scale.</h3>
+          <p class="for-body">Multiple accounts, prop firm challenges, PDF performance reports. EdgeFlow gives you the infrastructure to treat trading like a business — with multi-account analytics and full audit trails.</p>
+        </div>
+        <div class="for-tag">Multi-account + PDF</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============== STATS ============== -->
-<section class="stats-section">
+<!-- ============== VS SPREADSHEET ============== -->
+<section class="vs-section">
   <div class="wrap">
-    <div class="section-head" style="margin-bottom:0;text-align:left">
-      <span class="lg eyebrow">Our impact</span>
-      <h2 class="section-title" style="max-width:680px">Key metrics that drive<br>financial success</h2>
-      <p class="section-sub" style="margin-left:0">Empowering smart financial decisions with scale and security.</p>
+    <div class="section-head">
+      <span class="lg eyebrow">Why not a spreadsheet?</span>
+      <h2 class="section-title">Your spreadsheet stores trades.<br>EdgeFlow decodes them.</h2>
     </div>
-    <div class="stats-grid">
-      <div class="stat-block">
-        <div class="stat-eyebrow">Customer retention</div>
-        <div class="stat-value">92%</div>
-        <div class="stat-cap">Year-over-year retention across active workspaces.</div>
+    <div class="vs-table">
+      <div class="vs-header">
+        <span class="vs-label-bad">Your spreadsheet</span>
+        <span class="vs-label-good">EdgeFlow</span>
       </div>
-      <div class="stat-block">
-        <div class="stat-eyebrow">Active users / month</div>
-        <div class="stat-value">57,204</div>
-        <div class="stat-cap">Daily decisions powered by Edgeflow's engine.</div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>Manual copy-paste after every trade</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>One-form entry — 20+ data points in under a minute</div>
       </div>
-      <div class="stat-block">
-        <div class="stat-eyebrow">Transactions tracked</div>
-        <div class="stat-value">312,488</div>
-        <div class="stat-cap">Categorized, enriched and surfaced — every day.</div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>SUM() formulas you built and maintain</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>Win rate, expectancy, profit factor, max drawdown — built in</div>
       </div>
-      <div class="stat-block">
-        <div class="stat-eyebrow">Bank integrations</div>
-        <div class="stat-value">3,412</div>
-        <div class="stat-cap">Direct connections across 60+ countries.</div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>You have to notice your own patterns</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>Leak Detection flags negative-expectancy patterns automatically</div>
+      </div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>No behavioral data</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>Emotional state, plan adherence, and confidence tracked per trade</div>
+      </div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>No way to ask questions about your data</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>Atlas — AI analyst with full context of every trade you've logged</div>
+      </div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>Another tab per account</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>Multi-account analytics, unified in one dashboard</div>
+      </div>
+      <div class="vs-row">
+        <div class="vs-cell vs-cell-bad"><span class="vs-icon-bad">✕</span>Screenshot of a chart</div>
+        <div class="vs-cell vs-cell-good"><span class="vs-icon-good">✓</span>One-click PDF performance report</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ============== BENEFITS ============== -->
-<section class="benefits-section" id="benefits">
-  <div class="wrap section-head" style="margin-bottom:20px">
-    <span class="lg eyebrow">Our benefit</span>
-    <h2 class="section-title">Edgeflow template<br>will offer</h2>
-  </div>
-  <div class="benefit-track">
-    <div class="benefit-row" id="benefit-row"></div>
-  </div>
-</section>
-
-<!-- ============== TESTIMONIAL ============== -->
-<section class="testimonial-section">
+<!-- ============== TESTIMONIALS ============== -->
+<section class="testi-section">
   <div class="wrap">
-    <div class="section-head" style="margin-bottom:0">
-      <span class="lg eyebrow">Testimonials</span>
-      <h2 class="section-title">What our users are<br>saying?</h2>
+    <div class="section-head">
+      <span class="lg eyebrow">From traders</span>
+      <h2 class="section-title">What traders are saying</h2>
     </div>
-    <div class="testimonial-card">
-      <div class="test-quote">"Edgeflow turned three months of disorganized statements into a single dashboard I actually use. I caught $1,800 in unused subscriptions in the first week."</div>
-      <div class="test-author">
-        <div class="test-avatar"></div>
-        <div style="text-align:left">
-          <div class="test-name">Darlene Robertson</div>
-          <div class="test-role">Freelance designer</div>
-        </div>
+  </div>
+  <div class="testi-marquee-wrap">
+    <div class="testi-marquee-track" id="testi-track"></div>
+  </div>
+</section>
+
+<!-- ============== BROKERS ============== -->
+<section class="brokers-section" id="brokers">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="lg eyebrow">Broker support</span>
+      <h2 class="section-title">Works with your broker.<br>Already.</h2>
+      <p class="section-sub">No integrations to set up. No API keys. Every major broker lets you export your trade history as a file — upload it to EdgeFlow and your data is ready in seconds.</p>
+    </div>
+    <div class="brokers-steps">
+      <div class="brokers-step">
+        <div class="brokers-step-num">01</div>
+        <h3 class="brokers-step-title">Export from your broker</h3>
+        <p class="brokers-step-body">Go to your broker's trade history and export your trades as a file. Every platform supports this — it takes one click.</p>
       </div>
-      <div class="test-dots">
-        <span class="test-dot"></span>
-        <span class="test-dot active"></span>
-        <span class="test-dot"></span>
-        <span class="test-dot"></span>
+      <div class="brokers-step-arrow">→</div>
+      <div class="brokers-step">
+        <div class="brokers-step-num">02</div>
+        <h3 class="brokers-step-title">Import into EdgeFlow</h3>
+        <p class="brokers-step-body">Select your broker from the list and upload the file. EdgeFlow reads it, maps every trade, and handles the rest automatically.</p>
+      </div>
+      <div class="brokers-step-arrow">→</div>
+      <div class="brokers-step">
+        <div class="brokers-step-num">03</div>
+        <h3 class="brokers-step-title">Your analytics are ready</h3>
+        <p class="brokers-step-body">Your full trade history loads instantly across every report, chart, and AI analysis. Nothing else to set up.</p>
       </div>
     </div>
-    <div class="test-trust">
-      <div style="display:flex">
-        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#76dfa8,#1ed386);border:2px solid #050505"></div>
-        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#1a8f5a,#76dfa8);border:2px solid #050505;margin-left:-8px"></div>
-        <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg,#d7e60d,#1ed386);border:2px solid #050505;margin-left:-8px"></div>
-      </div>
-      Join 14,321+ other loving customers
-    </div>
+    <div class="brokers-grid" id="broker-grid"></div>
   </div>
 </section>
 
 <!-- ============== PRICING ============== -->
-<section class="pricing-section">
+<section class="pricing-section" id="pricing">
   <div class="wrap">
     <div class="section-head">
-      <span class="lg eyebrow">Pricing plan</span>
-      <h2 class="section-title">Simple plans for<br>every stage.</h2>
+      <span class="lg eyebrow">Pricing</span>
+      <h2 class="section-title">Start free.<br>Upgrade when you're ready to go deep.</h2>
+      <p class="section-sub">No commitment. Your trade history carries over on any plan.</p>
       <div class="lg pricing-toggle" id="pricing-toggle">
         <button class="active" data-period="monthly">Monthly</button>
-        <button data-period="yearly">Yearly <span class="save-tag">−15%</span></button>
+        <button data-period="yearly">Annual <span class="save-tag">2 months free</span></button>
       </div>
     </div>
     <div class="pricing-grid">
+      <!-- Starter -->
       <div class="price-card">
         <div class="price-head">
-          <div class="price-name">Standard Plan</div>
+          <div class="price-name">Starter</div>
         </div>
-        <div class="price-amount"><span class="num" data-monthly="$2,000" data-yearly="$1,700">$2,000</span><span class="per">/month</span></div>
-        <div class="price-desc">For individuals getting serious about tracking their money.</div>
-        <a href="#" class="lg btn-primary price-cta">Get started</a>
-        <div class="price-divider"><span class="dot-l"></span><span>FEATURE</span><span class="dot-r"></span></div>
+        <div class="price-amount"><span class="num" data-monthly="$0" data-yearly="$0">$0</span></div>
+        <div class="price-per-label">Free to start</div>
+        <a href="/auth" class="lg btn-primary price-cta">Get started free</a>
+        <div class="price-divider"><span class="dot-l"></span><span>FEATURES</span><span class="dot-r"></span></div>
         <ul class="price-features">
-          <li><span class="check">✓</span> Unlimited account scans</li>
-          <li><span class="check">✓</span> Basic categorization</li>
-          <li><span class="check">✓</span> AI-powered recommendations</li>
-          <li><span class="check">✓</span> Standard updates &amp; community support</li>
+          <li><span class="check">✓</span> Up to 50 trades</li>
+          <li><span class="check">✓</span> Equity curve &amp; calendar</li>
+          <li><span class="check">✓</span> Basic P&amp;L analytics</li>
+          <li><span class="check">✓</span> Manual trade entry</li>
+          <li><span class="check">✓</span> Single account</li>
+          <li><span class="check">✓</span> 3 Atlas messages</li>
         </ul>
       </div>
+      <!-- Pro -->
       <div class="price-card featured">
         <div class="price-head">
-          <div class="price-name">Professional Plan</div>
-          <div class="lg price-popular">Most popular</div>
+          <div class="price-name">Pro</div>
+          <div class="lg price-popular">Best value</div>
         </div>
-        <div class="price-amount"><span class="num" data-monthly="$4,000" data-yearly="$3,400">$4,000</span><span class="per">/month</span></div>
-        <div class="price-desc">Designed for professionals and small teams who need high-performance.</div>
-        <a href="#" class="lg btn-primary price-cta">Get Started</a>
-        <div class="price-divider"><span class="dot-l"></span><span>FEATURE</span><span class="dot-r"></span></div>
+        <div class="price-amount"><span class="num" data-monthly="$19" data-yearly="$15.83">$19</span><span class="per">/mo</span></div>
+        <div class="price-per-label" id="pro-billing-label">per month · cancel anytime</div>
+        <a href="/auth" class="lg btn-primary price-cta">Get Pro</a>
+        <div class="price-divider"><span class="dot-l"></span><span>FEATURES</span><span class="dot-r"></span></div>
         <ul class="price-features">
-          <li><span class="check">✓</span> Full performance suite unlocked</li>
-          <li><span class="check">✓</span> Unlimited site scans</li>
-          <li><span class="check">✓</span> Code &amp; asset cleanup</li>
-          <li><span class="check">✓</span> Smart recommendations engine</li>
-          <li><span class="check">✓</span> Priority support &amp; updates</li>
+          <li><span class="check">✓</span> Unlimited trades</li>
+          <li><span class="check">✓</span> Session &amp; instrument analytics</li>
+          <li><span class="check">✓</span> Unlimited Atlas (Claude)</li>
+          <li><span class="check">✓</span> Leak Detection</li>
+          <li><span class="check">✓</span> Strategy Optimizer</li>
+          <li><span class="check">✓</span> Trading Plan enforcement</li>
+          <li><span class="check">✓</span> PDF performance reports</li>
+          <li><span class="check">✓</span> Import from 13+ brokers</li>
+          <li><span class="check">✓</span> Multiple accounts</li>
+          <li><span class="check">✓</span> Weekly AI digest email</li>
         </ul>
       </div>
+      <!-- Elite -->
       <div class="price-card">
         <div class="price-head">
-          <div class="price-name">Enterprise Plan</div>
+          <div class="price-name">Elite</div>
         </div>
-        <div class="price-amount"><span class="num" data-monthly="$10,000" data-yearly="$8,500">$10,000</span><span class="per">/month</span></div>
-        <div class="price-desc">For finance teams who need controls, audit logs and SSO.</div>
-        <a href="#" class="lg btn-primary price-cta">Get started</a>
-        <div class="price-divider"><span class="dot-l"></span><span>FEATURE</span><span class="dot-r"></span></div>
+        <div class="price-amount"><span class="num" data-monthly="$39" data-yearly="$32.50">$39</span><span class="per">/mo</span></div>
+        <div class="price-per-label" id="elite-billing-label">per month · cancel anytime</div>
+        <a href="/auth" class="lg btn-primary price-cta">Get Elite</a>
+        <div class="price-divider"><span class="dot-l"></span><span>FEATURES</span><span class="dot-r"></span></div>
         <ul class="price-features">
-          <li><span class="check">✓</span> Unlimited scans</li>
-          <li><span class="check">✓</span> Advanced cleanup tools</li>
-          <li><span class="check">✓</span> AI-powered insights</li>
-          <li><span class="check">✓</span> 24/7 premium support</li>
+          <li><span class="check">✓</span> Everything in Pro</li>
+          <li><span class="check">✓</span> Prop firm challenge tracking</li>
+          <li><span class="check">✓</span> Per-phase drawdown &amp; daily loss limits</li>
+          <li><span class="check">✓</span> FTMO, Topstep, MFF &amp; custom rules</li>
+          <li><span class="check">✓</span> Extended AI memory (50 insights)</li>
+          <li><span class="check">✓</span> Advanced behavioral scoring</li>
+          <li><span class="check">✓</span> Priority support</li>
+          <li><span class="check">✓</span> Early access to new features</li>
         </ul>
       </div>
     </div>
-    <div class="pricing-note">New here? You'll get a 30-day free trial — no card required.</div>
+    <div class="pricing-note">New here? Start free — no credit card required. Upgrade only when you're ready.</div>
   </div>
 </section>
 
 <!-- ============== FAQ ============== -->
-<section class="faq-section">
+<section class="faq-section" id="faq">
   <div class="wrap">
     <div class="faq-grid">
       <div>
-        <span class="lg eyebrow">FAQs</span>
-        <h2 class="section-title" style="font-size:44px;margin-top:18px">Got questions?<br>We've got answers.</h2>
-        <p class="section-sub" style="margin-left:0">Still curious? <a href="#" style="color:var(--purple);text-decoration:underline">Talk to our team →</a></p>
+        <span class="lg eyebrow">FAQ</span>
+        <h2 class="section-title" style="font-size:clamp(32px,3.8vw,48px);margin-top:18px">Questions<br>traders ask.</h2>
+        <p class="section-sub" style="margin-left:0;margin-top:14px">Still curious? <a href="mailto:support@leone.capital" style="color:var(--purple);text-decoration:underline">Email us →</a></p>
       </div>
-      <div class="faq-list" id="faq-list">
+      <div class="faq-list">
         <div class="faq-item open">
-          <button class="faq-q">Which banks or financial apps can I connect Edgeflow with? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">Edgeflow supports integrations with 3,400+ banks across the US, EU, UK and Canada — plus Stripe, PayPal, Wise, Revolut and most major fintech apps.</div>
+          <button class="faq-q">How is this better than my Excel spreadsheet? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Excel shows you what happened. EdgeFlow shows you why, and what to do about it. It automatically segments your results by session, instrument, strategy, and direction — then flags the exact patterns draining your account. That analysis takes hours to build manually and has to be rebuilt every month. EdgeFlow does it in real time.</div>
         </div>
         <div class="faq-item">
-          <button class="faq-q">Can I track my personal expenses with Edgeflow? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">Yes. Edgeflow lets you track personal expenses with custom categories, tags, recurring detection and auto-imported receipts.</div>
+          <button class="faq-q">Does EdgeFlow work for prop firm challenges? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Yes. The Elite plan includes per-phase challenge tracking — set your firm's specific drawdown limit, daily loss limit, and profit target, and EdgeFlow tracks your remaining cushion live. Works for FTMO, MyForexFunds, Topstep, Apex, and any firm with standard rules.</div>
         </div>
         <div class="faq-item">
-          <button class="faq-q">Is there a free trial available? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">Yes. Every plan starts with a 30-day free trial, no credit card required. Cancel any time before it ends and you won't be charged.</div>
+          <button class="faq-q">Can I import my existing trade history? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Yes — EdgeFlow supports direct CSV import from MT4/MT5, TradingView, cTrader, Deriv, Binance, Bybit, OANDA, IG Markets, Interactive Brokers, TradeStation, Thinkorswim, NinjaTrader, and any generic CSV. Your historical data loads immediately and appears in all analytics from day one.</div>
         </div>
         <div class="faq-item">
-          <button class="faq-q">Does Edgeflow have a mobile app? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">Yes. The Edgeflow app is available on iOS and Android with full feature parity, including push alerts and biometric login.</div>
+          <button class="faq-q">Is my trading data secure and private? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Your data is encrypted at rest and in transit, stored on SOC 2 compliant infrastructure (Supabase). Row-level security ensures no other user can ever access your trades. We never share, sell, or use your data for any purpose other than providing your analytics.</div>
         </div>
         <div class="faq-item">
-          <button class="faq-q">How does Edgeflow protect my data? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">We use 256-bit AES encryption at rest and in transit, are SOC 2 Type II certified, and Edgeflow connections are read-only by default — we never touch your money.</div>
+          <button class="faq-q">How does the Atlas AI work? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Atlas is powered by Claude (Anthropic) and has full context of your last 50 trades, win rates, P&amp;L breakdown, session analytics, and behavioural patterns. Ask it anything about your trading — it gives direct, data-backed answers with no filler. Available on Pro after 10 logged trades.</div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">Can I cancel my subscription at any time? <span class="faq-q-icon">+</span></button>
+          <div class="faq-a">Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro or Elite access until the end of your billing period. Your trade data is always yours to export as CSV at any time.</div>
         </div>
       </div>
     </div>
@@ -1339,21 +1573,20 @@
 </section>
 
 <!-- ============== CTA ============== -->
-<section class="cta-section" id="cta">
+<section class="cta-section">
   <div class="wrap cta-inner">
     <span class="lg eyebrow">AI-Powered</span>
-    <h2 class="cta-title">Ready to take control of<br>your finances?</h2>
-    <p class="cta-sub">Join thousands who've transformed their money management with Edgeflow's AI-powered platform.</p>
+    <h2 class="cta-title">Your edge is already<br>in your data.</h2>
+    <p class="cta-sub">Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
     <div class="cta-btns">
-      <a href="#" class="lg btn-primary">Start free trial →</a>
+      <a href="/auth" class="lg btn-lg">Start free — no credit card <span>→</span></a>
     </div>
   </div>
-  <div class="cta-spacer"></div>
 </section>
 
 <!-- ============== GIANT WORDMARK ============== -->
 <section class="brand-wash" aria-hidden="true">
-  <div class="brand-wordmark">Edgeflow</div>
+  <div class="brand-wordmark">EdgeFlow</div>
 </section>
 
 <!-- ============== FOOTER ============== -->
@@ -1362,85 +1595,134 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">
-          <div class="logo-mark"></div>
-          Edgeflow
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="color:#1ed386">
+            <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+            <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+            <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+            <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+            <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+          </svg>
+          EdgeFlow
         </div>
-        <p>Subscribe to our newsletter.</p>
-        <form class="footer-form" onsubmit="event.preventDefault();this.querySelector('button').textContent='✓ Sent';">
-          <input type="email" placeholder="Enter your email address">
-          <button type="submit">Submit</button>
-        </form>
+        <p>The trading journal and analytics platform for traders who take their performance seriously. Works for any market, any strategy, any broker.</p>
       </div>
       <div class="footer-col">
-        <h4>Navigation</h4>
+        <h4>Product</h4>
         <ul>
-          <li><a href="#">Home</a></li>
-          <li><a href="#features">Features</a></li>
-          <li><a href="#how">How it works</a></li>
-          <li><a href="#cta">Get started</a></li>
+          <li><a href="/auth">Dashboard</a></li>
+          <li><a href="/auth">Analytics</a></li>
+          <li><a href="/auth">Atlas</a></li>
+          <li><a href="#pricing">Pricing</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Other Pages</h4>
+        <h4>Features</h4>
         <ul>
-          <li><a href="#">Pricing</a></li>
-          <li><a href="#">Changelog</a></li>
-          <li><a href="#">Privacy</a></li>
-          <li><a href="#">Terms</a></li>
+          <li><a href="#preview">Leak Detection</a></li>
+          <li><a href="#preview">Equity Curve</a></li>
+          <li><a href="#preview">Session Analytics</a></li>
+          <li><a href="#preview">Strategy Optimizer</a></li>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Social Media</h4>
+        <h4>Legal</h4>
         <ul>
-          <li><a href="#">Twitter</a></li>
-          <li><a href="#">LinkedIn</a></li>
-          <li><a href="#">Instagram</a></li>
-          <li><a href="#">YouTube</a></li>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
         </ul>
       </div>
     </div>
     <div class="footer-meta">
-      <span>© 2026 Edgeflow. All rights reserved.</span>
-      <span>Made with care.</span>
+      <span>© 2026 EdgeFlow. All rights reserved.</span>
+      <span>The professional trading journal.</span>
     </div>
   </div>
 </footer>
 
 <script>
-  // Ticker logos
-  const tickerLogos = [
-    {label: "Stripe", cls: "m1"},
-    {label: "Plaid", cls: "m2"},
-    {label: "QuickBooks", cls: "m3"},
-    {label: "Notion", cls: "m4"},
-    {label: "Slack", cls: "m5"},
-    {label: "Linear", cls: "m1"},
-    {label: "Figma", cls: "m2"},
-  ];
-  const tickerEl = document.getElementById('ticker-track');
-  const html = tickerLogos.map(l =>
-    `<div class="ticker-item"><span class="ticker-mark ${l.cls}"></span>${l.label}</div>`
-  ).join('');
-  tickerEl.innerHTML = html + html;
+  // Hero tilt on scroll
+  const tiltEl = document.getElementById('hero-tilt');
+  let cur = { r: 14, s: 0.96 }, tgt = { r: 14, s: 0.96 };
+  function lerp(a, b, t) { return a + (b - a) * t; }
+  function updateTilt() {
+    const heroH = document.querySelector('.hero').offsetHeight || 600;
+    const progress = Math.min(1, window.scrollY / (heroH * 0.8));
+    const eased = 1 - Math.pow(1 - progress, 2);
+    tgt.r = lerp(14, 0, eased);
+    tgt.s = lerp(0.96, 1.0, eased);
+  }
+  function animateTilt() {
+    cur.r += (tgt.r - cur.r) * 0.1;
+    cur.s += (tgt.s - cur.s) * 0.1;
+    if (tiltEl) tiltEl.style.transform = `rotateX(${cur.r.toFixed(3)}deg) scale(${cur.s.toFixed(4)})`;
+    requestAnimationFrame(animateTilt);
+  }
+  window.addEventListener('scroll', updateTilt, { passive: true });
+  updateTilt(); animateTilt();
 
-  // Benefits ticker
-  const benefits = [
-    { icon: "↻", h: "Daily transaction history", p: "Stay updated with your daily spending — all in one place." },
-    { icon: "◎", h: "Automated expense tracking", p: "Track and sort your spending — no manual work needed." },
-    { icon: "◐", h: "24/7 mobile access", p: "Manage your finances anytime, anywhere — right from your phone." },
-    { icon: "✦", h: "Smarter decisions, every day", p: "AI tracks your spending and offers smart tips to save more." },
-    { icon: "⊙", h: "Bank-level security", p: "256-bit encryption and SOC 2 Type II certified infrastructure." },
-    { icon: "▲", h: "Custom budgeting goals", p: "Set, track and adapt budgets that match your real life." },
+  // Preview tab switching
+  const tabScreenshots = [
+    '/app-screenshot.webp',
+    '/screenshot-analytic.webp',
+    '/screenshot-ai.webp',
+    '/screenshot-leaks.webp',
+    '/screenshot-optimizer.webp',
   ];
-  const brow = document.getElementById('benefit-row');
-  const benefitHTML = benefits.map(b =>
-    `<div class="benefit-card">
-      <div class="benefit-icon">${b.icon}</div>
-      <div class="benefit-h">${b.h}</div>
-      <div class="benefit-p">${b.p}</div>
-    </div>`
-  ).join('');
-  brow.innerHTML = benefitHTML + benefitHTML;
+  const tabPaths = ['dashboard', 'analyst', 'ai', 'leak-detection', 'what-if'];
+  function switchTab(i, btn) {
+    document.querySelectorAll('.preview-tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const img = document.getElementById('preview-img');
+    img.style.opacity = '0';
+    img.style.transition = 'opacity .18s';
+    setTimeout(() => {
+      img.src = tabScreenshots[i];
+      img.alt = btn.textContent + ' — EdgeFlow';
+      document.getElementById('preview-url').textContent = 'leone.capital/' + tabPaths[i];
+      img.style.opacity = '1';
+    }, 100);
+  }
+
+  // Testimonials marquee
+  const testimonials = [
+    { quote: 'Found out my Friday New York session had a negative expectancy of −0.4R. Stopped trading it. My monthly P&L improved immediately.', name: 'James O.', role: 'Forex day trader' },
+    { quote: 'The leak detection flagged a pattern I had no idea about — I was losing 30% more on trades taken after a gap open. That insight alone was worth it.', name: 'Priya S.', role: 'Futures trader' },
+    { quote: 'I failed 3 prop firm challenges before EdgeFlow. It showed me I was overtrading on Thursdays. Passed the 4th challenge with 8% headroom left.', name: 'Tom K.', role: 'FTMO trader' },
+    { quote: 'I used to keep a spreadsheet with 12 tabs. EdgeFlow does everything in seconds and surfaces things I would never have calculated manually.', name: 'Marcus L.', role: 'Swing trader, US equities' },
+    { quote: 'The Atlas gave me a direct breakdown of my revenge trading pattern. Not motivational fluff — it showed me the actual R-multiple cost.', name: 'Aisha M.', role: 'Crypto trader' },
+    { quote: 'I realised my Asian session win rate was 68% but I was only trading it 12% of the time. EdgeFlow made that obvious. Changed my whole schedule.', name: 'Daniel R.', role: 'FX scalper' },
+    { quote: 'The plan enforcement checklist keeps me accountable. I can actually see what my win rate drops to when I break my own rules.', name: 'Sarah V.', role: 'Options trader' },
+    { quote: 'Every serious trader needs this. I discovered I had a 74% win rate on London open but was cutting positions early and leaving 2R on the table.', name: 'Kwame A.', role: 'Gold and indices trader' },
+  ];
+  const track = document.getElementById('testi-track');
+  const allTesti = [...testimonials, ...testimonials];
+  track.innerHTML = allTesti.map(t => `
+    <div class="testi-card">
+      <div class="testi-stars">${'<span class="testi-star">★</span>'.repeat(5)}</div>
+      <p class="testi-quote">"${t.quote}"</p>
+      <div class="testi-author">
+        <div class="testi-avatar">${t.name[0]}</div>
+        <div><div class="testi-name">${t.name}</div><div class="testi-role">${t.role}</div></div>
+      </div>
+    </div>
+  `).join('');
+
+  // Brokers grid
+  const brokers = [
+    { name: 'Exness', cat: 'Forex / CFD' }, { name: 'XM', cat: 'Forex / CFD' },
+    { name: 'Pepperstone', cat: 'Forex / CFD' }, { name: 'IC Markets', cat: 'Forex / CFD' },
+    { name: 'HFM', cat: 'Forex / CFD' }, { name: 'FBS', cat: 'Forex / CFD' },
+    { name: 'Admirals', cat: 'Forex / CFD' }, { name: 'Vantage', cat: 'Forex / CFD' },
+    { name: 'Deriv', cat: 'Forex / CFD' }, { name: 'OANDA', cat: 'Forex' },
+    { name: 'IG Markets', cat: 'CFD' }, { name: 'FxPro', cat: 'Forex / CFD' },
+    { name: 'TradingView', cat: 'Multi-asset' }, { name: 'cTrader', cat: 'Platform' },
+    { name: 'Binance', cat: 'Crypto' }, { name: 'Bybit', cat: 'Crypto' },
+    { name: 'Interactive Brokers', cat: 'Multi-asset' }, { name: 'Thinkorswim', cat: 'US Markets' },
+    { name: 'TradeStation', cat: 'US Markets' }, { name: 'NinjaTrader', cat: 'Futures' },
+  ];
+  document.getElementById('broker-grid').innerHTML =
+    brokers.map(b => `<div class="broker-pill"><span class="broker-pill-name">${b.name}</span><span class="broker-pill-cat">${b.cat}</span></div>`).join('') +
+    `<div class="broker-pill broker-pill-more"><span class="broker-pill-name">+ any MT4/MT5 broker</span></div>`;
 
   // Pricing toggle
   const toggle = document.getElementById('pricing-toggle');
@@ -1449,10 +1731,14 @@
     if (!btn) return;
     toggle.querySelectorAll('button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    const period = btn.dataset.period;
+    const yearly = btn.dataset.period === 'yearly';
     document.querySelectorAll('.price-amount .num').forEach(n => {
-      n.textContent = n.dataset[period];
+      n.textContent = yearly ? n.dataset.yearly : n.dataset.monthly;
     });
+    const proLabel = document.getElementById('pro-billing-label');
+    const eliteLabel = document.getElementById('elite-billing-label');
+    if (proLabel) proLabel.textContent = yearly ? 'per month · $190 billed annually' : 'per month · cancel anytime';
+    if (eliteLabel) eliteLabel.textContent = yearly ? 'per month · $390 billed annually' : 'per month · cancel anytime';
   });
 
   // FAQ accordion
