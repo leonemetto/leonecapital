@@ -1,6 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
+import { motion } from 'framer-motion';
+import { Reveal, Stagger, item, SlidePair } from '@/components/ui/Reveal';
 import './landing.css';
 
 const testimonials = [
@@ -338,35 +340,32 @@ export default function Landing() {
 
       {/* ============ STATS STRIP ============ */}
       <div className="stats-strip">
-        <div className="stats-strip-inner">
-          <div className="stats-strip-item">
-            <div className="stats-strip-num">20+</div>
-            <div className="stats-strip-label">Data points captured per trade</div>
-          </div>
-          <div className="stats-strip-item">
-            <div className="stats-strip-num">8+</div>
-            <div className="stats-strip-label">Performance breakdowns built in</div>
-          </div>
-          <div className="stats-strip-item">
-            <div className="stats-strip-num green">AI</div>
-            <div className="stats-strip-label">Powered by Claude (Anthropic)</div>
-          </div>
-          <div className="stats-strip-item">
-            <div className="stats-strip-num">$0</div>
-            <div className="stats-strip-label">Free to start — no card needed</div>
-          </div>
-        </div>
+        <Stagger className="stats-strip-inner" stagger={0.1}>
+          {[
+            { num: '20+', label: 'Data points captured per trade' },
+            { num: '8+', label: 'Performance breakdowns built in' },
+            { num: 'AI', label: 'Powered by Claude (Anthropic)', green: true },
+            { num: '$0', label: 'Free to start — no card needed' },
+          ].map(({ num, label, green }) => (
+            <motion.div key={num} className="stats-strip-item" variants={item}>
+              <div className={`stats-strip-num${green ? ' green' : ''}`}>{num}</div>
+              <div className="stats-strip-label">{label}</div>
+            </motion.div>
+          ))}
+        </Stagger>
       </div>
 
       {/* ============ BENTO FEATURES ============ */}
       <section className="bento-section">
         <div className="wrap">
-          <div className="section-head" style={{ textAlign: 'left', marginBottom: 0 }}>
-            <span className="lg eyebrow">The full system</span>
-            <h2 className="section-title">Everything you need<br />to find your edge.</h2>
-          </div>
-          <div className="bento-grid">
-            <div className="bento-card bento-card--wide">
+          <Reveal>
+            <div className="section-head" style={{ textAlign: 'left', marginBottom: 0 }}>
+              <span className="lg eyebrow">The full system</span>
+              <h2 className="section-title">Everything you need<br />to find your edge.</h2>
+            </div>
+          </Reveal>
+          <Stagger className="bento-grid">
+            <motion.div className="bento-card bento-card--wide" variants={item}>
               <div className="bento-eyebrow">01 / Import</div>
               <h3>Works with your broker. Already.</h3>
               <p>Export from any broker, upload the file. Your full history loads in seconds — MT4/MT5, cTrader, Binance, IBKR, Thinkorswim, and more.</p>
@@ -375,8 +374,8 @@ export default function Landing() {
                   <span key={b} className="bento-broker-tag">{b}</span>
                 ))}
               </div>
-            </div>
-            <div className="bento-card bento-card--mid">
+            </motion.div>
+            <motion.div className="bento-card bento-card--mid" variants={item}>
               <div className="bento-eyebrow">02 / AI</div>
               <h3>Atlas AI Analyst</h3>
               <p>Full context of every trade you've logged. Ask anything. Direct answers, no filler.</p>
@@ -394,8 +393,8 @@ export default function Landing() {
                   <span className="bento-stat-value pos">+1.3R</span>
                 </div>
               </div>
-            </div>
-            <div className="bento-card bento-card--third">
+            </motion.div>
+            <motion.div className="bento-card bento-card--third" variants={item}>
               <div className="bento-eyebrow">03 / Leaks</div>
               <h3>Leak Detection</h3>
               <p>Flags negative-expectancy combos automatically. Not a dashboard — a diagnostic.</p>
@@ -409,8 +408,8 @@ export default function Landing() {
                   <span className="bento-stat-value neg">−0.9R</span>
                 </div>
               </div>
-            </div>
-            <div className="bento-card bento-card--third">
+            </motion.div>
+            <motion.div className="bento-card bento-card--third" variants={item}>
               <div className="bento-eyebrow">04 / Analytics</div>
               <h3>Session &amp; strategy breakdowns</h3>
               <p>Win rate, expectancy, and P&amp;L by session, instrument, strategy, and direction.</p>
@@ -424,8 +423,8 @@ export default function Landing() {
                   <span className="bento-stat-value neg">31% WR</span>
                 </div>
               </div>
-            </div>
-            <div className="bento-card bento-card--third">
+            </motion.div>
+            <motion.div className="bento-card bento-card--third" variants={item}>
               <div className="bento-eyebrow">05 / Discipline</div>
               <h3>Plan enforcement</h3>
               <p>Custom pre-trade checklist. Track every rule you break and see the exact P&amp;L cost.</p>
@@ -439,29 +438,31 @@ export default function Landing() {
                   <span className="bento-stat-value neg">38% WR</span>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Stagger>
         </div>
       </section>
 
       {/* ============ HOW IT WORKS ============ */}
       <section className="section" id="how">
         <div className="wrap">
-          <div className="section-head">
-            <span className="lg eyebrow">How it works</span>
-            <h2 className="section-title">Three steps from<br />trade to edge.</h2>
-            <p className="section-sub">Log it. Analyse it. Cut what's losing and double down on what works.</p>
-          </div>
-          <div className="how-grid">
-            <div className="how-card">
+          <Reveal>
+            <div className="section-head">
+              <span className="lg eyebrow">How it works</span>
+              <h2 className="section-title">Three steps from<br />trade to edge.</h2>
+              <p className="section-sub">Log it. Analyse it. Cut what's losing and double down on what works.</p>
+            </div>
+          </Reveal>
+          <Stagger className="how-grid">
+            <motion.div className="how-card" variants={item}>
               <div className="how-num">01</div>
               <h3 className="how-title">Log your trades</h3>
               <p className="how-desc">Manual entry in seconds, or import a CSV from your broker. MT4/MT5, cTrader, Binance, IBKR, and more. No API keys, no setup.</p>
               <div className="how-vis" style={{ padding: 0, overflow: 'hidden', borderRadius: 8, border: 'none', background: 'transparent', marginTop: 16 }}>
                 <img src="/screenshot-trades.webp" alt="Trades DB" loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover', objectPosition: 'top', borderRadius: 8, border: '1px solid var(--line)' }} />
               </div>
-            </div>
-            <div className="how-card how-card--active">
+            </motion.div>
+            <motion.div className="how-card how-card--active" variants={item}>
               <div className="how-num">02</div>
               <h3 className="how-title">Analyse performance</h3>
               <p className="how-desc">Win rates, expectancy, and P&amp;L breakdowns by session, instrument, strategy, and direction. See exactly where your edge lives.</p>
@@ -488,8 +489,8 @@ export default function Landing() {
                   ))}
                 </div>
               </div>
-            </div>
-            <div className="how-card">
+            </motion.div>
+            <motion.div className="how-card" variants={item}>
               <div className="how-num">03</div>
               <h3 className="how-title">Eliminate losing patterns</h3>
               <p className="how-desc">Use the Leak Detector and Atlas to pinpoint exact behaviours draining your account — and cut them precisely.</p>
@@ -517,19 +518,21 @@ export default function Landing() {
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </Stagger>
         </div>
       </section>
 
       {/* ============ APP PREVIEW ============ */}
       <section className="preview-section" id="preview">
         <div className="wrap">
-          <div className="section-head">
-            <span className="lg eyebrow">See it in action</span>
-            <h2 className="section-title">Your entire trading brain,<br />in one tab.</h2>
-            <p className="section-sub">From trade log to leak detection to AI analyst — click through each tool below.</p>
-          </div>
+          <Reveal>
+            <div className="section-head">
+              <span className="lg eyebrow">See it in action</span>
+              <h2 className="section-title">Your entire trading brain,<br />in one tab.</h2>
+              <p className="section-sub">From trade log to leak detection to AI analyst — click through each tool below.</p>
+            </div>
+          </Reveal>
           <div className="preview-tabs">
             {tabLabels.map((label, i) => (
               <button key={i} className={`preview-tab-btn${activeTab === i ? ' active' : ''}`} onClick={() => switchTab(i)}>{label}</button>
@@ -554,7 +557,13 @@ export default function Landing() {
       {/* ============ LEAK DETECTION SPOTLIGHT ============ */}
       <section className="spotlight-section">
         <div className="spotlight-inner">
-          <div className="spotlight-copy">
+          <motion.div
+            className="spotlight-copy"
+            initial={{ opacity: 0, x: -36 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-48px' }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             <span className="lg eyebrow">Unique to EdgeFlow</span>
             <h2>Find the exact leaks<br />draining your edge.</h2>
             <p>Most traders know something is off. They just can't pinpoint it. Leak Detection scans every combination of instrument, session, strategy, and direction — and surfaces only the ones with negative expectancy. Not a dashboard to explore. A diagnostic that tells you what to cut.</p>
@@ -565,8 +574,13 @@ export default function Landing() {
               <li>No other journal does this</li>
             </ul>
             <button className="lg btn-lg" style={{ marginTop: 24 }} onClick={() => navigate('/auth')}>See your leaks free <span>→</span></button>
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: 36 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-48px' }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             <div className="spotlight-visual">
               <div className="spotlight-visual-header">
                 <span className="spotlight-visual-title">Leak Detection</span>
@@ -613,14 +627,20 @@ export default function Landing() {
                 Removing these 3 leaks improves your monthly expectancy by <span style={{ color: '#f2f0ea', fontWeight: 600 }}>+0.8R</span>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ============ ATLAS SPOTLIGHT ============ */}
       <section className="spotlight-section" style={{ paddingTop: 0 }}>
         <div className="spotlight-inner reverse">
-          <div className="spotlight-copy">
+          <motion.div
+            className="spotlight-copy"
+            initial={{ opacity: 0, x: 36 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-48px' }}
+            transition={{ duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             <span className="lg eyebrow">Meet Atlas</span>
             <h2>Your personal<br />AI analyst.</h2>
             <p>Atlas has full context of every trade you've logged — win rates, expectancy by session, behavioral patterns, plan adherence, and your trader profile. Ask it anything. It gives direct, data-backed answers. No filler, no motivational fluff.</p>
@@ -631,8 +651,13 @@ export default function Landing() {
               <li>Powered by Claude (Anthropic)</li>
             </ul>
             <button className="lg btn-lg" style={{ marginTop: 24 }} onClick={() => navigate('/auth')}>Try Atlas free <span>→</span></button>
-          </div>
-          <div>
+          </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: -36 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true, margin: '-48px' }}
+            transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+          >
             <div className="atlas-visual">
               <div className="atlas-header">
                 <div className="atlas-header-left">
@@ -651,54 +676,58 @@ export default function Landing() {
                 <div className="atlas-input">Ask Atlas anything about your trading...</div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ============ WHO IT'S FOR ============ */}
       <section className="for-section">
         <div className="wrap">
-          <div className="section-head" style={{ textAlign: 'left', marginBottom: 0 }}>
-            <span className="lg eyebrow">Who it's for</span>
-            <h2 className="section-title">Built for traders who<br />take data seriously.</h2>
-          </div>
-          <div className="for-list">
-            <div className="for-item">
+          <Reveal>
+            <div className="section-head" style={{ textAlign: 'left', marginBottom: 0 }}>
+              <span className="lg eyebrow">Who it's for</span>
+              <h2 className="section-title">Built for traders who<br />take data seriously.</h2>
+            </div>
+          </Reveal>
+          <Stagger className="for-list">
+            <motion.div className="for-item" variants={item}>
               <div className="for-num">01</div>
               <div>
                 <h3 className="for-title">You're losing — and you don't know why.</h3>
                 <p className="for-body">You're following a system but the results don't add up. EdgeFlow's Leak Detection surfaces the exact instruments, sessions, and setups that are quietly draining your account — with expectancy numbers attached.</p>
               </div>
               <div className="for-tag">Leak Detection</div>
-            </div>
-            <div className="for-item" style={{ marginTop: 10 }}>
+            </motion.div>
+            <motion.div className="for-item" style={{ marginTop: 10 }} variants={item}>
               <div className="for-num">02</div>
               <div>
                 <h3 className="for-title">You're breakeven — trying to go profitable.</h3>
                 <p className="for-body">The data is in your trades but you can't see the pattern. Atlas reads your full trade history and behavioral profile to tell you exactly what to cut and what to double down on.</p>
               </div>
               <div className="for-tag">Atlas AI</div>
-            </div>
-            <div className="for-item" style={{ marginTop: 10 }}>
+            </motion.div>
+            <motion.div className="for-item" style={{ marginTop: 10 }} variants={item}>
               <div className="for-num">03</div>
               <div>
                 <h3 className="for-title">You're profitable — and want to scale.</h3>
                 <p className="for-body">Multiple accounts, prop firm challenges, PDF performance reports. EdgeFlow gives you the infrastructure to treat trading like a business — with multi-account analytics and full audit trails.</p>
               </div>
               <div className="for-tag">Multi-account + PDF</div>
-            </div>
-          </div>
+            </motion.div>
+          </Stagger>
         </div>
       </section>
 
       {/* ============ VS SPREADSHEET ============ */}
       <section className="vs-section">
         <div className="wrap">
-          <div className="section-head">
-            <span className="lg eyebrow">Why not a spreadsheet?</span>
-            <h2 className="section-title">Your spreadsheet stores trades.<br />EdgeFlow decodes them.</h2>
-          </div>
-          <div className="vs-table">
+          <Reveal>
+            <div className="section-head">
+              <span className="lg eyebrow">Why not a spreadsheet?</span>
+              <h2 className="section-title">Your spreadsheet stores trades.<br />EdgeFlow decodes them.</h2>
+            </div>
+          </Reveal>
+          <Stagger className="vs-table">
             <div className="vs-header">
               <span className="vs-label-bad">Your spreadsheet</span>
               <span className="vs-label-good">EdgeFlow</span>
@@ -712,12 +741,12 @@ export default function Landing() {
               ['Another tab per account', 'Multi-account analytics, unified in one dashboard'],
               ['Screenshot of a chart', 'One-click PDF performance report'],
             ].map(([bad, good], i) => (
-              <div key={i} className="vs-row">
+              <motion.div key={i} className="vs-row" variants={item}>
                 <div className="vs-cell vs-cell-bad"><span className="vs-icon-bad">✕</span>{bad}</div>
                 <div className="vs-cell vs-cell-good"><span className="vs-icon-good">✓</span>{good}</div>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </Stagger>
         </div>
       </section>
 
@@ -803,9 +832,9 @@ export default function Landing() {
               <button className={annualBilling ? 'active' : ''} onClick={() => setAnnualBilling(true)}>Annual <span className="save-tag">2 months free</span></button>
             </div>
           </div>
-          <div className="pricing-grid">
+          <Stagger className="pricing-grid" stagger={0.12}>
             {/* Starter */}
-            <div className="price-card">
+            <motion.div className="price-card" variants={item}>
               <div className="price-head">
                 <div className="price-name">Starter</div>
               </div>
@@ -821,9 +850,9 @@ export default function Landing() {
                 <li><span className="check">✓</span> Single account</li>
                 <li><span className="check">✓</span> 3 Atlas messages</li>
               </ul>
-            </div>
+            </motion.div>
             {/* Pro */}
-            <div className="price-card featured">
+            <motion.div className="price-card featured" variants={item}>
               <div className="price-head">
                 <div className="price-name">Pro</div>
                 <div className="lg price-popular">Best value</div>
@@ -844,9 +873,9 @@ export default function Landing() {
                 <li><span className="check">✓</span> Multiple accounts</li>
                 <li><span className="check">✓</span> Weekly AI digest email</li>
               </ul>
-            </div>
+            </motion.div>
             {/* Elite */}
-            <div className="price-card">
+            <motion.div className="price-card" variants={item}>
               <div className="price-head">
                 <div className="price-name">Elite</div>
               </div>
@@ -864,9 +893,11 @@ export default function Landing() {
                 <li><span className="check">✓</span> Priority support</li>
                 <li><span className="check">✓</span> Early access to new features</li>
               </ul>
-            </div>
-          </div>
-          <div className="pricing-note">New here? Start free — no credit card required. Upgrade only when you're ready.</div>
+            </motion.div>
+          </Stagger>
+          <Reveal delay={0.2}>
+            <div className="pricing-note">New here? Start free — no credit card required. Upgrade only when you're ready.</div>
+          </Reveal>
         </div>
       </section>
 
@@ -874,35 +905,37 @@ export default function Landing() {
       <section className="faq-section" id="faq">
         <div className="wrap">
           <div className="faq-grid">
-            <div>
-              <span className="lg eyebrow">FAQ</span>
-              <h2 className="section-title" style={{ fontSize: 'clamp(32px,3.8vw,48px)', marginTop: 18 }}>Questions<br />traders ask.</h2>
-              <p className="section-sub" style={{ marginLeft: 0, marginTop: 14 }}>Still curious? <a href="mailto:support@leone.capital" style={{ color: 'var(--purple)', textDecoration: 'underline' }}>Email us →</a></p>
-            </div>
-            <div className="faq-list">
+            <Reveal>
+              <div>
+                <span className="lg eyebrow">FAQ</span>
+                <h2 className="section-title" style={{ fontSize: 'clamp(32px,3.8vw,48px)', marginTop: 18 }}>Questions<br />traders ask.</h2>
+                <p className="section-sub" style={{ marginLeft: 0, marginTop: 14 }}>Still curious? <a href="mailto:support@leone.capital" style={{ color: 'var(--purple)', textDecoration: 'underline' }}>Email us →</a></p>
+              </div>
+            </Reveal>
+            <Stagger className="faq-list">
               {faqs.map((f, i) => (
-                <div key={i} className={`faq-item${openFaq === i ? ' open' : ''}`}>
+                <motion.div key={i} className={`faq-item${openFaq === i ? ' open' : ''}`} variants={item}>
                   <button className="faq-q" onClick={() => toggleFaq(i)}>
                     {f.q} <span className="faq-q-icon">+</span>
                   </button>
                   <div className="faq-a">{f.a}</div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </Stagger>
           </div>
         </div>
       </section>
 
       {/* ============ CTA ============ */}
       <section className="cta-section">
-        <div className="wrap cta-inner">
+        <Reveal className="wrap cta-inner">
           <span className="lg eyebrow">AI-Powered</span>
           <h2 className="cta-title">Your edge is already<br />in your data.</h2>
           <p className="cta-sub">Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
           <div className="cta-btns">
             <button className="lg btn-lg" onClick={() => navigate('/auth')}>Start free — no credit card <span>→</span></button>
           </div>
-        </div>
+        </Reveal>
       </section>
 
       {/* ============ GIANT WORDMARK ============ */}
