@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './landing.css';
 
@@ -24,6 +24,14 @@ const brokers = [
   { name: 'Binance', cat: 'Crypto' }, { name: 'Bybit', cat: 'Crypto' },
   { name: 'Interactive Brokers', cat: 'Multi-asset' }, { name: 'Thinkorswim', cat: 'US Markets' },
   { name: 'TradeStation', cat: 'US Markets' }, { name: 'NinjaTrader', cat: 'Futures' },
+];
+
+const navSections = [
+  { key: 'how',      id: 'how',     label: 'How it works', href: '#how' },
+  { key: 'features', id: 'preview', label: 'Features',     href: '#preview' },
+  { key: 'brokers',  id: 'brokers', label: 'Brokers',      href: '#brokers' },
+  { key: 'pricing',  id: 'pricing', label: 'Pricing',      href: '#pricing' },
+  { key: 'faq',      id: 'faq',     label: 'FAQ',          href: '#faq' },
 ];
 
 const tabScreenshots = [
@@ -71,9 +79,11 @@ export default function Landing() {
   const [imgOpacity, setImgOpacity] = useState(1);
   const [openFaq, setOpenFaq] = useState<number>(0);
   const [annualBilling, setAnnualBilling] = useState(false);
+  const [activeSection, setActiveSection] = useState<string>('features');
 
   const navPillRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
+  const firstMount = useRef(true);
 
   function switchTab(i: number) {
     setActiveTab(i);
@@ -89,64 +99,69 @@ export default function Landing() {
     setOpenFaq(prev => (prev === i ? -1 : i));
   }
 
-  // Nav pill sliding indicator
-  useEffect(() => {
+  // Reposition indicator after every activeSection change (runs after DOM commit)
+  useLayoutEffect(() => {
     const pill = navPillRef.current;
     const indicator = indicatorRef.current;
     if (!pill || !indicator) return;
-
-    function moveIndicatorTo(link: HTMLAnchorElement) {
-      if (!pill || !indicator) return;
-      const pillRect = pill.getBoundingClientRect();
-      const linkRect = link.getBoundingClientRect();
-      indicator.style.left = (linkRect.left - pillRect.left) + 'px';
-      indicator.style.width = linkRect.width + 'px';
+    const link = pill.querySelector<HTMLAnchorElement>('a.active');
+    if (!link) return;
+    const pr = pill.getBoundingClientRect();
+    const lr = link.getBoundingClientRect();
+    if (firstMount.current) {
+      // Snap to position on first mount — no transition
+      indicator.style.transition = 'none';
+      indicator.style.left = `${lr.left - pr.left}px`;
+      indicator.style.width = `${lr.width}px`;
+      requestAnimationFrame(() => {
+        if (indicatorRef.current) indicatorRef.current.style.transition = '';
+      });
+      firstMount.current = false;
+    } else {
+      // Smooth slide on subsequent changes
+      indicator.style.left = `${lr.left - pr.left}px`;
+      indicator.style.width = `${lr.width}px`;
     }
+  }, [activeSection]);
 
-    const links = Array.from(pill.querySelectorAll<HTMLAnchorElement>('a'));
-    const activeLink = links.find(a => a.classList.contains('active')) || links[1];
-    if (activeLink) moveIndicatorTo(activeLink);
+  // Reposition without animation on window resize
+  useEffect(() => {
+    const onResize = () => {
+      const pill = navPillRef.current;
+      const indicator = indicatorRef.current;
+      if (!pill || !indicator) return;
+      const link = pill.querySelector<HTMLAnchorElement>('a.active');
+      if (!link) return;
+      const pr = pill.getBoundingClientRect();
+      const lr = link.getBoundingClientRect();
+      indicator.style.transition = 'none';
+      indicator.style.left = `${lr.left - pr.left}px`;
+      indicator.style.width = `${lr.width}px`;
+      requestAnimationFrame(() => {
+        if (indicatorRef.current) indicatorRef.current.style.transition = '';
+      });
+    };
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
-    // scroll spy
-    const sectionMap = [
-      { id: 'how', href: '#how' },
-      { id: 'preview', href: '#preview' },
-      { id: 'brokers', href: '#brokers' },
-      { id: 'pricing', href: '#pricing' },
-      { id: 'faq', href: '#faq' },
-    ];
-
+  // Scroll spy — updates activeSection as user scrolls through sections
+  useEffect(() => {
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
-          const match = sectionMap.find(s => s.id === entry.target.id);
-          if (match) {
-            const link = links.find(a => a.getAttribute('href') === match.href);
-            if (link) {
-              links.forEach(a => a.classList.remove('active'));
-              link.classList.add('active');
-              moveIndicatorTo(link);
-            }
-          }
+          const match = navSections.find(s => s.id === entry.target.id);
+          if (match) setActiveSection(match.key);
         }
       });
-    }, { threshold: 0.3, rootMargin: '-10% 0px -60% 0px' });
+    }, { threshold: 0.25, rootMargin: '-8% 0px -55% 0px' });
 
-    sectionMap.forEach(({ id }) => {
+    navSections.forEach(({ id }) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
 
-    const onResize = () => {
-      const curr = links.find(a => a.classList.contains('active'));
-      if (curr) moveIndicatorTo(curr);
-    };
-    window.addEventListener('resize', onResize);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener('resize', onResize);
-    };
+    return () => observer.disconnect();
   }, []);
 
   const proPrice = annualBilling ? '$15.83' : '$19';
@@ -183,11 +198,13 @@ export default function Landing() {
             EdgeFlow
           </div>
           <div className="lg nav-pill" ref={navPillRef}>
-            <a href="#how">How it works</a>
-            <a href="#preview" className="active">Features</a>
-            <a href="#brokers">Brokers</a>
-            <a href="#pricing">Pricing</a>
-            <a href="#faq">FAQ</a>
+            {navSections.map(s => (
+              <a key={s.key} href={s.href}
+                 className={activeSection === s.key ? 'active' : ''}
+                 onClick={() => setActiveSection(s.key)}>
+                {s.label}
+              </a>
+            ))}
             <span className="nav-pill-indicator" ref={indicatorRef} />
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0 }}>

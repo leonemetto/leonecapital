@@ -34,7 +34,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============ NAV ============ */
 .nav {
-  position: fixed; top: 44px; left: 0; right: 0; z-index: 100;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   background: rgba(5,5,5,0.55);
   border-bottom: 1px solid var(--line);
@@ -74,6 +74,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .lg:hover { transform: scale(1.03); filter: brightness(1.08); }
 .lg:active { transform: scale(.98); filter: brightness(.92); }
 .lg > * { position: relative; }
+/* Nav pill container stays put — no scale on hover */
+.nav-pill.lg:hover { transform: none; filter: none; }
+.nav-pill.lg:active { transform: none; filter: none; }
 
 /* ============ NAV / BUTTONS ============ */
 .nav-pill {
@@ -130,7 +133,8 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============ ANNOUNCE BAR ============ */
 .announce-bar {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 101;
+  /* Sits in normal flow just below the fixed nav — scrolls away as user scrolls */
+  margin-top: 68px;
   background: rgba(30,211,134,0.08);
   border-bottom: 1px solid rgba(30,211,134,0.15);
   text-align: center; padding: 10px 16px;
@@ -145,7 +149,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============ HERO ============ */
 .hero {
-  position: relative; padding-top: 220px; padding-bottom: 0;
+  position: relative; padding-top: 150px; padding-bottom: 0;
   text-align: center; overflow: hidden;
 }
 .hero-aurora {
