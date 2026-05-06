@@ -646,7 +646,7 @@ export default function Landing() {
               ['SUM() formulas you built and maintain', 'Win rate, expectancy, profit factor, max drawdown — built in'],
               ['You have to notice your own patterns', 'Leak Detection flags negative-expectancy patterns automatically'],
               ['No behavioral data', 'Emotional state, plan adherence, and confidence tracked per trade'],
-              ['No way to ask questions about your data', 'Atlas — AI analyst with full context of every trade you've logged'],
+              ['No way to ask questions about your data', "Atlas — AI analyst with full context of every trade you've logged"],
               ['Another tab per account', 'Multi-account analytics, unified in one dashboard'],
               ['Screenshot of a chart', 'One-click PDF performance report'],
             ].map(([bad, good], i) => (
