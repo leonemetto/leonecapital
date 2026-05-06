@@ -36,7 +36,7 @@ const HERO_STARS = Array.from({ length: 90 }, (_, i) => {
   return {
     x,
     y: Math.random() * 98,
-    r: isBright ? Math.random() * 0.9 + 0.8 : Math.random() * 0.6 + 0.3,
+    r: isBright ? Math.random() * 0.6 + 0.55 : Math.random() * 0.4 + 0.2,
     op: isBright ? Math.random() * 0.38 + 0.18 : Math.random() * 0.18 + 0.04,
     delay: Math.random() * 7,
     dur: 2.5 + Math.random() * 4,

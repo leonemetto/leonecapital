@@ -160,14 +160,22 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 }
 .hero-star {
   position: absolute; border-radius: 50%;
-  /* box-shadow gives a soft halo, making small dots read as stars */
-  box-shadow: 0 0 3px 1px rgba(255,255,255,0.18);
+  box-shadow: 0 0 2px 1px rgba(255,255,255,0.14);
   will-change: opacity;
-  animation: starTwinkle 3s ease-in-out infinite alternate;
+  animation: starFlicker 3s ease-in-out infinite;
 }
-@keyframes starTwinkle {
-  from { opacity: var(--star-op, 0.2); }
-  to   { opacity: calc(var(--star-op, 0.2) * 0.1); }
+/* Stays near full brightness — brief flickers, never disappears */
+@keyframes starFlicker {
+  0%   { opacity: var(--star-op, 0.2); }
+  8%   { opacity: calc(var(--star-op, 0.2) * 0.45); }
+  12%  { opacity: var(--star-op, 0.2); }
+  50%  { opacity: var(--star-op, 0.2); }
+  57%  { opacity: calc(var(--star-op, 0.2) * 0.55); }
+  62%  { opacity: var(--star-op, 0.2); }
+  80%  { opacity: var(--star-op, 0.2); }
+  86%  { opacity: calc(var(--star-op, 0.2) * 0.38); }
+  90%  { opacity: var(--star-op, 0.2); }
+  100% { opacity: var(--star-op, 0.2); }
 }
 .hero-aurora {
   position: absolute; inset: 0;
