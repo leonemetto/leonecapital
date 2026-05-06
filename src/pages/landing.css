@@ -33,17 +33,18 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
 
 /* ============ NAV ============ */
-.lp-nav {
-  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+.nav {
+  position: fixed; top: 44px; left: 0; right: 0; z-index: 100;
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   background: rgba(5,5,5,0.55);
   border-bottom: 1px solid var(--line);
 }
-.lp-nav-inner {
+.nav-inner {
   height: 68px;
   display: flex; align-items: center; justify-content: space-between;
   max-width: 1280px; margin: 0 auto; padding: 0 32px;
   gap: 24px;
+  flex-wrap: nowrap;
 }
 .logo { display: flex; align-items: center; gap: 9px; font-weight: 600; letter-spacing: -0.02em; font-size: 18px; flex-shrink: 0; cursor: pointer; }
 
@@ -129,6 +130,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============ ANNOUNCE BAR ============ */
 .announce-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 101;
   background: rgba(30,211,134,0.08);
   border-bottom: 1px solid rgba(30,211,134,0.15);
   text-align: center; padding: 10px 16px;
@@ -143,7 +145,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============ HERO ============ */
 .hero {
-  position: relative; padding-top: 190px; padding-bottom: 0;
+  position: relative; padding-top: 220px; padding-bottom: 0;
   text-align: center; overflow: hidden;
 }
 .hero-aurora {
