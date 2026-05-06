@@ -1,0 +1,241 @@
+export interface BlogPost {
+  slug: string;
+  title: string;
+  metaTitle: string;
+  metaDescription: string;
+  publishedAt: string;
+  readingTime: number;
+  category: string;
+  excerpt: string;
+  content: BlogSection[];
+  relatedSlugs?: string[];
+}
+
+export interface BlogSection {
+  type: 'h2' | 'h3' | 'p' | 'ul' | 'ol' | 'callout' | 'cta';
+  text?: string;
+  items?: string[];
+  label?: string;
+}
+
+export const blogPosts: BlogPost[] = [
+  {
+    slug: 'how-to-keep-a-trading-journal',
+    title: 'How to Keep a Trading Journal (And What Most Traders Miss)',
+    metaTitle: 'How to Keep a Trading Journal — The Complete Guide | EdgeFlow',
+    metaDescription: 'Learn how to keep a trading journal that actually improves your performance. Most traders track the wrong things. This guide shows what fields matter and why.',
+    publishedAt: '2026-05-01',
+    readingTime: 8,
+    category: 'Fundamentals',
+    excerpt: 'Most traders who journal still lose money. The problem is not discipline — it is tracking the wrong things. This guide covers exactly what to log and why.',
+    relatedSlugs: ['forex-trading-journal', 'how-to-detect-trading-leaks'],
+    content: [
+      { type: 'p', text: 'A trading journal is the single most recommended tool in trading. Every mentor, every book, every course says to keep one. And yet most traders who journal are still losing money.' },
+      { type: 'p', text: 'The problem is almost never discipline. It is tracking the wrong things.' },
+      { type: 'p', text: 'Most trading journals are glorified trade logs — date, instrument, profit or loss. That is not a journal. That is a receipt. A real trading journal tracks the variables that predict future performance, not just the outcomes of past trades.' },
+      { type: 'h2', text: 'What to Actually Track in Your Trading Journal' },
+      { type: 'p', text: 'There are two categories of data: outcome data and context data. Outcome data (P&L, win/loss) tells you what happened. Context data tells you why — and that is what determines whether you can fix it.' },
+      { type: 'h3', text: 'Outcome Data (the obvious ones)' },
+      { type: 'ul', items: ['Date and time of entry', 'Instrument traded (EUR/USD, AAPL, BTC, etc.)', 'Direction (long or short)', 'Outcome (win, loss, breakeven)', 'P&L in currency', 'R-multiple (profit or loss relative to risk taken)'] },
+      { type: 'h3', text: 'Context Data (what most traders miss)' },
+      { type: 'ul', items: ['Session (London open, New York session, Asian session, overlap)', 'Strategy or setup name (e.g. "break and retest", "trend continuation")', 'Higher timeframe bias at time of trade', 'Emotional state on entry (1–5 scale)', 'Confidence level at entry (1–5 scale)', 'Whether you followed your trading plan (yes/no)', 'Time held in trade (minutes)', 'Notes on why you took the trade'] },
+      { type: 'p', text: 'The reason context data matters is expectancy segmentation. Once you have 30–50 trades, you can ask questions like: "What is my win rate on London open trades vs. New York afternoon trades?" or "Do I perform better when I rate my emotional state as 4 or 5 vs. 1 or 2?"' },
+      { type: 'p', text: 'Those answers change your trading. Knowing your overall win rate does not.' },
+      { type: 'h2', text: 'The R-Multiple: The Most Important Field in Your Journal' },
+      { type: 'p', text: 'If you only add one field to your journal, add R-multiple. R is the ratio of your profit or loss to your initial risk on the trade. A trade where you risked $100 and made $200 is +2R. A trade where you risked $100 and lost $60 is -0.6R.' },
+      { type: 'p', text: 'Why does this matter more than P&L? Because R-multiples let you compare performance across accounts of different sizes, different instruments, and different risk amounts. A 60% win rate with an average winner of 0.8R and average loser of 1R is a losing strategy. A 40% win rate with an average winner of 2.5R and average loser of 1R is a profitable one.' },
+      { type: 'p', text: 'P&L alone will not tell you that. R-multiples will.' },
+      { type: 'h2', text: 'How Often Should You Review Your Journal?' },
+      { type: 'p', text: 'There are three review cadences that work together:' },
+      { type: 'ol', items: ['After every trade — log it immediately, while the context is fresh. The emotional state you write down two days later is not the emotional state you traded in.', 'Weekly — look for patterns across the week. Did a specific session or setup underperform? Were there days where you overtrade?', 'Monthly — run the full analytics. Check expectancy by instrument, session, and strategy. Identify leaks. Set targets for the next month.'] },
+      { type: 'p', text: 'The weekly and monthly reviews are where the real gains come from. The daily log is just data collection.' },
+      { type: 'h2', text: 'The Checklist Problem' },
+      { type: 'p', text: 'One of the most common journal mistakes is tracking whether you followed your plan without defining what "following your plan" actually means. "I followed my plan" is subjective. "I entered only after price closed above the 20 EMA, with RSI below 60, and with at least 1.5R available to the next structure level" is not.' },
+      { type: 'p', text: 'Build a pre-trade checklist with 4–6 concrete criteria. Before every trade, run through the list. Log how many criteria you checked. Over time, compare your win rate on trades where you hit all criteria vs. trades where you skipped one or more. That data will either validate your rules or tell you which ones to change.' },
+      { type: 'h2', text: 'Screenshot Every Trade' },
+      { type: 'p', text: 'This is optional but high value. A screenshot of the chart at entry — with your analysis visible — does something text cannot: it shows you exactly what you were seeing when you made the decision. When you review a trade six weeks later, the screenshot makes it real. Patterns you would never catch from text alone become obvious.' },
+      { type: 'p', text: 'The most valuable screenshots are your worst trades, not your best ones.' },
+      { type: 'h2', text: 'What a Good Trading Journal Review Looks Like' },
+      { type: 'p', text: 'A useful monthly journal review answers three questions:' },
+      { type: 'ol', items: ['Where am I leaking? — Which instrument, session, or strategy is dragging down my overall expectancy?', 'What am I doing right? — Which setup or context produces my best results? Am I trading it enough?', 'What behavioral patterns appeared? — Revenge trading after losses? Overtrading on certain days? Reducing size when I should hold? These cost as much as bad setups.'] },
+      { type: 'callout', label: 'Key insight', text: 'The goal is not to trade more setups. It is to trade the setups where your data shows you have edge — and stop trading everything else.' },
+      { type: 'cta', text: 'EdgeFlow automates this entire analysis. It segments your results by session, instrument, strategy, and emotional state — and flags the leaks automatically. Free to start, no credit card required.' },
+    ],
+  },
+
+  {
+    slug: 'forex-trading-journal',
+    title: 'Forex Trading Journal: The 12 Fields That Actually Predict Performance',
+    metaTitle: 'Forex Trading Journal: 12 Fields That Predict Performance | EdgeFlow',
+    metaDescription: 'Most forex trading journals track the wrong things. These 12 fields are what actually predict whether your next 100 trades will be profitable.',
+    publishedAt: '2026-05-03',
+    readingTime: 7,
+    category: 'Forex',
+    excerpt: 'After analysing thousands of forex trades, these are the 12 fields that actually correlate with future performance — and the ones you can safely skip.',
+    relatedSlugs: ['how-to-keep-a-trading-journal', 'prop-firm-trading-journal'],
+    content: [
+      { type: 'p', text: 'Forex is the most traded market in the world, and it has characteristics that make journaling both more important and more nuanced than journaling stocks or crypto. Currencies move based on session dynamics — the London open behaves differently from the New York afternoon, and the Asian session behaves differently from both.' },
+      { type: 'p', text: 'This means your forex trading journal needs session data. Without it, your analytics are lying to you.' },
+      { type: 'h2', text: 'The 12 Fields That Actually Matter in a Forex Journal' },
+      { type: 'h3', text: '1. Session' },
+      { type: 'p', text: 'Log which session you traded: Asian (22:00–08:00 UTC), London (07:00–16:00 UTC), New York (13:00–21:00 UTC), or London/New York overlap (13:00–16:00 UTC). Most traders discover that their win rate differs significantly by session — often by 15–25 percentage points.' },
+      { type: 'h3', text: '2. Instrument' },
+      { type: 'p', text: 'Log the exact pair: EUR/USD, GBP/JPY, XAU/USD (Gold), etc. Different pairs have different volatility profiles and behave differently during specific sessions. Your edge on EUR/USD may not transfer to GBP/JPY.' },
+      { type: 'h3', text: '3. Direction' },
+      { type: 'p', text: 'Log whether you went long or short. Many traders discover a directional bias — a higher win rate on longs than shorts, or vice versa. This is often tied to the overall market regime at the time.' },
+      { type: 'h3', text: '4. Higher Timeframe Bias' },
+      { type: 'p', text: 'What was the HTF trend at the time of the trade? Bullish, bearish, or neutral/ranging? Trades aligned with the HTF bias typically have a higher win rate. Log this and your data will confirm or deny this for your specific setups.' },
+      { type: 'h3', text: '5. Strategy / Setup Name' },
+      { type: 'p', text: 'Give every setup a name — "break and retest," "order block entry," "London session reversal," etc. This lets you compare performance by setup type. You will almost always find that one or two setups account for most of your profitable trades.' },
+      { type: 'h3', text: '6. R-Multiple' },
+      { type: 'p', text: 'Risk-adjusted return. If you risked 1% of your account, did you make 2% or lose 0.5%? That is +2R or -0.5R. R-multiples are the only way to compare trades across different risk sizes and accounts.' },
+      { type: 'h3', text: '7. Risk Percentage' },
+      { type: 'p', text: 'What percentage of your account did you risk? Tracking this reveals risk management patterns — do you increase size after wins (revenge sizing)? Do you reduce size on high-conviction setups out of fear?' },
+      { type: 'h3', text: '8. Emotional State' },
+      { type: 'p', text: 'Rate your emotional state at entry on a 1–5 scale (1 = anxious/frustrated, 5 = calm and focused). Over 50 trades, most traders find a statistically significant correlation between emotional state and win rate. The traders who discover their win rate at state 4–5 is twice their win rate at state 1–2 often restructure their entire trading day.' },
+      { type: 'h3', text: '9. Followed Plan' },
+      { type: 'p', text: 'Binary: did you follow your entry criteria or deviate? Trades where you deviated from your plan lose money at a higher rate than plan-compliant trades for almost every trader. This single field is the strongest behavioral predictor in the journal.' },
+      { type: 'h3', text: '10. Time in Trade' },
+      { type: 'p', text: 'How many minutes was the trade open? This reveals whether you are cutting winners early (short-duration winners with low R) or holding losers too long (long-duration losers with high negative R).' },
+      { type: 'h3', text: '11. Notes' },
+      { type: 'p', text: 'A short text field for what you saw and why you traded. Do not write a novel — two to three sentences maximum. "London break above yesterday\'s high, HTF bullish, entered on retest of broken level, SL below" is enough.' },
+      { type: 'h3', text: '12. Screenshot' },
+      { type: 'p', text: 'A chart image at the moment of entry. Optional but invaluable for review. When you look back at your trades in 6 weeks, the screenshot makes the context concrete in a way that text cannot.' },
+      { type: 'h2', text: 'Fields You Can Skip' },
+      { type: 'p', text: 'Entry price, exit price, pip count — these are useful for record-keeping but weak predictors of future performance. P&L in currency is useful for calculating R but less useful for analytics than R-multiple alone. Anything that requires complex manual calculation should be automated.' },
+      { type: 'h2', text: 'The Forex-Specific Analysis You Should Run Every Month' },
+      { type: 'ul', items: ['Win rate by session — are you profitable in Asian hours? Most retail forex traders are not.', 'Win rate by pair — do you have edge on all 8 pairs you trade, or really just 2–3?', 'Win rate by direction — do you have a long bias that hurts you in bearish markets?', 'Expectancy by day of week — many traders underperform on Mondays and Fridays due to low liquidity and choppy price action.'] },
+      { type: 'p', text: 'The goal of this analysis is to find where your edge actually exists — not where you think it exists — and to concentrate your trading there. Most traders who do this seriously narrow down from 8 pairs to 2–3, from 5 sessions to 2, and increase their profitability in the process by doing less, not more.' },
+      { type: 'callout', label: 'Real example', text: 'A trader analysing their first 60 EUR/USD trades found a 62% win rate during London session but only 38% during New York afternoon. Same setup, same pair — 24 percentage points difference just from session timing. They stopped trading after 2pm London and their monthly P&L turned positive.' },
+      { type: 'cta', text: 'EdgeFlow logs all 12 of these fields and runs the session, instrument, and direction breakdowns automatically. Start your free forex trading journal today.' },
+    ],
+  },
+
+  {
+    slug: 'prop-firm-trading-journal',
+    title: 'Prop Firm Trading Journal: Track Every Rule, Every Phase',
+    metaTitle: 'Prop Firm Trading Journal — Track Drawdown, Rules & Progress | EdgeFlow',
+    metaDescription: 'Failing prop firm challenges? A dedicated trading journal tracks daily loss limits, max drawdown, and phase progress in real time. Here is how to set it up.',
+    publishedAt: '2026-05-05',
+    readingTime: 6,
+    category: 'Prop Firms',
+    excerpt: 'Most prop firm failures happen because traders lose track of their drawdown headroom. A dedicated journal tracks every rule in real time so you never fail on a technicality.',
+    relatedSlugs: ['how-to-keep-a-trading-journal', 'how-to-detect-trading-leaks'],
+    content: [
+      { type: 'p', text: 'Prop firm challenges have a high failure rate — most estimates put it above 80%. The technical rules (daily loss limit, maximum drawdown, minimum trading days) account for a surprising portion of those failures. Traders lose not because their strategy failed, but because they lost track of their drawdown headroom mid-session.' },
+      { type: 'p', text: 'A trading journal designed for prop firm challenges solves this. Here is exactly what it needs to track.' },
+      { type: 'h2', text: 'The Three Numbers That Determine Your Challenge' },
+      { type: 'h3', text: '1. Daily Loss Limit' },
+      { type: 'p', text: 'Most firms set this at 4–5% of starting balance. On a $100,000 challenge that is $4,000–$5,000. This resets every day, usually at midnight New York time or the start of the trading day depending on your firm.' },
+      { type: 'p', text: 'The danger: unrealised P&L counts toward daily loss at most firms. A trade that is temporarily down $3,000 on a $5,000 daily limit has left you with $2,000 of remaining headroom, even if it eventually comes back. Many traders fail challenges because they did not account for open drawdown.' },
+      { type: 'h3', text: '2. Maximum Drawdown (Overall)' },
+      { type: 'p', text: 'Typically 8–10% of starting or highest balance, depending on firm type (static vs. trailing). On a $100,000 account with 8% static drawdown, your account must never drop below $92,000 — ever, for the entire challenge duration.' },
+      { type: 'p', text: 'Static drawdown is calculated from starting balance. Trailing drawdown is calculated from your peak balance, which makes it more dangerous: as your account grows, your floor rises with it.' },
+      { type: 'h3', text: '3. Profit Target' },
+      { type: 'p', text: 'Usually 8–10% for Phase 1, 4–5% for Phase 2 (for two-phase challenges). Your journal should track cumulative P&L toward the target and show you how much remains, not just total P&L.' },
+      { type: 'h2', text: 'What Your Prop Firm Journal Must Log Per Trade' },
+      { type: 'ul', items: ['Date and exact time of entry (some firms check trading day counts)', 'Instrument and direction', 'P&L in account currency (not pips — currency amount determines your drawdown)', 'Running balance after each trade', 'Remaining daily loss limit after each trade', 'Remaining maximum drawdown headroom', 'Whether you reached profit target today'] },
+      { type: 'h2', text: 'The Drawdown Headroom Warning System' },
+      { type: 'p', text: 'The most useful prop firm journal feature is a live warning when you are approaching either limit. A best practice:' },
+      { type: 'ul', items: ['Yellow warning at 60% of daily limit consumed — slow down', 'Red warning at 80% — one more trade maximum', 'Locked at 100% — no more trades today, regardless of how good the setup looks'] },
+      { type: 'p', text: 'The traders who consistently pass challenges are not the ones with the best strategies. They are the ones who never breach the daily loss limit even once. One breach can fail a challenge that was otherwise on track.' },
+      { type: 'h2', text: 'Phase Tracking Across Multi-Phase Challenges' },
+      { type: 'p', text: 'FTMO, MyForexFunds, Topstep, and most other firms use a two or three-phase structure. Your journal should treat each phase as a separate account — with its own starting balance, drawdown limits, profit target, and minimum trading day counter.' },
+      { type: 'p', text: 'Key data to track per phase:' },
+      { type: 'ul', items: ['Phase start date and balance', 'Phase-specific daily loss limit and max drawdown', 'Profit target for this phase', 'Days traded (some firms require 4–10 minimum)', 'Current progress: X% of Y% target achieved'] },
+      { type: 'h2', text: 'The Common Mistakes That Fail Challenges' },
+      { type: 'ol', items: ['Trading through the daily loss limit by a small amount — often on a trade that "should have worked"', 'Not accounting for swap/overnight fees that count toward drawdown', 'Trading on news events that create spreads that temporarily breach the daily limit', 'Losing track of trailing drawdown as balance peaks — the floor moved higher without noticing', 'Overtrading late in the challenge when behind on the profit target'] },
+      { type: 'p', text: 'Every one of these failures is a journaling failure, not a strategy failure. The data was available — it just was not visible in real time.' },
+      { type: 'callout', label: 'Key rule', text: 'Treat the daily loss limit as an absolute hard stop, not a guideline. The best prop traders leave 20–30% of it unused every single day. The profit target deadline is flexible. The drawdown breach is not.' },
+      { type: 'cta', text: 'EdgeFlow tracks your prop firm challenge drawdown, daily limits, and phase progress automatically. Set your firm\'s rules once and get real-time headroom warnings as you trade. Free to start.' },
+    ],
+  },
+
+  {
+    slug: 'how-to-detect-trading-leaks',
+    title: 'How to Detect Trading Leaks in Your Own Performance Data',
+    metaTitle: 'How to Detect Trading Leaks — Find What\'s Draining Your Account | EdgeFlow',
+    metaDescription: 'Trading leaks are patterns in your data where you consistently lose money without knowing why. Here is how to find them in your own trade history.',
+    publishedAt: '2026-05-07',
+    readingTime: 7,
+    category: 'Analytics',
+    excerpt: 'A trading leak is a combination of conditions where you consistently lose money. They are invisible without data. This guide shows you how to find yours.',
+    relatedSlugs: ['how-to-keep-a-trading-journal', 'revenge-trading-how-to-detect-it'],
+    content: [
+      { type: 'p', text: 'A trading leak is a specific combination of conditions — instrument, session, direction, emotional state — where you consistently lose money without realising it. It is called a leak because it drains your account slowly, hidden inside your overall P&L.' },
+      { type: 'p', text: 'Leaks are nearly invisible without data. You might be profitable overall while one specific pattern is costing you 30% of what you could be making. You would never know without segmenting your results.' },
+      { type: 'h2', text: 'What a Trading Leak Looks Like' },
+      { type: 'p', text: 'Here are real examples of trading leaks:' },
+      { type: 'ul', items: ['A trader with 58% overall win rate, but 31% win rate on all trades taken after a losing trade (revenge trading pattern)', 'A forex trader profitable on EUR/USD and GBP/USD, but losing consistently on GBP/JPY without realising it, because GBP/JPY losses are masked by EUR/USD wins', 'A trader with positive expectancy in London session but negative expectancy in New York afternoon — trading the same setup in both sessions', 'A trader whose win rate drops from 61% to 39% on days when their emotional state rating was 1 or 2 vs. 4 or 5'] },
+      { type: 'p', text: 'In each case, the trader had a real edge. They just were not applying it selectively enough.' },
+      { type: 'h2', text: 'The Three Types of Trading Leaks' },
+      { type: 'h3', text: '1. Segment Leaks' },
+      { type: 'p', text: 'A segment leak is when a specific category of trade (a session, an instrument, a direction) has negative expectancy. Expectancy is calculated as: (win rate × average winner) − (loss rate × average loser). Any segment with negative expectancy is losing you money on net.' },
+      { type: 'p', text: 'To find segment leaks, you need at least 15–20 trades per segment for the data to be meaningful. With fewer trades, random variation can look like a pattern.' },
+      { type: 'h3', text: '2. Behavioral Leaks' },
+      { type: 'p', text: 'Behavioral leaks are patterns tied to your state or actions rather than market conditions. The most common ones:' },
+      { type: 'ul', items: ['Revenge trading — taking trades immediately after a loss, often with larger size or lower quality setups', 'Overtrading — days where you take significantly more trades than your average, usually on losing days', 'Plan deviation — trades taken without meeting your entry criteria, which lose at higher rates', 'Emotional correlation — win rate drops measurably when your emotional state is low'] },
+      { type: 'h3', text: '3. Combination Leaks' },
+      { type: 'p', text: 'The most damaging leaks are combinations: a specific instrument in a specific session in a specific direction. For example, short GBP/JPY during the Asian session might be consistently losing while short EUR/USD during London open is consistently profitable. Aggregate data will not show this — only segmented data will.' },
+      { type: 'h2', text: 'How to Find Your Leaks: A Step-by-Step Process' },
+      { type: 'ol', items: ['Collect at least 30 trades in your journal with full context fields (session, instrument, direction, emotional state, followed plan)', 'Calculate expectancy for each session you trade. Compare them. Are any negative?', 'Calculate expectancy for each instrument you trade. Are any dragging your average down significantly?', 'Split your trades into "followed plan" vs. "deviated from plan." What is the expectancy difference?', 'Split by emotional state: trades taken at 1–2 vs. trades at 4–5. Is there a meaningful difference?', 'For any segment that shows negative expectancy, check if you have enough sample size (15+ trades). If yes, that segment is a confirmed leak.'] },
+      { type: 'h2', text: 'What to Do Once You Find a Leak' },
+      { type: 'p', text: 'The first instinct is to try to fix the leak — to figure out why GBP/JPY afternoon trades lose and work on them. That is usually the wrong move.' },
+      { type: 'p', text: 'The right move is to stop trading the leak entirely and concentrate your capital on the segments with positive expectancy. You are not trying to become profitable at everything. You are trying to identify where your edge exists and trade only there.' },
+      { type: 'p', text: 'A trader who goes from trading 6 sessions across 8 pairs to trading 2 sessions across 3 pairs — because the data showed those are their only profitable segments — is not being restrictive. They are being precise.' },
+      { type: 'h2', text: 'The Minimum Data Requirement' },
+      { type: 'p', text: 'Leak detection requires data. With fewer than 30 trades, you will see patterns that are not really there — variance disguised as signal. With 50 trades, you can start drawing conclusions. With 100 trades, the patterns become reliable.' },
+      { type: 'p', text: 'This is why logging every trade matters — not just the interesting ones. Every trade you skip logging is data you cannot use.' },
+      { type: 'callout', label: 'Important', text: 'Negative expectancy in a segment is not always a leak. It might be a strategy that needs more trades to be evaluated, or a temporary drawdown period. Look for consistent patterns across multiple months before making permanent changes.' },
+      { type: 'cta', text: 'EdgeFlow\'s Leak Detection page finds these patterns automatically. It analyses every combination of instrument, session, and direction in your trade history and flags the ones with negative expectancy. Free to start — no spreadsheet required.' },
+    ],
+  },
+
+  {
+    slug: 'revenge-trading-how-to-detect-it',
+    title: 'Revenge Trading: How to Identify It in Your Own Performance Data',
+    metaTitle: 'Revenge Trading — How to Detect It in Your Own Trade Data | EdgeFlow',
+    metaDescription: 'Revenge trading costs traders more than any single bad strategy. Here is how to detect it in your own journal data and what to do about it.',
+    publishedAt: '2026-05-09',
+    readingTime: 6,
+    category: 'Psychology',
+    excerpt: 'Revenge trading is the most expensive behavioral leak in trading. Most traders who do it do not realise it is a pattern — until they see the data.',
+    relatedSlugs: ['how-to-detect-trading-leaks', 'how-to-keep-a-trading-journal'],
+    content: [
+      { type: 'p', text: 'Revenge trading is taking a trade primarily to recover a recent loss — not because the setup meets your criteria. It is one of the most expensive behavioral patterns in trading, and the traders who do it most often are the ones who are convinced they do not do it.' },
+      { type: 'p', text: 'The reason it is so hard to self-diagnose: in the moment, a revenge trade does not feel like revenge trading. It feels like a high-conviction trade. The emotional state that drives revenge trading also increases confidence in your own judgment.' },
+      { type: 'p', text: 'The only reliable way to detect it is through data.' },
+      { type: 'h2', text: 'The Data Signature of Revenge Trading' },
+      { type: 'p', text: 'Revenge trading has a specific statistical signature in your trade data:' },
+      { type: 'ul', items: ['Win rate on trades taken within 30–60 minutes of a loss is significantly lower than your overall win rate', 'Average time between a loss and the next trade is shorter than your typical trade interval', 'Position sizes on post-loss trades are larger than average', 'Trades on loss-heavy days cluster toward the end of the session', 'Days with 3+ trades have lower average R than days with 1–2 trades'] },
+      { type: 'p', text: 'None of these signals alone is definitive. Together, they form a pattern.' },
+      { type: 'h2', text: 'How to Check Your Own Data for Revenge Trading' },
+      { type: 'p', text: 'To check your own journal data, you need timestamp data for each trade and at least 30 trades. With that, you can run this analysis:' },
+      { type: 'ol', items: ['Identify all trades taken within 60 minutes of a losing trade on the same day.', 'Calculate the win rate for that group.', 'Compare it to your overall win rate.', 'If the post-loss win rate is more than 10 percentage points lower than your overall win rate, you have a detectable revenge trading pattern.'] },
+      { type: 'p', text: 'Also check: what is your average P&L on days where you took 3 or more trades vs. days where you took 1 or 2? If multi-trade days are significantly worse, overtrading after losses is part of the pattern.' },
+      { type: 'h2', text: 'Why Revenge Trading Compounds' },
+      { type: 'p', text: 'The mechanics of revenge trading make losses compound in a specific way. After a 1R loss, a revenge trade has a lower-than-average win rate (you are entering from an emotional state, not a strategic one). If that trade also loses, you are now down 2R in a session. The emotional pressure to recover increases. The next trade is even more likely to be revenge.' },
+      { type: 'p', text: 'This is the cycle that produces the blowup day — the day where a trader who normally loses 1–2% of their account in a bad session loses 6–8% instead. Those days are almost always characterized by 4–6 trades after the first loss, each progressively lower quality.' },
+      { type: 'h2', text: 'The Structural Fix' },
+      { type: 'p', text: 'Willpower-based solutions to revenge trading do not work long-term. "I will be more disciplined" is not a system. These structural approaches work better:' },
+      { type: 'ul', items: ['Set a daily loss limit in your journal — a specific R amount or currency amount that, when hit, means you close the platform for the day. Non-negotiable.', 'Add a mandatory cooling-off rule: after any loss, no new trades for at least 30 minutes. Log this in your journal as a checklist item.', 'Track your emotional state before every trade. If your rating is 1 or 2, your rules say you cannot trade.', 'Review your post-loss win rate monthly. Watching that number either improve or stagnate is more motivating than any mindset content.'] },
+      { type: 'h2', text: 'The Log Entry That Exposes Revenge Trades' },
+      { type: 'p', text: 'One simple change to your journal that identifies revenge trades in real time: before every trade, write one sentence answering the question "Why am I taking this trade?" Read it back before executing.' },
+      { type: 'p', text: 'If any part of the answer is "because I just lost," "to make back what I lost," or "this looks like it will be quick," that is a revenge trade. Do not take it.' },
+      { type: 'p', text: 'The act of writing the reason down — before entering, not after — interrupts the emotional cycle just enough to make the decision conscious instead of reactive.' },
+      { type: 'callout', label: 'Real pattern', text: 'In a dataset of 500 trades from a single trader, the win rate on trades taken within 30 minutes of a loss was 29% — against an overall win rate of 54%. Those post-loss trades, while accounting for only 18% of all trades, accounted for 61% of total losses.' },
+      { type: 'cta', text: 'EdgeFlow automatically detects revenge trading patterns in your trade history — multiple trades after losses, compressed timing, and performance drops on high-volume days. See your own behavioral data clearly. Free to start.' },
+    ],
+  },
+];
+
+export function getBlogPost(slug: string): BlogPost | undefined {
+  return blogPosts.find(p => p.slug === slug);
+}
+
+export function getRelatedPosts(post: BlogPost): BlogPost[] {
+  if (!post.relatedSlugs) return [];
+  return post.relatedSlugs
+    .map(slug => blogPosts.find(p => p.slug === slug))
+    .filter(Boolean) as BlogPost[];
+}

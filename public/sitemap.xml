@@ -1,19 +1,58 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Core pages -->
   <url>
     <loc>https://www.edgeflow.capital/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <lastmod>2026-05-01</lastmod>
+    <lastmod>2026-05-06</lastmod>
   </url>
   <url>
     <loc>https://www.edgeflow.capital/how-to-use</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
+    <lastmod>2026-05-06</lastmod>
+  </url>
+
+  <!-- Blog index -->
+  <url>
+    <loc>https://www.edgeflow.capital/blog</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+
+  <!-- Blog posts -->
+  <url>
+    <loc>https://www.edgeflow.capital/blog/how-to-keep-a-trading-journal</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+    <lastmod>2026-05-01</lastmod>
   </url>
   <url>
-    <loc>https://www.edgeflow.capital/auth</loc>
+    <loc>https://www.edgeflow.capital/blog/forex-trading-journal</loc>
     <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
+    <priority>0.8</priority>
+    <lastmod>2026-05-03</lastmod>
   </url>
+  <url>
+    <loc>https://www.edgeflow.capital/blog/prop-firm-trading-journal</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-05</lastmod>
+  </url>
+  <url>
+    <loc>https://www.edgeflow.capital/blog/how-to-detect-trading-leaks</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-07</lastmod>
+  </url>
+  <url>
+    <loc>https://www.edgeflow.capital/blog/revenge-trading-how-to-detect-it</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+    <lastmod>2026-05-09</lastmod>
+  </url>
+
 </urlset>

@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import './landing.css';
 
 const testimonials = [
@@ -192,6 +193,11 @@ export default function Landing() {
 
   return (
     <>
+      <Helmet>
+        <title>EdgeFlow — Professional Trading Journal | Track, Analyze & Improve</title>
+        <meta name="description" content="EdgeFlow is a professional trading journal for serious traders. Log trades, detect performance leaks, and get AI-powered insights to build a winning edge. Free to start." />
+        <link rel="canonical" href="https://www.edgeflow.capital/" />
+      </Helmet>
       {/* ============ AMBIENT + EDGE LAYER ============ */}
       <div aria-hidden="true" style={{ position: 'fixed', inset: 0, zIndex: -1, pointerEvents: 'none', overflow: 'hidden' }}>
         <div className="ambient-blob ambient-blob-1" />
@@ -227,6 +233,7 @@ export default function Landing() {
             <span className="nav-pill-indicator" ref={indicatorRef} />
           </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0 }}>
+            <a href="/blog" className="lg btn-ghost" style={{ textDecoration: 'none' }}>Blog</a>
             <button className="lg btn-ghost" onClick={() => navigate('/auth')}>Log in</button>
             <button className="lg btn-primary" onClick={() => navigate('/auth')}>Start free →</button>
           </div>
@@ -296,8 +303,8 @@ export default function Landing() {
             <span className="kicker-dot" />
             AI-Powered · Professional Trading Journal
           </div>
-          <h1>Your trading data knows<br />more than you do.</h1>
-          <p>EdgeFlow turns your trade history into a statistical edge. Win rate, leak detection, and AI analysis — all in one place.</p>
+          <h1>The trading journal<br />that finds your edge.</h1>
+          <p>EdgeFlow is the professional trading journal built for serious traders. Log trades, detect performance leaks, and get AI-powered analysis of every pattern — all in one place.</p>
           <div className="hero-cta">
             <button className="lg btn-outline" onClick={() => navigate('/auth')}>Get started</button>
             <button className="lg btn-white" onClick={() => navigate('/auth')}>Start for Free</button>
@@ -930,6 +937,15 @@ export default function Landing() {
                 <li><a href="#preview">Equity Curve</a></li>
                 <li><a href="#preview">Session Analytics</a></li>
                 <li><a href="#preview">Strategy Optimizer</a></li>
+              </ul>
+            </div>
+            <div className="footer-col">
+              <h4>Resources</h4>
+              <ul>
+                <li><a href="/blog">Trading Journal Blog</a></li>
+                <li><a href="/how-to-use">Platform Guide</a></li>
+                <li><a href="https://www.investopedia.com/articles/trading/09/how-to-trade-like-a-hedge-fund.asp" target="_blank" rel="noopener noreferrer">Trading Performance Guide</a></li>
+                <li><a href="https://www.babypips.com/learn/forex/use-a-trading-journal" target="_blank" rel="noopener noreferrer">Why Keep a Trading Journal</a></li>
               </ul>
             </div>
             <div className="footer-col">

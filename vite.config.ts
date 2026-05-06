@@ -17,4 +17,8 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  ssr: {
+    // Ensure these are bundled for the SSR prerender step, not treated as externals
+    noExternal: ['react-helmet-async', 'framer-motion'],
+  },
 });

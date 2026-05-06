@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChartLineUp, MagnifyingGlass, Brain, Scales, ClipboardText,
@@ -282,6 +283,11 @@ export default function HowToUse() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#080807', color: '#f2f0ea', fontFamily: "'Geist', system-ui, sans-serif" }}>
+      <Helmet>
+        <title>How to Use a Trading Journal — EdgeFlow Guide</title>
+        <meta name="description" content="Complete guide to using EdgeFlow as your trading journal. Learn how to log trades, detect leaks, read analytics, use AI insights, and build a consistent trading edge." />
+        <link rel="canonical" href="https://www.edgeflow.capital/how-to-use" />
+      </Helmet>
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '0 32px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(8,8,7,0.92)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -305,7 +311,22 @@ export default function HowToUse() {
         </div>
       </nav>
 
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '40px 24px', display: 'flex', gap: 32 }}>
+      {/* SEO intro — visible to Google, provides keyword context for the page */}
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '32px 24px 0' }}>
+        <h1 style={{ fontSize: 28, fontWeight: 700, letterSpacing: '-0.03em', color: '#f2f0ea', margin: '0 0 12px' }}>
+          How to Use EdgeFlow — Your Professional Trading Journal Guide
+        </h1>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65, margin: '0 0 8px', maxWidth: 680 }}>
+          EdgeFlow is a trading journal built to do more than log trades. This guide covers every feature — from logging your first trade to using AI-powered leak detection to find exactly what is costing you money.
+        </p>
+        <div style={{ display: 'flex', gap: 20, flexWrap: 'wrap', marginBottom: 28 }}>
+          <a href="/blog/how-to-keep-a-trading-journal" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>How to keep a trading journal →</a>
+          <a href="/blog/how-to-detect-trading-leaks" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>How to detect trading leaks →</a>
+          <a href="/blog" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'underline' }}>All guides →</a>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 24px 40px', display: 'flex', gap: 32 }}>
         {/* Sidebar nav */}
         <aside style={{ width: 220, flexShrink: 0 }}>
           <div style={{ position: 'sticky', top: 80 }}>

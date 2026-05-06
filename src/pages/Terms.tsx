@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const G = 'rgb(140,255,46)';
 
@@ -89,6 +90,12 @@ export default function Terms() {
   const navigate = useNavigate();
   return (
     <div style={{ background: '#000', color: '#fff', fontFamily: 'system-ui,-apple-system,sans-serif', minHeight: '100vh' }}>
+      <Helmet>
+        <title>Terms of Service — EdgeFlow</title>
+        <meta name="description" content="EdgeFlow terms of service. Rules and conditions for using the EdgeFlow trading journal platform." />
+        <link rel="canonical" href="https://www.edgeflow.capital/terms" />
+        <meta name="robots" content="noindex, follow" />
+      </Helmet>
       {/* Nav */}
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(0,0,0,0.88)', backdropFilter: 'blur(20px)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 40px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

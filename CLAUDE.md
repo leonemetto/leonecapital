@@ -8,7 +8,7 @@ Available skills:
 /office-hours, /plan-ceo-review, /plan-eng-review, /plan-design-review, /design-consultation, /design-shotgun, /design-html, /review, /ship, /land-and-deploy, /canary, /benchmark, /browse, /connect-chrome, /qa, /qa-only, /design-review, /setup-browser-cookies, /setup-deploy, /retro, /investigate, /document-release, /codex, /cso, /autoplan, /plan-devex-review, /devex-review, /careful, /freeze, /guard, /unfreeze, /gstack-upgrade, /learn
 
 ## What This Is
-Professional trading journal at leone.capital
+Professional trading journal at edgeflow.capital (formerly leone.capital)
 Target: $2,000/month from paying traders globally
 
 ## Tech Stack
@@ -18,11 +18,12 @@ Target: $2,000/month from paying traders globally
 - Data: TanStack Query
 - Database: Supabase (project: aepmcmfidvkdjjgjvkkw)
 - Hosting: Vercel (auto-deploys on push to main)
-- Domain: leone.capital
+- Domain: edgeflow.capital
 - Error monitoring: Sentry (production only)
 - Emails: Resend (noreply@leone.capital)
 - Icons: Phosphor Icons (no Lucide)
-- Fonts: Inter (sans) + Roboto Mono (all numbers)
+- Fonts: Geist (sans) + Geist Mono (all numbers), self-hosted
+- SEO: react-helmet-async (dynamic page titles) + build-time prerender (scripts/prerender.mjs)
 - Note: NO Lovable dependencies — fully standalone codebase
 
 ## Infrastructure
@@ -127,6 +128,8 @@ The app uses a token-based design system with light + dark variants. Always use 
 - /reset-password   — Password reset ✅
 - /onboarding       — 4-step onboarding flow ✅
 - /                 — Landing page ✅ (public marketing page)
+- /blog             — Blog index ✅ (SEO content hub)
+- /blog/:slug       — Blog post pages ✅ (5 posts live: trading journal, forex journal, prop firm, leaks, revenge trading)
 
 ## Sidebar Nav Labels (current)
 - Dashboard → /dashboard
@@ -366,10 +369,54 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [x] SECURITY.md vulnerability disclosure policy created ✅
 - [x] Log Trade double-submit guard (useRef sync lock) ✅
 
-### BRAND & SEO ✅ ALL DONE
+### BRAND & SEO — PHASE 1 COMPLETE ✅
 - [x] New EdgeFlow favicon (E letterform) + apple-touch-icon + manifest.json ✅
-- [x] Page title + meta tags updated to leone.capital ✅
+- [x] Page title + meta tags updated to edgeflow.capital ✅
 - [x] Google Search Console verified + indexed ✅
+- [x] JSON-LD structured data (WebApplication + FAQPage schema) in index.html ✅
+- [x] react-helmet-async installed — unique title + description per public route ✅
+- [x] Build-time prerendering via scripts/prerender.mjs — Google sees full HTML, not empty div ✅
+  - Prerenders: /, /how-to-use, /blog, and all 5 blog post pages
+  - Runs automatically as part of npm run build
+- [x] Blog infrastructure built — /blog index + /blog/:slug post pages ✅
+- [x] 5 SEO-optimized blog posts written and live ✅
+  - /blog/how-to-keep-a-trading-journal (primary keyword: "how to keep a trading journal")
+  - /blog/forex-trading-journal (primary keyword: "forex trading journal")
+  - /blog/prop-firm-trading-journal (primary keyword: "prop firm trading journal")
+  - /blog/how-to-detect-trading-leaks (primary keyword: "detect trading leaks")
+  - /blog/revenge-trading-how-to-detect-it (primary keyword: "revenge trading detection")
+- [x] Sitemap updated — includes all blog posts, /blog, /how-to-use ✅
+- [x] Landing page H1 updated to include "trading journal" keyword ✅
+- [x] Landing page: Blog link in nav + external resource links in footer ✅
+- [x] /how-to-use: SEO H1 added + internal links to blog posts ✅
+- [x] robots.txt correct — auth/app routes blocked, sitemap referenced ✅
+
+### SEO — REQUIRES YOUR ACTION (you do these, Claude cannot)
+- [ ] **Verify keywords with a real tool** — use Google Keyword Planner (free) or Semrush/Ahrefs to confirm
+  the target keywords and find more. Tell Claude and blog posts will be updated/added accordingly.
+  - Priority targets: "trading journal app", "free trading journal", "best trading journal", "trade tracker"
+- [ ] **Submit updated sitemap in Google Search Console**
+  - Go to: search.google.com/search-console → Sitemaps → Submit → edgeflow.capital/sitemap.xml
+- [ ] **Request indexing for each new page** — do this for every new public page Claude builds
+  - Search Console → URL Inspection → paste URL → Request Indexing
+  - Do for: /blog, and each of the 5 blog post URLs
+- [ ] **Check Core Web Vitals in Search Console**
+  - Go to: Search Console → Core Web Vitals → Mobile
+  - Report any red/yellow metrics to Claude to fix
+- [ ] **Create Twitter/X profile for EdgeFlow** — brand signal Google uses to verify real products
+  - Handle suggestion: @edgeflow_ or @edgeflowcap
+  - Bio must include "trading journal" in plain text. Link: edgeflow.capital
+- [ ] **Post in trading communities** — after blog posts are indexed (2-3 weeks after submission)
+  - r/Forex, r/Daytrading, r/algotrading on Reddit
+  - Forex Factory "Trading Discussion" section
+  - TradingView community
+  - Post the BLOG ARTICLES (not the app directly) — share as helpful content
+- [ ] **Real testimonials** — current testimonials on landing page are placeholders
+  - Need 6-8 real quotes with names, specific data points ("my win rate went from X to Y")
+  - Once collected, Claude will replace the placeholder carousel
+- [ ] **Backlink outreach** — guest posts on trading blogs, broken link swapping on competitor sites
+  - When ready: share the blog post URLs in trading forums and Discord servers you're in
+  - Reach out to trading education sites (BabyPips, etc.) to propose guest posts
 
 ### FEATURES ✅ ALL DONE
 - [x] Re-engagement emails (day 3 + day 7) ✅
@@ -416,6 +463,21 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [ ] Prop firm challenge mode — per-phase drawdown limits, FTMO/Topstep/MFF rules, live headroom tracking (Elite feature)
 - [ ] Mobile app / PWA
 - [ ] Real testimonials carousel on landing page — collect real quotes from real traders with Twitter/X handles, then replace the current placeholder carousel. Quotes must be specific (name the feature, include a data point). Target: 6-8 quotes minimum before re-adding.
+
+### BLOG — ONGOING SEO CONTENT (Claude builds these when asked)
+- [x] Blog infrastructure live at /blog ✅
+- [x] 5 initial posts written ✅ (see SEO section above for slugs)
+- [ ] Add 5+ more posts targeting remaining KD<30 keywords:
+  - "trading journal app" (comparison/commercial intent)
+  - "free trading journal" (acquisition intent)
+  - "best trading journal" (comparison/commercial intent)
+  - "day trading journal" (informational)
+  - "options trading journal" (informational)
+  - "how to analyze trading performance" (informational)
+  - "prop firm challenge tips" (informational, growing search)
+- [ ] Add blog link to app sidebar (for logged-in users to find it)
+- [ ] Add blog to /how-to-use page footer CTA section
+- NOTE: When adding a new blog post, also add its URL to public/sitemap.xml and ask user to request indexing in Search Console
 
 ## Payments Plan (when ready)
 - International: Lemon Squeezy, $19/mo Pro, $39/mo Elite
