@@ -213,7 +213,7 @@ export default function Landing() {
       <nav className="nav">
         <div className="nav-inner">
           <div className="logo">
-            <img src="/Adobe Express - file.png" alt="EdgeFlow" width={26} height={26} style={{ objectFit: 'contain', flexShrink: 0, mixBlendMode: 'screen' }} aria-hidden />
+            <img src="/Adobe Express - file.png" alt="EdgeFlow" width={38} height={38} style={{ objectFit: 'contain', flexShrink: 0, mixBlendMode: 'screen' }} aria-hidden />
             EdgeFlow
           </div>
           <div className="lg nav-pill" ref={navPillRef}>
@@ -909,7 +909,7 @@ export default function Landing() {
           <div className="footer-grid">
             <div className="footer-brand">
               <div className="logo">
-                <img src="/Adobe Express - file.png" alt="EdgeFlow" width={26} height={26} style={{ objectFit: 'contain', flexShrink: 0, mixBlendMode: 'screen' }} aria-hidden />
+                <img src="/Adobe Express - file.png" alt="EdgeFlow" width={38} height={38} style={{ objectFit: 'contain', flexShrink: 0, mixBlendMode: 'screen' }} aria-hidden />
                 EdgeFlow
               </div>
               <p>The trading journal and analytics platform for traders who take their performance seriously. Works for any market, any strategy, any broker.</p>
