@@ -249,8 +249,6 @@ const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
   </HelmetProvider>
-);
-
   </Sentry.ErrorBoundary>
 );
 
