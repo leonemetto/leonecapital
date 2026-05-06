@@ -26,6 +26,25 @@ const brokers = [
   { name: 'TradeStation', cat: 'US Markets' }, { name: 'NinjaTrader', cat: 'Futures' },
 ];
 
+// Star field — generated once at module load, confined to hero sides
+const HERO_STARS = Array.from({ length: 90 }, (_, i) => {
+  const isLeft = i < 45;
+  // Left side: 0–20%, right side: 80–100%, with a few reaching slightly inward
+  const xRange = i % 7 === 0 ? 8 : (i % 5 === 0 ? 14 : 20);
+  const x = isLeft ? Math.random() * xRange : 100 - Math.random() * xRange;
+  const isBright = Math.random() > 0.72;
+  return {
+    x,
+    y: Math.random() * 98,
+    r: isBright ? Math.random() * 0.9 + 0.8 : Math.random() * 0.6 + 0.3,
+    op: isBright ? Math.random() * 0.38 + 0.18 : Math.random() * 0.18 + 0.04,
+    delay: Math.random() * 7,
+    dur: 2.5 + Math.random() * 4,
+    // slight blue tint on ~20% of stars
+    blue: Math.random() > 0.8,
+  };
+});
+
 const navSections = [
   { key: 'how',      id: 'how',     label: 'How it works', href: '#how' },
   { key: 'features', id: 'preview', label: 'Features',     href: '#preview' },
@@ -216,6 +235,25 @@ export default function Landing() {
 
       {/* ============ HERO ============ */}
       <header className="hero">
+        {/* Star field — subtle particles on the sides */}
+        <div className="hero-stars" aria-hidden="true">
+          {HERO_STARS.map((s, i) => (
+            <span
+              key={i}
+              className="hero-star"
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}%`,
+                width: `${s.r * 2}px`,
+                height: `${s.r * 2}px`,
+                background: s.blue ? 'rgba(200,220,255,0.95)' : '#fff',
+                '--star-op': s.op,
+                animationDelay: `${s.delay}s`,
+                animationDuration: `${s.dur}s`,
+              } as React.CSSProperties}
+            />
+          ))}
+        </div>
         <div className="hero-aurora">
           <svg viewBox="0 0 1920 1000" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
             <defs>

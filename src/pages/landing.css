@@ -152,6 +152,23 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   position: relative; padding-top: 150px; padding-bottom: 0;
   text-align: center; overflow: hidden;
 }
+
+/* Star field */
+.hero-stars {
+  position: absolute; inset: 0;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.hero-star {
+  position: absolute; border-radius: 50%;
+  /* box-shadow gives a soft halo, making small dots read as stars */
+  box-shadow: 0 0 3px 1px rgba(255,255,255,0.18);
+  will-change: opacity;
+  animation: starTwinkle 3s ease-in-out infinite alternate;
+}
+@keyframes starTwinkle {
+  from { opacity: var(--star-op, 0.2); }
+  to   { opacity: calc(var(--star-op, 0.2) * 0.1); }
+}
 .hero-aurora {
   position: absolute; inset: 0;
   z-index: 0; pointer-events: none; overflow: hidden;
