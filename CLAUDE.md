@@ -449,6 +449,13 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [x] 1-year immutable cache headers for /assets/*, /fonts/*, all images in vercel.json ✅
 - [x] PagePrefetcher: all lazy page chunks background-downloaded 2s after app load ✅
 
+### LEGAL — DEFERRED (before UK launch / scale)
+- [ ] **Acceptable Use Policy** — add clause preventing users from using EdgeFlow data/exports to train competing AI models, resell aggregated trade data, or scrape programmatically. Add as a new section in Terms or a standalone /legal/aup page.
+- [ ] **Professional Indemnity Insurance** — £1,500–£5,000/yr. Not needed at bootstrap stage but required before scaling. Revisit when MRR exceeds £2k.
+- [ ] **UK solicitor review of ToS + Privacy Policy** — 1-hour review (~£200–£400). Book before UK launch. Governing law is already set to England and Wales.
+- [ ] **Delete-my-data flow** — right to erasure (GDPR Art. 17). Currently data deletion is manual (admin). Build a self-serve "Delete my account and all data" button in Settings that wipes profiles, trades, accounts, and storage files.
+- [ ] **Subscription terms review** — once payments launch, review cancellation, downgrade, and data-retention-on-cancellation wording in Terms Section 6 with a solicitor.
+
 ### INFRASTRUCTURE
 - [ ] Upgrade Supabase to Pro ($25/mo) — free tier 1GB storage won't handle screenshots at scale
 

@@ -461,7 +461,7 @@ export default function AIAdvisor() {
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
-                placeholder="Ask about your trading performance..."
+                placeholder="Ask about your trading patterns (not financial advice)"
                 className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-xl pr-4 py-3.5 transition-colors"
                 rows={1}
               />
@@ -475,7 +475,7 @@ export default function AIAdvisor() {
             </button>
           </form>
           <p className="text-[10px] text-center mt-2 text-muted-foreground/40">
-            AI analysis is based on your logged trades only. Log more trades for more accurate insights.
+            Atlas analyses your historical trade data only. Not financial advice — you remain the decision-maker.
           </p>
         </div>
       </div>

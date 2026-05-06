@@ -186,6 +186,9 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
 
   const [step, setStep] = useState<Step>(1);
   const [saving, setSaving] = useState(false);
+  const [ack1, setAck1] = useState(false);
+  const [ack2, setAck2] = useState(false);
+  const [ack3, setAck3] = useState(false);
 
   /* step 2 */
   const [accountName, setAccountName] = useState('');
@@ -358,7 +361,33 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         ))}
       </div>
 
-      <PrimaryButton onClick={() => setStep(2)}>
+      {/* Risk Acknowledgement */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20, padding: '16px', borderRadius: 12, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}>
+        <p style={{ fontSize: 10, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600, margin: '0 0 4px' }}>Before you begin</p>
+        {[
+          { val: ack1, set: setAck1, label: 'EdgeFlow is a journaling and analytics tool, not a financial advisory service.' },
+          { val: ack2, set: setAck2, label: 'AI analysis and What-If simulations are hypothetical and do not reflect guaranteed outcomes.' },
+          { val: ack3, set: setAck3, label: 'I accept full responsibility for any trading decisions and financial losses.' },
+        ].map(({ val, set, label }, i) => (
+          <label key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, cursor: 'pointer' }}>
+            <div
+              onClick={() => set(!val)}
+              style={{
+                width: 16, height: 16, borderRadius: 4, flexShrink: 0, marginTop: 1,
+                border: val ? '1px solid rgba(255,255,255,0.8)' : '1px solid rgba(255,255,255,0.2)',
+                background: val ? 'rgba(255,255,255,0.9)' : 'transparent',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.15s',
+              }}
+            >
+              {val && <Check size={10} color="#000" weight="bold" />}
+            </div>
+            <span onClick={() => set(!val)} style={{ fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.55, userSelect: 'none' }}>{label}</span>
+          </label>
+        ))}
+      </div>
+
+      <PrimaryButton onClick={() => setStep(2)} disabled={!ack1 || !ack2 || !ack3}>
         Let's go →
       </PrimaryButton>
 

@@ -70,7 +70,7 @@ const SECTIONS = [
   },
   {
     title: '14. Governing Law and Dispute Resolution',
-    body: `These Terms shall be governed by and construed in accordance with applicable law. In the event of any dispute arising from or in connection with these Terms or the Service, the parties agree to first attempt to resolve the dispute through good-faith negotiation.\n\nIf a dispute cannot be resolved through negotiation within 30 days, either party may pursue resolution through the appropriate courts or binding arbitration under applicable rules. You agree to submit to the personal jurisdiction of such proceedings.\n\nYou waive any right to bring claims as a plaintiff or class member in any purported class action, collective action, or representative proceeding.`,
+    body: `These Terms shall be governed by and construed in accordance with the laws of England and Wales. Both parties submit to the exclusive jurisdiction of the courts of England and Wales for resolution of any disputes arising from or in connection with these Terms or the Service.\n\nIn the event of any dispute, the parties agree to first attempt resolution through good-faith negotiation. If the dispute cannot be resolved through negotiation within 30 days, either party may pursue resolution through the courts of England and Wales.\n\nYou waive any right to bring claims as a plaintiff or class member in any purported class action, collective action, or representative proceeding.\n\nIf you are located outside England and Wales, local mandatory consumer protection laws may apply to your use of the Service and are not overridden by this clause.`,
   },
   {
     title: '15. Severability',

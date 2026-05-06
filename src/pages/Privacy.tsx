@@ -104,7 +104,7 @@ export default function Privacy() {
           <span style={{ fontSize: 13, color: G, fontWeight: 600 }}>Legal</span>
         </div>
         <h1 style={{ fontSize: 'clamp(40px, 5vw, 72px)', fontWeight: 800, letterSpacing: '-2.5px', lineHeight: 1.0, marginBottom: 16 }}>Privacy Policy</h1>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 64 }}>Last updated: April 2026</p>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 64 }}>Last updated: May 2026</p>
 
         {SECTIONS.map(({ title, body }) => (
           <div key={title} style={{ marginBottom: 52 }}>

@@ -337,6 +337,9 @@ export default function WhatIfSimulator() {
               ? `Analysing: ${preLabel} · adjust filters and re-run`
               : 'apply filters to find your best-performing conditions'}
           </div>
+          <div style={{ fontSize: 11, color: 'var(--ef-ink-4)', marginTop: 4 }}>
+            Simulated results only. Does not account for slippage, commissions, or live market conditions.
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {preField && (

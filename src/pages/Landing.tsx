@@ -956,6 +956,9 @@ export default function Landing() {
               </ul>
             </div>
           </div>
+          <div style={{ textAlign: 'center', marginBottom: 16, fontSize: 12, color: 'rgba(255,255,255,0.2)', lineHeight: 1.6, maxWidth: 640, margin: '0 auto 16px' }}>
+            Trading involves significant risk of loss. Capital at risk. EdgeFlow provides analytics and educational tools only — not financial advice. Past performance shown in simulations does not guarantee future results.
+          </div>
           <div className="footer-meta">
             <span>© 2026 EdgeFlow. All rights reserved.</span>
             <span>The professional trading journal.</span>

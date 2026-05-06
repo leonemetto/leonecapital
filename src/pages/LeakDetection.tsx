@@ -237,6 +237,9 @@ export default function LeakDetection() {
           <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
             patterns draining your edge · {trades.length} trades analysed
           </div>
+          <div style={{ fontSize: 11, color: 'var(--ef-ink-4)', marginTop: 4 }}>
+            Based on your past data. Eliminating leaks does not guarantee future profitability.
+          </div>
         </div>
 
         {leaks.length > 0 && (
