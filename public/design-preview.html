@@ -935,8 +935,8 @@
   /* Stats strip */
   .stats-strip {
     background: linear-gradient(180deg, #080a09 0%, #060808 100%) !important;
-    border-top-color: rgba(255,255,255,0.05) !important;
-    border-bottom-color: rgba(255,255,255,0.05) !important;
+    border-top-color: rgba(255,255,255,0.036) !important;
+    border-bottom-color: rgba(255,255,255,0.036) !important;
   }
 
   /* ---- BENTO: warm dark tint + left sweep + rings from top-left ---- */
@@ -949,12 +949,12 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Concentric rings from top-left corner */
-      radial-gradient(circle at 0% 0%, transparent 259px, rgba(30,211,134,0.09) 260px, rgba(30,211,134,0.07) 262px, transparent 264px),
-      radial-gradient(circle at 0% 0%, transparent 429px, rgba(30,211,134,0.07) 430px, rgba(30,211,134,0.05) 432px, transparent 434px),
-      radial-gradient(circle at 0% 0%, transparent 599px, rgba(30,211,134,0.05) 600px, rgba(30,211,134,0.03) 602px, transparent 604px),
-      radial-gradient(circle at 0% 0%, transparent 769px, rgba(30,211,134,0.03) 770px, transparent 772px),
+      radial-gradient(circle at 0% 0%, transparent 259px, rgba(30,211,134,0.065) 260px, rgba(30,211,134,0.05) 262px, transparent 264px),
+      radial-gradient(circle at 0% 0%, transparent 429px, rgba(30,211,134,0.05) 430px, rgba(30,211,134,0.036) 432px, transparent 434px),
+      radial-gradient(circle at 0% 0%, transparent 599px, rgba(30,211,134,0.036) 600px, rgba(30,211,134,0.022) 602px, transparent 604px),
+      radial-gradient(circle at 0% 0%, transparent 769px, rgba(30,211,134,0.022) 770px, transparent 772px),
       /* Left directional sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.14) 0%, rgba(30,211,134,0.06) 40%, transparent 100%);
+      linear-gradient(90deg, rgba(30,211,134,0.05) 0%, rgba(30,211,134,0.022) 40%, transparent 100%);
     pointer-events: none;
   }
   /* Large decorative arc — top-right */
@@ -963,7 +963,7 @@
     position: absolute; top: -240px; right: -240px; z-index: 0;
     width: 600px; height: 600px; border-radius: 50%;
     border: 1px solid rgba(30,211,134,0.18);
-    box-shadow: inset 0 0 80px rgba(30,211,134,0.08), 0 0 80px rgba(30,211,134,0.08);
+    box-shadow: inset 0 0 80px rgba(30,211,134,0.03), 0 0 80px rgba(30,211,134,0.03);
     pointer-events: none;
   }
   .bento-section .wrap { position: relative; z-index: 1; }
@@ -978,11 +978,11 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from top-right */
-      radial-gradient(circle at 100% 0%, transparent 249px, rgba(118,223,168,0.09) 250px, rgba(118,223,168,0.07) 252px, transparent 254px),
-      radial-gradient(circle at 100% 0%, transparent 419px, rgba(118,223,168,0.07) 420px, rgba(118,223,168,0.05) 422px, transparent 424px),
-      radial-gradient(circle at 100% 0%, transparent 589px, rgba(118,223,168,0.05) 590px, rgba(118,223,168,0.03) 592px, transparent 594px),
+      radial-gradient(circle at 100% 0%, transparent 249px, rgba(118,223,168,0.065) 250px, rgba(118,223,168,0.05) 252px, transparent 254px),
+      radial-gradient(circle at 100% 0%, transparent 419px, rgba(118,223,168,0.05) 420px, rgba(118,223,168,0.036) 422px, transparent 424px),
+      radial-gradient(circle at 100% 0%, transparent 589px, rgba(118,223,168,0.036) 590px, rgba(118,223,168,0.022) 592px, transparent 594px),
       /* Right sweep */
-      linear-gradient(270deg, rgba(118,223,168,0.13) 0%, rgba(30,211,134,0.05) 50%, transparent 100%);
+      linear-gradient(270deg, rgba(118,223,168,0.10) 0%, rgba(30,211,134,0.036) 50%, transparent 100%);
     pointer-events: none;
   }
   .section#how::after {
@@ -990,9 +990,9 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from bottom-left */
-      radial-gradient(circle at 0% 100%, transparent 269px, rgba(30,211,134,0.08) 270px, rgba(30,211,134,0.06) 272px, transparent 274px),
-      radial-gradient(circle at 0% 100%, transparent 449px, rgba(30,211,134,0.06) 450px, rgba(30,211,134,0.04) 452px, transparent 454px),
-      radial-gradient(circle at 0% 100%, transparent 629px, rgba(30,211,134,0.04) 630px, transparent 632px);
+      radial-gradient(circle at 0% 100%, transparent 269px, rgba(30,211,134,0.03) 270px, rgba(30,211,134,0.022) 272px, transparent 274px),
+      radial-gradient(circle at 0% 100%, transparent 449px, rgba(30,211,134,0.022) 450px, rgba(30,211,134,0.03) 452px, transparent 454px),
+      radial-gradient(circle at 0% 100%, transparent 629px, rgba(30,211,134,0.03) 630px, transparent 632px);
     pointer-events: none;
   }
   .section#how .wrap { position: relative; z-index: 1; }
@@ -1007,10 +1007,10 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from top-left */
-      radial-gradient(circle at 0% 0%, transparent 319px, rgba(30,211,134,0.07) 320px, rgba(30,211,134,0.05) 322px, transparent 324px),
-      radial-gradient(circle at 0% 0%, transparent 529px, rgba(30,211,134,0.05) 530px, transparent 532px),
+      radial-gradient(circle at 0% 0%, transparent 319px, rgba(30,211,134,0.05) 320px, rgba(30,211,134,0.036) 322px, transparent 324px),
+      radial-gradient(circle at 0% 0%, transparent 529px, rgba(30,211,134,0.036) 530px, transparent 532px),
       /* Top center glow */
-      radial-gradient(ellipse 90% 50% at 50% 0%, rgba(30,211,134,0.10) 0%, rgba(30,211,134,0.04) 40%, transparent 70%);
+      radial-gradient(ellipse 90% 50% at 50% 0%, rgba(30,211,134,0.036) 0%, rgba(30,211,134,0.03) 40%, transparent 70%);
     pointer-events: none;
   }
   .preview-section::after {
@@ -1018,10 +1018,10 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from top-right */
-      radial-gradient(circle at 100% 0%, transparent 319px, rgba(118,223,168,0.07) 320px, rgba(118,223,168,0.05) 322px, transparent 324px),
-      radial-gradient(circle at 100% 0%, transparent 529px, rgba(118,223,168,0.05) 530px, transparent 532px),
+      radial-gradient(circle at 100% 0%, transparent 319px, rgba(118,223,168,0.05) 320px, rgba(118,223,168,0.036) 322px, transparent 324px),
+      radial-gradient(circle at 100% 0%, transparent 529px, rgba(118,223,168,0.036) 530px, transparent 532px),
       /* Right sweep */
-      linear-gradient(270deg, rgba(30,211,134,0.11), transparent 35%);
+      linear-gradient(270deg, rgba(30,211,134,0.08), transparent 35%);
     pointer-events: none;
   }
   .preview-section .wrap { position: relative; z-index: 1; }
@@ -1038,12 +1038,12 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from center-left */
-      radial-gradient(circle at 0% 50%, transparent 179px, rgba(30,211,134,0.10) 180px, rgba(30,211,134,0.08) 182px, transparent 184px),
-      radial-gradient(circle at 0% 50%, transparent 309px, rgba(30,211,134,0.08) 310px, rgba(30,211,134,0.06) 312px, transparent 314px),
-      radial-gradient(circle at 0% 50%, transparent 439px, rgba(30,211,134,0.06) 440px, rgba(30,211,134,0.04) 442px, transparent 444px),
-      radial-gradient(circle at 0% 50%, transparent 569px, rgba(30,211,134,0.04) 570px, transparent 572px),
+      radial-gradient(circle at 0% 50%, transparent 179px, rgba(30,211,134,0.036) 180px, rgba(30,211,134,0.03) 182px, transparent 184px),
+      radial-gradient(circle at 0% 50%, transparent 309px, rgba(30,211,134,0.03) 310px, rgba(30,211,134,0.022) 312px, transparent 314px),
+      radial-gradient(circle at 0% 50%, transparent 439px, rgba(30,211,134,0.022) 440px, rgba(30,211,134,0.03) 442px, transparent 444px),
+      radial-gradient(circle at 0% 50%, transparent 569px, rgba(30,211,134,0.03) 570px, transparent 572px),
       /* Left sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.17) 0%, rgba(30,211,134,0.06) 50%, transparent 100%);
+      linear-gradient(90deg, rgba(30,211,134,0.065) 0%, rgba(30,211,134,0.022) 50%, transparent 100%);
     pointer-events: none;
   }
   .spotlight-section:nth-of-type(1)::after {
@@ -1051,7 +1051,7 @@
     position: absolute; top: 50%; left: -200px; transform: translateY(-50%); z-index: 0;
     width: 500px; height: 500px; border-radius: 50%;
     border: 1px solid rgba(30,211,134,0.22);
-    box-shadow: 0 0 100px rgba(30,211,134,0.10);
+    box-shadow: 0 0 100px rgba(30,211,134,0.036);
     pointer-events: none;
   }
 
@@ -1064,12 +1064,12 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from center-right */
-      radial-gradient(circle at 100% 50%, transparent 179px, rgba(118,223,168,0.09) 180px, rgba(118,223,168,0.07) 182px, transparent 184px),
-      radial-gradient(circle at 100% 50%, transparent 309px, rgba(118,223,168,0.07) 310px, rgba(118,223,168,0.05) 312px, transparent 314px),
-      radial-gradient(circle at 100% 50%, transparent 439px, rgba(118,223,168,0.05) 440px, rgba(118,223,168,0.03) 442px, transparent 444px),
-      radial-gradient(circle at 100% 50%, transparent 569px, rgba(118,223,168,0.03) 570px, transparent 572px),
+      radial-gradient(circle at 100% 50%, transparent 179px, rgba(118,223,168,0.065) 180px, rgba(118,223,168,0.05) 182px, transparent 184px),
+      radial-gradient(circle at 100% 50%, transparent 309px, rgba(118,223,168,0.05) 310px, rgba(118,223,168,0.036) 312px, transparent 314px),
+      radial-gradient(circle at 100% 50%, transparent 439px, rgba(118,223,168,0.036) 440px, rgba(118,223,168,0.022) 442px, transparent 444px),
+      radial-gradient(circle at 100% 50%, transparent 569px, rgba(118,223,168,0.022) 570px, transparent 572px),
       /* Right sweep */
-      linear-gradient(270deg, rgba(118,223,168,0.15) 0%, rgba(30,211,134,0.05) 50%, transparent 100%);
+      linear-gradient(270deg, rgba(118,223,168,0.03) 0%, rgba(30,211,134,0.036) 50%, transparent 100%);
     pointer-events: none;
   }
   .spotlight-section:nth-of-type(2)::after {
@@ -1077,7 +1077,7 @@
     position: absolute; top: 50%; right: -200px; transform: translateY(-50%); z-index: 0;
     width: 500px; height: 500px; border-radius: 50%;
     border: 1px solid rgba(118,223,168,0.20);
-    box-shadow: 0 0 100px rgba(118,223,168,0.09);
+    box-shadow: 0 0 100px rgba(118,223,168,0.065);
     pointer-events: none;
   }
   .spotlight-section .spotlight-inner { position: relative; z-index: 1; }
@@ -1092,14 +1092,14 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from bottom-left */
-      radial-gradient(circle at 0% 100%, transparent 199px, rgba(30,211,134,0.09) 200px, rgba(30,211,134,0.07) 202px, transparent 204px),
-      radial-gradient(circle at 0% 100%, transparent 349px, rgba(30,211,134,0.07) 350px, rgba(30,211,134,0.05) 352px, transparent 354px),
-      radial-gradient(circle at 0% 100%, transparent 499px, rgba(30,211,134,0.05) 500px, rgba(30,211,134,0.03) 502px, transparent 504px),
-      radial-gradient(circle at 0% 100%, transparent 649px, rgba(30,211,134,0.03) 650px, transparent 652px),
+      radial-gradient(circle at 0% 100%, transparent 199px, rgba(30,211,134,0.065) 200px, rgba(30,211,134,0.05) 202px, transparent 204px),
+      radial-gradient(circle at 0% 100%, transparent 349px, rgba(30,211,134,0.05) 350px, rgba(30,211,134,0.036) 352px, transparent 354px),
+      radial-gradient(circle at 0% 100%, transparent 499px, rgba(30,211,134,0.036) 500px, rgba(30,211,134,0.022) 502px, transparent 504px),
+      radial-gradient(circle at 0% 100%, transparent 649px, rgba(30,211,134,0.022) 650px, transparent 652px),
       /* Left sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.12) 0%, transparent 35%),
+      linear-gradient(90deg, rgba(30,211,134,0.022) 0%, transparent 35%),
       /* Right sweep */
-      linear-gradient(270deg, rgba(118,223,168,0.13) 0%, rgba(30,211,134,0.05) 45%, transparent 100%);
+      linear-gradient(270deg, rgba(118,223,168,0.10) 0%, rgba(30,211,134,0.036) 45%, transparent 100%);
     pointer-events: none;
   }
   .for-section::after {
@@ -1107,7 +1107,7 @@
     position: absolute; top: -100px; right: -150px; z-index: 0;
     width: 450px; height: 450px; border-radius: 50%;
     border: 1px solid rgba(118,223,168,0.18);
-    box-shadow: 0 0 60px rgba(118,223,168,0.06);
+    box-shadow: 0 0 60px rgba(118,223,168,0.022);
     pointer-events: none;
   }
   .for-section .wrap { position: relative; z-index: 1; }
@@ -1122,12 +1122,12 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from bottom-left */
-      radial-gradient(circle at 0% 100%, transparent 219px, rgba(30,211,134,0.10) 220px, rgba(30,211,134,0.08) 222px, transparent 224px),
-      radial-gradient(circle at 0% 100%, transparent 379px, rgba(30,211,134,0.08) 380px, rgba(30,211,134,0.06) 382px, transparent 384px),
-      radial-gradient(circle at 0% 100%, transparent 539px, rgba(30,211,134,0.06) 540px, rgba(30,211,134,0.04) 542px, transparent 544px),
-      radial-gradient(circle at 0% 100%, transparent 699px, rgba(30,211,134,0.04) 700px, transparent 702px),
+      radial-gradient(circle at 0% 100%, transparent 219px, rgba(30,211,134,0.036) 220px, rgba(30,211,134,0.03) 222px, transparent 224px),
+      radial-gradient(circle at 0% 100%, transparent 379px, rgba(30,211,134,0.03) 380px, rgba(30,211,134,0.022) 382px, transparent 384px),
+      radial-gradient(circle at 0% 100%, transparent 539px, rgba(30,211,134,0.022) 540px, rgba(30,211,134,0.03) 542px, transparent 544px),
+      radial-gradient(circle at 0% 100%, transparent 699px, rgba(30,211,134,0.03) 700px, transparent 702px),
       /* Left sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.14) 0%, transparent 38%);
+      linear-gradient(90deg, rgba(30,211,134,0.05) 0%, transparent 38%);
     pointer-events: none;
   }
   .vs-section::after {
@@ -1135,12 +1135,12 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from top-right */
-      radial-gradient(circle at 100% 0%, transparent 249px, rgba(118,223,168,0.09) 250px, rgba(118,223,168,0.07) 252px, transparent 254px),
-      radial-gradient(circle at 100% 0%, transparent 419px, rgba(118,223,168,0.07) 420px, rgba(118,223,168,0.05) 422px, transparent 424px),
-      radial-gradient(circle at 100% 0%, transparent 589px, rgba(118,223,168,0.05) 590px, rgba(118,223,168,0.03) 592px, transparent 594px),
-      radial-gradient(circle at 100% 0%, transparent 759px, rgba(118,223,168,0.03) 760px, transparent 762px),
+      radial-gradient(circle at 100% 0%, transparent 249px, rgba(118,223,168,0.065) 250px, rgba(118,223,168,0.05) 252px, transparent 254px),
+      radial-gradient(circle at 100% 0%, transparent 419px, rgba(118,223,168,0.05) 420px, rgba(118,223,168,0.036) 422px, transparent 424px),
+      radial-gradient(circle at 100% 0%, transparent 589px, rgba(118,223,168,0.036) 590px, rgba(118,223,168,0.022) 592px, transparent 594px),
+      radial-gradient(circle at 100% 0%, transparent 759px, rgba(118,223,168,0.022) 760px, transparent 762px),
       /* Right sweep */
-      linear-gradient(270deg, rgba(118,223,168,0.12) 0%, transparent 38%);
+      linear-gradient(270deg, rgba(118,223,168,0.022) 0%, transparent 38%);
     pointer-events: none;
   }
   .vs-section .wrap { position: relative; z-index: 1; }
@@ -1155,11 +1155,11 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from top-left */
-      radial-gradient(circle at 0% 0%, transparent 239px, rgba(30,211,134,0.09) 240px, rgba(30,211,134,0.07) 242px, transparent 244px),
-      radial-gradient(circle at 0% 0%, transparent 399px, rgba(30,211,134,0.07) 400px, rgba(30,211,134,0.05) 402px, transparent 404px),
-      radial-gradient(circle at 0% 0%, transparent 559px, rgba(30,211,134,0.05) 560px, transparent 562px),
+      radial-gradient(circle at 0% 0%, transparent 239px, rgba(30,211,134,0.065) 240px, rgba(30,211,134,0.05) 242px, transparent 244px),
+      radial-gradient(circle at 0% 0%, transparent 399px, rgba(30,211,134,0.05) 400px, rgba(30,211,134,0.036) 402px, transparent 404px),
+      radial-gradient(circle at 0% 0%, transparent 559px, rgba(30,211,134,0.036) 560px, transparent 562px),
       /* Left sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.14), transparent 35%);
+      linear-gradient(90deg, rgba(30,211,134,0.05), transparent 35%);
     pointer-events: none;
   }
   .testi-section::after {
@@ -1167,11 +1167,11 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from bottom-right */
-      radial-gradient(circle at 100% 100%, transparent 239px, rgba(118,223,168,0.08) 240px, rgba(118,223,168,0.06) 242px, transparent 244px),
-      radial-gradient(circle at 100% 100%, transparent 399px, rgba(118,223,168,0.06) 400px, rgba(118,223,168,0.04) 402px, transparent 404px),
-      radial-gradient(circle at 100% 100%, transparent 559px, rgba(118,223,168,0.04) 560px, transparent 562px),
+      radial-gradient(circle at 100% 100%, transparent 239px, rgba(118,223,168,0.03) 240px, rgba(118,223,168,0.022) 242px, transparent 244px),
+      radial-gradient(circle at 100% 100%, transparent 399px, rgba(118,223,168,0.022) 400px, rgba(118,223,168,0.03) 402px, transparent 404px),
+      radial-gradient(circle at 100% 100%, transparent 559px, rgba(118,223,168,0.03) 560px, transparent 562px),
       /* Right sweep */
-      linear-gradient(270deg, rgba(118,223,168,0.12), transparent 35%);
+      linear-gradient(270deg, rgba(118,223,168,0.022), transparent 35%);
     pointer-events: none;
   }
   .testi-section .section-head,
@@ -1187,14 +1187,14 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from center-left */
-      radial-gradient(circle at 0% 50%, transparent 169px, rgba(30,211,134,0.10) 170px, rgba(30,211,134,0.08) 172px, transparent 174px),
-      radial-gradient(circle at 0% 50%, transparent 299px, rgba(30,211,134,0.08) 300px, rgba(30,211,134,0.06) 302px, transparent 304px),
-      radial-gradient(circle at 0% 50%, transparent 429px, rgba(30,211,134,0.06) 430px, rgba(30,211,134,0.04) 432px, transparent 434px),
-      radial-gradient(circle at 0% 50%, transparent 559px, rgba(30,211,134,0.04) 560px, transparent 562px),
+      radial-gradient(circle at 0% 50%, transparent 169px, rgba(30,211,134,0.036) 170px, rgba(30,211,134,0.03) 172px, transparent 174px),
+      radial-gradient(circle at 0% 50%, transparent 299px, rgba(30,211,134,0.03) 300px, rgba(30,211,134,0.022) 302px, transparent 304px),
+      radial-gradient(circle at 0% 50%, transparent 429px, rgba(30,211,134,0.022) 430px, rgba(30,211,134,0.03) 432px, transparent 434px),
+      radial-gradient(circle at 0% 50%, transparent 559px, rgba(30,211,134,0.03) 560px, transparent 562px),
       /* Left sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.13) 0%, transparent 40%),
+      linear-gradient(90deg, rgba(30,211,134,0.10) 0%, transparent 40%),
       /* Right sweep */
-      linear-gradient(270deg, rgba(30,211,134,0.14) 0%, rgba(30,211,134,0.05) 50%, transparent 100%);
+      linear-gradient(270deg, rgba(30,211,134,0.05) 0%, rgba(30,211,134,0.036) 50%, transparent 100%);
     pointer-events: none;
   }
   .brokers-section::after {
@@ -1202,7 +1202,7 @@
     position: absolute; bottom: -200px; right: -200px; z-index: 0;
     width: 600px; height: 600px; border-radius: 50%;
     border: 1px solid rgba(30,211,134,0.19);
-    box-shadow: inset 0 0 80px rgba(30,211,134,0.07);
+    box-shadow: inset 0 0 80px rgba(30,211,134,0.05);
     pointer-events: none;
   }
   .brokers-section .wrap { position: relative; z-index: 1; }
@@ -1217,17 +1217,17 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from center-left */
-      radial-gradient(circle at 0% 50%, transparent 219px, rgba(30,211,134,0.09) 220px, rgba(30,211,134,0.07) 222px, transparent 224px),
-      radial-gradient(circle at 0% 50%, transparent 369px, rgba(30,211,134,0.07) 370px, rgba(30,211,134,0.05) 372px, transparent 374px),
-      radial-gradient(circle at 0% 50%, transparent 519px, rgba(30,211,134,0.05) 520px, transparent 522px),
+      radial-gradient(circle at 0% 50%, transparent 219px, rgba(30,211,134,0.065) 220px, rgba(30,211,134,0.05) 222px, transparent 224px),
+      radial-gradient(circle at 0% 50%, transparent 369px, rgba(30,211,134,0.05) 370px, rgba(30,211,134,0.036) 372px, transparent 374px),
+      radial-gradient(circle at 0% 50%, transparent 519px, rgba(30,211,134,0.036) 520px, transparent 522px),
       /* Rings from center-right */
-      radial-gradient(circle at 100% 50%, transparent 219px, rgba(30,211,134,0.09) 220px, rgba(30,211,134,0.07) 222px, transparent 224px),
-      radial-gradient(circle at 100% 50%, transparent 369px, rgba(30,211,134,0.07) 370px, rgba(30,211,134,0.05) 372px, transparent 374px),
-      radial-gradient(circle at 100% 50%, transparent 519px, rgba(30,211,134,0.05) 520px, transparent 522px),
+      radial-gradient(circle at 100% 50%, transparent 219px, rgba(30,211,134,0.065) 220px, rgba(30,211,134,0.05) 222px, transparent 224px),
+      radial-gradient(circle at 100% 50%, transparent 369px, rgba(30,211,134,0.05) 370px, rgba(30,211,134,0.036) 372px, transparent 374px),
+      radial-gradient(circle at 100% 50%, transparent 519px, rgba(30,211,134,0.036) 520px, transparent 522px),
       /* Left + right sweeps + center glow */
-      linear-gradient(90deg, rgba(30,211,134,0.15) 0%, transparent 30%),
-      linear-gradient(270deg, rgba(30,211,134,0.15) 0%, transparent 30%),
-      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(30,211,134,0.10), transparent 65%);
+      linear-gradient(90deg, rgba(30,211,134,0.03) 0%, transparent 30%),
+      linear-gradient(270deg, rgba(30,211,134,0.03) 0%, transparent 30%),
+      radial-gradient(ellipse 80% 60% at 50% 30%, rgba(30,211,134,0.036), transparent 65%);
     pointer-events: none;
   }
   .pricing-section::after {
@@ -1242,10 +1242,10 @@
 
   /* Pricing featured card — stronger green glow */
   .price-card.featured {
-    box-shadow: 0 0 80px rgba(30,211,134,0.12), 0 0 30px rgba(30,211,134,0.06), inset 0 1px 0 rgba(255,255,255,0.06) !important;
+    box-shadow: 0 0 80px rgba(30,211,134,0.022), 0 0 30px rgba(30,211,134,0.022), inset 0 1px 0 rgba(255,255,255,0.022) !important;
     background:
-      radial-gradient(ellipse 100% 60% at 50% 0%, rgba(30,211,134,0.06), transparent 60%),
-      radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.04), transparent 60%),
+      radial-gradient(ellipse 100% 60% at 50% 0%, rgba(30,211,134,0.022), transparent 60%),
+      radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.03), transparent 60%),
       linear-gradient(180deg, #1e1e20 0%, #0a0a0c 100%) !important;
   }
 
@@ -1259,12 +1259,12 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from top-left */
-      radial-gradient(circle at 0% 0%, transparent 229px, rgba(30,211,134,0.11) 230px, rgba(30,211,134,0.09) 232px, transparent 234px),
-      radial-gradient(circle at 0% 0%, transparent 399px, rgba(30,211,134,0.09) 400px, rgba(30,211,134,0.07) 402px, transparent 404px),
-      radial-gradient(circle at 0% 0%, transparent 569px, rgba(30,211,134,0.07) 570px, rgba(30,211,134,0.05) 572px, transparent 574px),
-      radial-gradient(circle at 0% 0%, transparent 739px, rgba(30,211,134,0.05) 740px, transparent 742px),
+      radial-gradient(circle at 0% 0%, transparent 229px, rgba(30,211,134,0.08) 230px, rgba(30,211,134,0.065) 232px, transparent 234px),
+      radial-gradient(circle at 0% 0%, transparent 399px, rgba(30,211,134,0.065) 400px, rgba(30,211,134,0.05) 402px, transparent 404px),
+      radial-gradient(circle at 0% 0%, transparent 569px, rgba(30,211,134,0.05) 570px, rgba(30,211,134,0.036) 572px, transparent 574px),
+      radial-gradient(circle at 0% 0%, transparent 739px, rgba(30,211,134,0.036) 740px, transparent 742px),
       /* Left sweep */
-      linear-gradient(90deg, rgba(30,211,134,0.16) 0%, rgba(30,211,134,0.06) 50%, transparent 100%);
+      linear-gradient(90deg, rgba(30,211,134,0.03) 0%, rgba(30,211,134,0.022) 50%, transparent 100%);
     pointer-events: none;
   }
   .faq-section::after {
@@ -1272,11 +1272,11 @@
     position: absolute; inset: 0; z-index: 0;
     background:
       /* Rings from bottom-right */
-      radial-gradient(circle at 100% 100%, transparent 249px, rgba(30,211,134,0.08) 250px, rgba(30,211,134,0.06) 252px, transparent 254px),
-      radial-gradient(circle at 100% 100%, transparent 419px, rgba(30,211,134,0.06) 420px, rgba(30,211,134,0.04) 422px, transparent 424px),
-      radial-gradient(circle at 100% 100%, transparent 589px, rgba(30,211,134,0.04) 590px, transparent 592px),
+      radial-gradient(circle at 100% 100%, transparent 249px, rgba(30,211,134,0.03) 250px, rgba(30,211,134,0.022) 252px, transparent 254px),
+      radial-gradient(circle at 100% 100%, transparent 419px, rgba(30,211,134,0.022) 420px, rgba(30,211,134,0.03) 422px, transparent 424px),
+      radial-gradient(circle at 100% 100%, transparent 589px, rgba(30,211,134,0.03) 590px, transparent 592px),
       /* Right sweep */
-      linear-gradient(270deg, rgba(30,211,134,0.12) 0%, transparent 38%);
+      linear-gradient(270deg, rgba(30,211,134,0.022) 0%, transparent 38%);
     pointer-events: none;
   }
   .faq-section .wrap { position: relative; z-index: 1; }
@@ -1333,12 +1333,29 @@
 <nav class="nav">
   <div class="nav-inner">
     <div class="logo">
-      <svg class="logo-svg" width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden>
-        <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-        <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-        <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-        <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-        <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+      <svg width="20" height="24" viewBox="0 0 168 198" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+        <defs>
+          <linearGradient id="efg-n" x1="155" y1="10" x2="14" y2="188" gradientUnits="userSpaceOnUse">
+            <stop offset="0%" stop-color="#dde1ee"/>
+            <stop offset="48%" stop-color="#8891ab"/>
+            <stop offset="100%" stop-color="#3b4361"/>
+          </linearGradient>
+          <filter id="mb-n" x="-30%" y="-18%" width="160%" height="136%">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+            <feColorMatrix in="b" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 22 -10" result="m"/>
+            <feComposite in="SourceGraphic" in2="m" operator="atop"/>
+          </filter>
+        </defs>
+        <g fill="url(#efg-n)" filter="url(#mb-n)">
+          <circle cx="44" cy="38" r="20"/>
+          <rect x="58" y="18" width="92" height="40" rx="20"/>
+          <circle cx="63" cy="67" r="11"/>
+          <circle cx="86" cy="95" r="19"/>
+          <circle cx="61" cy="113" r="14"/>
+          <circle cx="42" cy="132" r="23"/>
+          <circle cx="44" cy="163" r="20"/>
+          <rect x="58" y="143" width="92" height="40" rx="20"/>
+        </g>
       </svg>
       EdgeFlow
     </div>
@@ -2054,12 +2071,29 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <div class="logo">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style="color:#1ed386">
-            <line x1="3" y1="3" x2="3" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-            <line x1="3" y1="3" x2="16" y2="3" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-            <line x1="3" y1="10" x2="12" y2="10" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-            <line x1="12" y1="10" x2="16" y2="6" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
-            <line x1="3" y1="17" x2="16" y2="17" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+          <svg width="20" height="24" viewBox="0 0 168 198" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden>
+            <defs>
+              <linearGradient id="efg-f" x1="155" y1="10" x2="14" y2="188" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#dde1ee"/>
+                <stop offset="48%" stop-color="#8891ab"/>
+                <stop offset="100%" stop-color="#3b4361"/>
+              </linearGradient>
+              <filter id="mb-f" x="-30%" y="-18%" width="160%" height="136%">
+                <feGaussianBlur in="SourceAlpha" stdDeviation="7" result="b"/>
+                <feColorMatrix in="b" type="matrix" values="1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 22 -10" result="m"/>
+                <feComposite in="SourceGraphic" in2="m" operator="atop"/>
+              </filter>
+            </defs>
+            <g fill="url(#efg-f)" filter="url(#mb-f)">
+              <circle cx="44" cy="38" r="20"/>
+              <rect x="58" y="18" width="92" height="40" rx="20"/>
+              <circle cx="63" cy="67" r="11"/>
+              <circle cx="86" cy="95" r="19"/>
+              <circle cx="61" cy="113" r="14"/>
+              <circle cx="42" cy="132" r="23"/>
+              <circle cx="44" cy="163" r="20"/>
+              <rect x="58" y="143" width="92" height="40" rx="20"/>
+            </g>
           </svg>
           EdgeFlow
         </div>
