@@ -1,6 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
@@ -332,15 +333,11 @@ const PerformanceAnalyst = () => {
   return (
     <AppLayout>
 
-      {/* ── Header ── */}
-      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 28 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Performance Analytics</h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
-            Identify leaks, find your edge, simulate improvements
-          </div>
-        </div>
-        {accounts.length > 1 && (
+      <PageHeader
+        title="Performance Analytics"
+        subtitle="Identify leaks, find your edge, simulate improvements"
+        mb={28}
+        actions={accounts.length > 1 ? (
           <div className="flex items-center gap-2">
             <Funnel className="h-3.5 w-3.5 text-muted-foreground/50" weight="regular" />
             <Select value={selectedAccountId} onValueChange={setSelectedAccountId}>
@@ -353,8 +350,8 @@ const PerformanceAnalyst = () => {
               </SelectContent>
             </Select>
           </div>
-        )}
-      </div>
+        ) : undefined}
+      />
 
       {/* ── Risk Status ── */}
       <div className="mb-8">

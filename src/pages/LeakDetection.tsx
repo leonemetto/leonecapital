@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useLeaks } from '@/contexts/LeaksContext';
@@ -7,6 +8,13 @@ import type { DashboardLeak } from '@/components/dashboard/DashboardLeakDetectio
 import { getExpectancyByField } from '@/lib/analytics';
 import { Warning, CheckCircle, Drop, Lightning } from '@phosphor-icons/react';
 import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+
+const ease = [0.25, 0.46, 0.45, 0.94] as const;
+const cardVariants = {
+  hidden: { opacity: 0, y: 12 },
+  show: (i: number) => ({ opacity: 1, y: 0, transition: { duration: 0.32, delay: i * 0.07, ease } }),
+};
 
 const LEAK_MIN_TRADES = 15;
 
@@ -184,14 +192,8 @@ export default function LeakDetection() {
   if (trades.length < LEAK_MIN_TRADES) {
     return (
       <AppLayout>
-        <div style={{ paddingBottom: 12, marginBottom: 24, borderBottom: '1px solid var(--ef-line)' }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
-            Leak Detection
-          </h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
-            patterns draining your edge
-          </div>
-        </div>
+        <PageHeader title="Leak Detection" subtitle="patterns draining your edge" mb={24} />
+        <PageBody>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 340, textAlign: 'center', gap: 14 }}>
           <Drop size={48} color="var(--ef-ink-4)" weight="light" />
           <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--ef-ink)', letterSpacing: '-0.01em' }}>
@@ -222,40 +224,34 @@ export default function LeakDetection() {
             Log Trade →
           </Link>
         </div>
+        </PageBody>
       </AppLayout>
     );
   }
 
+  const whatIfLink = leaks.length > 0 ? (
+    <Link
+      to="/what-if"
+      className="flex items-center gap-1.5 outline-none transition-colors"
+      style={{
+        height: 34, padding: '0 14px', borderRadius: 10,
+        background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
+        fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
+      }}
+    >
+      Run What-If →
+    </Link>
+  ) : undefined;
+
   return (
     <AppLayout>
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 24 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
-            Leak Detection
-          </h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
-            patterns draining your edge · {trades.length} trades analysed
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--ef-ink-4)', marginTop: 4 }}>
-            Based on your past data. Eliminating leaks does not guarantee future profitability.
-          </div>
-        </div>
-
-        {leaks.length > 0 && (
-          <Link
-            to="/what-if"
-            className="flex items-center gap-1.5 outline-none transition-colors"
-            style={{
-              height: 34, padding: '0 14px', borderRadius: 10,
-              background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
-              fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
-            }}
-          >
-            Run What-If →
-          </Link>
-        )}
-      </div>
+      <PageHeader
+        title="Leak Detection"
+        subtitle={`patterns draining your edge · ${trades.length} trades analysed`}
+        disclaimer="Based on your past data. Eliminating leaks does not guarantee future profitability."
+        actions={whatIfLink}
+        mb={24}
+      />
 
       {leaks.length === 0 ? (
         /* No leaks state */
@@ -284,16 +280,20 @@ export default function LeakDetection() {
           )}
         </div>
       ) : (
-        <div className="leak-grid"
-        >
+        <div className="leak-grid">
           {/* Left: summary + leak cards */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {/* Summary bar */}
-            <div style={{
-              display: 'flex', gap: 0,
-              border: '1px solid var(--ef-line)', borderRadius: 12, overflow: 'hidden',
-              background: 'var(--ef-bg-elev)',
-            }}>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35, ease }}
+              style={{
+                display: 'flex', gap: 0,
+                border: '1px solid var(--ef-line)', borderRadius: 12, overflow: 'hidden',
+                background: 'var(--ef-bg-elev)',
+              }}
+            >
               <div style={{ flex: 1, padding: '16px 20px', borderRight: '1px solid var(--ef-line)' }}>
                 <div className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>Total loss</div>
                 <div className="font-mono" style={{ fontSize: 26, fontWeight: 600, color: 'var(--ef-neg)', letterSpacing: '-0.02em', marginTop: 4 }}>
@@ -312,14 +312,23 @@ export default function LeakDetection() {
                   {criticalCount}
                 </div>
               </div>
-            </div>
+            </motion.div>
 
-            {/* Leak cards */}
-            {leaks.map(l => <LeakCard key={l.id} leak={l} />)}
+            {/* Leak cards — staggered */}
+            {leaks.map((l, i) => (
+              <motion.div key={l.id} custom={i} initial="hidden" animate="show" variants={cardVariants}>
+                <LeakCard leak={l} />
+              </motion.div>
+            ))}
           </div>
 
           {/* Right rail: session + tip */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.15, ease }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 12 }}
+          >
             <SessionBreakdown trades={trades} />
 
             <div style={{
@@ -340,7 +349,7 @@ export default function LeakDetection() {
                 </Link>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       )}
     </AppLayout>

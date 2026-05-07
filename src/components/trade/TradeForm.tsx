@@ -265,7 +265,11 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
       className="space-y-3"
     >
       {/* ─── Core Fields ─── */}
-      <div className="rounded-xl bg-card border border-border p-5 space-y-4">
+      <div className="rounded-xl bg-card border border-border overflow-hidden">
+        <div className="px-5 py-3 border-b border-border/60" style={{ background: 'var(--ef-bg-sunken)' }}>
+          <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">Trade Details</span>
+        </div>
+      <div className="p-5 space-y-4">
 
         {/* Account */}
         {accounts.length > 1 && (
@@ -380,6 +384,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
               placeholder="e.g. 1.0" className={cn(INPUT, 'font-mono')} />
           </div>
         </div>
+        </div>
       </div>
 
       {/* ─── Advanced Toggle ─── */}
@@ -406,7 +411,11 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <div className="rounded-xl bg-card border border-border p-5 space-y-4">
+            <div className="rounded-xl bg-card border border-border overflow-hidden">
+              <div className="px-5 py-3 border-b border-border/60" style={{ background: 'var(--ef-bg-sunken)' }}>
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">Psychology & Context</span>
+              </div>
+            <div className="p-5 space-y-4">
               {/* Row 4: HTF Bias, Emotional State, Confidence */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div>
@@ -502,6 +511,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
                   </label>
                 )}
               </div>
+              </div>
             </div>
           </motion.div>
         )}
@@ -509,8 +519,13 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
 
       {/* ─── Entry Checklist ─── */}
       {activeCriteria.length > 0 && (
-        <div className="rounded-xl bg-card border border-border p-5">
-          <TradeChecklist checks={checks} onChange={setChecks} />
+        <div className="rounded-xl bg-card border border-border overflow-hidden">
+          <div className="px-5 py-3 border-b border-border/60" style={{ background: 'var(--ef-bg-sunken)' }}>
+            <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/40">Entry Checklist</span>
+          </div>
+          <div className="p-5">
+            <TradeChecklist checks={checks} onChange={setChecks} />
+          </div>
         </div>
       )}
 

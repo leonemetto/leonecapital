@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import {
@@ -285,11 +286,8 @@ export default function WhatIfSimulator() {
   if (trades.length < LEAK_DETECTION_MIN_TRADES) {
     return (
       <AppLayout>
-        <div style={{ paddingBottom: 12, marginBottom: 24, borderBottom: '1px solid var(--ef-line)' }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
-            Strategy Optimizer
-          </h1>
-        </div>
+        <PageHeader title="Strategy Optimizer" mb={24} />
+        <PageBody>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: 340, textAlign: 'center', gap: 14 }}>
           <Scales size={48} color="var(--ef-ink-4)" weight="light" />
           <div style={{ fontSize: 17, fontWeight: 600, color: 'var(--ef-ink)', letterSpacing: '-0.01em' }}>
@@ -320,84 +318,86 @@ export default function WhatIfSimulator() {
             Log Trade →
           </Link>
         </div>
+        </PageBody>
       </AppLayout>
     );
   }
 
+  const headerActions = (
+    <>
+      {preField && (
+        <Link
+          to="/leak-detection"
+          className="flex items-center gap-1.5 outline-none transition-colors"
+          style={{
+            height: 34, padding: '0 14px', borderRadius: 10,
+            background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
+            fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
+          }}
+        >
+          <ArrowLeft size={13} /> Leaks
+        </Link>
+      )}
+      <Link
+        to="/analyst"
+        className="flex items-center gap-1.5 outline-none transition-colors"
+        style={{
+          height: 34, padding: '0 14px', borderRadius: 10,
+          background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
+          fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
+        }}
+      >
+        Analytics →
+      </Link>
+    </>
+  );
+
   return (
     <AppLayout>
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 24 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
-            Strategy Optimizer
-          </h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
-            {preLabel
-              ? `Analysing: ${preLabel} · adjust filters and re-run`
-              : 'apply filters to find your best-performing conditions'}
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--ef-ink-4)', marginTop: 4 }}>
-            Simulated results only. Does not account for slippage, commissions, or live market conditions.
-          </div>
-        </div>
-        <div className="flex items-center gap-2">
-          {preField && (
-            <Link
-              to="/leak-detection"
-              className="flex items-center gap-1.5 outline-none transition-colors"
-              style={{
-                height: 34, padding: '0 14px', borderRadius: 10,
-                background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
-                fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
-              }}
-            >
-              <ArrowLeft size={13} /> Leaks
-            </Link>
-          )}
-          <Link
-            to="/analyst"
-            className="flex items-center gap-1.5 outline-none transition-colors"
-            style={{
-              height: 34, padding: '0 14px', borderRadius: 10,
-              background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
-              fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
-            }}
-          >
-            Analytics →
-          </Link>
-        </div>
-      </div>
+      <PageHeader
+        title="Strategy Optimizer"
+        subtitle={preLabel ? `Analysing: ${preLabel} · adjust filters and re-run` : 'apply filters to find your best-performing conditions'}
+        disclaimer="Simulated results only. Does not account for slippage, commissions, or live market conditions."
+        actions={headerActions}
+        mb={24}
+      />
 
-      {/* Balance context */}
-      <div style={{
-        display: 'flex', gap: 0,
-        border: '1px solid var(--ef-line)',
-        borderRadius: 12, overflow: 'hidden',
-        background: 'var(--ef-bg-elev)',
-        marginBottom: 20,
-      }}>
-        {[
-          { label: 'Trades analysed', value: String(trades.length) },
-          { label: 'Current balance',  value: `$${currentBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
-          { label: 'Net P&L',          value: `${stats.netPnl >= 0 ? '+' : ''}$${stats.netPnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: stats.netPnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' },
-          { label: 'Win rate',         value: `${stats.winRate.toFixed(1)}%` },
-        ].map((item, i, arr) => (
-          <div key={item.label} style={{
-            flex: 1, padding: '14px 18px',
-            borderRight: i < arr.length - 1 ? '1px solid var(--ef-line)' : 'none',
-          }}>
-            <div className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
-              {item.label}
+      <PageBody>
+        {/* Balance context */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.35, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{
+            display: 'flex', gap: 0,
+            border: '1px solid var(--ef-line)',
+            borderRadius: 12, overflow: 'hidden',
+            background: 'var(--ef-bg-elev)',
+            marginBottom: 20,
+          }}
+        >
+          {[
+            { label: 'Trades analysed', value: String(trades.length) },
+            { label: 'Current balance',  value: `$${currentBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}` },
+            { label: 'Net P&L',          value: `${stats.netPnl >= 0 ? '+' : ''}$${stats.netPnl.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, color: stats.netPnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' },
+            { label: 'Win rate',         value: `${stats.winRate.toFixed(1)}%` },
+          ].map((item, i, arr) => (
+            <div key={item.label} style={{
+              flex: 1, padding: '14px 18px',
+              borderRight: i < arr.length - 1 ? '1px solid var(--ef-line)' : 'none',
+            }}>
+              <div className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>
+                {item.label}
+              </div>
+              <div className="font-mono" style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.02em', color: (item as any).color ?? 'var(--ef-ink)', lineHeight: 1 }}>
+                {item.value}
+              </div>
             </div>
-            <div className="font-mono" style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.02em', color: (item as any).color ?? 'var(--ef-ink)', lineHeight: 1 }}>
-              {item.value}
-            </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </motion.div>
 
-      <StrategyOptimizer trades={trades} preField={preField} preKey={preKey} />
+        <StrategyOptimizer trades={trades} preField={preField} preKey={preKey} />
+      </PageBody>
     </AppLayout>
   );
 }

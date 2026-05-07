@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { AccountFormData, ACCOUNT_TYPES, CURRENCIES } from '@/types/account';
@@ -95,25 +96,24 @@ const Accounts = () => {
 
   return (
     <AppLayout>
-      {/* Header */}
-      <div className="flex items-center justify-between border-b border-border" style={{ paddingBottom: 12, marginBottom: 20 }}>
-        <div>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Trading Accounts</h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Manage accounts and track balances</div>
-        </div>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <button
-              className="flex items-center gap-1.5 transition-colors"
-              style={{
-                height: 34, padding: '0 14px', borderRadius: 10,
-                background: 'var(--ef-ink)', color: 'var(--ef-bg)',
-                fontSize: 13, fontWeight: 500, border: 'none',
-              }}
-            >
-              <Plus className="h-3.5 w-3.5" weight="bold" /> New Account
-            </button>
-          </DialogTrigger>
+      <PageHeader
+        title="Trading Accounts"
+        subtitle="Manage accounts and track balances"
+        actions={
+          <button
+            onClick={() => setOpen(true)}
+            className="flex items-center gap-1.5 transition-colors"
+            style={{
+              height: 34, padding: '0 14px', borderRadius: 10,
+              background: 'var(--ef-ink)', color: 'var(--ef-bg)',
+              fontSize: 13, fontWeight: 500, border: 'none',
+            }}
+          >
+            <Plus className="h-3.5 w-3.5" weight="bold" /> New Account
+          </button>
+        }
+      />
+      <Dialog open={open} onOpenChange={setOpen}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Create Trading Account</DialogTitle>
@@ -247,7 +247,6 @@ const Accounts = () => {
             </form>
           </DialogContent>
         </Dialog>
-      </div>
 
       {/* Empty state */}
       {accounts.length === 0 ? (
