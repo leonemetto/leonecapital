@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,10 @@ import {
   ArrowLeft, EnvelopeSimple, ShieldCheck, Eye, EyeSlash,
 } from '@phosphor-icons/react';
 import logoImg from '@/assets/logo.svg';
+
+const AuthBackground = lazy(() =>
+  import('@/components/auth/AuthBackground').then(m => ({ default: m.AuthBackground }))
+);
 
 const G = 'oklch(0.78 0.22 145)';
 
@@ -30,10 +34,13 @@ function authErrorMessage(error: { message: string; code?: string }): string {
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: '#141413',
-      border: '1px solid rgba(255,255,255,0.08)',
+      background: 'rgba(12,14,12,0.82)',
+      backdropFilter: 'blur(24px)',
+      WebkitBackdropFilter: 'blur(24px)',
+      border: '1px solid rgba(255,255,255,0.07)',
       borderRadius: 20,
       padding: '36px 32px',
+      boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 32px 64px rgba(0,0,0,0.6)',
     }}>
       {children}
     </div>
@@ -295,12 +302,17 @@ export default function Auth() {
   };
 
   const wrap = (content: React.ReactNode) => (
-    <div style={{ minHeight: '100vh', background: '#080807', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+      {/* Animated WebGL background */}
+      <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#060907', zIndex: 0 }} />}>
+        <AuthBackground />
+      </Suspense>
+      {/* Card content sits above canvas */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-        style={{ width: '100%', maxWidth: 400 }}
+        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        style={{ width: '100%', maxWidth: 400, position: 'relative', zIndex: 1 }}
       >
         {content}
       </motion.div>
