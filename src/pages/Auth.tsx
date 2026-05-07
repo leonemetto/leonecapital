@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,19 @@ import logoImg from '@/assets/logo.svg';
 
 
 const G = 'oklch(0.78 0.22 145)';
+
+const AUTH_STARS = Array.from({ length: 120 }, (_, i) => {
+  const isBright = Math.random() > 0.72;
+  return {
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    r: isBright ? Math.random() * 0.6 + 0.55 : Math.random() * 0.4 + 0.2,
+    op: isBright ? Math.random() * 0.38 + 0.18 : Math.random() * 0.18 + 0.04,
+    delay: Math.random() * 7,
+    dur: 2.5 + Math.random() * 4,
+    blue: Math.random() > 0.8,
+  };
+});
 
 function authErrorMessage(error: { message: string; code?: string }): string {
   const msg = error.message?.toLowerCase() ?? '';
@@ -298,6 +311,28 @@ export default function Auth() {
 
   const wrap = (content: React.ReactNode) => (
     <div style={{ minHeight: '100vh', background: '#000', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, overflow: 'hidden', ['--ring' as string]: '142 50% 36%' }}>
+      <style>{`@keyframes authStarFlicker{0%{opacity:var(--star-op,0.2)}8%{opacity:calc(var(--star-op,0.2)*0.45)}12%{opacity:var(--star-op,0.2)}50%{opacity:var(--star-op,0.2)}57%{opacity:calc(var(--star-op,0.2)*0.55)}62%{opacity:var(--star-op,0.2)}100%{opacity:var(--star-op,0.2)}}`}</style>
+      {/* Stars */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {AUTH_STARS.map((s, i) => (
+          <span key={i} style={{
+            position: 'absolute',
+            borderRadius: '50%',
+            left: `${s.x}%`,
+            top: `${s.y}%`,
+            width: `${s.r * 2}px`,
+            height: `${s.r * 2}px`,
+            background: s.blue ? 'rgba(200,220,255,0.95)' : '#fff',
+            boxShadow: '0 0 2px 1px rgba(255,255,255,0.14)',
+            ['--star-op' as string]: s.op,
+            animationName: 'authStarFlicker',
+            animationDuration: `${s.dur}s`,
+            animationDelay: `${s.delay}s`,
+            animationTimingFunction: 'ease-in-out',
+            animationIterationCount: 'infinite',
+          } as React.CSSProperties} />
+        ))}
+      </div>
       {/* Bottom wordmark — matches landing page brand-wash exactly */}
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
