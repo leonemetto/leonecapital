@@ -37,15 +37,15 @@ const fragmentShader = `
 
 /* ── Config for each plane ── */
 const PLANES = [
-  { pos: [0, 0, 0] as [number, number, number],       c1: '#050d08', c2: '#0c2014', scale: 2.4, speed: 0.35 },
-  { pos: [-1.6, 1.1, -1.2] as [number, number, number], c1: '#040c07', c2: '#091a0f', scale: 1.8, speed: 0.22 },
-  { pos: [1.4, -0.8, -0.9] as [number, number, number], c1: '#040906', c2: '#0b1c10', scale: 1.6, speed: 0.28 },
+  { pos: [0, 0, 0] as [number, number, number],       c1: '#061209', c2: '#1a4a28', scale: 2.4, speed: 0.35 },
+  { pos: [-1.6, 1.1, -1.2] as [number, number, number], c1: '#050e07', c2: '#123520', scale: 1.8, speed: 0.22 },
+  { pos: [1.4, -0.8, -0.9] as [number, number, number], c1: '#050b06', c2: '#163d22', scale: 1.6, speed: 0.28 },
 ];
 
 const RINGS = [
-  { radius: 1.6, pos: [0.4, 0.2, -0.5] as [number, number, number],  color: '#122d1a', speed:  0.18 },
-  { radius: 2.2, pos: [-0.6, -0.3, -1.0] as [number, number, number], color: '#0e2616', speed: -0.12 },
-  { radius: 0.9, pos: [1.2, 0.9, -0.3] as [number, number, number],  color: '#1a3d24', speed:  0.25 },
+  { radius: 1.6, pos: [0.4, 0.2, -0.5] as [number, number, number],  color: '#1e5c30', speed:  0.18 },
+  { radius: 2.2, pos: [-0.6, -0.3, -1.0] as [number, number, number], color: '#174d28', speed: -0.12 },
+  { radius: 0.9, pos: [1.2, 0.9, -0.3] as [number, number, number],  color: '#28703e', speed:  0.25 },
 ];
 
 export function AuthBackground() {
@@ -63,7 +63,7 @@ export function AuthBackground() {
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
-    renderer.setClearColor(0x060907, 1);
+    renderer.setClearColor(0x040d07, 1);
     mount.appendChild(renderer.domElement);
 
     /* ── Scene + camera ── */
@@ -78,7 +78,7 @@ export function AuthBackground() {
     for (const p of PLANES) {
       const uniforms = {
         time:      { value: 0 },
-        intensity: { value: 0.6 },
+        intensity: { value: 1.2 },
         color1:    { value: new THREE.Color(p.c1) },
         color2:    { value: new THREE.Color(p.c2) },
       };
@@ -105,7 +105,7 @@ export function AuthBackground() {
       const mat = new THREE.MeshBasicMaterial({
         color: new THREE.Color(r.color),
         transparent: true,
-        opacity: 0.07,
+        opacity: 0.22,
         side: THREE.DoubleSide,
         depthWrite: false,
       });
@@ -127,11 +127,11 @@ export function AuthBackground() {
 
       for (const p of planeMeshes) {
         p.uniforms.time.value = t * p.speed;
-        p.uniforms.intensity.value = 0.6 + Math.sin(t * 1.2) * 0.15;
+        p.uniforms.intensity.value = 1.2 + Math.sin(t * 1.2) * 0.3;
       }
       for (const r of ringMeshes) {
         r.mesh.rotation.z = t * r.speed;
-        r.mat.opacity = 0.05 + Math.sin(t * 2.5) * 0.03;
+        r.mat.opacity = 0.18 + Math.sin(t * 2.5) * 0.08;
       }
 
       renderer.render(scene, camera);
