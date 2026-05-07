@@ -378,7 +378,6 @@ export default function Auth() {
   /* ── Forgot password ── */
   if (forgotPassword) return wrap(
     <>
-      <Logo />
       <Card>
         {resetSent ? (
           <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -422,7 +421,6 @@ export default function Auth() {
   /* ── Email confirmation ── */
   if (awaitingOtp) return wrap(
     <>
-      <Logo />
       <Card>
         <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
@@ -458,7 +456,6 @@ export default function Auth() {
   /* ── MFA ── */
   if (mfaRequired) return wrap(
     <>
-      <Logo />
       <Card>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           <div style={{ textAlign: 'center' }}>
@@ -497,7 +494,6 @@ export default function Auth() {
   /* ── Main sign in / sign up ── */
   return wrap(
     <>
-      <Logo />
       <Card>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
 
@@ -581,15 +577,15 @@ export default function Auth() {
               {isLogin ? 'Sign up free' : 'Sign in'}
             </button>
           </p>
+
+          <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.15)', margin: 0, lineHeight: 1.6 }}>
+            By continuing you agree to our{' '}
+            <a href="/terms" style={{ color: 'rgba(255,255,255,0.28)', textDecoration: 'underline' }}>Terms</a>
+            {' '}and{' '}
+            <a href="/privacy" style={{ color: 'rgba(255,255,255,0.28)', textDecoration: 'underline' }}>Privacy Policy</a>.
+          </p>
         </div>
       </Card>
-
-      <p style={{ textAlign: 'center', marginTop: 20, fontSize: 11, color: 'rgba(255,255,255,0.15)', lineHeight: 1.6 }}>
-        By continuing you agree to our{' '}
-        <a href="/terms" style={{ color: 'rgba(255,255,255,0.3)', textDecoration: 'underline' }}>Terms</a>
-        {' '}and{' '}
-        <a href="/privacy" style={{ color: 'rgba(255,255,255,0.3)', textDecoration: 'underline' }}>Privacy Policy</a>.
-      </p>
     </>
   );
 }
