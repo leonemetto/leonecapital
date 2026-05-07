@@ -298,26 +298,35 @@ export default function Auth() {
 
   const wrap = (content: React.ReactNode) => (
     <div style={{ minHeight: '100vh', background: '#000', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, overflow: 'hidden', ['--ring' as string]: '142 50% 36%' }}>
-      {/* Bottom wordmark decoration */}
-      <div style={{ position: 'fixed', bottom: -40, left: '50%', transform: 'translateX(-50%)', zIndex: 0, pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap' }}>
-        {/* Green radial glow */}
+      {/* Bottom wordmark — matches landing page brand-wash exactly */}
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        overflow: 'hidden', zIndex: 0, pointerEvents: 'none',
+        isolation: 'isolate',
+      }}>
+        {/* Outer glow */}
         <div style={{
-          position: 'absolute', inset: 0,
-          background: 'radial-gradient(ellipse 60% 55% at 50% 60%, rgba(20,120,60,0.45) 0%, transparent 70%)',
-          zIndex: 0,
+          position: 'absolute', left: '50%', top: '45%', transform: 'translate(-50%,-50%)',
+          width: '80%', height: '80%',
+          background: 'radial-gradient(ellipse 55% 60% at 50% 50%, rgba(30,211,134,0.30) 0%, rgba(30,211,134,0.14) 30%, transparent 65%)',
+          filter: 'blur(50px)', zIndex: 0,
         }} />
-        <span style={{
-          position: 'relative', zIndex: 1,
-          fontSize: 'clamp(120px, 18vw, 220px)',
-          fontWeight: 800,
-          letterSpacing: '-0.04em',
-          lineHeight: 1,
-          background: 'linear-gradient(180deg, #9a9a9a 0%, #3a3a3a 55%, #111 100%)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          display: 'block',
-        }}>EdgeFlow</span>
+        {/* Inner bright glow */}
+        <div style={{
+          position: 'absolute', left: '50%', top: '40%', transform: 'translate(-50%,-50%)',
+          width: '60%', height: '60%',
+          background: 'radial-gradient(ellipse at center, rgba(58,255,157,0.12) 0%, transparent 65%)',
+          filter: 'blur(50px)', mixBlendMode: 'screen', zIndex: 3,
+        }} />
+        <div style={{
+          position: 'relative', zIndex: 1, textAlign: 'center',
+          fontFamily: '"Inter Tight", system-ui, sans-serif',
+          fontWeight: 700, fontSize: '24.5vw', lineHeight: 0.88,
+          letterSpacing: '-0.055em', margin: 0, padding: 0, whiteSpace: 'nowrap',
+          background: 'linear-gradient(180deg, rgba(255,255,255,0.95) 0%, rgba(240,240,240,0.88) 20%, rgba(180,180,180,0.60) 50%, rgba(110,110,110,0.38) 75%, rgba(60,60,60,0.22) 100%)',
+          WebkitBackgroundClip: 'text', backgroundClip: 'text', WebkitTextFillColor: 'transparent',
+          userSelect: 'none',
+        }}>EdgeFlow</div>
       </div>
       {/* Card */}
       <motion.div
