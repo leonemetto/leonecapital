@@ -37,15 +37,15 @@ const fragmentShader = `
 
 /* ── Config for each plane ── */
 const PLANES = [
-  { pos: [0, 0, 0] as [number, number, number],       c1: '#061209', c2: '#1a4a28', scale: 2.4, speed: 0.35 },
-  { pos: [-1.6, 1.1, -1.2] as [number, number, number], c1: '#050e07', c2: '#123520', scale: 1.8, speed: 0.22 },
-  { pos: [1.4, -0.8, -0.9] as [number, number, number], c1: '#050b06', c2: '#163d22', scale: 1.6, speed: 0.28 },
+  { pos: [0, 0, 0] as [number, number, number],       c1: '#071a0b', c2: '#2d7a48', scale: 2.4, speed: 0.35 },
+  { pos: [-1.6, 1.1, -1.2] as [number, number, number], c1: '#061408', c2: '#1f6035', scale: 1.8, speed: 0.22 },
+  { pos: [1.4, -0.8, -0.9] as [number, number, number], c1: '#060f07', c2: '#256840', scale: 1.6, speed: 0.28 },
 ];
 
 const RINGS = [
-  { radius: 1.6, pos: [0.4, 0.2, -0.5] as [number, number, number],  color: '#1e5c30', speed:  0.18 },
-  { radius: 2.2, pos: [-0.6, -0.3, -1.0] as [number, number, number], color: '#174d28', speed: -0.12 },
-  { radius: 0.9, pos: [1.2, 0.9, -0.3] as [number, number, number],  color: '#28703e', speed:  0.25 },
+  { radius: 1.6, pos: [0.4, 0.2, -0.5] as [number, number, number],  color: '#2e8c4a', speed:  0.18 },
+  { radius: 2.2, pos: [-0.6, -0.3, -1.0] as [number, number, number], color: '#247040', speed: -0.12 },
+  { radius: 0.9, pos: [1.2, 0.9, -0.3] as [number, number, number],  color: '#3aa85e', speed:  0.25 },
 ];
 
 export function AuthBackground() {
@@ -78,7 +78,7 @@ export function AuthBackground() {
     for (const p of PLANES) {
       const uniforms = {
         time:      { value: 0 },
-        intensity: { value: 1.2 },
+        intensity: { value: 1.8 },
         color1:    { value: new THREE.Color(p.c1) },
         color2:    { value: new THREE.Color(p.c2) },
       };
@@ -127,11 +127,11 @@ export function AuthBackground() {
 
       for (const p of planeMeshes) {
         p.uniforms.time.value = t * p.speed;
-        p.uniforms.intensity.value = 1.2 + Math.sin(t * 1.2) * 0.3;
+        p.uniforms.intensity.value = 1.8 + Math.sin(t * 1.2) * 0.4;
       }
       for (const r of ringMeshes) {
         r.mesh.rotation.z = t * r.speed;
-        r.mat.opacity = 0.18 + Math.sin(t * 2.5) * 0.08;
+        r.mat.opacity = 0.32 + Math.sin(t * 2.5) * 0.1;
       }
 
       renderer.render(scene, camera);

@@ -302,7 +302,7 @@ export default function Auth() {
   };
 
   const wrap = (content: React.ReactNode) => (
-    <div style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
+    <div style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, ['--ring' as string]: '142 50% 36%' }}>
       {/* Animated WebGL background */}
       <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#060907', zIndex: 0 }} />}>
         <AuthBackground />
