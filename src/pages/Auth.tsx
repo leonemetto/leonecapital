@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
@@ -10,9 +10,6 @@ import {
 } from '@phosphor-icons/react';
 import logoImg from '@/assets/logo.svg';
 
-const AuthBackground = lazy(() =>
-  import('@/components/auth/AuthBackground').then(m => ({ default: m.AuthBackground }))
-);
 
 const G = 'oklch(0.78 0.22 145)';
 
@@ -34,13 +31,11 @@ function authErrorMessage(error: { message: string; code?: string }): string {
 function Card({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
-      background: 'rgba(12,14,12,0.82)',
-      backdropFilter: 'blur(24px)',
-      WebkitBackdropFilter: 'blur(24px)',
-      border: '1px solid rgba(255,255,255,0.07)',
+      background: '#0d0d0d',
+      border: '1px solid rgba(255,255,255,0.08)',
       borderRadius: 20,
       padding: '36px 32px',
-      boxShadow: '0 0 0 1px rgba(255,255,255,0.03) inset, 0 32px 64px rgba(0,0,0,0.6)',
+      boxShadow: '0 0 0 1px rgba(255,255,255,0.02) inset, 0 24px 48px rgba(0,0,0,0.8)',
     }}>
       {children}
     </div>
@@ -302,12 +297,29 @@ export default function Auth() {
   };
 
   const wrap = (content: React.ReactNode) => (
-    <div style={{ minHeight: '100vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, ['--ring' as string]: '142 50% 36%' }}>
-      {/* Animated WebGL background */}
-      <Suspense fallback={<div style={{ position: 'fixed', inset: 0, background: '#060907', zIndex: 0 }} />}>
-        <AuthBackground />
-      </Suspense>
-      {/* Card content sits above canvas */}
+    <div style={{ minHeight: '100vh', background: '#000', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, overflow: 'hidden', ['--ring' as string]: '142 50% 36%' }}>
+      {/* Bottom wordmark decoration */}
+      <div style={{ position: 'fixed', bottom: -40, left: '50%', transform: 'translateX(-50%)', zIndex: 0, pointerEvents: 'none', userSelect: 'none', whiteSpace: 'nowrap' }}>
+        {/* Green radial glow */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'radial-gradient(ellipse 60% 55% at 50% 60%, rgba(20,120,60,0.45) 0%, transparent 70%)',
+          zIndex: 0,
+        }} />
+        <span style={{
+          position: 'relative', zIndex: 1,
+          fontSize: 'clamp(120px, 18vw, 220px)',
+          fontWeight: 800,
+          letterSpacing: '-0.04em',
+          lineHeight: 1,
+          background: 'linear-gradient(180deg, #9a9a9a 0%, #3a3a3a 55%, #111 100%)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+          display: 'block',
+        }}>EdgeFlow</span>
+      </div>
+      {/* Card */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
