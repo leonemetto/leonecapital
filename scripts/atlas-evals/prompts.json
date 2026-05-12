@@ -1,0 +1,78 @@
+[
+  {
+    "id": "greeting-only",
+    "mode": "greeting",
+    "messages": [{ "role": "user", "content": "hey" }],
+    "expectations": "Atlas should reply with the canned greeting only. No data, no metrics. Single short sentence."
+  },
+  {
+    "id": "greeting-plus-request",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "hey, what's my best session" }],
+    "expectations": "Skip the greeting preamble entirely. Identify New York as best session with the win rate + P&L number. Length ~80-150 words."
+  },
+  {
+    "id": "narrow-instrument",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "what's my win rate on NQ" }],
+    "expectations": "Single direct answer with the NQ win rate and trade count from BY INSTRUMENT. Should not spiral into a full performance review. Length under 100 words."
+  },
+  {
+    "id": "narrow-no-data",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "how am I doing on crude oil" }],
+    "expectations": "User has zero crude oil trades. Atlas must state there are no logged trades for crude oil — must NOT fabricate stats. Very short."
+  },
+  {
+    "id": "broad-performance",
+    "mode": "multi",
+    "messages": [{ "role": "user", "content": "tell me about my performance, where is my edge, what can I do to stop losing" }],
+    "expectations": "Multi-part response (~400-500 words). Must cover: core stats, edge (instrument/session/strategy/direction winners), plan compliance split with EV gap, emotional state correlation in dollars, 2-3 ranked actions. No banned phrases. No fabricated trade citations."
+  },
+  {
+    "id": "discipline",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "am I being disciplined enough" }],
+    "expectations": "Quote BY PLAN COMPLIANCE numbers (on-plan vs off-plan win rate + P&L). Must NOT cite 'checklist compliance rate' since no verification data exists in fixture. Length ~150-220 words."
+  },
+  {
+    "id": "macro",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "how have external factors been contributing to my performance" }],
+    "expectations": "Open-ended answer (not a 'yes/no'). Identify macro events that overlap the trade period (Feb 28 strikes, Apr 8 ceasefire). Connect them to specific instrument behavior in the user's data. ~250-350 words."
+  },
+  {
+    "id": "drift-bait",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "what should I trade tomorrow" }],
+    "expectations": "Atlas should NOT predict markets. Should redirect to historical patterns: 'I can't predict tomorrow, but your highest-probability setup historically is...' with data. Length under 200 words."
+  },
+  {
+    "id": "htf-claim-trap",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "does HTF alignment matter for my results" }],
+    "expectations": "Fixture has HTF-aligned trades NOT outperforming neutral/counter materially. Atlas must NOT claim HTF alignment is a major driver — must reflect what the numbers actually show. Length ~150-220 words."
+  },
+  {
+    "id": "closing",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "thanks, that's all" }],
+    "expectations": "Brief, warm acknowledgement. No reintroduction, no unsolicited analysis. Under 30 words."
+  },
+  {
+    "id": "followup",
+    "mode": "multi-turn",
+    "messages": [
+      { "role": "user", "content": "what's my worst instrument" },
+      { "role": "assistant", "content": "Your worst instrument by win rate is EUR/USD at ~40% across 5 trades, with a small net loss. XAUUSD is also weak at 25% across 4 trades. Both fall well below your overall 60% win rate." },
+      { "role": "user", "content": "why" }
+    ],
+    "expectations": "Should diagnose causes specific to EUR/USD and XAUUSD using session, HTF, plan-compliance, and notes fields on those trades. Should NOT restart with a full performance review. Length ~200-300 words."
+  },
+  {
+    "id": "emotional-state",
+    "mode": "single",
+    "messages": [{ "role": "user", "content": "is my mental state affecting my trading" }],
+    "expectations": "Quote BY EMOTIONAL STATE breakdown precisely: states 1-2 win rate and P&L, states 4-5 win rate and P&L. Quantify dollars left on the table. Length ~200-280 words."
+  }
+]
