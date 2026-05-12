@@ -21,12 +21,12 @@ import { NicknamePrompt } from "@/components/NicknamePrompt";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageErrorBoundary } from "@/components/PageErrorBoundary";
 import * as Sentry from '@sentry/react';
-import Dashboard from "./pages/Dashboard";
-import AddTrade from "./pages/AddTrade";
-import Journal from "./pages/Journal";
-import Accounts from "./pages/Accounts";
 import NotFound from "./pages/NotFound";
 
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AddTrade = lazy(() => import("./pages/AddTrade"));
+const Journal = lazy(() => import("./pages/Journal"));
+const Accounts = lazy(() => import("./pages/Accounts"));
 const AIAdvisor = lazy(() => import("./pages/AIAdvisor"));
 const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 const ProfileSettings = lazy(() => import("./pages/ProfileSettings"));
@@ -144,6 +144,8 @@ function PagePrefetcher() {
       import('./pages/Accounts');
       import('./pages/ProfileSettings');
       import('./pages/ImportTrades');
+      import('./pages/Dashboard');
+      import('./pages/AddTrade');
     }, 2000);
     return () => clearTimeout(t);
   }, []);
@@ -153,8 +155,23 @@ function PagePrefetcher() {
 function ProfileGate({ children }: { children: React.ReactNode }) {
   const { isLoading, needsNickname, setNickname, profile } = useProfile();
   const { onboardingCompleted, completeOnboarding } = useOnboarding();
+  const [autoNicknaming, setAutoNicknaming] = useState(false);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!needsNickname || autoNicknaming) return;
+    (async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      const m = user?.user_metadata ?? {};
+      const raw = (m.full_name || m.name || m.given_name || '').toString().trim();
+      if (!raw) return;
+      const derived = raw.split(/\s+/)[0].slice(0, 30);
+      if (!derived) return;
+      setAutoNicknaming(true);
+      try { await setNickname(derived); } catch { setAutoNicknaming(false); }
+    })();
+  }, [needsNickname, autoNicknaming, setNickname]);
+
+  if (isLoading || autoNicknaming) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground text-sm">Loading...</div>
