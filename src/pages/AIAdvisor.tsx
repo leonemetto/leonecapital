@@ -38,6 +38,10 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
   const directionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   const accountLookup = new Map(accounts.map((a: any) => [a.id, a.name]));
   const accountMap = new Map<string, { name: string; wins: number; losses: number; breakeven: number; pnl: number; total: number }>();
+  const planMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
+  const emotionMap = new Map<number, { wins: number; losses: number; pnl: number; total: number }>();
+  const htfMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
+  const monthMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
 
   for (const t of trades) {
     const ic = instrumentMap.get(t.instrument) || { wins: 0, losses: 0, pnl: 0, total: 0 };
@@ -53,10 +57,40 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     const ac = accountMap.get(acctId) || { name: acctName, wins: 0, losses: 0, breakeven: 0, pnl: 0, total: 0 };
     ac.total++; if (t.outcome === 'win') ac.wins++; else if (t.outcome === 'loss') ac.losses++; else ac.breakeven++;
     ac.pnl += t.pnl; accountMap.set(acctId, ac);
+
+    if (t.followedPlan === true || t.followedPlan === false) {
+      const key = t.followedPlan ? 'On-plan (Followed Plan = YES)' : 'Off-plan (Followed Plan = NO)';
+      const pc = planMap.get(key) || { wins: 0, losses: 0, pnl: 0, total: 0 };
+      pc.total++; if (t.outcome === 'win') pc.wins++; else if (t.outcome === 'loss') pc.losses++;
+      pc.pnl += t.pnl; planMap.set(key, pc);
+    }
+
+    if (typeof t.emotionalState === 'number' && t.emotionalState >= 1 && t.emotionalState <= 5) {
+      const ec = emotionMap.get(t.emotionalState) || { wins: 0, losses: 0, pnl: 0, total: 0 };
+      ec.total++; if (t.outcome === 'win') ec.wins++; else if (t.outcome === 'loss') ec.losses++;
+      ec.pnl += t.pnl; emotionMap.set(t.emotionalState, ec);
+    }
+
+    if (t.htfBias) {
+      const aligned = (t.direction === 'long' && t.htfBias === 'Bullish') || (t.direction === 'short' && t.htfBias === 'Bearish');
+      const key = aligned ? 'HTF-aligned' : (t.htfBias === 'Neutral' ? 'HTF-neutral' : 'HTF-counter');
+      const hc = htfMap.get(key) || { wins: 0, losses: 0, pnl: 0, total: 0 };
+      hc.total++; if (t.outcome === 'win') hc.wins++; else if (t.outcome === 'loss') hc.losses++;
+      hc.pnl += t.pnl; htfMap.set(key, hc);
+    }
+
+    if (t.date) {
+      const ym = String(t.date).slice(0, 7);
+      const mc = monthMap.get(ym) || { wins: 0, losses: 0, pnl: 0, total: 0 };
+      mc.total++; if (t.outcome === 'win') mc.wins++; else if (t.outcome === 'loss') mc.losses++;
+      mc.pnl += t.pnl; monthMap.set(ym, mc);
+    }
   }
 
   const earliest = trades.length > 0 ? trades[trades.length - 1].date : '';
   const latest = trades.length > 0 ? trades[0].date : '';
+  const fmt = (v: { wins: number; losses: number; pnl: number; total: number }) =>
+    `${v.total} trades, ${v.total > 0 ? ((v.wins / v.total) * 100).toFixed(1) : 0}% WR, $${v.pnl.toFixed(2)} P&L`;
 
   return [
     earliest && latest ? `Trade period: ${earliest} → ${latest}` : '',
@@ -66,8 +100,22 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     `Current streak: ${analytics.currentStreak.count} ${analytics.currentStreak.type}`,
     '', 'BY STRATEGY:', ...strategies.map(s => `  ${s.strategy}: ${s.total} trades, ${s.winRate}% WR, $${s.pnl} P&L`),
     '', 'BY SESSION:', ...sessions.map(s => `  ${s.session}: ${s.total} trades, ${s.winRate}% WR, $${s.pnl} P&L`),
-    '', 'BY INSTRUMENT:', ...Array.from(instrumentMap.entries()).map(([k, v]) => `  ${k}: ${v.total} trades, ${v.total > 0 ? ((v.wins / v.total) * 100).toFixed(1) : 0}% WR, $${v.pnl.toFixed(2)} P&L`),
-    '', 'BY DIRECTION:', ...Array.from(directionMap.entries()).map(([k, v]) => `  ${k}: ${v.total} trades, ${v.total > 0 ? ((v.wins / v.total) * 100).toFixed(1) : 0}% WR, $${v.pnl.toFixed(2)} P&L`),
+    '', 'BY INSTRUMENT:', ...Array.from(instrumentMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
+    '', 'BY DIRECTION:', ...Array.from(directionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
+    '', 'BY PLAN COMPLIANCE (Followed Plan field):',
+    ...(planMap.size > 0
+      ? Array.from(planMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`)
+      : ['  No Followed Plan data logged on trades.']),
+    '', 'BY EMOTIONAL STATE (1=worst, 5=best):',
+    ...(emotionMap.size > 0
+      ? Array.from(emotionMap.entries()).sort((a, b) => a[0] - b[0]).map(([k, v]) => `  State ${k}: ${fmt(v)}`)
+      : ['  No emotional state logged on trades.']),
+    '', 'BY HTF BIAS ALIGNMENT (direction vs logged HTF bias):',
+    ...(htfMap.size > 0
+      ? Array.from(htfMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`)
+      : ['  No HTF bias logged on trades.']),
+    '', 'BY MONTH:',
+    ...Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => `  ${k}: ${fmt(v)}`),
     '', 'BY ACCOUNT:', ...Array.from(accountMap.values()).map(a => `  ${a.name}: ${a.total} trades, ${a.wins}W/${a.losses}L/${a.breakeven}BE, ${a.total > 0 ? ((a.wins / a.total) * 100).toFixed(1) : 0}% WR, $${a.pnl.toFixed(2)} P&L`),
   ].join('\n');
 }
@@ -182,7 +230,7 @@ export default function AIAdvisor() {
         body: JSON.stringify({
           messages: messagesForApi,
           tradesSummary,
-          recentTrades: trades.slice(0, 25).map(t => ({
+          recentTrades: trades.slice(0, 50).map(t => ({
             date: t.date, instrument: t.instrument, direction: t.direction,
             strategy: t.strategy, session: t.session, outcome: t.outcome, pnl: t.pnl, notes: t.notes,
             rMultiple: t.rMultiple ?? null, riskPercent: t.riskPercent ?? null,
@@ -321,7 +369,7 @@ export default function AIAdvisor() {
   // ─── Main chat ───
   return (
     <AppLayout>
-      <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-120px)]">
+      <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-40px)]">
 
         {/* Header — only shown when chat has messages */}
         {messages.length > 0 && (
@@ -425,11 +473,14 @@ export default function AIAdvisor() {
                 )}
 
                 {/* Bubble */}
-                <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                  msg.role === 'user'
-                    ? 'bg-foreground text-background font-medium'
-                    : 'bg-muted border border-border text-foreground'
-                }`}>
+                <div
+                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                    msg.role === 'user'
+                      ? 'bg-foreground text-background font-medium'
+                      : 'bg-muted border border-border text-foreground'
+                  }`}
+                  style={msg.role === 'assistant' ? { borderLeft: '2px solid var(--ef-pos)' } : undefined}
+                >
                   {msg.role === 'assistant' ? (
                     <AnimatedAssistantMessage
                       content={msg.content}
