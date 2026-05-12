@@ -108,7 +108,18 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
       : ['  No Followed Plan data logged on trades.']),
     '', 'BY EMOTIONAL STATE (1=worst, 5=best):',
     ...(emotionMap.size > 0
-      ? Array.from(emotionMap.entries()).sort((a, b) => a[0] - b[0]).map(([k, v]) => `  State ${k}: ${fmt(v)}`)
+      ? (() => {
+          const low = { wins: 0, losses: 0, pnl: 0, total: 0 };
+          const high = { wins: 0, losses: 0, pnl: 0, total: 0 };
+          for (const [k, v] of emotionMap.entries()) {
+            if (k <= 2) { low.wins += v.wins; low.losses += v.losses; low.pnl += v.pnl; low.total += v.total; }
+            if (k >= 4) { high.wins += v.wins; high.losses += v.losses; high.pnl += v.pnl; high.total += v.total; }
+          }
+          const rows = Array.from(emotionMap.entries()).sort((a, b) => a[0] - b[0]).map(([k, v]) => `  State ${k}: ${fmt(v)}`);
+          if (low.total > 0) rows.push(`  States 1-2 combined: ${fmt(low)}`);
+          if (high.total > 0) rows.push(`  States 4-5 combined: ${fmt(high)}`);
+          return rows;
+        })()
       : ['  No emotional state logged on trades.']),
     '', 'BY HTF BIAS ALIGNMENT (direction vs logged HTF bias):',
     ...(htfMap.size > 0

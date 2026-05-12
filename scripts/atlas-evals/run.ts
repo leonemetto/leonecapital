@@ -168,6 +168,15 @@ function buildTradesSummary(trades: Trade[]): string {
   lines.push("");
   lines.push("BY EMOTIONAL STATE (1=worst, 5=best):");
   for (const [k, v] of [...emotionMap.entries()].sort((a, b) => a[0] - b[0])) lines.push(`  State ${k}: ${fmt(v)}`);
+  // Pre-computed combined buckets — Atlas reaches for these and otherwise miscounts.
+  const lowState = { wins: 0, losses: 0, pnl: 0, total: 0 };
+  const highState = { wins: 0, losses: 0, pnl: 0, total: 0 };
+  for (const [k, v] of emotionMap.entries()) {
+    if (k <= 2) { lowState.wins += v.wins; lowState.losses += v.losses; lowState.pnl += v.pnl; lowState.total += v.total; }
+    if (k >= 4) { highState.wins += v.wins; highState.losses += v.losses; highState.pnl += v.pnl; highState.total += v.total; }
+  }
+  if (lowState.total > 0) lines.push(`  States 1-2 combined: ${fmt(lowState)}`);
+  if (highState.total > 0) lines.push(`  States 4-5 combined: ${fmt(highState)}`);
   lines.push("");
   lines.push("BY HTF BIAS ALIGNMENT (direction vs logged HTF bias):");
   for (const [k, v] of htfMap) lines.push(`  ${k}: ${fmt(v)}`);
