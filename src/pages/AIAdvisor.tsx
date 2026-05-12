@@ -36,6 +36,8 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
   const sessions = getSessionPerformance(trades);
   const instrumentMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   const directionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
+  const instrumentDirectionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
+  const instrumentSessionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   const accountLookup = new Map(accounts.map((a: any) => [a.id, a.name]));
   const accountMap = new Map<string, { name: string; wins: number; losses: number; breakeven: number; pnl: number; total: number }>();
   const planMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
@@ -51,6 +53,18 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     const dc = directionMap.get(t.direction) || { wins: 0, losses: 0, pnl: 0, total: 0 };
     dc.total++; if (t.outcome === 'win') dc.wins++; else if (t.outcome === 'loss') dc.losses++;
     dc.pnl += t.pnl; directionMap.set(t.direction, dc);
+
+    const idKey = `${t.instrument} ${t.direction}`;
+    const idc = instrumentDirectionMap.get(idKey) || { wins: 0, losses: 0, pnl: 0, total: 0 };
+    idc.total++; if (t.outcome === 'win') idc.wins++; else if (t.outcome === 'loss') idc.losses++;
+    idc.pnl += t.pnl; instrumentDirectionMap.set(idKey, idc);
+
+    if (t.session) {
+      const isKey = `${t.instrument} / ${t.session}`;
+      const isc = instrumentSessionMap.get(isKey) || { wins: 0, losses: 0, pnl: 0, total: 0 };
+      isc.total++; if (t.outcome === 'win') isc.wins++; else if (t.outcome === 'loss') isc.losses++;
+      isc.pnl += t.pnl; instrumentSessionMap.set(isKey, isc);
+    }
 
     const acctId = t.accountId || 'unassigned';
     const acctName = t.accountId ? (accountLookup.get(t.accountId) || 'Unknown') : 'Unassigned';
@@ -102,6 +116,8 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     '', 'BY SESSION:', ...sessions.map(s => `  ${s.session}: ${s.total} trades, ${s.winRate}% WR, $${s.pnl} P&L`),
     '', 'BY INSTRUMENT:', ...Array.from(instrumentMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
     '', 'BY DIRECTION:', ...Array.from(directionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
+    '', 'BY INSTRUMENT × DIRECTION:', ...Array.from(instrumentDirectionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
+    '', 'BY INSTRUMENT × SESSION:', ...Array.from(instrumentSessionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
     '', 'BY PLAN COMPLIANCE (Followed Plan field):',
     ...(planMap.size > 0
       ? Array.from(planMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`)

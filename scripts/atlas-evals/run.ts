@@ -100,6 +100,8 @@ function buildTradesSummary(trades: Trade[]): string {
   const byStrategy = groupBy(t => t.strategy);
   const byDirection = groupBy(t => t.direction);
   const byMonth = groupBy(t => (t.date || "").slice(0, 7));
+  const byInstrumentDirection = groupBy(t => `${t.instrument} ${t.direction}`);
+  const byInstrumentSession = groupBy(t => t.session ? `${t.instrument} / ${t.session}` : null);
 
   const planMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   for (const t of trades) {
@@ -162,6 +164,12 @@ function buildTradesSummary(trades: Trade[]): string {
   lines.push("");
   lines.push("BY DIRECTION:");
   for (const [k, v] of byDirection) lines.push(`  ${k}: ${fmt(v)}`);
+  lines.push("");
+  lines.push("BY INSTRUMENT × DIRECTION:");
+  for (const [k, v] of byInstrumentDirection) lines.push(`  ${k}: ${fmt(v)}`);
+  lines.push("");
+  lines.push("BY INSTRUMENT × SESSION:");
+  for (const [k, v] of byInstrumentSession) lines.push(`  ${k}: ${fmt(v)}`);
   lines.push("");
   lines.push("BY PLAN COMPLIANCE (Followed Plan field):");
   for (const [k, v] of planMap) lines.push(`  ${k}: ${fmt(v)}`);

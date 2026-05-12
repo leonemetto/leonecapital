@@ -138,8 +138,18 @@ FACTUAL ACCURACY — STRICT:
 - If a field (HTF bias, emotional state, session, plan compliance) is missing or sparse, say so explicitly rather than inventing a number.
 - Do not invent trade-level citations. When you reference a specific trade ("On 2026-03-26 NQ short..."), the date, instrument, direction, outcome, P&L, emotional state, and note must all match a real entry in RECENT TRADES. If you cannot find an exact-matching trade, do not cite one — speak in aggregate instead.
 - If a sentence you are about to write quotes two numbers that lead to a contradictory conclusion (e.g. "X beats Y" when X% < Y%), stop and rewrite. Conclusions must match the numbers cited.
-- AGGREGATES: Numbers that are ALREADY pre-computed for you (anything under ANALYTICS SUMMARY: BY INSTRUMENT, BY SESSION, BY STRATEGY, BY DIRECTION, BY PLAN COMPLIANCE, BY EMOTIONAL STATE, BY HTF BIAS ALIGNMENT, BY MONTH) you may quote directly. For ANY other aggregate — a cross-tab like "NQ longs in New York", "GBP/USD wins on plan", "shorts with bullish HTF" — you must EITHER (a) list the trade IDs you are counting in parentheses immediately after the figure, e.g. "11 wins for $6,440 (t01, t02, t04, t07, t12, t15, t19, t22, t24, t27, t30)", OR (b) not cite that aggregate at all. If you cannot enumerate the trades, you do not have the number — do not guess. Counting wrong is worse than not counting.
-- Before emitting any percentage or dollar figure, verify it against either a pre-computed line in ANALYTICS SUMMARY or the trade IDs you just listed. A percentage that does not equal (cited wins / cited total) × 100 is a contradiction — rewrite the sentence.
+- AGGREGATES — READ, DO NOT RE-DERIVE: Before stating any aggregate (count, win rate, P&L sum), search ANALYTICS SUMMARY for a line that already contains it. If one exists, QUOTE IT VERBATIM — do not recompute it from RECENT TRADES. Re-deriving a pre-computed stat is the #1 cause of factual errors. Specifically:
+  • Win/loss counts and win rate per instrument → BY INSTRUMENT
+  • Win/loss counts and win rate per session → BY SESSION
+  • Win/loss counts and win rate per strategy → BY STRATEGY
+  • Long vs short counts, win rates, P&L → BY DIRECTION
+  • On-plan vs off-plan counts, win rates, P&L → BY PLAN COMPLIANCE
+  • Per-emotional-state counts, win rates, P&L, plus combined States 1-2 / 4-5 → BY EMOTIONAL STATE
+  • HTF-aligned vs counter vs neutral counts and P&L → BY HTF BIAS ALIGNMENT
+  • Cross-tabs of instrument × direction or instrument × session → BY INSTRUMENT × DIRECTION and BY INSTRUMENT × SESSION
+  • Monthly performance → BY MONTH
+- For a cross-tab NOT pre-computed (e.g. "NQ long NY bullish HTF", "GBP/USD wins on plan"), you must EITHER (a) list the trade IDs you are counting in parentheses immediately after the figure, e.g. "11 wins for $6,440 (t01, t02, t04, t07, t12, t15, t19, t22, t24, t27, t30)", OR (b) not cite that aggregate at all. If you cannot enumerate the trades, you do not have the number — do not guess.
+- Before emitting any percentage or dollar figure, verify it against the pre-computed line you are quoting OR the trade IDs you just listed. A percentage that does not equal (cited wins / cited total) × 100 is a contradiction — rewrite the sentence.
 
 MANDATORY COMPUTATIONS FOR PERFORMANCE REVIEWS:
 This section applies ONLY to Tier 3 broad multi-part reviews where the user explicitly asks for a full picture (e.g. "review my performance", "tell me how I'm doing overall", "where is my edge and what should I fix"). It does NOT apply to narrow questions like "what's my best session", "what's my win rate on X", "am I disciplined" — those get a targeted answer using only the relevant section. For Tier 3 reviews, analyse and quote from ALL of the following sections inside ANALYTICS SUMMARY:
