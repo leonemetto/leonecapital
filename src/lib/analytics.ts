@@ -303,16 +303,18 @@ export function simulateFilter(trades: Trade[], filters: {
   sessions?: string[];
   minEmotionalState?: number;
   instrument?: string;
+  exclude?: boolean;
 }): SimulationResult {
   let filtered = [...trades];
   const labels: string[] = [];
+  const ex = filters.exclude ?? false;
 
   if (filters.instrument) {
-    filtered = filtered.filter(t => t.instrument === filters.instrument);
+    filtered = filtered.filter(t => ex ? t.instrument !== filters.instrument : t.instrument === filters.instrument);
     labels.push(filters.instrument);
   }
   if (filters.htfBias) {
-    filtered = filtered.filter(t => t.htfBias === filters.htfBias);
+    filtered = filtered.filter(t => ex ? t.htfBias !== filters.htfBias : t.htfBias === filters.htfBias);
     labels.push(`HTF ${filters.htfBias}`);
   }
   if (filters.minConfidence) {
@@ -320,11 +322,11 @@ export function simulateFilter(trades: Trade[], filters: {
     labels.push(`Confidence ≥${filters.minConfidence}`);
   }
   if (filters.followedPlan !== undefined) {
-    filtered = filtered.filter(t => t.followedPlan === filters.followedPlan);
+    filtered = filtered.filter(t => ex ? t.followedPlan !== filters.followedPlan : t.followedPlan === filters.followedPlan);
     labels.push(filters.followedPlan ? 'Plan followed' : 'Plan violated');
   }
   if (filters.sessions && filters.sessions.length > 0) {
-    filtered = filtered.filter(t => filters.sessions!.includes(t.session));
+    filtered = filtered.filter(t => ex ? !filters.sessions!.includes(t.session) : filters.sessions!.includes(t.session));
     labels.push(filters.sessions.join(', '));
   }
   if (filters.minEmotionalState) {

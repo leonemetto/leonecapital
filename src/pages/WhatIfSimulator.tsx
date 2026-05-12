@@ -21,10 +21,11 @@ import {
 
 const LEAK_DETECTION_MIN_TRADES = 15;
 
-function StrategyOptimizer({ trades, preField, preKey }: {
+function StrategyOptimizer({ trades, preField, preKey, preExclude }: {
   trades: Trade[];
   preField?: string;
   preKey?: string;
+  preExclude?: boolean;
 }) {
   const [instrument, setInstrument] = useState<string>('__any__');
   const [htfBias, setHtfBias] = useState<string>('__any__');
@@ -50,10 +51,11 @@ function StrategyOptimizer({ trades, preField, preKey }: {
     else if (preField === 'session') filterObj.sessions = [preKey];
     else if (preField === 'htfBias') filterObj.htfBias = preKey;
     else if (preField === 'followedPlan') filterObj.followedPlan = (preKey === 'Yes' || preKey === 'true') ? true : undefined;
+    if (preExclude) filterObj.exclude = true;
 
     setResult(simulateFilter(trades, filterObj));
     setHasAutoRun(true);
-  }, [preField, preKey, trades, hasAutoRun]);
+  }, [preField, preKey, preExclude, trades, hasAutoRun]);
 
   const runSimulation = () => {
     setResult(simulateFilter(trades, {
@@ -71,6 +73,15 @@ function StrategyOptimizer({ trades, preField, preKey }: {
 
   const insightText = useMemo(() => {
     if (!result) return '';
+    if (preExclude && preKey) {
+      const recovered = result.filteredPnl - result.originalPnl;
+      const removedTrades = result.originalTrades - result.filteredTrades;
+      if (recovered > 0)
+        return `Removing ${preKey} recovers an estimated +$${recovered.toFixed(0)} across ${removedTrades} fewer trades`;
+      if (recovered < 0)
+        return `Removing ${preKey} would cost $${Math.abs(recovered).toFixed(0)} — this segment is net profitable`;
+      return `Removing ${preKey} has no significant P&L impact`;
+    }
     if (result.filteredPnl <= result.originalPnl && result.filteredPnl > 0 && result.originalPnl > 0)
       return `This setup accounts for ${((result.filteredPnl / result.originalPnl) * 100).toFixed(1)}% ($${result.filteredPnl.toFixed(0)}) of your total gains`;
     if (result.filteredPnl > result.originalPnl)
@@ -78,7 +89,7 @@ function StrategyOptimizer({ trades, preField, preKey }: {
     if (result.filteredPnl < 0)
       return `This filter isolates a losing subset — $${Math.abs(result.filteredPnl).toFixed(0)} in losses from ${result.filteredTrades} trades`;
     return `${result.improvementPct > 0 ? '+' : ''}${result.improvementPct}% P&L change · ${result.label}`;
-  }, [result]);
+  }, [result, preExclude, preKey]);
 
   const drawdownReduced = result ? result.filteredMaxDrawdown < result.originalMaxDrawdown : false;
   const highExpectancy = result ? result.filteredExpectancy > 0.5 : false;
@@ -268,8 +279,9 @@ export default function WhatIfSimulator() {
   const { accounts } = useSharedAccounts();
   const [searchParams] = useSearchParams();
 
-  const preField = searchParams.get('field') ?? undefined;
-  const preKey   = searchParams.get('key')   ?? undefined;
+  const preField   = searchParams.get('field')   ?? undefined;
+  const preKey     = searchParams.get('key')     ?? undefined;
+  const preExclude = searchParams.get('exclude') === 'true';
 
   const startingBalance = useMemo(
     () => accounts.reduce((sum, a) => sum + (a.startingBalance ?? 0), 0),
@@ -280,7 +292,9 @@ export default function WhatIfSimulator() {
   const currentBalance = startingBalance + stats.netPnl;
 
   const preLabel = preField && preKey
-    ? `${preField === 'instrument' ? preKey : preField === 'session' ? `${preKey} session` : preKey}`
+    ? (preExclude
+        ? `without ${preField === 'session' ? `${preKey} session` : preKey}`
+        : `${preField === 'instrument' ? preKey : preField === 'session' ? `${preKey} session` : preKey}`)
     : null;
 
   if (trades.length < LEAK_DETECTION_MIN_TRADES) {
@@ -396,7 +410,7 @@ export default function WhatIfSimulator() {
           ))}
         </motion.div>
 
-        <StrategyOptimizer trades={trades} preField={preField} preKey={preKey} />
+        <StrategyOptimizer trades={trades} preField={preField} preKey={preKey} preExclude={preExclude} />
       </PageBody>
     </AppLayout>
   );

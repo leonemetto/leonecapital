@@ -41,9 +41,9 @@ function SeverityBar({ sev }: { sev: DashboardLeak['severity'] }) {
 }
 
 function leakSimulatePath(leak: DashboardLeak): string {
-  if (leak.id.startsWith('instrument-')) return `/what-if?field=instrument&key=${encodeURIComponent(leak.title.replace(' setups', ''))}`;
-  if (leak.id.startsWith('session-')) return `/what-if?field=session&key=${encodeURIComponent(leak.title.replace(' session', ''))}`;
-  if (leak.id === 'discipline-plan') return `/what-if?field=followedPlan&key=No`;
+  if (leak.id.startsWith('instrument-')) return `/what-if?field=instrument&key=${encodeURIComponent(leak.title.replace(' setups', ''))}&exclude=true`;
+  if (leak.id.startsWith('session-')) return `/what-if?field=session&key=${encodeURIComponent(leak.title.replace(' session', ''))}&exclude=true`;
+  if (leak.id === 'discipline-plan') return `/what-if?field=followedPlan&key=No&exclude=true`;
   return `/what-if`;
 }
 
