@@ -136,6 +136,18 @@ const Dashboard = () => {
   const [selectedAccountId, setSelectedAccountId] = useState<string>(() =>
     localStorage.getItem('dashboard_account_filter') ?? '__all__'
   );
+
+  // Reset stale filter — if the saved account ID no longer exists in the user's
+  // accounts (e.g. account was deleted, or they signed into a fresh account),
+  // the filter would silently hide every trade. Fall back to "All Accounts".
+  useEffect(() => {
+    if (selectedAccountId === '__all__') return;
+    if (accounts.length === 0) return; // still loading
+    if (!accounts.some(a => a.id === selectedAccountId)) {
+      setSelectedAccountId('__all__');
+      localStorage.setItem('dashboard_account_filter', '__all__');
+    }
+  }, [accounts, selectedAccountId]);
   const [loadingDemo, setLoadingDemo] = useState(false);
   const [currentTime, setCurrentTime] = useState(formatTime);
 

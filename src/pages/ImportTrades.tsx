@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
-import { ArrowLeft, UploadSimple, CheckCircle, Warning, FileText, X, Info } from '@phosphor-icons/react';
+import { ArrowLeft, UploadSimple, CheckCircle, Warning, FileText, X, Info, Check, Lock } from '@phosphor-icons/react';
 import { TradeFormData } from '@/types/trade';
 import { cn } from '@/lib/utils';
 import { groupFills, detectPartialFills, type FillMapper } from '@/lib/importers/groupFills';
@@ -545,7 +545,7 @@ export default function ImportTrades() {
   const [fileName, setFileName] = useState('');
   const [preview, setPreview] = useState<Array<{ parsed: Partial<TradeFormData> | null; raw: Record<string, string> }>>([]);
   const [importing, setImporting] = useState(false);
-  const [result, setResult] = useState<{ imported: number; skipped: number; mergedGroups: number } | null>(null);
+  const [result, setResult] = useState<{ imported: number; skipped: number; mergedGroups: number; tierLimitHit: boolean; tierBlocked: number } | null>(null);
   const [error, setError] = useState('');
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
 
@@ -581,7 +581,10 @@ export default function ImportTrades() {
     setError('');
     setImportWarnings([]);
     const tmpl = TEMPLATES[template];
-    let imported = 0, skipped = 0, mergedGroups = 0;
+    let imported = 0, skipped = 0, mergedGroups = 0, tierBlocked = 0;
+    let tierLimitHit = false;
+    const isFreeLimitError = (err: unknown) =>
+      err instanceof Error && err.message?.includes('Free tier limit reached');
 
     if (tmpl.groupKeyColumn) {
       // ── Brokers with partial fills: use groupFills for safe aggregation ──────
@@ -614,6 +617,8 @@ export default function ImportTrades() {
         const meta = mappedRows[merged.sourceRows[0]];
         if (!meta?.date || !meta?.instrument) { skipped++; continue; }
 
+        if (tierLimitHit) { tierBlocked++; continue; }
+
         const notes = merged.needsReview
           ? `[Needs review: ${merged.reviewReason ?? 'direction conflict'}] ${meta.notes ?? ''}`.trim()
           : meta.notes ?? '';
@@ -638,8 +643,9 @@ export default function ImportTrades() {
             accountId: selectedAccountId || undefined,
           });
           imported++;
-        } catch {
-          skipped++;
+        } catch (err) {
+          if (isFreeLimitError(err)) { tierLimitHit = true; tierBlocked++; }
+          else { skipped++; }
         }
       }
     } else {
@@ -647,6 +653,7 @@ export default function ImportTrades() {
       for (const row of rows) {
         const parsed = tmpl.map(row);
         if (!parsed?.date || !parsed?.instrument) { skipped++; continue; }
+        if (tierLimitHit) { tierBlocked++; continue; }
         try {
           await addTrade({
             date: parsed.date,
@@ -667,14 +674,15 @@ export default function ImportTrades() {
             accountId: selectedAccountId || undefined,
           });
           imported++;
-        } catch {
-          skipped++;
+        } catch (err) {
+          if (isFreeLimitError(err)) { tierLimitHit = true; tierBlocked++; }
+          else { skipped++; }
         }
       }
     }
 
     setImporting(false);
-    setResult({ imported, skipped, mergedGroups });
+    setResult({ imported, skipped, mergedGroups, tierLimitHit, tierBlocked });
   }
 
   const validCount = preview.filter((p) => p.parsed !== null).length;
@@ -696,7 +704,11 @@ export default function ImportTrades() {
         {result ? (
           /* ── Result state ── */
           <div className="text-center" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)', borderRadius: 14, padding: '32px 24px' }}>
-            <CheckCircle size={40} color="var(--ef-pos)" weight="fill" style={{ margin: '0 auto 16px' }} />
+            {result.imported > 0 ? (
+              <CheckCircle size={40} color="var(--ef-pos)" weight="fill" style={{ margin: '0 auto 16px' }} />
+            ) : (
+              <Lock size={40} color="var(--ef-warn-high)" weight="fill" style={{ margin: '0 auto 16px' }} />
+            )}
             <div>
               <p style={{ fontSize: 20, fontWeight: 500, color: 'var(--ef-ink)', margin: '0 0 4px' }}>{result.imported} trades imported</p>
               {result.mergedGroups > 0 && (
@@ -706,6 +718,23 @@ export default function ImportTrades() {
               )}
               {result.skipped > 0 && <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', margin: '2px 0 0' }}>{result.skipped} rows skipped (missing required fields)</p>}
             </div>
+            {result.tierLimitHit && (
+              <div style={{ marginTop: 16, padding: '14px 16px', background: 'var(--ef-warn-wash)', border: '1px solid var(--ef-warn)', borderRadius: 10, textAlign: 'left' }}>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Lock size={14} color="var(--ef-warn-high)" weight="fill" />
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ef-warn-high)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Free plan limit reached</span>
+                </div>
+                <p style={{ fontSize: 12.5, color: 'var(--ef-ink-2)', margin: '0 0 10px', lineHeight: 1.5 }}>
+                  The free plan is capped at 50 trades lifetime. {result.tierBlocked} {result.tierBlocked === 1 ? 'trade was' : 'trades were'} not imported. Upgrade to Pro to log unlimited trades.
+                </p>
+                <button
+                  onClick={() => { window.location.href = '/#pricing'; }}
+                  className="px-3.5 py-1.5 rounded-[18px] bg-foreground text-background text-xs font-semibold"
+                >
+                  See Pro plans
+                </button>
+              </div>
+            )}
             {importWarnings.length > 0 && (
               <div style={{ marginTop: 16, padding: '10px 14px', background: 'var(--ef-warn-wash)', border: '1px solid var(--ef-warn)', borderRadius: 10, textAlign: 'left' }}>
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -726,32 +755,44 @@ export default function ImportTrades() {
           <div className="space-y-4">
             {/* Step 1 — Template */}
             <div className="rounded-[14px] p-5" style={{ background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
-              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-3">1. Select Your Broker / Format</p>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.08em] text-muted-foreground/60 mb-1">1. Select Your Broker / Format</p>
+              <p className="text-[11px] text-muted-foreground/60 leading-snug mb-3">
+                Pick the format that matches your broker's CSV export. The chips show which brokers each format supports — selecting the format automatically uses that broker's import protocol.
+              </p>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {(Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]).map((key) => (
-                  <button
-                    key={key}
-                    onClick={() => handleTemplateChange(key)}
-                    className={cn(
-                      'text-left p-3 rounded-xl border transition-all',
-                      template === key
-                        ? 'border-foreground/30 bg-muted'
-                        : 'border-border hover:border-foreground/25'
-                    )}
-                  >
-                    <p className="text-sm font-semibold text-foreground mb-0.5">{TEMPLATES[key].label}</p>
-                    <p className="text-[11px] text-muted-foreground/60 leading-snug mb-1.5">{TEMPLATES[key].hint}</p>
-                    {TEMPLATES[key].brokers && (
-                      <div className="flex flex-wrap gap-1 mt-1">
-                        {TEMPLATES[key].brokers!.map((b) => (
-                          <span key={b} className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: 'var(--ef-bg-sunken)', color: 'var(--ef-ink-3)', border: '1px solid var(--ef-line)' }}>
-                            {b}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </button>
-                ))}
+                {(Object.keys(TEMPLATES) as (keyof typeof TEMPLATES)[]).map((key) => {
+                  const isSelected = template === key;
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => handleTemplateChange(key)}
+                      aria-pressed={isSelected}
+                      className={cn(
+                        'relative text-left p-3 rounded-xl border transition-all',
+                        isSelected
+                          ? 'border-foreground bg-foreground/10 ring-1 ring-foreground/40'
+                          : 'border-border hover:border-foreground/25 hover:bg-muted/40'
+                      )}
+                    >
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 h-4 w-4 rounded-full bg-foreground text-background flex items-center justify-center">
+                          <Check className="h-2.5 w-2.5" weight="bold" />
+                        </div>
+                      )}
+                      <p className="text-sm font-semibold text-foreground mb-0.5 pr-5">{TEMPLATES[key].label}</p>
+                      <p className="text-[11px] text-muted-foreground/60 leading-snug mb-1.5">{TEMPLATES[key].hint}</p>
+                      {TEMPLATES[key].brokers && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {TEMPLATES[key].brokers!.map((b) => (
+                            <span key={b} className="text-[9px] font-medium px-1.5 py-0.5 rounded-full" style={{ background: 'var(--ef-bg-sunken)', color: 'var(--ef-ink-3)', border: '1px solid var(--ef-line)' }}>
+                              {b}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
