@@ -26,15 +26,7 @@ import { useState } from 'react';
 
 function EdgeFlowMark({ size = 20 }: { size?: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden>
-      <polyline
-        points="2,18 2,11 7,11 7,6 12,6 12,2 18,2"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    <img src="/logo-new.png" width={size} height={size} alt="EdgeFlow" style={{ objectFit: 'contain' }} />
   );
 }
 
