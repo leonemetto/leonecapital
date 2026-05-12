@@ -21,4 +21,19 @@ export default defineConfig({
     // Ensure these are bundled for the SSR prerender step, not treated as externals
     noExternal: ['react-helmet-async', 'framer-motion'],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'supabase': ['@supabase/supabase-js'],
+          'recharts': ['recharts'],
+          'framer-motion': ['framer-motion'],
+          'tanstack-query': ['@tanstack/react-query'],
+          'sentry': ['@sentry/react'],
+          'date-fns': ['date-fns'],
+        },
+      },
+    },
+  },
 });

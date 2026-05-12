@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Activity, ShieldCheck } from 'lucide-react';
+import { Pulse as Activity, ShieldCheck } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 interface MfaChallengeProps {

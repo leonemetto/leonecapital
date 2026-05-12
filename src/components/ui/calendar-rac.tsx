@@ -15,7 +15,7 @@ import {
   RangeCalendar as RangeCalendarRac,
   composeRenderProps,
 } from "react-aria-components"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { CaretLeft as ChevronLeft, CaretRight as ChevronRight } from "@phosphor-icons/react"
 
 interface BaseCalendarProps {
   className?: string

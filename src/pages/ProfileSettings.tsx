@@ -12,7 +12,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import { Camera, KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldOff, Loader2, Brain, Trash2, FlaskConical } from 'lucide-react';
+import { Camera, Key as KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldSlash as ShieldOff, CircleNotch as Loader2, Brain, Trash as Trash2, Flask as FlaskConical } from '@phosphor-icons/react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 

@@ -6,7 +6,7 @@ import {
   startOfMonth, endOfMonth, eachDayOfInterval, format, getDay,
   addMonths, subMonths, isSameMonth, startOfWeek,
 } from 'date-fns';
-import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
+import { CaretLeft as ChevronLeft, CaretRight as ChevronRight, ArrowsClockwise as RefreshCw } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 
 interface TradingCalendarProps {

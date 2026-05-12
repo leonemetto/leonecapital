@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { X, ArrowRight, Zap, AlertTriangle, BarChart3 } from 'lucide-react';
+import { X, ArrowRight, Lightning as Zap, Warning as AlertTriangle, ChartBar as BarChart3 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
 const STEPS = [

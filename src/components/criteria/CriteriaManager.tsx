@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
-import { Plus, Trash2, Pencil, Check, X, Loader2 } from 'lucide-react';
+import { Plus, Trash as Trash2, Pencil, Check, X, CircleNotch as Loader2 } from '@phosphor-icons/react';
 
 export function CriteriaManager() {
   const { criteria, isLoading, addCriteria, updateCriteria, deleteCriteria } = useCriteria();

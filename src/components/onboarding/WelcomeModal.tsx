@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { BookOpen, ArrowRight, Sparkles } from 'lucide-react';
+import { BookOpen, ArrowRight, Sparkle as Sparkles } from '@phosphor-icons/react';
 import logoImg from '@/assets/logo.svg';
 
 interface WelcomeModalProps {

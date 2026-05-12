@@ -1,4 +1,4 @@
-import { FlaskConical } from 'lucide-react';
+import { Flask as FlaskConical } from '@phosphor-icons/react';
 
 export function SandboxBanner() {
   return (

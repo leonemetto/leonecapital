@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Activity, KeyRound, ShieldCheck, CheckCircle } from 'lucide-react';
+import { Pulse as Activity, Key as KeyRound, ShieldCheck, CheckCircle } from '@phosphor-icons/react';
 import { motion } from 'framer-motion';
 import { DottedSurface } from '@/components/ui/dotted-surface';
 

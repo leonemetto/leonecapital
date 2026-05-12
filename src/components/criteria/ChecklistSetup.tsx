@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { CheckSquare, ArrowRight } from 'lucide-react';
+import { CheckSquare, ArrowRight } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 
 interface ChecklistSetupProps {

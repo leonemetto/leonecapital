@@ -9,7 +9,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Funnel, DownloadSimple, UploadSimple, FilePdf } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { exportTradesCSV } from '@/lib/analytics';
-import { exportTradePDF } from '@/lib/pdfExport';
 import { motion } from 'framer-motion';
 
 const Journal = () => {
@@ -68,7 +67,10 @@ const Journal = () => {
         { label: 'Import', icon: UploadSimple, onClick: () => navigate('/import-trades') },
         ...(filteredTrades.length > 0 ? [
           { label: 'CSV', icon: DownloadSimple, onClick: () => exportTradesCSV(filteredTrades) },
-          { label: 'PDF', icon: FilePdf, onClick: () => exportTradePDF(filteredTrades) },
+          { label: 'PDF', icon: FilePdf, onClick: async () => {
+            const { exportTradePDF } = await import('@/lib/pdfExport');
+            await exportTradePDF(filteredTrades);
+          } },
         ] : []),
       ].map(({ label, icon: Icon, onClick }) => (
         <button
