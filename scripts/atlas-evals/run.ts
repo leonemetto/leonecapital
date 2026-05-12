@@ -177,11 +177,11 @@ function buildTradesSummary(trades: Trade[]): string {
   return lines.join("\n");
 }
 
-async function callAnthropic(model: string, system: string, messages: Array<{ role: string; content: string }>): Promise<string> {
+async function callAnthropic(model: string, system: string, messages: Array<{ role: string; content: string }>, maxTokens = MAX_OUTPUT_TOKENS): Promise<string> {
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "content-type": "application/json", "x-api-key": apiKey!, "anthropic-version": "2023-06-01" },
-    body: JSON.stringify({ model, max_tokens: MAX_OUTPUT_TOKENS, system, messages }),
+    body: JSON.stringify({ model, max_tokens: maxTokens, system, messages }),
   });
   if (!r.ok) throw new Error(`Anthropic ${model} ${r.status}: ${await r.text()}`);
   const j = await r.json();
@@ -205,7 +205,7 @@ Criteria:
 6. no_template_drift — Does the response feel templated (predictable paragraph order, recycled phrasings across responses)? Original prose = 3.
 7. no_contradictions — Do the numbers cited actually support the conclusion stated? E.g., "X beats Y" when X% < Y% = 0.
 
-Return ONLY valid JSON of this exact shape (no commentary, no markdown fences):
+Return ONLY valid JSON of this exact shape. Your VERY FIRST CHARACTER must be the opening brace. No preamble. No "Let me verify…". No markdown fences. Do any verification work silently in your head and emit only the final scored JSON object.
 {
   "scores": {
     "relevance": 0|1|2|3,
@@ -233,7 +233,7 @@ ${JSON.stringify(fixture.trades)}
 ### EXPECTATIONS FOR THIS PROMPT
 ${prompt.expectations}`;
 
-  const raw = await callAnthropic(GRADER_MODEL, RUBRIC, [{ role: "user", content: userMsg }]);
+  const raw = await callAnthropic(GRADER_MODEL, RUBRIC, [{ role: "user", content: userMsg }], 4000);
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (!jsonMatch) throw new Error(`Grader did not return JSON for ${prompt.id}: ${raw.slice(0, 200)}`);
   return JSON.parse(jsonMatch[0]);
