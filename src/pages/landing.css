@@ -792,17 +792,14 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 
 /* ============ AMBIENT BACKGROUND SYSTEM ============ */
 .ambient-layer { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; }
-.ambient-blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(90px); will-change: transform; }
-.ambient-blob-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(30,211,134,0.14), transparent 70%); top: -10%; left: -15%; animation: blobDrift1 22s ease-in-out infinite alternate; }
-.ambient-blob-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(118,223,168,0.10), transparent 70%); top: 40%; right: -10%; animation: blobDrift2 28s ease-in-out infinite alternate; }
-.ambient-blob-3 { width: 800px; height: 800px; background: radial-gradient(circle, rgba(58,255,157,0.08), transparent 70%); top: 75%; left: 25%; animation: blobDrift3 35s ease-in-out infinite alternate; }
-.ambient-blob-4 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(30,211,134,0.09), transparent 70%); top: 160%; right: 20%; animation: blobDrift4 20s ease-in-out infinite alternate; }
+.ambient-blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(40px); transform: translateZ(0); }
+.ambient-blob-1 { width: 700px; height: 700px; background: radial-gradient(circle, rgba(30,211,134,0.14), transparent 70%); top: -10%; left: -15%; }
+.ambient-blob-2 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(118,223,168,0.10), transparent 70%); top: 40%; right: -10%; }
+.ambient-blob-3 { width: 800px; height: 800px; background: radial-gradient(circle, rgba(58,255,157,0.08), transparent 70%); top: 75%; left: 25%; }
+.ambient-blob-4 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(30,211,134,0.09), transparent 70%); top: 160%; right: 20%; }
+@media (prefers-reduced-motion: reduce) { .ambient-blob { display: none; } }
 .edge-line-left { position: absolute; top: 12%; bottom: 12%; left: 0; width: 1px; background: linear-gradient(180deg,transparent,rgba(30,211,134,0.28) 25%,rgba(58,255,157,0.36) 50%,rgba(30,211,134,0.28) 75%,transparent); box-shadow: 0 0 12px rgba(30,211,134,0.15),3px 0 20px rgba(30,211,134,0.08); }
 .edge-line-right { position: absolute; top: 12%; bottom: 12%; right: 0; width: 1px; background: linear-gradient(180deg,transparent,rgba(30,211,134,0.28) 25%,rgba(58,255,157,0.36) 50%,rgba(30,211,134,0.28) 75%,transparent); box-shadow: 0 0 12px rgba(30,211,134,0.15),-3px 0 20px rgba(30,211,134,0.08); }
-@keyframes blobDrift1 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(40px,30px) scale(1.06); } 100% { transform: translate(20px,-25px) scale(0.96); } }
-@keyframes blobDrift2 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-35px,-45px) scale(1.08); } 100% { transform: translate(15px,30px) scale(0.95); } }
-@keyframes blobDrift3 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(50px,20px) scale(1.04); } 100% { transform: translate(-30px,40px) scale(1.02); } }
-@keyframes blobDrift4 { 0% { transform: translate(0,0) scale(1); } 50% { transform: translate(-40px,30px) scale(1.07); } 100% { transform: translate(20px,-20px) scale(0.97); } }
 
 /* ============ SECTION BACKGROUND SYSTEM ============ */
 .bento-section {
