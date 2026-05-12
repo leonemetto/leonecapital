@@ -245,19 +245,33 @@ The app uses a token-based design system with light + dark variants. Always use 
 ## Atlas — How It Works
 - Gate: requires 10+ trades (shows X/10 progress bar)
 - Edge function: supabase/functions/trade-advisor/index.ts
+- System prompt: supabase/functions/_shared/atlas-prompt.ts (shared with eval harness — change in one place)
 - Model: Claude Haiku (claude-haiku-4-5-20251001) via Anthropic API
 - Personality: senior risk manager / performance coach, direct, data-driven, no fluff
-- Context sent per message:
-  - Last 50 trades with all fields
-  - Aggregated stats (win rate, P&L, profit factor, etc.)
-  - Checklist compliance analytics
-  - Trader profile (style, rules, instruments, sessions, behavioral memory)
-  - Criteria definitions
+- Context sent per message (ANALYTICS SUMMARY block, pre-computed by buildTradesSummary in src/pages/AIAdvisor.tsx):
+  - Core stats: win rate, profit factor, avg win, avg loss, net P&L, max drawdown
+  - BY INSTRUMENT, BY SESSION, BY STRATEGY, BY DIRECTION
+  - BY INSTRUMENT × DIRECTION, BY INSTRUMENT × SESSION (cross-tabs)
+  - BY PLAN COMPLIANCE (on-plan vs off-plan WR + P&L)
+  - BY EMOTIONAL STATE (per state + combined 1-2 / 4-5 buckets)
+  - BY HTF BIAS ALIGNMENT, BY MONTH, BY ACCOUNT
+  - Last 50 trades with all fields (RECENT TRADES block)
+  - Trader profile + behavioral memory (last 10 insights)
+- Length tiers enforced in prompt: Tier 1 factual lookup (30–80w), Tier 2 single focused (120–220w), Tier 3 broad review (280–400w), Tier 4 greeting/closing (<40w)
 - Streaming: SSE (Anthropic streaming format)
 - Chat stored in sessionStorage (cleared on browser close)
 - Max 10 messages per session (auto-trims)
 - Suggestion pills: quick prompts for common questions
 - Daily Review: Dashboard button pre-injects today's trade context
+
+## Atlas Eval Harness
+- Location: scripts/atlas-evals/ (run.ts, prompts.json, fixture.json)
+- Run: `ANTHROPIC_API_KEY=sk-ant-... npm run evals:atlas`
+- What it does: replays 12 test prompts against Atlas using the deployed system prompt + a 30-trade synthetic fixture, then grades each response with Claude Sonnet against 7 criteria (relevance, factual_accuracy, no_fabricated_citations, no_banned_phrases, appropriate_length, no_template_drift, no_contradictions).
+- Cost: ~$0.20 per full run.
+- Output: console scorecard + results.json for run-to-run diffing.
+- When to use: before deploying any change to atlas-prompt.ts. Confirms whether the change improves overall behaviour or just shifts the failure mode.
+- Current baseline (May 2026): 83.5% overall. Strong on relevance, banned phrases, length, template drift. Weakest on factual_accuracy (~2.0–2.6 / 3.0) due to Haiku-class arithmetic limits.
 
 ## AI Behavioral Memory (extract-insight)
 - Edge function: supabase/functions/extract-insight/index.ts
@@ -425,11 +439,21 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 - [x] PDF export (performance report) ✅
 - [x] Error monitoring — Sentry ✅ (add VITE_SENTRY_DSN to Vercel env vars)
 
-### ATLAS AI ✅ ALL DONE
+### ATLAS AI
 - [x] Adaptive advice quality standards (no blanket prohibitions, conditional filters) ✅
 - [x] Mandatory market context (macro regime, session dynamics, instrument drivers) ✅
 - [x] Methodology-agnostic base prompt (no ICT-specific language) ✅
 - [x] Style detection priority: trader profile → notes → both → neither (universal fallback) ✅
+- [x] Fix checklist compliance hallucination (was reporting 0% when no trade_verifications rows exist; now reads Followed Plan field instead) ✅
+- [x] Add emotional state, plan compliance, HTF, monthly, instrument×direction, instrument×session breakdowns to ANALYTICS SUMMARY ✅
+- [x] Tier-based length control (Tier 1/2/3/4 with strict word ranges) — stops over-answering narrow questions ✅
+- [x] Pre-compute combined emotional state buckets (states 1-2 / 4-5) — eliminates Atlas mental-arithmetic errors ✅
+- [x] Ban bold inline labels for analytical content — kills the "Where your edge lives" template trigger ✅
+- [x] Strict factual-accuracy rules: read pre-computed, don't re-derive; list trade IDs for custom cross-tabs; ban contradictions ✅
+- [x] Macro events knowledge (Feb 28 2026 Iran strikes, Apr 8 ceasefire) — Atlas can correlate loss clusters to regime shifts ✅
+- [x] Extract system prompt to supabase/functions/_shared/atlas-prompt.ts (shared with eval harness, no drift) ✅
+- [x] Build eval harness at scripts/atlas-evals/ with Sonnet grader and synthetic fixture ✅
+- [ ] When Elite tier launches: upgrade Atlas model from Haiku to Sonnet for Elite users only. Justifies the higher tier price ("Elite uses our most accurate AI") and fixes the remaining factual_accuracy ceiling (Haiku miscounts on cross-tabs; Sonnet doesn't). One-line model swap in trade-advisor/index.ts, gated on subscription tier. Free + Pro stay on Haiku.
 
 ### UX ✅ ALL DONE
 - [x] Onboarding flow full rewrite — 4 steps: Welcome → Account → Trading Style → Demo/Fresh ✅
@@ -458,6 +482,10 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
 
 ### INFRASTRUCTURE
 - [ ] Upgrade Supabase to Pro ($25/mo) — free tier 1GB storage won't handle screenshots at scale
+- [ ] **Set up inbound email for edgeflow.capital** — needed to receive Gmail "Send As" verification + beta user replies at leone@edgeflow.capital
+  - Plan: Resend Inbound + Gmail Send As (no nameserver move, stays on Spaceship)
+  - Steps: (1) add MX records at Spaceship pointing to Resend inbound, (2) configure Resend inbound forwarding rule to leone.metto@gmail.com, (3) Gmail Settings → Accounts → Add another email address → leone@edgeflow.capital, (4) enter Resend SMTP credentials, (5) confirm verification code that arrives in Gmail
+  - Outcome: send personal founder emails from leone@edgeflow.capital, receive replies in Gmail
 
 ### MONETISATION — Build this before public launch
 - [ ] Payment integration — Lemon Squeezy (international cards)
