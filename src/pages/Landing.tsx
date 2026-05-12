@@ -102,6 +102,7 @@ export default function Landing() {
   const [openFaq, setOpenFaq] = useState<number>(0);
   const [annualBilling, setAnnualBilling] = useState(false);
   const [activeSection, setActiveSection] = useState<string>('features');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navPillRef = useRef<HTMLDivElement>(null);
   const indicatorRef = useRef<HTMLSpanElement>(null);
@@ -272,10 +273,30 @@ export default function Landing() {
             ))}
             <span className="nav-pill-indicator" ref={indicatorRef} />
           </div>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0 }}>
-            <a href="/blog" className="lg btn-ghost" style={{ textDecoration: 'none' }}>Blog</a>
-            <button className="lg btn-ghost" onClick={() => navigate('/auth')}>Log in</button>
-            <button className="lg btn-primary" onClick={() => navigate('/auth')}>Start free →</button>
+          <div className="nav-cta-group" style={{ display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0 }}>
+            <a href="/blog" className="lg btn-ghost nav-cta-blog" style={{ textDecoration: 'none' }}>Blog</a>
+            <button className="lg btn-ghost nav-cta-login" onClick={() => navigate('/auth')}>Log in</button>
+            <button className="lg btn-primary nav-cta-start" onClick={() => navigate('/auth')}>Start free →</button>
+          </div>
+          <button
+            className="nav-burger"
+            aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileMenuOpen}
+            onClick={() => setMobileMenuOpen(v => !v)}
+          >
+            <span className={`nav-burger-bar ${mobileMenuOpen ? 'is-open-1' : ''}`} />
+            <span className={`nav-burger-bar ${mobileMenuOpen ? 'is-open-2' : ''}`} />
+            <span className={`nav-burger-bar ${mobileMenuOpen ? 'is-open-3' : ''}`} />
+          </button>
+        </div>
+        <div className={`nav-mobile ${mobileMenuOpen ? 'is-open' : ''}`} aria-hidden={!mobileMenuOpen}>
+          {navSections.map(s => (
+            <a key={s.key} href={s.href} onClick={() => setMobileMenuOpen(false)}>{s.label}</a>
+          ))}
+          <a href="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</a>
+          <div className="nav-mobile-actions">
+            <button className="btn-ghost" onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}>Log in</button>
+            <button className="btn-primary" onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}>Start free →</button>
           </div>
         </div>
       </nav>
