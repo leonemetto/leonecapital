@@ -121,69 +121,106 @@ export default function Landing() {
     setOpenFaq(prev => (prev === i ? -1 : i));
   }
 
-  // Reposition indicator after every activeSection change (runs after DOM commit)
-  useLayoutEffect(() => {
+  // Cached link positions keyed by section key — measured once on mount and on resize.
+  // Avoids getBoundingClientRect() during scroll, which forces layout and tanks Chrome scroll perf.
+  const linkRectsRef = useRef<Record<string, { left: number; width: number }>>({});
+  const sectionOffsetsRef = useRef<Array<{ key: string; top: number }>>([]);
+
+  const measureLinks = () => {
     const pill = navPillRef.current;
-    const indicator = indicatorRef.current;
-    if (!pill || !indicator) return;
-    const link = pill.querySelector<HTMLAnchorElement>('a.active');
-    if (!link) return;
+    if (!pill) return;
     const pr = pill.getBoundingClientRect();
-    const lr = link.getBoundingClientRect();
-    if (firstMount.current) {
-      // Snap to position on first mount — no transition
+    const next: Record<string, { left: number; width: number }> = {};
+    pill.querySelectorAll<HTMLAnchorElement>('a[data-key]').forEach(a => {
+      const key = a.dataset.key!;
+      const r = a.getBoundingClientRect();
+      next[key] = { left: r.left - pr.left, width: r.width };
+    });
+    linkRectsRef.current = next;
+  };
+
+  const measureSections = () => {
+    const scrollY = window.scrollY;
+    sectionOffsetsRef.current = navSections
+      .map(({ id, key }) => {
+        const el = document.getElementById(id);
+        return el ? { key, top: el.getBoundingClientRect().top + scrollY } : null;
+      })
+      .filter((x): x is { key: string; top: number } => x !== null);
+  };
+
+  const applyIndicator = (key: string, animated: boolean) => {
+    const indicator = indicatorRef.current;
+    const rect = linkRectsRef.current[key];
+    if (!indicator || !rect) return;
+    if (!animated) {
       indicator.style.transition = 'none';
-      indicator.style.left = `${lr.left - pr.left}px`;
-      indicator.style.width = `${lr.width}px`;
+      indicator.style.left = `${rect.left}px`;
+      indicator.style.width = `${rect.width}px`;
       requestAnimationFrame(() => {
         if (indicatorRef.current) indicatorRef.current.style.transition = '';
       });
-      firstMount.current = false;
     } else {
-      // Smooth slide on subsequent changes
-      indicator.style.left = `${lr.left - pr.left}px`;
-      indicator.style.width = `${lr.width}px`;
+      indicator.style.left = `${rect.left}px`;
+      indicator.style.width = `${rect.width}px`;
     }
+  };
+
+  useLayoutEffect(() => {
+    measureLinks();
+    measureSections();
+    applyIndicator(activeSection, false);
+    firstMount.current = false;
+    // Intentionally only run on mount; subsequent re-measures handled by resize listener.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useLayoutEffect(() => {
+    if (firstMount.current) return;
+    applyIndicator(activeSection, true);
   }, [activeSection]);
 
-  // Reposition without animation on window resize
   useEffect(() => {
     const onResize = () => {
-      const pill = navPillRef.current;
-      const indicator = indicatorRef.current;
-      if (!pill || !indicator) return;
-      const link = pill.querySelector<HTMLAnchorElement>('a.active');
-      if (!link) return;
-      const pr = pill.getBoundingClientRect();
-      const lr = link.getBoundingClientRect();
-      indicator.style.transition = 'none';
-      indicator.style.left = `${lr.left - pr.left}px`;
-      indicator.style.width = `${lr.width}px`;
-      requestAnimationFrame(() => {
-        if (indicatorRef.current) indicatorRef.current.style.transition = '';
-      });
+      measureLinks();
+      measureSections();
+      applyIndicator(activeSection, false);
     };
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
-  }, []);
+  }, [activeSection]);
 
-  // Scroll spy — updates activeSection as user scrolls through sections
+  // Scroll spy — cheap scrollY comparison, rAF-throttled, zero layout reads per frame.
   useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const match = navSections.find(s => s.id === entry.target.id);
-          if (match) setActiveSection(match.key);
+    let raf = 0;
+    let pendingKey: string | null = null;
+    const offset = window.innerHeight * 0.35; // active when section top crosses 35% of viewport
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const sections = sectionOffsetsRef.current;
+        if (!sections.length) return;
+        const y = window.scrollY + offset;
+        let current = sections[0].key;
+        for (const s of sections) {
+          if (s.top <= y) current = s.key;
+          else break;
+        }
+        if (current !== pendingKey) {
+          pendingKey = current;
+          setActiveSection(current);
         }
       });
-    }, { threshold: 0.25, rootMargin: '-8% 0px -55% 0px' });
+    };
 
-    navSections.forEach(({ id }) => {
-      const el = document.getElementById(id);
-      if (el) observer.observe(el);
-    });
-
-    return () => observer.disconnect();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      if (raf) cancelAnimationFrame(raf);
+    };
   }, []);
 
   const proPrice = annualBilling ? '$15.83' : '$19';
@@ -227,6 +264,7 @@ export default function Landing() {
           <div className="lg nav-pill" ref={navPillRef}>
             {navSections.map(s => (
               <a key={s.key} href={s.href}
+                 data-key={s.key}
                  className={activeSection === s.key ? 'active' : ''}
                  onClick={() => setActiveSection(s.key)}>
                 {s.label}
