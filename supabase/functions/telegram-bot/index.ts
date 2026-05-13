@@ -164,6 +164,32 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       .order("created_at", { ascending: false })
       .limit(50);
 
+    // Onboarding funnel data
+    const { data: accounts } = await supabase
+      .from("accounts")
+      .select("user_id");
+    const { data: criteriaSettings } = await supabase
+      .from("criteria_settings")
+      .select("user_id");
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("id, nickname, onboarding_completed, created_at");
+
+    const usersWithAccounts = new Set((accounts ?? []).map((a: any) => a.user_id));
+    const usersWithCriteria = new Set((criteriaSettings ?? []).map((c: any) => c.user_id));
+    const usersWithTrades2 = new Set((recentTrades ?? []).map((t: any) => t.user_id));
+
+    const funnelData = allUsers.map((u: any) => {
+      const profile = (profiles ?? []).find((p: any) => p.id === u.id);
+      const step = !profile ? "step1_no_profile"
+        : !usersWithAccounts.has(u.id) ? "step2_no_account"
+        : !usersWithCriteria.has(u.id) ? "step3_no_criteria"
+        : !profile.onboarding_completed ? "step4_incomplete"
+        : !usersWithTrades2.has(u.id) ? "completed_no_trades"
+        : "active";
+      return { email: u.email, step, joined: u.created_at?.slice(0, 10) };
+    });
+
     const zeroTradeUsers = await getUsersWithZeroTrades(supabase, allUsers);
     const today = new Date().toISOString().slice(0, 10);
     const todayUsers = allUsers
@@ -184,6 +210,14 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       `TODAY'S SIGNUPS: ${todayUsers.join(", ") || "none yet"}\n\n` +
       `ALL USERS (email + signup date):\n` +
       allUsers.map((u: any) => `${u.email} — ${u.created_at?.slice(0, 10)}`).join("\n") + "\n\n" +
+      `ONBOARDING FUNNEL (where each user dropped off):\n` +
+      `- step1_no_profile = never created profile\n` +
+      `- step2_no_account = no trading account added\n` +
+      `- step3_no_criteria = no checklist criteria\n` +
+      `- step4_incomplete = started but didn't finish\n` +
+      `- completed_no_trades = finished onboarding, 0 trades\n` +
+      `- active = completed + has trades\n` +
+      funnelData.map((u: any) => `${u.email} → ${u.step} (joined ${u.joined})`).join("\n") + "\n\n" +
       `RECENT TRADES (last 50):\n${JSON.stringify(recentTrades, null, 2)}\n\n` +
       `Answer in under 150 words. Be direct and specific. No fluff.`;
 
