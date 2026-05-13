@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Notify Telegram
         run: |
-          COMMIT_MSG=$(echo '${{ github.event.head_commit.message }}' | head -c 100)
+          COMMIT_MSG=$(echo '${{ github.event.head_commit.message }}' | head -1)
           curl -s -X POST "https://aepmcmfidvkdjjgjvkkw.supabase.co/functions/v1/telegram-bot" \
             -H "Content-Type: application/json" \
-            -d "{\"type\": \"deploy\", \"status\": \"success\", \"commit\": \"$COMMIT_MSG\", \"branch\": \"main\"}"
+            -d "$(jq -n --arg commit "$COMMIT_MSG" '{type: "deploy", status: "success", commit: $commit, branch: "main"}')"
