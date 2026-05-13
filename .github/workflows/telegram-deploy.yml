@@ -1,0 +1,16 @@
+name: Telegram Deploy Notification
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Telegram
+        run: |
+          COMMIT_MSG=$(echo '${{ github.event.head_commit.message }}' | head -c 100)
+          curl -s -X POST "https://aepmcmfidvkdjjgjvkkw.supabase.co/functions/v1/telegram-bot" \
+            -H "Content-Type: application/json" \
+            -d "{\"type\": \"deploy\", \"status\": \"success\", \"commit\": \"$COMMIT_MSG\", \"branch\": \"main\"}"
