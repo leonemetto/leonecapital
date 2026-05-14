@@ -55,12 +55,23 @@ export function AuthBackground() {
     const mount = mountRef.current;
     if (!mount) return;
 
+    // WebGL availability probe — some Safari/iOS/older devices return null context
+    // or fail getShaderPrecisionFormat. Bail silently rather than crashing Auth.
+    const probe = document.createElement('canvas');
+    const gl = probe.getContext('webgl2') || probe.getContext('webgl') || probe.getContext('experimental-webgl');
+    if (!gl) return;
+
     /* ── Renderer ── */
-    const renderer = new THREE.WebGLRenderer({
-      antialias: false,
-      alpha: false,
-      powerPreference: 'low-power',
-    });
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({
+        antialias: false,
+        alpha: false,
+        powerPreference: 'low-power',
+      });
+    } catch {
+      return;
+    }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(mount.clientWidth, mount.clientHeight);
     renderer.setClearColor(0x040d07, 1);

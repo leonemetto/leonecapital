@@ -8,6 +8,35 @@ import { TradeFormData } from '@/types/trade';
 import { cn } from '@/lib/utils';
 import { groupFills, detectPartialFills, type FillMapper } from '@/lib/importers/groupFills';
 
+// Normalize a date string into YYYY-MM-DD. Accepts ISO, MM/DD/YYYY, DD/MM/YYYY,
+// MM-DD-YYYY, DD.MM.YYYY. Returns '' if it can't be parsed unambiguously.
+function normalizeDate(raw: string): string {
+  if (!raw) return '';
+  const s = raw.trim();
+  // Already ISO (YYYY-MM-DD ...)
+  const iso = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+  // Slash/dot/dash with year last: a/b/yyyy
+  const m = s.match(/^(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{4})/);
+  if (m) {
+    const a = parseInt(m[1], 10);
+    const b = parseInt(m[2], 10);
+    const y = m[3];
+    // If first part > 12 it's clearly DD/MM; if second part > 12 it's MM/DD.
+    // Otherwise assume DD/MM (more common globally outside US).
+    const isDDMM = a > 12 || b <= 12;
+    const dd = isDDMM ? a : b;
+    const mm = isDDMM ? b : a;
+    if (dd >= 1 && dd <= 31 && mm >= 1 && mm <= 12) {
+      return `${y}-${String(mm).padStart(2, '0')}-${String(dd).padStart(2, '0')}`;
+    }
+  }
+  // Last-ditch: let Date parse it (handles ISO with time, RFC, etc.)
+  const d = new Date(s);
+  if (!isNaN(d.getTime())) return d.toISOString().slice(0, 10);
+  return '';
+}
+
 // ─── Column mapping templates ───────────────────────────────────────────────
 // preprocess:      optional fn to merge/group rows before row-by-row mapping
 // groupKeyColumn:  column name whose value identifies which trade a fill belongs to.
@@ -482,18 +511,20 @@ const TEMPLATES: Record<string, {
     hint: 'Map any CSV with date, instrument, direction, outcome, P&L columns',
     map: (row) => {
       // Try common column name variations
-      const date = row['date'] || row['Date'] || row['trade_date'] || row['TradeDate'] || row['open_date'];
+      const rawDate = row['date'] || row['Date'] || row['trade_date'] || row['TradeDate'] || row['open_date'];
       const instrument = row['instrument'] || row['Instrument'] || row['symbol'] || row['Symbol'] || row['pair'] || row['Pair'];
       const rawDir = (row['direction'] || row['Direction'] || row['side'] || row['Side'] || row['type'] || row['Type'] || '').toLowerCase();
       const rawOut = (row['outcome'] || row['Outcome'] || row['result'] || row['Result'] || '').toLowerCase();
       const pnl = parseFloat(row['pnl'] || row['PnL'] || row['P&L'] || row['profit'] || row['Profit'] || row['net_pnl'] || '0');
-      if (!date || !instrument) return null;
+      if (!rawDate || !instrument) return null;
+      const date = normalizeDate(rawDate);
+      if (!date) return null;
       const direction: 'long' | 'short' = rawDir.includes('buy') || rawDir.includes('long') ? 'long' : 'short';
       let outcome: 'win' | 'loss' | 'breakeven' = 'breakeven';
       if (rawOut.includes('win') || pnl > 0) outcome = 'win';
       else if (rawOut.includes('loss') || pnl < 0) outcome = 'loss';
       return {
-        date: date.slice(0, 10),
+        date,
         instrument,
         direction,
         outcome,

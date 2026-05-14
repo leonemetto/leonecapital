@@ -14,7 +14,9 @@ interface Props { trades: Trade[] }
 function periodPnl(trades: Trade[], from: Date, to: Date): number {
   return trades
     .filter(t => {
+      if (!t.date) return false;
       const d = parseISO(t.date);
+      if (isNaN(d.getTime())) return false;
       return isWithinInterval(d, { start: from, end: to });
     })
     .reduce((sum, t) => sum + t.pnl, 0);
