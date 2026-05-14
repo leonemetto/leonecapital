@@ -86,6 +86,10 @@ export function useAccounts() {
     const { error } = await supabase.from('accounts').delete().eq('id', id);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
+    // Trades FK cascades on delete in the DB — refresh trades, verifications, and any
+    // derived caches so the deleted account's data disappears from every page immediately.
+    qc.invalidateQueries({ queryKey: ['trades'] });
+    qc.invalidateQueries({ queryKey: ['trade_verifications'] });
   }, [qc]);
 
   return { accounts, addAccount, updateAccount, deleteAccount, isLoading };

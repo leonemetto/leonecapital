@@ -9,6 +9,16 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
 import { Plus, Wallet, Trash, PencilSimple, Check, X } from '@phosphor-icons/react';
 import { toast } from 'sonner';
@@ -59,11 +69,31 @@ const BADGE_STYLES: Record<string, string> = {
 };
 
 const Accounts = () => {
-  const { accounts, addAccount, updateAccount, deleteAccount } = useSharedAccounts();
+  const { accounts, addAccount, updateAccount, deleteAccount, selectedAccountId, setSelectedAccountId } = useSharedAccounts();
   const { trades } = useSharedTrades();
   const [open, setOpen] = useState(false);
   const [editingBalance, setEditingBalance] = useState<BalanceEditState>(null);
   const [editingName, setEditingName] = useState<NameEditState>(null);
+  const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+
+  const pendingDeleteTradeCount = useMemo(
+    () => (pendingDelete ? trades.filter(t => t.accountId === pendingDelete.id).length : 0),
+    [pendingDelete, trades],
+  );
+
+  const handleDeleteConfirmed = async () => {
+    if (!pendingDelete) return;
+    const { id, name } = pendingDelete;
+    try {
+      await deleteAccount(id);
+      if (selectedAccountId === id) setSelectedAccountId('__all__');
+      toast.success(`Deleted "${name}" and all its trades`);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to delete account');
+    } finally {
+      setPendingDelete(null);
+    }
+  };
   const [form, setForm] = useState<AccountFormData>({
     name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD',
   });
@@ -330,12 +360,7 @@ const Accounts = () => {
                       {account.type}
                     </span>
                     <button
-                      onClick={() => {
-                        if (confirm('Delete this account? This cannot be undone.')) {
-                          deleteAccount(account.id);
-                          toast.success('Account deleted');
-                        }
-                      }}
+                      onClick={() => setPendingDelete({ id: account.id, name: account.name })}
                       className="p-1 rounded text-muted-foreground/50 hover:text-[var(--ef-neg)] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
                     >
                       <Trash className="h-3.5 w-3.5" weight="regular" />
@@ -420,6 +445,38 @@ const Accounts = () => {
           })}
         </div>
       )}
+
+      <AlertDialog open={!!pendingDelete} onOpenChange={o => !o && setPendingDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{pendingDelete?.name}"?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-2">
+                <p>
+                  This permanently deletes the account and{' '}
+                  <span className="font-semibold text-foreground">
+                    {pendingDeleteTradeCount} trade{pendingDeleteTradeCount === 1 ? '' : 's'}
+                  </span>{' '}
+                  attached to it, including screenshots and checklist data.
+                </p>
+                <p>
+                  The trades will disappear from Dashboard, Trades DB, Analytic, Leak Detection,
+                  Optimizer, and Atlas. This cannot be undone.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirmed}
+              className="bg-[var(--ef-neg)] text-white hover:bg-[var(--ef-neg)]/90"
+            >
+              Delete account & {pendingDeleteTradeCount} trade{pendingDeleteTradeCount === 1 ? '' : 's'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 };
