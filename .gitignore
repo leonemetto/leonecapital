@@ -29,3 +29,13 @@ dist-ssr
 *.sln
 *.sw?
 .gstack/
+
+# Supabase CLI cache
+supabase/.temp/
+
+# Claude / agent tooling
+.claude/worktrees/
+.agents/
+
+# Eval outputs (regenerated each run)
+scripts/atlas-evals/results.json
