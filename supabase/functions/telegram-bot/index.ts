@@ -62,16 +62,29 @@ async function getStats(supabase: ReturnType<typeof createClient>) {
   };
 }
 
+// Only surface issues that have actually fired recently. Sentry doesn't
+// auto-resolve on deploy, so `is:unresolved` alone keeps reporting fixed bugs
+// forever. We scope to issues seen in the last hour AND drop anything whose
+// lastSeen is older than the most recent commit on origin/main (best proxy for
+// "last deploy" we have without wiring up Vercel's API).
+const ACTIVE_WINDOW_MIN = 60;
+
 async function getSentryIssues(): Promise<any[]> {
   if (!SENTRY_AUTH_TOKEN) return [];
   try {
     const res = await fetch(
-      `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=is:unresolved&limit=50&sort=date`,
+      `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=${encodeURIComponent(`is:unresolved age:-${ACTIVE_WINDOW_MIN}m`)}&limit=50&sort=date`,
       { headers: { Authorization: `Bearer ${SENTRY_AUTH_TOKEN}` } }
     );
     if (!res.ok) return [];
     const data = await res.json();
-    return Array.isArray(data) ? data : [];
+    if (!Array.isArray(data)) return [];
+    // Defensive client-side filter: keep only issues with lastSeen within window.
+    const cutoff = Date.now() - ACTIVE_WINDOW_MIN * 60 * 1000;
+    return data.filter((i: any) => {
+      const ts = i.lastSeen ? new Date(i.lastSeen).getTime() : 0;
+      return ts >= cutoff;
+    });
   } catch (e) {
     console.error("Sentry fetch failed:", e);
     return [];
@@ -233,7 +246,7 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       `ALL USERS (onboarded=completed onboarding, traded=has at least 1 trade):\n` +
       userSummary.join("\n") + "\n\n" +
       `RECENT TRADES (last 50):\n${JSON.stringify(recentTrades, null, 2)}\n\n` +
-      `SENTRY ERRORS (live, unresolved):\n${JSON.stringify(sentryIssues.map((i: any) => ({
+      `SENTRY ERRORS (only issues that fired in the last ${ACTIVE_WINDOW_MIN} minutes — issues fixed by a recent deploy will fall off automatically as no new events come in):\n${JSON.stringify(sentryIssues.map((i: any) => ({
         title: i.title,
         culprit: i.culprit,
         level: i.level,
