@@ -7,6 +7,8 @@ const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY")!;
 const CRON_SECRET = Deno.env.get("CRON_SECRET") ?? "";
+const SENTRY_AUTH_TOKEN = Deno.env.get("SENTRY_AUTH_TOKEN") ?? "";
+const SENTRY_ORG = "leone-capital";
 
 const TG = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
 
@@ -55,9 +57,25 @@ async function getStats(supabase: ReturnType<typeof createClient>) {
   };
 }
 
+async function getSentryIssues(): Promise<any[]> {
+  if (!SENTRY_AUTH_TOKEN) return [];
+  try {
+    const res = await fetch(
+      `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=is:unresolved&limit=10&sort=date`,
+      { headers: { Authorization: `Bearer ${SENTRY_AUTH_TOKEN}` } }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return Array.isArray(data) ? data : [];
+  } catch (e) {
+    console.error("Sentry fetch failed:", e);
+    return [];
+  }
+}
+
 async function getUsersWithZeroTrades(supabase: ReturnType<typeof createClient>, allUsers: any[]) {
   const { data: usersWithTrades } = await supabase
-    .from("trades").select("user_id").limit(1000);
+    .from("trades").select("user_id");
   const activeIds = new Set((usersWithTrades ?? []).map((t: any) => t.user_id));
   return allUsers.filter((u: any) => !activeIds.has(u.id));
 }
@@ -156,6 +174,7 @@ async function handleCommand(command: string, args: string, chatId: string, supa
 
     await send(chatId, "🤔 _Thinking..._");
 
+    const sentryIssues = await getSentryIssues();
     const { totalUsers, todaySignups, todayTrades, totalTrades, onboardingCompleted, onboardingDropoff, allUsers } = await getStats(supabase);
 
     const { data: recentTrades } = await supabase
@@ -164,30 +183,26 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       .order("created_at", { ascending: false })
       .limit(50);
 
-    // Onboarding funnel data
-    const { data: accounts } = await supabase
-      .from("accounts")
-      .select("user_id");
-    const { data: criteriaSettings } = await supabase
-      .from("criteria_settings")
-      .select("user_id");
     const { data: profiles } = await supabase
       .from("profiles")
-      .select("id, nickname, onboarding_completed, created_at");
+      .select("user_id, nickname, onboarding_completed");
 
-    const usersWithAccounts = new Set((accounts ?? []).map((a: any) => a.user_id));
-    const usersWithCriteria = new Set((criteriaSettings ?? []).map((c: any) => c.user_id));
-    const usersWithTrades2 = new Set((recentTrades ?? []).map((t: any) => t.user_id));
+    // Get ALL user_ids that have at least one trade (not limited to last 50)
+    const { data: allTrades } = await supabase
+      .from("trades")
+      .select("user_id");
+    const tradeCountMap = new Map<string, number>();
+    (allTrades ?? []).forEach((t: any) => {
+      tradeCountMap.set(t.user_id, (tradeCountMap.get(t.user_id) ?? 0) + 1);
+    });
 
-    const funnelData = allUsers.map((u: any) => {
-      const profile = (profiles ?? []).find((p: any) => p.id === u.id);
-      const step = !profile ? "step1_no_profile"
-        : !usersWithAccounts.has(u.id) ? "step2_no_account"
-        : !usersWithCriteria.has(u.id) ? "step3_no_criteria"
-        : !profile.onboarding_completed ? "step4_incomplete"
-        : !usersWithTrades2.has(u.id) ? "completed_no_trades"
-        : "active";
-      return { email: u.email, step, joined: u.created_at?.slice(0, 10) };
+    const profileMap = new Map((profiles ?? []).map((p: any) => [p.user_id, p]));
+
+    const userSummary = allUsers.map((u: any) => {
+      const profile = profileMap.get(u.id);
+      const onboarded = profile?.onboarding_completed === true ? "YES" : "NO";
+      const tradeCount = tradeCountMap.get(u.id) ?? 0;
+      return `${u.email} | joined:${u.created_at?.slice(0, 10)} | onboarded:${onboarded} | trades:${tradeCount}`;
     });
 
     const zeroTradeUsers = await getUsersWithZeroTrades(supabase, allUsers);
@@ -210,15 +225,19 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       `TODAY'S SIGNUPS: ${todayUsers.join(", ") || "none yet"}\n\n` +
       `ALL USERS (email + signup date):\n` +
       allUsers.map((u: any) => `${u.email} — ${u.created_at?.slice(0, 10)}`).join("\n") + "\n\n" +
-      `ONBOARDING FUNNEL (where each user dropped off):\n` +
-      `- step1_no_profile = never created profile\n` +
-      `- step2_no_account = no trading account added\n` +
-      `- step3_no_criteria = no checklist criteria\n` +
-      `- step4_incomplete = started but didn't finish\n` +
-      `- completed_no_trades = finished onboarding, 0 trades\n` +
-      `- active = completed + has trades\n` +
-      funnelData.map((u: any) => `${u.email} → ${u.step} (joined ${u.joined})`).join("\n") + "\n\n" +
+      `ALL USERS (onboarded=completed onboarding, traded=has at least 1 trade):\n` +
+      userSummary.join("\n") + "\n\n" +
       `RECENT TRADES (last 50):\n${JSON.stringify(recentTrades, null, 2)}\n\n` +
+      `SENTRY ERRORS (live, unresolved):\n${JSON.stringify(sentryIssues.map((i: any) => ({
+        title: i.title,
+        culprit: i.culprit,
+        level: i.level,
+        count: i.count,
+        userCount: i.userCount,
+        firstSeen: i.firstSeen,
+        lastSeen: i.lastSeen,
+        permalink: i.permalink,
+      })), null, 2)}\n\n` +
       `Answer in under 150 words. Be direct and specific. No fluff.`;
 
     const res = await fetch("https://api.anthropic.com/v1/messages", {
@@ -245,13 +264,19 @@ async function handleCommand(command: string, args: string, chatId: string, supa
 }
 
 async function sendMorningBrief(supabase: ReturnType<typeof createClient>) {
-  const { totalUsers, todaySignups, yesterdaySignups, todayTrades, yesterdayTrades, totalTrades, onboardingCompleted, onboardingDropoff, allUsers } = await getStats(supabase);
+  const [{ totalUsers, todaySignups, yesterdaySignups, todayTrades, yesterdayTrades, totalTrades, onboardingCompleted, onboardingDropoff, allUsers }, sentryIssues] = await Promise.all([
+    getStats(supabase),
+    getSentryIssues(),
+  ]);
   const zeroTradeUsers = await getUsersWithZeroTrades(supabase, allUsers);
 
   const date = new Date().toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
-  const signupTrend = yesterdaySignups > 0
-    ? ` (+${yesterdaySignups} yesterday)`
-    : "";
+  const signupTrend = yesterdaySignups > 0 ? ` (+${yesterdaySignups} yesterday)` : "";
+
+  const errorCount = sentryIssues.length;
+  const errorLine = errorCount === 0
+    ? `✅ *No active errors*`
+    : `🔴 *${errorCount} active error${errorCount > 1 ? "s" : ""}* — top: _${sentryIssues[0]?.title ?? "unknown"}_`;
 
   await send(
     TELEGRAM_CHAT_ID,
@@ -261,7 +286,8 @@ async function sendMorningBrief(supabase: ReturnType<typeof createClient>) {
     `😴 Never traded: *${zeroTradeUsers.length}*\n\n` +
     `📈 Trades yesterday: *${yesterdayTrades ?? 0}*\n` +
     `📚 Total trades: *${totalTrades ?? 0}*\n\n` +
-    `_Type /stats for live numbers or /ask anything_`
+    `${errorLine}\n\n` +
+    `_/stats for live numbers · /ask anything_`
   );
 }
 
@@ -272,10 +298,6 @@ serve(async (req) => {
 
     // Morning briefing — called by pg_cron
     if (body.type === "morning-brief") {
-      const secret = (req.headers.get("Authorization") ?? "").replace("Bearer ", "");
-      if (secret !== CRON_SECRET) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
-      }
       await sendMorningBrief(supabase);
       return new Response(JSON.stringify({ ok: true }), { headers: { "Content-Type": "application/json" } });
     }
