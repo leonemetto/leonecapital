@@ -62,28 +62,48 @@ async function getStats(supabase: ReturnType<typeof createClient>) {
   };
 }
 
-// Only surface issues that have actually fired recently. Sentry doesn't
-// auto-resolve on deploy, so `is:unresolved` alone keeps reporting fixed bugs
-// forever. We scope to issues seen in the last hour AND drop anything whose
-// lastSeen is older than the most recent commit on origin/main (best proxy for
-// "last deploy" we have without wiring up Vercel's API).
-const ACTIVE_WINDOW_MIN = 60;
+// Sentry doesn't auto-resolve on deploy, so `is:unresolved` alone keeps
+// reporting fixed bugs forever. We use the latest commit on main as a "last
+// deploy" reference: an issue is active iff it has fired SINCE that commit.
+// Errors a fix actually killed stop refiring, their lastSeen stays old, and
+// they drop off the list naturally. New errors overnight have fresh lastSeen
+// and show up. Caveat: any commit (even unrelated) advances the reference, so
+// a rarely-firing error may briefly look fixed until it next fires.
+async function getLastDeployTime(): Promise<number> {
+  try {
+    const res = await fetch(
+      "https://api.github.com/repos/leonemetto/leonecapital/commits/main",
+      { headers: { Accept: "application/vnd.github+json" } }
+    );
+    if (!res.ok) return 0;
+    const data = await res.json();
+    const iso = data?.commit?.committer?.date ?? data?.commit?.author?.date;
+    return iso ? new Date(iso).getTime() : 0;
+  } catch (e) {
+    console.error("GitHub commit fetch failed:", e);
+    return 0;
+  }
+}
 
 async function getSentryIssues(): Promise<any[]> {
   if (!SENTRY_AUTH_TOKEN) return [];
   try {
-    const res = await fetch(
-      `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=${encodeURIComponent(`is:unresolved age:-${ACTIVE_WINDOW_MIN}m`)}&limit=50&sort=date`,
-      { headers: { Authorization: `Bearer ${SENTRY_AUTH_TOKEN}` } }
-    );
+    const [res, deployTime] = await Promise.all([
+      fetch(
+        `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=${encodeURIComponent("is:unresolved")}&limit=100&sort=date`,
+        { headers: { Authorization: `Bearer ${SENTRY_AUTH_TOKEN}` } }
+      ),
+      getLastDeployTime(),
+    ]);
     if (!res.ok) return [];
     const data = await res.json();
     if (!Array.isArray(data)) return [];
-    // Defensive client-side filter: keep only issues with lastSeen within window.
-    const cutoff = Date.now() - ACTIVE_WINDOW_MIN * 60 * 1000;
+    // If we couldn't resolve a deploy time, fall back to returning all
+    // unresolved issues rather than hiding everything.
+    if (!deployTime) return data;
     return data.filter((i: any) => {
       const ts = i.lastSeen ? new Date(i.lastSeen).getTime() : 0;
-      return ts >= cutoff;
+      return ts >= deployTime;
     });
   } catch (e) {
     console.error("Sentry fetch failed:", e);
@@ -246,7 +266,7 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       `ALL USERS (onboarded=completed onboarding, traded=has at least 1 trade):\n` +
       userSummary.join("\n") + "\n\n" +
       `RECENT TRADES (last 50):\n${JSON.stringify(recentTrades, null, 2)}\n\n` +
-      `SENTRY ERRORS (only issues that fired in the last ${ACTIVE_WINDOW_MIN} minutes — issues fixed by a recent deploy will fall off automatically as no new events come in):\n${JSON.stringify(sentryIssues.map((i: any) => ({
+      `SENTRY ERRORS (only issues that have fired SINCE the last deploy to main — errors a recent fix killed drop off automatically once they stop firing; new errors that happen after the deploy show up here):\n${JSON.stringify(sentryIssues.map((i: any) => ({
         title: i.title,
         culprit: i.culprit,
         level: i.level,
