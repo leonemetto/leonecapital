@@ -16,7 +16,12 @@ async function send(chatId: string, text: string) {
   await fetch(`${TG}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
+    body: JSON.stringify({
+      chat_id: chatId,
+      text,
+      parse_mode: "Markdown",
+      disable_web_page_preview: true,
+    }),
   });
 }
 
@@ -61,7 +66,7 @@ async function getSentryIssues(): Promise<any[]> {
   if (!SENTRY_AUTH_TOKEN) return [];
   try {
     const res = await fetch(
-      `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=is:unresolved&limit=10&sort=date`,
+      `https://sentry.io/api/0/organizations/${SENTRY_ORG}/issues/?query=is:unresolved&limit=50&sort=date`,
       { headers: { Authorization: `Bearer ${SENTRY_AUTH_TOKEN}` } }
     );
     if (!res.ok) return [];
@@ -274,9 +279,13 @@ async function sendMorningBrief(supabase: ReturnType<typeof createClient>) {
   const signupTrend = yesterdaySignups > 0 ? ` (+${yesterdaySignups} yesterday)` : "";
 
   const errorCount = sentryIssues.length;
-  const errorLine = errorCount === 0
+  const errorBlock = errorCount === 0
     ? `✅ *No active errors*`
-    : `🔴 *${errorCount} active error${errorCount > 1 ? "s" : ""}* — top: _${sentryIssues[0]?.title ?? "unknown"}_`;
+    : `🔴 *${errorCount} active error${errorCount > 1 ? "s" : ""}*\n` +
+      sentryIssues.map((i: any) => {
+        const users = i.userCount ? ` (${i.userCount} users)` : "";
+        return `• ${i.title}${users}`;
+      }).join("\n");
 
   await send(
     TELEGRAM_CHAT_ID,
@@ -286,7 +295,7 @@ async function sendMorningBrief(supabase: ReturnType<typeof createClient>) {
     `😴 Never traded: *${zeroTradeUsers.length}*\n\n` +
     `📈 Trades yesterday: *${yesterdayTrades ?? 0}*\n` +
     `📚 Total trades: *${totalTrades ?? 0}*\n\n` +
-    `${errorLine}\n\n` +
+    `${errorBlock}\n\n` +
     `_/stats for live numbers · /ask anything_`
   );
 }
