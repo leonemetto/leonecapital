@@ -6,7 +6,7 @@ import { useSharedTrades } from '@/contexts/TradesContext';
 import { ArrowLeft } from '@phosphor-icons/react';
 
 const AddTrade = () => {
-  const { addTrade } = useSharedTrades();
+  const { addTrade, addMirroredTrade } = useSharedTrades();
   const navigate = useNavigate();
 
   const backBtn = (
@@ -27,7 +27,7 @@ const AddTrade = () => {
       />
       <PageBody>
         <div className="max-w-3xl space-y-3">
-          <TradeForm onSubmit={addTrade} />
+          <TradeForm onSubmit={addTrade} onMirroredSubmit={addMirroredTrade} />
         </div>
       </PageBody>
     </AppLayout>

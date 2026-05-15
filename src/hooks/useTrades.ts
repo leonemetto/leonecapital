@@ -2,7 +2,7 @@ import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
-import { Trade, TradeFormData } from '@/types/trade';
+import { Trade, TradeFormData, MirroredTradeFormData } from '@/types/trade';
 
 const BUCKET = 'trade-screenshots';
 
@@ -49,7 +49,14 @@ function rowToTrade(r: TradeRow): Trade {
     accountId: r.account_id ?? undefined,
     screenshotUrl: r.screenshot_url ?? undefined,
     createdAt: r.created_at,
+    tradeGroupId: r.trade_group_id ?? undefined,
   };
+}
+
+function legOutcome(pnl: number): 'win' | 'loss' | 'breakeven' {
+  if (pnl > 0) return 'win';
+  if (pnl < 0) return 'loss';
+  return 'breakeven';
 }
 
 export function useTrades() {
@@ -100,6 +107,42 @@ export function useTrades() {
     return rowToTrade(data);
   }, [qc]);
 
+  // Mirrored trade: N rows sharing trade_group_id. Outcome derived per-leg so a
+  // slipped leg with negative P&L is correctly tagged loss when the group is a win.
+  const addMirroredTrade = useCallback(async (form: MirroredTradeFormData) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('Not authenticated');
+    if (form.legs.length < 2) throw new Error('Mirrored trade requires at least 2 accounts');
+
+    const groupId = crypto.randomUUID();
+    const rows: TradeInsert[] = form.legs.map(leg => ({
+      user_id: user.id,
+      date: form.date,
+      instrument: form.instrument,
+      direction: form.direction,
+      strategy: form.strategy,
+      session: form.session,
+      outcome: legOutcome(leg.pnl),
+      pnl: leg.pnl,
+      notes: form.notes,
+      account_id: leg.accountId,
+      r_multiple: form.rMultiple ?? null,
+      risk_percent: form.riskPercent ?? null,
+      htf_bias: form.htfBias || '',
+      emotional_state: form.emotionalState ?? null,
+      confidence_level: form.confidenceLevel ?? null,
+      time_in_trade: form.timeInTrade ?? null,
+      followed_plan: form.followedPlan ?? null,
+      screenshot_url: form.screenshotUrl ?? null,
+      trade_group_id: groupId,
+    }));
+
+    const { data, error } = await supabase.from('trades').insert(rows).select();
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+    return (data ?? []).map(rowToTrade);
+  }, [qc]);
+
   const updateTrade = useCallback(async (id: string, form: Partial<TradeFormData>) => {
     const updates: TradeUpdate = {};
     if (form.date !== undefined) updates.date = form.date;
@@ -125,11 +168,51 @@ export function useTrades() {
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);
 
+  // Propagate edits to every leg in the group. account_id and pnl are intentionally
+  // omitted — those are leg-specific. Use updateTrade(legId, ...) for those.
+  const updateTradeGroup = useCallback(async (groupId: string, form: Partial<TradeFormData>) => {
+    const updates: TradeUpdate = {};
+    if (form.date !== undefined) updates.date = form.date;
+    if (form.instrument !== undefined) updates.instrument = form.instrument;
+    if (form.direction !== undefined) updates.direction = form.direction;
+    if (form.strategy !== undefined) updates.strategy = form.strategy;
+    if (form.session !== undefined) updates.session = form.session;
+    if (form.notes !== undefined) updates.notes = form.notes;
+    if (form.rMultiple !== undefined) updates.r_multiple = form.rMultiple ?? null;
+    if (form.riskPercent !== undefined) updates.risk_percent = form.riskPercent ?? null;
+    if (form.htfBias !== undefined) updates.htf_bias = form.htfBias || '';
+    if (form.emotionalState !== undefined) updates.emotional_state = form.emotionalState ?? null;
+    if (form.confidenceLevel !== undefined) updates.confidence_level = form.confidenceLevel ?? null;
+    if (form.timeInTrade !== undefined) updates.time_in_trade = form.timeInTrade ?? null;
+    if (form.followedPlan !== undefined) updates.followed_plan = form.followedPlan ?? null;
+    if (form.screenshotUrl !== undefined) updates.screenshot_url = form.screenshotUrl ?? null;
+
+    if (Object.keys(updates).length === 0) return;
+    const { error } = await supabase.from('trades').update(updates).eq('trade_group_id', groupId);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+  }, [qc]);
+
   const deleteTrade = useCallback(async (id: string) => {
     const { error } = await supabase.from('trades').delete().eq('id', id);
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);
 
-  return { trades, addTrade, updateTrade, deleteTrade, isLoading };
+  const deleteTradeGroup = useCallback(async (groupId: string) => {
+    const { error } = await supabase.from('trades').delete().eq('trade_group_id', groupId);
+    if (error) throw error;
+    qc.invalidateQueries({ queryKey: key });
+  }, [qc]);
+
+  return {
+    trades,
+    addTrade,
+    addMirroredTrade,
+    updateTrade,
+    updateTradeGroup,
+    deleteTrade,
+    deleteTradeGroup,
+    isLoading,
+  };
 }

@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 
 const Journal = () => {
   const navigate = useNavigate();
-  const { trades, updateTrade, deleteTrade, isLoading: tradesLoading } = useSharedTrades();
+  const { trades, updateTrade, updateTradeGroup, deleteTrade, deleteTradeGroup, isLoading: tradesLoading } = useSharedTrades();
   const { accounts } = useSharedAccounts();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
 
@@ -121,7 +121,13 @@ const Journal = () => {
           </motion.div>
         )}
 
-        <TradeTable trades={filteredTrades} onUpdate={updateTrade} onDelete={deleteTrade} />
+        <TradeTable
+          trades={filteredTrades}
+          onUpdate={updateTrade}
+          onDelete={deleteTrade}
+          onUpdateGroup={updateTradeGroup}
+          onDeleteGroup={deleteTradeGroup}
+        />
       </PageBody>
     </AppLayout>
   );

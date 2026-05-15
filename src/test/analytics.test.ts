@@ -37,6 +37,32 @@ describe('calculateAnalytics', () => {
     expect(a.currentStreak.type).toBe('none');
   });
 
+  it('mirrored trade group counts as ONE decision for behavioral metrics', () => {
+    const legs = [
+      trade({ id: 'l1', tradeGroupId: 'g1', accountId: 'a', pnl: 100, outcome: 'win' }),
+      trade({ id: 'l2', tradeGroupId: 'g1', accountId: 'b', pnl: 200, outcome: 'win' }),
+      trade({ id: 'l3', tradeGroupId: 'g1', accountId: 'c', pnl: 400, outcome: 'win' }),
+    ];
+    const a = calculateAnalytics(legs);
+    expect(a.totalTrades).toBe(1);
+    expect(a.wins).toBe(1);
+    expect(a.winRate).toBe(100);
+    expect(a.netPnl).toBe(700); // P&L sums across legs (monetary).
+  });
+
+  it('mixes mirrored groups and singletons correctly', () => {
+    const trades = [
+      trade({ id: 'g_a', tradeGroupId: 'g1', pnl: 100, outcome: 'win' }),
+      trade({ id: 'g_b', tradeGroupId: 'g1', pnl: 200, outcome: 'win' }),
+      trade({ id: 's1', pnl: -150, outcome: 'loss' }),
+    ];
+    const a = calculateAnalytics(trades);
+    expect(a.totalTrades).toBe(2);
+    expect(a.wins).toBe(1);
+    expect(a.losses).toBe(1);
+    expect(a.netPnl).toBe(150);
+  });
+
   it('calculates win rate correctly', () => {
     const trades = [
       trade({ outcome: 'win', pnl: 100 }),

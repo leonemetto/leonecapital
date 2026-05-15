@@ -7,7 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { TradeForm } from './TradeForm';
 import { exportTradesCSV } from '@/lib/analytics';
-import { MagnifyingGlass, DownloadSimple, Trash, PencilSimple, CaretLeft, CaretRight, CaretDown, BookOpen, Plus, Image } from '@phosphor-icons/react';
+import { groupTradesForDisplay } from '@/lib/mirroredTrades';
+import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { MagnifyingGlass, DownloadSimple, Trash, PencilSimple, CaretLeft, CaretRight, CaretDown, BookOpen, Plus, ArrowsClockwise } from '@phosphor-icons/react';
 import { useSignedUrl } from '@/hooks/useSignedUrl';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTradeVerifications } from '@/hooks/useTradeVerifications';
@@ -19,6 +21,8 @@ interface TradeTableProps {
   trades: Trade[];
   onUpdate: (id: string, data: Partial<TradeFormData>) => void;
   onDelete: (id: string) => void;
+  onUpdateGroup?: (groupId: string, data: Partial<TradeFormData>) => void;
+  onDeleteGroup?: (groupId: string) => void;
 }
 
 type SortField = 'date' | 'instrument' | 'pnl';
@@ -54,7 +58,10 @@ function TradeScreenshot({ path }: { path: string }) {
   );
 }
 
-export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
+export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDeleteGroup }: TradeTableProps) {
+  const { accounts } = useSharedAccounts();
+  const accountName = (id?: string) => id ? (accounts.find(a => a.id === id)?.name ?? '—') : '—';
+
   const [search, setSearch] = useState('');
   const [outcomeFilter, setOutcomeFilter] = useState<OutcomeFilter>('all');
   const [directionFilter, setDirectionFilter] = useState<DirectionFilter>('all');
@@ -62,8 +69,12 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
   const [sortField, setSortField] = useState<SortField>('date');
   const [sortDir, setSortDir] = useState<SortDir>('desc');
   const [page, setPage] = useState(0);
+  // editTrade: when set with `groupEdit = true`, applies updates to the whole group.
   const [editTrade, setEditTrade] = useState<Trade | null>(null);
+  const [editIsGroup, setEditIsGroup] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingGroupId, setDeletingGroupId] = useState<string | null>(null);
+  const [deletingGroupSize, setDeletingGroupSize] = useState(0);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const { activeCriteria } = useCriteria();
@@ -99,8 +110,12 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
     return result;
   }, [trades, search, outcomeFilter, directionFilter, dateRange, sortField, sortDir]);
 
-  const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
-  const paged = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+  // Collapse mirrored trade groups for display. A group appears once with chip stack;
+  // expand reveals per-account legs.
+  const displayRows = useMemo(() => groupTradesForDisplay(filtered), [filtered]);
+
+  const totalPages = Math.ceil(displayRows.length / PAGE_SIZE);
+  const paged = displayRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const resetPage = () => setPage(0);
 
   const toggleSort = (field: SortField) => {
@@ -122,10 +137,24 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
   );
 
   const handleEditSubmit = (data: TradeFormData) => {
-    if (editTrade) { onUpdate(editTrade.id, data); setEditTrade(null); }
+    if (!editTrade) return;
+    if (editIsGroup && editTrade.tradeGroupId && onUpdateGroup) {
+      // Strip leg-specific fields — the hook also belts-and-braces this.
+      const { accountId: _a, pnl: _p, ...shared } = data;
+      onUpdateGroup(editTrade.tradeGroupId, shared);
+    } else {
+      onUpdate(editTrade.id, data);
+    }
+    setEditTrade(null);
+    setEditIsGroup(false);
   };
 
   const confirmDelete = (id: string) => { onDelete(id); setDeletingId(null); };
+  const confirmDeleteGroup = (groupId: string) => {
+    if (onDeleteGroup) onDeleteGroup(groupId);
+    setDeletingGroupId(null);
+    setDeletingGroupSize(0);
+  };
 
   const toggleExpand = (id: string, e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('button')) return;
@@ -242,11 +271,28 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                     No matches for current filters
                   </td>
                 </tr>
-              ) : paged.map(trade => {
+              ) : paged.map(row => {
+                if (row.kind === 'group') {
+                  return (
+                    <GroupRow
+                      key={row.groupId}
+                      groupId={row.groupId}
+                      legs={row.legs}
+                      isExpanded={expandedId === row.groupId}
+                      onToggle={() => setExpandedId(prev => prev === row.groupId ? null : row.groupId)}
+                      hasCriteria={hasCriteria}
+                      accountName={accountName}
+                      onEditGroup={() => { setEditTrade(row.legs[0]); setEditIsGroup(true); }}
+                      onEditLeg={(leg) => { setEditTrade(leg); setEditIsGroup(false); }}
+                      onDeleteGroup={() => { setDeletingGroupId(row.groupId); setDeletingGroupSize(row.legs.length); }}
+                      onDeleteLeg={(legId) => setDeletingId(legId)}
+                    />
+                  );
+                }
+
+                const trade = row.trade;
                 const isExpanded = expandedId === trade.id;
                 const checks = verificationsMap[trade.id] ?? {};
-                const total = activeCriteria.length;
-                const checked = activeCriteria.filter(c => checks[c.id]).length;
                 const checklistChecked = hasCriteria && verificationsMap[trade.id] !== undefined;
 
                 return (
@@ -310,7 +356,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
                       <td className="p-3 text-right">
                         <div className="flex items-center gap-0.5 justify-end">
                           <button
-                            onClick={(e) => { e.stopPropagation(); setEditTrade(trade); }}
+                            onClick={(e) => { e.stopPropagation(); setEditTrade(trade); setEditIsGroup(false); }}
                             className="p-1 rounded text-muted-foreground/60 hover:text-foreground hover:bg-muted transition-colors"
                           >
                             <PencilSimple className="h-3 w-3" weight="regular" />
@@ -384,7 +430,7 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-3 py-2.5 border-t border-border">
             <span className="text-[10px] text-muted-foreground/60">
-              {filtered.length} trades · Page {page + 1}/{totalPages}
+              {displayRows.length} entries · Page {page + 1}/{totalPages}
             </span>
             <div className="flex gap-0.5">
               <button
@@ -407,23 +453,30 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
       </div>
 
       {/* Edit Dialog */}
-      <Dialog open={!!editTrade} onOpenChange={() => setEditTrade(null)}>
+      <Dialog open={!!editTrade} onOpenChange={() => { setEditTrade(null); setEditIsGroup(false); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-white">Edit Trade</DialogTitle>
+            <DialogTitle className="text-white">
+              {editIsGroup ? 'Edit Mirrored Trade (all legs)' : 'Edit Trade'}
+            </DialogTitle>
+            {editIsGroup && (
+              <p className="text-[11px] text-muted-foreground/70 pt-1">
+                Changes apply to every account leg in this group. Per-account P&L and account assignment are unchanged.
+              </p>
+            )}
           </DialogHeader>
           {editTrade && (
             <TradeForm
               initialData={editTrade}
               onSubmit={handleEditSubmit}
               submitLabel="Update"
-              onCancel={() => setEditTrade(null)}
+              onCancel={() => { setEditTrade(null); setEditIsGroup(false); }}
             />
           )}
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
+      {/* Delete single trade */}
       <Dialog open={!!deletingId} onOpenChange={() => setDeletingId(null)}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
@@ -436,6 +489,214 @@ export function TradeTable({ trades, onUpdate, onDelete }: TradeTableProps) {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete mirrored group */}
+      <Dialog open={!!deletingGroupId} onOpenChange={() => { setDeletingGroupId(null); setDeletingGroupSize(0); }}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-white">Delete all {deletingGroupSize} mirrored trades?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Every account leg in this mirrored trade will be deleted. This cannot be undone.
+          </p>
+          <div className="flex gap-2 justify-end mt-3">
+            <Button variant="ghost" size="sm" onClick={() => { setDeletingGroupId(null); setDeletingGroupSize(0); }}>Cancel</Button>
+            <Button size="sm" onClick={() => deletingGroupId && confirmDeleteGroup(deletingGroupId)} className="bg-[#f87171] hover:bg-[#f87171]/90 text-black font-semibold rounded-[24px]">Delete All</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
+  );
+}
+
+// ─── Group row ───
+interface GroupRowProps {
+  groupId: string;
+  legs: Trade[];
+  isExpanded: boolean;
+  onToggle: () => void;
+  hasCriteria: boolean;
+  accountName: (id?: string) => string;
+  onEditGroup: () => void;
+  onEditLeg: (leg: Trade) => void;
+  onDeleteGroup: () => void;
+  onDeleteLeg: (legId: string) => void;
+}
+
+function GroupRow({ groupId, legs, isExpanded, onToggle, hasCriteria, accountName, onEditGroup, onEditLeg, onDeleteGroup, onDeleteLeg }: GroupRowProps) {
+  const head = legs[0];
+  const totalPnl = legs.reduce((s, t) => s + t.pnl, 0);
+  const wins = legs.filter(l => l.outcome === 'win').length;
+  const losses = legs.filter(l => l.outcome === 'loss').length;
+  // Header outcome rolls up to the dominant: win if any wins and no losses,
+  // mixed if both, loss/breakeven otherwise.
+  const headerOutcome: 'win' | 'loss' | 'breakeven' | 'mixed' =
+    wins > 0 && losses > 0 ? 'mixed'
+    : wins > 0 ? 'win'
+    : losses > 0 ? 'loss'
+    : 'breakeven';
+
+  return (
+    <>
+      <tr
+        onClick={(e) => { if (!(e.target as HTMLElement).closest('button')) onToggle(); }}
+        className="border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer bg-[rgba(16,185,129,0.04)]"
+      >
+        <td className="p-3 text-[13px] font-mono whitespace-nowrap text-muted-foreground">
+          {new Date(head.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+        </td>
+        <td className="p-3 text-[13px] font-semibold text-foreground">
+          <div className="flex items-center gap-1.5">
+            <ArrowsClockwise className="h-3 w-3 text-muted-foreground/60" weight="bold" />
+            {head.instrument}
+            <span className="text-[10px] font-medium uppercase tracking-[0.1em] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+              {legs.length} accts
+            </span>
+          </div>
+        </td>
+        <td className="p-3 hidden md:table-cell">
+          <span className={cn(
+            'text-[10px] font-bold px-1.5 py-0.5 rounded',
+            head.direction === 'long' ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'
+          )}>
+            {head.direction === 'long' ? 'L' : 'S'}
+          </span>
+        </td>
+        <td className="p-3 text-[13px] hidden lg:table-cell text-muted-foreground">{head.strategy}</td>
+        <td className="p-3 text-[13px] hidden lg:table-cell text-muted-foreground">{head.session}</td>
+        <td className={cn(
+          'p-3 text-right text-[13px] font-mono font-bold',
+          totalPnl > 0 ? 'text-[#10b981]' : totalPnl < 0 ? 'text-[#f87171]' : 'text-muted-foreground'
+        )}>
+          {totalPnl >= 0 ? '+' : ''}{totalPnl.toFixed(2)}
+        </td>
+        <td className="p-3 text-center">
+          <div className="flex items-center justify-center gap-1.5">
+            <span className={cn(
+              'w-0.5 h-3.5 rounded-full shrink-0',
+              headerOutcome === 'win' ? 'bg-[#10b981]'
+              : headerOutcome === 'loss' ? 'bg-[#f87171]'
+              : headerOutcome === 'mixed' ? 'bg-[#f59e0b]'
+              : 'bg-muted-foreground/30'
+            )} />
+            <span className={cn(
+              'text-[11px] font-medium uppercase',
+              headerOutcome === 'win' ? 'text-[#10b981]'
+              : headerOutcome === 'loss' ? 'text-[#f87171]'
+              : headerOutcome === 'mixed' ? 'text-[#f59e0b]'
+              : 'text-muted-foreground'
+            )}>
+              {headerOutcome === 'mixed' ? `${wins}W/${losses}L` : headerOutcome === 'breakeven' ? 'BE' : headerOutcome}
+            </span>
+          </div>
+        </td>
+        {hasCriteria && <td className="p-3 hidden md:table-cell" />}
+        <td className="p-3 text-right">
+          <div className="flex items-center gap-0.5 justify-end">
+            <button
+              onClick={(e) => { e.stopPropagation(); onEditGroup(); }}
+              title="Edit all legs"
+              className="p-1 rounded text-muted-foreground/60 hover:text-foreground hover:bg-muted transition-colors"
+            >
+              <PencilSimple className="h-3 w-3" weight="regular" />
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDeleteGroup(); }}
+              title="Delete all legs"
+              className="p-1 rounded text-muted-foreground/60 hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+            >
+              <Trash className="h-3 w-3" weight="regular" />
+            </button>
+            <CaretDown className={cn('h-3.5 w-3.5 text-muted-foreground/50 transition-transform', isExpanded && 'rotate-180')} weight="regular" />
+          </div>
+        </td>
+      </tr>
+      <AnimatePresence>
+        {isExpanded && (
+          <motion.tr
+            key={`${groupId}-expanded`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+          >
+            <td colSpan={9} className="px-4 pb-4 pt-0">
+              <div className="rounded-lg p-4 bg-muted/30 border border-border space-y-3">
+                <div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-2">Per-account legs</p>
+                  <div className="space-y-1.5">
+                    {legs.map(leg => (
+                      <div key={leg.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded border border-border/60">
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <span className="text-[12px] font-medium text-foreground truncate">{accountName(leg.accountId)}</span>
+                          <span className={cn(
+                            'text-[9px] font-bold px-1 py-0.5 rounded uppercase',
+                            leg.outcome === 'win' ? 'bg-[rgba(16,185,129,0.15)] text-[#10b981]'
+                            : leg.outcome === 'loss' ? 'bg-[rgba(248,113,113,0.15)] text-[#f87171]'
+                            : 'bg-muted text-muted-foreground'
+                          )}>
+                            {leg.outcome === 'breakeven' ? 'BE' : leg.outcome}
+                          </span>
+                        </div>
+                        <span className={cn(
+                          'text-[12px] font-mono font-bold',
+                          leg.pnl > 0 ? 'text-[#10b981]' : leg.pnl < 0 ? 'text-[#f87171]' : 'text-muted-foreground'
+                        )}>
+                          {leg.pnl >= 0 ? '+' : ''}{leg.pnl.toFixed(2)}
+                        </span>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onEditLeg(leg); }}
+                          title="Edit just this leg"
+                          className="p-1 rounded text-muted-foreground/60 hover:text-foreground hover:bg-muted transition-colors"
+                        >
+                          <PencilSimple className="h-3 w-3" weight="regular" />
+                        </button>
+                        <button
+                          onClick={(e) => { e.stopPropagation(); onDeleteLeg(leg.id); }}
+                          title="Delete just this leg"
+                          className="p-1 rounded text-muted-foreground/60 hover:text-[#f87171] hover:bg-[rgba(248,113,113,0.08)] transition-colors"
+                        >
+                          <Trash className="h-3 w-3" weight="regular" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2 border-t border-border/60">
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">R-Multiple (avg)</p>
+                    <p className="text-sm font-bold font-mono text-white">
+                      {(() => {
+                        const rs = legs.map(l => l.rMultiple).filter((r): r is number => r != null);
+                        return rs.length ? `${(rs.reduce((s, r) => s + r, 0) / rs.length).toFixed(2)}R` : '—';
+                      })()}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">HTF Bias</p>
+                    <p className="text-sm font-bold font-mono text-white">{head.htfBias || '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">Emotional</p>
+                    <p className="text-sm font-bold font-mono text-white">{head.emotionalState != null ? `${head.emotionalState}/5` : '—'}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">Plan Followed</p>
+                    <p className="text-sm font-bold font-mono text-white">{head.followedPlan == null ? '—' : head.followedPlan ? 'Yes' : 'No'}</p>
+                  </div>
+                </div>
+                {head.notes && (
+                  <div>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.1em] mb-1 text-muted-foreground/60">Notes (shared)</p>
+                    <p className="text-sm leading-relaxed text-foreground/80">{head.notes}</p>
+                  </div>
+                )}
+                {head.screenshotUrl && <TradeScreenshot path={head.screenshotUrl} />}
+              </div>
+            </td>
+          </motion.tr>
+        )}
+      </AnimatePresence>
+    </>
   );
 }

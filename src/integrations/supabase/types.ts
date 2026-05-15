@@ -209,6 +209,7 @@ export type Database = {
           strategy: string
           time_in_trade: number | null
           screenshot_url: string | null
+          trade_group_id: string | null
           user_id: string
         }
         Insert: {
@@ -231,6 +232,7 @@ export type Database = {
           session?: string
           strategy?: string
           time_in_trade?: number | null
+          trade_group_id?: string | null
           user_id: string
         }
         Update: {
@@ -253,6 +255,7 @@ export type Database = {
           session?: string
           strategy?: string
           time_in_trade?: number | null
+          trade_group_id?: string | null
           user_id?: string
         }
         Relationships: [

@@ -13,6 +13,8 @@ export interface TradingAccount {
   maxTotalDdPct?: number;
   trailingDrawdown?: boolean;
   challengeStartDate?: string;
+  /** Copy weight used to split mirrored trade P&L proportionally. Default 1. */
+  copyWeight: number;
 }
 
 export type AccountFormData = Omit<TradingAccount, 'id' | 'createdAt'>;

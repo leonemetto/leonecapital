@@ -18,9 +18,21 @@ export interface Trade {
   accountId?: string;
   screenshotUrl?: string;
   createdAt: string;
+  tradeGroupId?: string;
 }
 
 export type TradeFormData = Omit<Trade, 'id' | 'createdAt'>;
+
+/** Per-account leg of a mirrored trade. Account-specific by definition. */
+export interface MirroredLeg {
+  accountId: string;
+  pnl: number;
+}
+
+/** Payload for logging a mirrored trade across N accounts. */
+export interface MirroredTradeFormData extends Omit<TradeFormData, 'accountId' | 'pnl'> {
+  legs: MirroredLeg[];
+}
 
 export const INSTRUMENTS = [
   'XAUUSD', 'NAS100', 'US30', 'SPX500', 'EUR/USD', 'GBP/USD', 'USD/JPY',

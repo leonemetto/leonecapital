@@ -8,6 +8,7 @@ import { useTraderProfile } from '@/hooks/useTraderProfile';
 import { useCriteria } from '@/hooks/useCriteria';
 import { useTradeVerifications } from '@/hooks/useTradeVerifications';
 import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
+import { dedupeTradesByGroup } from '@/lib/mirroredTrades';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -29,11 +30,16 @@ function trimMessages(msgs: Msg[]): Msg[] {
   return msgs.length > MAX_MESSAGES ? msgs.slice(-MAX_MESSAGES) : msgs;
 }
 
-function buildTradesSummary(trades: any[], accounts: any[]) {
-  if (trades.length === 0) return 'No trades logged yet.';
-  const analytics = calculateAnalytics(trades);
-  const strategies = getStrategyPerformance(trades);
-  const sessions = getSessionPerformance(trades);
+function buildTradesSummary(rawTrades: any[], accounts: any[]) {
+  if (rawTrades.length === 0) return 'No trades logged yet.';
+  // Atlas reasons about decisions, not executions. Collapse mirrored groups so a
+  // trader who took 50 EURUSD longs across 3 mirrored accounts is described as
+  // "50 trades" — not 150. The Per-Account section below still uses raw legs so
+  // per-account P&L stays accurate.
+  const trades = dedupeTradesByGroup(rawTrades);
+  const analytics = calculateAnalytics(rawTrades);
+  const strategies = getStrategyPerformance(rawTrades);
+  const sessions = getSessionPerformance(rawTrades);
   const instrumentMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   const directionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   const instrumentDirectionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
@@ -66,11 +72,7 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
       isc.pnl += t.pnl; instrumentSessionMap.set(isKey, isc);
     }
 
-    const acctId = t.accountId || 'unassigned';
-    const acctName = t.accountId ? (accountLookup.get(t.accountId) || 'Unknown') : 'Unassigned';
-    const ac = accountMap.get(acctId) || { name: acctName, wins: 0, losses: 0, breakeven: 0, pnl: 0, total: 0 };
-    ac.total++; if (t.outcome === 'win') ac.wins++; else if (t.outcome === 'loss') ac.losses++; else ac.breakeven++;
-    ac.pnl += t.pnl; accountMap.set(acctId, ac);
+    // Account map uses raw legs below — skip here. Deduped row has no accountId.
 
     if (t.followedPlan === true || t.followedPlan === false) {
       const key = t.followedPlan ? 'On-plan (Followed Plan = YES)' : 'Off-plan (Followed Plan = NO)';
@@ -101,13 +103,29 @@ function buildTradesSummary(trades: any[], accounts: any[]) {
     }
   }
 
+  // Per-account totals are MONETARY — iterate raw legs so each mirrored leg is counted.
+  for (const t of rawTrades) {
+    const acctId = t.accountId || 'unassigned';
+    const acctName = t.accountId ? (accountLookup.get(t.accountId) || 'Unknown') : 'Unassigned';
+    const ac = accountMap.get(acctId) || { name: acctName, wins: 0, losses: 0, breakeven: 0, pnl: 0, total: 0 };
+    ac.total++; if (t.outcome === 'win') ac.wins++; else if (t.outcome === 'loss') ac.losses++; else ac.breakeven++;
+    ac.pnl += t.pnl; accountMap.set(acctId, ac);
+  }
+
   const earliest = trades.length > 0 ? trades[trades.length - 1].date : '';
   const latest = trades.length > 0 ? trades[0].date : '';
   const fmt = (v: { wins: number; losses: number; pnl: number; total: number }) =>
     `${v.total} trades, ${v.total > 0 ? ((v.wins / v.total) * 100).toFixed(1) : 0}% WR, $${v.pnl.toFixed(2)} P&L`;
 
+  // Surface mirrored grouping so Atlas can talk about decisions vs executions correctly.
+  const mirroredGroups = new Set(rawTrades.filter((t: any) => t.tradeGroupId).map((t: any) => t.tradeGroupId)).size;
+  const mirroredLegs = rawTrades.filter((t: any) => t.tradeGroupId).length;
+
   return [
     earliest && latest ? `Trade period: ${earliest} → ${latest}` : '',
+    mirroredGroups > 0
+      ? `Mirrored trades: ${mirroredGroups} groups across ${mirroredLegs} account executions. "Total trades" below counts decisions (deduped), per-account P&L counts each execution.`
+      : '',
     `Total trades: ${analytics.totalTrades}`, `Win rate: ${analytics.winRate.toFixed(1)}%`,
     `Net P&L: $${analytics.netPnl.toFixed(2)}`, `Avg win: $${analytics.avgWin.toFixed(2)}, Avg loss: $${analytics.avgLoss.toFixed(2)}`,
     `Profit factor: ${analytics.profitFactor}`, `Max drawdown: $${analytics.maxDrawdown}`,
