@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -188,10 +188,10 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
   const [saving, setSaving] = useState(false);
   const [acknowledged, setAcknowledged] = useState(false);
 
-  /* step 2 */
-  const [accountName, setAccountName] = useState('');
+  /* step 2 — defaults pre-filled to reduce friction */
+  const [accountName, setAccountName] = useState('Main Account');
   const [accountType, setAccountType] = useState<AccountType>('live');
-  const [startingBalance, setStartingBalance] = useState('');
+  const [startingBalance, setStartingBalance] = useState('10000');
   const [currency, setCurrency] = useState('USD');
   const [createdAccountId, setCreatedAccountId] = useState<string | null>(null);
 
@@ -201,6 +201,53 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
   const [sessions, setSessions] = useState<string[]>([]);
   const [riskPerTrade, setRiskPerTrade] = useState('');
 
+  /* mount + user cache: avoids redundant auth.getUser per step and prevents
+     setState-after-unmount AbortErrors when ProfileGate flips mid-flow */
+  const mountedRef = useRef(true);
+  const userIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    supabase.auth.getUser().then(({ data }) => {
+      if (mountedRef.current) userIdRef.current = data.user?.id ?? null;
+    });
+    return () => { mountedRef.current = false; };
+  }, []);
+
+  const getUserId = async (): Promise<string> => {
+    if (userIdRef.current) return userIdRef.current;
+    const { data } = await supabase.auth.getUser();
+    const id = data.user?.id;
+    if (!id) throw new Error('Not authenticated');
+    userIdRef.current = id;
+    return id;
+  };
+
+  /* record current step in profiles.guide_progress so drop-off point is visible.
+     fire-and-forget: never blocks UX, never throws. */
+  const trackStep = (stepName: string) => {
+    void (async () => {
+      try {
+        const userId = await getUserId();
+        await supabase
+          .from('profiles')
+          .update({
+            guide_progress: { onboarding_step: stepName, updated_at: new Date().toISOString() },
+          } as any)
+          .eq('user_id', userId);
+      } catch {
+        /* tracking failure is non-fatal */
+      }
+    })();
+  };
+
+  useEffect(() => {
+    if (typeof step === 'number') trackStep(`step_${step}_viewed`);
+  }, [step]);
+
+  const safeSetSaving = (v: boolean) => { if (mountedRef.current) setSaving(v); };
+  const safeSetStep = (s: Step) => { if (mountedRef.current) setStep(s); };
+
   const toggleArr = (arr: string[], val: string, setArr: (v: string[]) => void) => {
     setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   };
@@ -208,42 +255,44 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
   /* ── step handlers ── */
 
   const handleStep2 = async () => {
-    if (!accountName.trim()) { toast.error('Enter an account name'); return; }
+    const name = accountName.trim() || 'Main Account';
     const bal = parseFloat(startingBalance);
-    if (!startingBalance || isNaN(bal) || bal <= 0) { toast.error('Enter a valid starting balance'); return; }
+    if (!startingBalance || isNaN(bal) || bal <= 0) {
+      toast.error('Enter a valid starting balance');
+      return;
+    }
 
-    setSaving(true);
+    safeSetSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const userId = await getUserId();
       const { data, error } = await supabase.from('accounts').insert({
-        user_id: user.id,
-        name: accountName.trim(),
+        user_id: userId,
+        name,
         type: accountType,
         starting_balance: bal,
         current_balance: bal,
         currency,
       }).select().single();
       if (error) throw error;
+      if (!mountedRef.current) return;
       setCreatedAccountId(data.id);
-      setStep(3);
+      trackStep('step_2_completed');
+      safeSetStep(3);
     } catch (err: any) {
-      toast.error(err.message || 'Failed to create account');
+      if (mountedRef.current) toast.error(err.message || 'Failed to create account');
     } finally {
-      setSaving(false);
+      safeSetSaving(false);
     }
   };
 
   const handleStep3 = async (skip = false) => {
-    setSaving(true);
+    safeSetSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const userId = await getUserId();
 
       if (!skip) {
-        /* save trader profile */
         const profileData: any = {
-          user_id: user.id,
+          user_id: userId,
           trading_style: methodology || null,
           favorite_instruments: instruments.length > 0 ? instruments.join(', ') : null,
           favorite_sessions: sessions.length > 0 ? sessions.join(', ') : null,
@@ -254,10 +303,9 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
           .upsert(profileData, { onConflict: 'user_id' });
         if (profErr) console.warn('Profile save error (non-fatal):', profErr.message);
 
-        /* silently seed checklist with smart defaults */
         const defaults = CHECKLIST_DEFAULTS[methodology] ?? CHECKLIST_DEFAULTS.default;
         const rows = defaults.map((label, i) => ({
-          user_id: user.id,
+          user_id: userId,
           label,
           category: 'General',
           is_active: true,
@@ -266,64 +314,88 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         await supabase.from('criteria_settings' as any).insert(rows);
       }
 
-      setStep(4);
+      trackStep(skip ? 'step_3_skipped' : 'step_3_completed');
+      safeSetStep(4);
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong');
+      if (mountedRef.current) toast.error(err.message || 'Something went wrong');
     } finally {
-      setSaving(false);
+      safeSetSaving(false);
+    }
+  };
+
+  /* loads demo data in the background — does NOT block onboarding completion,
+     so a slow/failed demo insert can't break the funnel. */
+  const loadDemoInBackground = async (userId: string, existingAccountId: string | null) => {
+    try {
+      const { generateDemoTrades } = await import('@/lib/demoData');
+
+      let accountId = existingAccountId;
+      if (!accountId) {
+        const { data: acc } = await supabase.from('accounts').insert({
+          user_id: userId,
+          name: 'Demo Account',
+          type: 'demo',
+          starting_balance: 10000,
+          current_balance: 10000,
+          currency: 'USD',
+        }).select().single();
+        accountId = acc?.id ?? null;
+      }
+      if (!accountId) return;
+
+      const demoTrades = generateDemoTrades();
+      const totalPnl = demoTrades.reduce((s, t) => s + t.pnl, 0);
+      const rows = demoTrades.map(t => ({
+        user_id: userId,
+        account_id: accountId,
+        date: t.date, instrument: t.instrument, direction: t.direction,
+        outcome: t.outcome, pnl: t.pnl, strategy: t.strategy, session: t.session,
+        htf_bias: t.htf_bias, notes: t.notes, r_multiple: t.r_multiple,
+        risk_percent: t.risk_percent, confidence_level: t.confidence_level,
+        emotional_state: t.emotional_state, followed_plan: t.followed_plan,
+        time_in_trade: t.time_in_trade, is_demo: true,
+      }));
+      await supabase.from('trades').insert(rows);
+      await supabase.from('accounts')
+        .update({ current_balance: 10000 + totalPnl })
+        .eq('id', accountId);
+    } catch (err) {
+      console.warn('Demo data load failed (non-fatal):', err);
     }
   };
 
   const handleFinish = async (loadDemo: boolean) => {
-    setSaving(true);
+    safeSetSaving(true);
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      const userId = await getUserId();
+      trackStep(loadDemo ? 'finished_with_demo' : 'finished_fresh');
 
-      if (loadDemo) {
-        const { generateDemoTrades } = await import('@/lib/demoData');
-
-        /* use existing account or create a demo one */
-        let accountId = createdAccountId;
-        if (!accountId) {
-          const { data: acc } = await supabase.from('accounts').insert({
-            user_id: user.id,
-            name: 'Demo Account',
-            type: 'demo',
-            starting_balance: 10000,
-            current_balance: 10000,
-            currency: 'USD',
-          }).select().single();
-          accountId = acc?.id ?? null;
-        }
-
-        const demoTrades = generateDemoTrades();
-        const totalPnl = demoTrades.reduce((s, t) => s + t.pnl, 0);
-        const rows = demoTrades.map(t => ({
-          user_id: user.id,
-          account_id: accountId,
-          date: t.date, instrument: t.instrument, direction: t.direction,
-          outcome: t.outcome, pnl: t.pnl, strategy: t.strategy, session: t.session,
-          htf_bias: t.htf_bias, notes: t.notes, r_multiple: t.r_multiple,
-          risk_percent: t.risk_percent, confidence_level: t.confidence_level,
-          emotional_state: t.emotional_state, followed_plan: t.followed_plan,
-          time_in_trade: t.time_in_trade, is_demo: true,
-        }));
-        await supabase.from('trades').insert(rows);
-        if (accountId) {
-          await supabase.from('accounts')
-            .update({ current_balance: 10000 + totalPnl })
-            .eq('id', accountId);
-        }
-      }
-
+      /* mark onboarding complete FIRST so a slow demo insert can't fail the flow */
       await onComplete();
-      setStep('done');
-      setTimeout(() => navigate('/dashboard', { replace: true }), 1400);
+
+      /* fire-and-forget demo load — user lands on dashboard while it streams in */
+      if (loadDemo) void loadDemoInBackground(userId, createdAccountId);
+
+      /* navigate immediately — no setTimeout, no unmount race */
+      navigate('/dashboard', { replace: true });
     } catch (err: any) {
-      toast.error(err.message || 'Something went wrong');
-    } finally {
-      setSaving(false);
+      if (mountedRef.current) toast.error(err.message || 'Something went wrong');
+      safeSetSaving(false);
+    }
+  };
+
+  /* unified skip-to-dashboard: marks complete, navigates, no race */
+  const handleSkipToDashboard = async () => {
+    safeSetSaving(true);
+    try {
+      trackStep(`skipped_at_step_${step}`);
+      await onComplete();
+      navigate('/dashboard', { replace: true });
+    } catch (err: any) {
+      if (mountedRef.current) {
+        toast.error(err.message || 'Something went wrong');
+        safeSetSaving(false);
+      }
     }
   };
 
@@ -441,7 +513,7 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
         </PrimaryButton>
         <button
           type="button"
-          onClick={async () => { await onComplete(); navigate('/dashboard', { replace: true }); }}
+          onClick={handleSkipToDashboard}
           disabled={saving}
           style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0' }}
         >
@@ -596,41 +668,13 @@ export function OnboardingFlow({ nickname, onComplete }: Props) {
       <div style={{ textAlign: 'center', marginTop: 8 }}>
         <button
           type="button"
-          onClick={async () => { await onComplete(); navigate('/dashboard', { replace: true }); }}
+          onClick={handleSkipToDashboard}
           disabled={saving}
           style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', background: 'none', border: 'none', cursor: 'pointer', padding: '6px 0' }}
         >
           Skip setup, go to dashboard →
         </button>
       </div>
-    </div>
-  );
-
-  /* ══════════════════════════════════════════════════ DONE */
-  if (step === 'done') return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
-      style={{ background: '#080807' }}
-    >
-      <motion.div
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-        style={{ textAlign: 'center' }}
-      >
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.56, 0.64, 1] }}
-          style={{ width: 64, height: 64, borderRadius: '50%', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 20px' }}
-        >
-          <Check size={28} color="#000" weight="bold" />
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
-          <p style={{ fontSize: 20, fontWeight: 800, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.02em' }}>You're in.</p>
-          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', margin: 0 }}>Taking you to your dashboard…</p>
-        </motion.div>
-      </motion.div>
     </div>
   );
 

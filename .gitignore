@@ -37,5 +37,8 @@ supabase/.temp/
 .claude/worktrees/
 .agents/
 
+# Personal VS Code workspace (references private plan folders outside the repo)
+*.code-workspace
+
 # Eval outputs (regenerated each run)
 scripts/atlas-evals/results.json
