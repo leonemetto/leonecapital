@@ -162,13 +162,21 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
     if (!needsNickname || autoNicknaming) return;
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
-      const m = user?.user_metadata ?? {};
-      const raw = (m.full_name || m.name || m.given_name || '').toString().trim();
-      if (!raw) return;
-      const derived = raw.split(/\s+/)[0].slice(0, 30);
-      if (!derived) return;
+      if (!user) return;
+
+      const m = user.user_metadata ?? {};
+      const fromMeta = (m.full_name || m.name || m.given_name || m.nickname || '').toString().trim();
+      const fromEmail = (user.email ?? '').split('@')[0]?.replace(/[._-]/g, ' ').trim() ?? '';
+      const raw = fromMeta || fromEmail || 'Trader';
+      const derived = (raw.split(/\s+/)[0] || 'Trader').slice(0, 30);
+
       setAutoNicknaming(true);
-      try { await setNickname(derived); } catch { setAutoNicknaming(false); }
+      try {
+        await setNickname(derived);
+      } catch (err) {
+        console.error('Auto-nickname failed, falling back to manual prompt:', err);
+        setAutoNicknaming(false);
+      }
     })();
   }, [needsNickname, autoNicknaming, setNickname]);
 
