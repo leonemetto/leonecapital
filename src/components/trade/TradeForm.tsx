@@ -124,7 +124,8 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
     [accounts, selectedMirrorIds]
   );
 
-  // Estimated split based on total P&L + copy weights. Pure derived state.
+  // Estimated split based on total P&L + effective weight (copyWeight × quantity).
+  // A pool of 20 FTMO 50ks (qty 20, weight 1) gets 20x the share of a single 50k.
   const estimatedLegs = useMemo(() => {
     if (mode !== 'mirrored' || selectedMirrorAccounts.length === 0) return {};
     const totalPnl = parseFloat(form.pnl);
@@ -132,7 +133,11 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
     const signed = form.outcome === 'breakeven' ? 0
       : form.outcome === 'loss' ? -Math.abs(totalPnl)
       : Math.abs(totalPnl);
-    return splitPnlByCopyWeight(signed, selectedMirrorAccounts);
+    const effective = selectedMirrorAccounts.map(a => ({
+      id: a.id,
+      copyWeight: (a.copyWeight > 0 ? a.copyWeight : 1) * (a.quantity > 0 ? a.quantity : 1),
+    }));
+    return splitPnlByCopyWeight(signed, effective);
   }, [mode, selectedMirrorAccounts, form.pnl, form.outcome]);
 
   const toggleMirrorAccount = (id: string) => {
@@ -403,7 +408,10 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
                             : 'bg-transparent border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground'
                         )}
                       >
-                        {a.name} <span className="opacity-60">· w{a.copyWeight}</span>
+                        {a.name}{' '}
+                        <span className="opacity-60">
+                          · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
+                        </span>
                       </button>
                     );
                   })}
@@ -546,7 +554,10 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
                   return (
                     <div key={a.id} className="flex items-center gap-2">
                       <span className="text-[12px] flex-1 truncate text-foreground">
-                        {a.name} <span className="text-muted-foreground/60">· w{a.copyWeight}</span>
+                        {a.name}{' '}
+                        <span className="text-muted-foreground/60">
+                          · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
+                        </span>
                       </span>
                       <Input
                         type="number"
@@ -558,16 +569,27 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
                     </div>
                   );
                 }
+                const perInstance = a.quantity > 1 ? est / a.quantity : null;
                 return (
                   <div key={a.id} className="flex items-center justify-between text-[12px]">
                     <span className="text-foreground">
-                      {a.name} <span className="text-muted-foreground/60">· w{a.copyWeight}</span>
+                      {a.name}{' '}
+                      <span className="text-muted-foreground/60">
+                        · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
+                      </span>
                     </span>
-                    <span className={cn(
-                      'font-mono',
-                      est > 0 ? 'text-[#10b981]' : est < 0 ? 'text-[#f87171]' : 'text-muted-foreground'
-                    )}>
-                      {est >= 0 ? '+' : ''}{est.toFixed(2)}
+                    <span className="text-right">
+                      <span className={cn(
+                        'font-mono',
+                        est > 0 ? 'text-[#10b981]' : est < 0 ? 'text-[#f87171]' : 'text-muted-foreground'
+                      )}>
+                        {est >= 0 ? '+' : ''}{est.toFixed(2)}
+                      </span>
+                      {perInstance !== null && (
+                        <span className="ml-2 text-[10px] text-muted-foreground/50 font-mono">
+                          (~{perInstance >= 0 ? '+' : ''}{perInstance.toFixed(2)}/acct)
+                        </span>
+                      )}
                     </span>
                   </div>
                 );

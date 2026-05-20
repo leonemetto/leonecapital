@@ -5,6 +5,11 @@
 ALTER TABLE public.accounts
   ADD COLUMN IF NOT EXISTS copy_weight NUMERIC NOT NULL DEFAULT 1;
 
+-- One row in `accounts` can represent N identical funded accounts (e.g., 20 mirrored
+-- FTMO 50k accounts of the same size). Defaults to 1 for everyone else.
+ALTER TABLE public.accounts
+  ADD COLUMN IF NOT EXISTS quantity INTEGER NOT NULL DEFAULT 1;
+
 ALTER TABLE public.trades
   ADD COLUMN IF NOT EXISTS trade_group_id UUID;
 
@@ -18,3 +23,8 @@ ALTER TABLE public.accounts
   DROP CONSTRAINT IF EXISTS accounts_copy_weight_positive;
 ALTER TABLE public.accounts
   ADD CONSTRAINT accounts_copy_weight_positive CHECK (copy_weight > 0);
+
+ALTER TABLE public.accounts
+  DROP CONSTRAINT IF EXISTS accounts_quantity_positive;
+ALTER TABLE public.accounts
+  ADD CONSTRAINT accounts_quantity_positive CHECK (quantity > 0);

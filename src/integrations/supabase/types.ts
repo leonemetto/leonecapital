@@ -16,31 +16,37 @@ export type Database = {
     Tables: {
       accounts: {
         Row: {
+          copy_weight: number | null
           created_at: string
           currency: string
           current_balance: number
           id: string
           name: string
+          quantity: number | null
           starting_balance: number
           type: string
           user_id: string
         }
         Insert: {
+          copy_weight?: number | null
           created_at?: string
           currency?: string
           current_balance?: number
           id?: string
           name: string
+          quantity?: number | null
           starting_balance?: number
           type: string
           user_id: string
         }
         Update: {
+          copy_weight?: number | null
           created_at?: string
           currency?: string
           current_balance?: number
           id?: string
           name?: string
+          quantity?: number | null
           starting_balance?: number
           type?: string
           user_id?: string

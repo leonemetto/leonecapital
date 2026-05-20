@@ -75,6 +75,7 @@ const Accounts = () => {
   const [editingBalance, setEditingBalance] = useState<BalanceEditState>(null);
   const [editingName, setEditingName] = useState<NameEditState>(null);
   const [editingWeight, setEditingWeight] = useState<{ id: string; weight: string } | null>(null);
+  const [editingQuantity, setEditingQuantity] = useState<{ id: string; quantity: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
 
   const pendingDeleteTradeCount = useMemo(
@@ -96,7 +97,7 @@ const Accounts = () => {
     }
   };
   const [form, setForm] = useState<AccountFormData>({
-    name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', copyWeight: 1,
+    name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', copyWeight: 1, quantity: 1,
   });
 
   const update = (key: string, value: string | number | boolean) => setForm(prev => ({ ...prev, [key]: value }));
@@ -107,7 +108,7 @@ const Accounts = () => {
     try {
       await addAccount(form);
       toast.success('Account created!');
-      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', copyWeight: 1,
+      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', copyWeight: 1, quantity: 1,
         challengeSize: undefined, profitTargetPct: undefined, maxDailyDdPct: undefined,
         maxTotalDdPct: undefined, trailingDrawdown: false, challengeStartDate: undefined });
       setOpen(false);
@@ -201,18 +202,33 @@ const Accounts = () => {
                   className={cn(FIELD_INPUT, 'font-mono')}
                 />
               </div>
-              <div>
-                <Label className={FIELD_LABEL}>Copy Weight</Label>
-                <Input
-                  type="number" step="0.1" min="0.1"
-                  value={form.copyWeight ?? 1}
-                  onChange={e => update('copyWeight', parseFloat(e.target.value) || 1)}
-                  placeholder="1"
-                  className={cn(FIELD_INPUT, 'font-mono')}
-                />
-                <p className="text-[10px] text-muted-foreground/60 mt-1">
-                  Used to split P&L on mirrored trades. Default 1. If a $100k account mirrors a $50k account, set the $100k to 2.
-                </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className={FIELD_LABEL}>Copy Weight</Label>
+                  <Input
+                    type="number" step="0.1" min="0.1"
+                    value={form.copyWeight ?? 1}
+                    onChange={e => update('copyWeight', parseFloat(e.target.value) || 1)}
+                    placeholder="1"
+                    className={cn(FIELD_INPUT, 'font-mono')}
+                  />
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">
+                    Default 1. A $100k that mirrors a $50k = 2.
+                  </p>
+                </div>
+                <div>
+                  <Label className={FIELD_LABEL}>Quantity</Label>
+                  <Input
+                    type="number" step="1" min="1"
+                    value={form.quantity ?? 1}
+                    onChange={e => update('quantity', parseInt(e.target.value, 10) || 1)}
+                    placeholder="1"
+                    className={cn(FIELD_INPUT, 'font-mono')}
+                  />
+                  <p className="text-[10px] text-muted-foreground/60 mt-1">
+                    Default 1. Set to 20 if this row represents 20 mirrored 50k accounts.
+                  </p>
+                </div>
               </div>
 
               {/* Prop firm challenge config */}
@@ -487,6 +503,49 @@ const Accounts = () => {
                       <span className="font-mono">{account.copyWeight ?? 1}</span>
                       <button
                         onClick={() => setEditingWeight({ id: account.id, weight: String(account.copyWeight ?? 1) })}
+                        className="p-0.5 rounded hover:bg-muted text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+                      >
+                        <PencilSimple className="h-2.5 w-2.5" weight="bold" />
+                      </button>
+                    </span>
+                  )}
+                </div>
+                {/* Quantity (for users mirroring across N identical funded accounts) */}
+                <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 mt-1">
+                  <span>Quantity:</span>
+                  {editingQuantity?.id === account.id ? (
+                    <span className="flex items-center gap-1">
+                      <Input
+                        type="number" step="1" min="1"
+                        value={editingQuantity.quantity}
+                        onChange={e => setEditingQuantity({ ...editingQuantity, quantity: e.target.value })}
+                        className="h-6 w-20 text-[10px] font-mono px-1.5"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => {
+                          const val = parseInt(editingQuantity.quantity, 10);
+                          if (isNaN(val) || val < 1) { toast.error('Quantity must be ≥ 1'); return; }
+                          updateAccount(account.id, { quantity: val });
+                          setEditingQuantity(null);
+                          toast.success('Quantity updated');
+                        }}
+                        className="p-0.5 rounded hover:bg-muted text-muted-foreground/60 hover:text-foreground"
+                      >
+                        <Check className="h-3 w-3" weight="bold" />
+                      </button>
+                      <button onClick={() => setEditingQuantity(null)} className="p-0.5 rounded hover:bg-muted text-muted-foreground/60">
+                        <X className="h-3 w-3" weight="bold" />
+                      </button>
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1">
+                      <span className="font-mono">
+                        {account.quantity ?? 1}
+                        {(account.quantity ?? 1) > 1 && <span className="text-muted-foreground/50"> mirrored</span>}
+                      </span>
+                      <button
+                        onClick={() => setEditingQuantity({ id: account.id, quantity: String(account.quantity ?? 1) })}
                         className="p-0.5 rounded hover:bg-muted text-muted-foreground/50 hover:text-muted-foreground transition-colors"
                       >
                         <PencilSimple className="h-2.5 w-2.5" weight="bold" />

@@ -79,6 +79,20 @@ describe('splitPnlByCopyWeight', () => {
   it('returns empty object for no accounts', () => {
     expect(splitPnlByCopyWeight(100, [])).toEqual({});
   });
+
+  // Quantity is applied at the call site (effective weight = copyWeight × quantity).
+  // This documents the contract: callers MUST multiply quantity in before passing.
+  it('treats pre-multiplied effective weights correctly', () => {
+    // FTMO 50k Pool: weight 1, qty 20 → effective 20
+    // FTMO 100k Pool: weight 2, qty 5 → effective 10
+    // Total $1.5M of capital, split 2:1
+    const result = splitPnlByCopyWeight(750, [
+      { id: 'pool50', copyWeight: 20 },
+      { id: 'pool100', copyWeight: 10 },
+    ]);
+    expect(result.pool50).toBe(500);
+    expect(result.pool100).toBe(250);
+  });
 });
 
 describe('dedupeTradesByGroup', () => {
@@ -161,7 +175,7 @@ describe('groupTradesForDisplay', () => {
 describe('getAccountCopyWeight', () => {
   it('returns the account weight when found', () => {
     expect(getAccountCopyWeight(
-      [{ id: 'a', copyWeight: 2.5 } as any],
+      [{ id: 'a', copyWeight: 2.5, quantity: 1 } as any],
       'a'
     )).toBe(2.5);
   });

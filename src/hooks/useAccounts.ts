@@ -19,6 +19,7 @@ function rowToAccount(r: any): TradingAccount {
     trailingDrawdown: r.trailing_drawdown ?? false,
     challengeStartDate: r.challenge_start_date ?? undefined,
     copyWeight: r.copy_weight != null ? Number(r.copy_weight) : 1,
+    quantity: r.quantity != null ? Number(r.quantity) : 1,
   };
 }
 
@@ -50,6 +51,7 @@ export function useAccounts() {
       current_balance: form.currentBalance,
       currency: form.currency,
       copy_weight: form.copyWeight ?? 1,
+      quantity: form.quantity ?? 1,
       ...(form.type === 'prop' ? {
         challenge_size: form.challengeSize ?? null,
         profit_target_pct: form.profitTargetPct ?? null,
@@ -79,6 +81,7 @@ export function useAccounts() {
     if (form.trailingDrawdown !== undefined) updates.trailing_drawdown = form.trailingDrawdown;
     if (form.challengeStartDate !== undefined) updates.challenge_start_date = form.challengeStartDate;
     if (form.copyWeight !== undefined) updates.copy_weight = form.copyWeight;
+    if (form.quantity !== undefined) updates.quantity = form.quantity;
 
     const { error } = await supabase.from('accounts').update(updates).eq('id', id);
     if (error) throw error;
