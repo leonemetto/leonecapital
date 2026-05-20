@@ -293,7 +293,13 @@ async function handleCommand(command: string, args: string, chatId: string, supa
     });
 
     const data = await res.json();
-    const answer = data.content?.[0]?.text ?? "Could not get an answer.";
+    const answer = data.content?.[0]?.text;
+    if (!answer) {
+      console.error("Anthropic API error:", res.status, JSON.stringify(data));
+      const errMsg = data?.error?.message ?? `HTTP ${res.status}`;
+      await send(chatId, `🤖 *Atlas error:*\n\n\`${errMsg}\``);
+      return;
+    }
     await send(chatId, `🤖 *Atlas says:*\n\n${answer}`);
     return;
   }
