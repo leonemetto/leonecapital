@@ -278,9 +278,14 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       })), null, 2)}\n\n` +
       `Answer in under 150 words. Be direct and specific. No fluff.`;
 
+    const models = [
+      "claude-haiku-4-5-20251001",
+      "claude-haiku-4-5-20251001",
+      "claude-sonnet-4-6",
+    ];
     let res!: Response;
     let data: any;
-    for (let attempt = 0; attempt < 4; attempt++) {
+    for (let attempt = 0; attempt < models.length; attempt++) {
       res = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
         headers: {
@@ -289,7 +294,7 @@ async function handleCommand(command: string, args: string, chatId: string, supa
           "anthropic-version": "2023-06-01",
         },
         body: JSON.stringify({
-          model: "claude-haiku-4-5-20251001",
+          model: models[attempt],
           max_tokens: 400,
           messages: [{ role: "user", content: `${context}\n\nQuestion: ${args}` }],
         }),
