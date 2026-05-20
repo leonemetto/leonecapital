@@ -278,21 +278,27 @@ async function handleCommand(command: string, args: string, chatId: string, supa
       })), null, 2)}\n\n` +
       `Answer in under 150 words. Be direct and specific. No fluff.`;
 
-    const res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5-20251001",
-        max_tokens: 400,
-        messages: [{ role: "user", content: `${context}\n\nQuestion: ${args}` }],
-      }),
-    });
-
-    const data = await res.json();
+    let res!: Response;
+    let data: any;
+    for (let attempt = 0; attempt < 4; attempt++) {
+      res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: "claude-haiku-4-5-20251001",
+          max_tokens: 400,
+          messages: [{ role: "user", content: `${context}\n\nQuestion: ${args}` }],
+        }),
+      });
+      data = await res.json();
+      const overloaded = res.status === 529 || data?.error?.type === "overloaded_error";
+      if (!overloaded) break;
+      await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+    }
     const answer = data.content?.[0]?.text;
     if (!answer) {
       console.error("Anthropic API error:", res.status, JSON.stringify(data));
