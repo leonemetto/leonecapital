@@ -1,4 +1,5 @@
 import { Trade } from '@/types/trade';
+import { dedupeTradesByGroup } from '@/lib/mirroredTrades';
 
 // ─── Core Analytics ───
 export interface Analytics {
@@ -19,13 +20,16 @@ export interface Analytics {
   rExpectancy: number;
 }
 
-export function calculateAnalytics(trades: Trade[]): Analytics {
+export function calculateAnalytics(rawTrades: Trade[]): Analytics {
   const empty: Analytics = {
     totalTrades: 0, wins: 0, losses: 0, breakevens: 0, winRate: 0,
     netPnl: 0, avgWin: 0, avgLoss: 0, profitFactor: 0,
     expectancy: 0, maxDrawdown: 0, currentStreak: { type: 'none', count: 0 },
     avgRWin: 0, avgRLoss: 0, rExpectancy: 0,
   };
+  // Collapse mirrored groups: one decision counts once for behavioral metrics, and
+  // the synthetic row's pnl is the sum of the legs (drawdown stays monetary-accurate).
+  const trades = dedupeTradesByGroup(rawTrades);
   if (trades.length === 0) return empty;
 
   const wins = trades.filter(t => t.outcome === 'win');
@@ -122,7 +126,8 @@ function computeBreakdown(label: string, subset: Trade[]): ExpectancyBreakdown {
   };
 }
 
-export function getExpectancyByField(trades: Trade[], field: keyof Trade): ExpectancyBreakdown[] {
+export function getExpectancyByField(rawTrades: Trade[], field: keyof Trade): ExpectancyBreakdown[] {
+  const trades = dedupeTradesByGroup(rawTrades);
   const groups = new Map<string, Trade[]>();
   for (const t of trades) {
     const val = String(t[field] ?? 'Unknown');
@@ -135,7 +140,8 @@ export function getExpectancyByField(trades: Trade[], field: keyof Trade): Expec
     .sort((a, b) => b.expectancy - a.expectancy);
 }
 
-export function getExpectancyByPlanAdherence(trades: Trade[]): ExpectancyBreakdown[] {
+export function getExpectancyByPlanAdherence(rawTrades: Trade[]): ExpectancyBreakdown[] {
+  const trades = dedupeTradesByGroup(rawTrades);
   const followed = trades.filter(t => t.followedPlan === true);
   const notFollowed = trades.filter(t => t.followedPlan === false);
   const results: ExpectancyBreakdown[] = [];
@@ -152,7 +158,9 @@ export interface BehavioralInsight {
   stat: string;
 }
 
-export function detectBehavioralPatterns(trades: Trade[]): BehavioralInsight[] {
+export function detectBehavioralPatterns(rawTrades: Trade[]): BehavioralInsight[] {
+  // Behavioral patterns (revenge trading, overtrading) count decisions, not executions.
+  const trades = dedupeTradesByGroup(rawTrades);
   if (trades.length < 5) return [];
   const insights: BehavioralInsight[] = [];
   const sorted = [...trades].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
@@ -296,7 +304,7 @@ export interface SimulationResult {
   originalEquityCurve: { date: string; balance: number }[];
 }
 
-export function simulateFilter(trades: Trade[], filters: {
+export function simulateFilter(rawTrades: Trade[], filters: {
   htfBias?: string;
   minConfidence?: number;
   followedPlan?: boolean;
@@ -305,6 +313,9 @@ export function simulateFilter(trades: Trade[], filters: {
   instrument?: string;
   exclude?: boolean;
 }): SimulationResult {
+  // Dedupe before filtering — a "what if I removed XAUUSD trades" question should
+  // remove one decision per group, not N executions.
+  const trades = dedupeTradesByGroup(rawTrades);
   let filtered = [...trades];
   const labels: string[] = [];
   const ex = filters.exclude ?? false;
@@ -386,7 +397,8 @@ export interface ToxicCombo {
   diagnostic: string;
 }
 
-export function detectToxicCombinations(trades: Trade[]): ToxicCombo[] {
+export function detectToxicCombinations(rawTrades: Trade[]): ToxicCombo[] {
+  const trades = dedupeTradesByGroup(rawTrades);
   const combos = new Map<string, Trade[]>();
   for (const t of trades) {
     const key = `${t.instrument}|${t.session}|${t.direction}`;
@@ -484,7 +496,8 @@ export function getEquityCurve(trades: Trade[]) {
   });
 }
 
-export function getStrategyPerformance(trades: Trade[]) {
+export function getStrategyPerformance(rawTrades: Trade[]) {
+  const trades = dedupeTradesByGroup(rawTrades);
   const map = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   for (const t of trades) {
     const key = t.strategy || 'Unknown';
@@ -502,7 +515,8 @@ export function getStrategyPerformance(trades: Trade[]) {
   }));
 }
 
-export function getSessionPerformance(trades: Trade[]) {
+export function getSessionPerformance(rawTrades: Trade[]) {
+  const trades = dedupeTradesByGroup(rawTrades);
   const map = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
   for (const t of trades) {
     const key = t.session || 'Unknown';

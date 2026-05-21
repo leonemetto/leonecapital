@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Trade, TradeFormData, SESSIONS, HTF_BIASES } from '@/types/trade';
+import { Trade, TradeFormData, MirroredTradeFormData, SESSIONS, HTF_BIASES } from '@/types/trade';
+import { splitPnlByCopyWeight } from '@/lib/mirroredTrades';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,6 +27,8 @@ import type { DateValue } from 'react-aria-components';
 interface TradeFormProps {
   initialData?: Trade;
   onSubmit: (data: TradeFormData) => void | Promise<any>;
+  /** Wire this from AddTrade to enable Mirrored mode. Editing flows leave it undefined. */
+  onMirroredSubmit?: (data: MirroredTradeFormData) => void | Promise<any>;
   submitLabel?: string;
   onCancel?: () => void;
 }
@@ -71,7 +74,7 @@ const defaults = {
   accountId: '',
 };
 
-export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', onCancel }: TradeFormProps) {
+export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel = 'Log Trade', onCancel }: TradeFormProps) {
   const navigate = useNavigate();
   const { accounts } = useSharedAccounts();
   const { instruments, confirmations, addInstrument, addConfirmation } = useCustomOptions();
@@ -107,6 +110,57 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     }
     return { ...defaults, accountId: accounts.length === 1 ? accounts[0].id : '' };
   });
+
+  // ─── Mirrored trade state ───
+  const mirrorAvailable = !initialData && !!onMirroredSubmit && accounts.length >= 2;
+  const [mode, setMode] = useState<'single' | 'mirrored'>('single');
+  const [selectedMirrorIds, setSelectedMirrorIds] = useState<string[]>([]);
+  const [customized, setCustomized] = useState(false);
+  // Manual overrides per account, keyed by accountId. Only applied when `customized`.
+  const [legOverrides, setLegOverrides] = useState<Record<string, string>>({});
+
+  const selectedMirrorAccounts = useMemo(
+    () => accounts.filter(a => selectedMirrorIds.includes(a.id)),
+    [accounts, selectedMirrorIds]
+  );
+
+  // Estimated split based on total P&L + effective weight (copyWeight × quantity).
+  // A pool of 20 FTMO 50ks (qty 20, weight 1) gets 20x the share of a single 50k.
+  const estimatedLegs = useMemo(() => {
+    if (mode !== 'mirrored' || selectedMirrorAccounts.length === 0) return {};
+    const totalPnl = parseFloat(form.pnl);
+    if (isNaN(totalPnl)) return {};
+    const signed = form.outcome === 'breakeven' ? 0
+      : form.outcome === 'loss' ? -Math.abs(totalPnl)
+      : Math.abs(totalPnl);
+    const effective = selectedMirrorAccounts.map(a => ({
+      id: a.id,
+      copyWeight: (a.copyWeight > 0 ? a.copyWeight : 1) * (a.quantity > 0 ? a.quantity : 1),
+    }));
+    return splitPnlByCopyWeight(signed, effective);
+  }, [mode, selectedMirrorAccounts, form.pnl, form.outcome]);
+
+  const toggleMirrorAccount = (id: string) => {
+    setSelectedMirrorIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+    // Clear any stale override for an unticked account.
+    setLegOverrides(prev => { const next = { ...prev }; delete next[id]; return next; });
+  };
+
+  // Difference indicator. NaN-safe — if user typed nothing yet, shows nothing.
+  const customizationDelta = useMemo(() => {
+    if (!customized || selectedMirrorAccounts.length === 0) return null;
+    const total = parseFloat(form.pnl);
+    if (isNaN(total)) return null;
+    const signedTotal = form.outcome === 'breakeven' ? 0
+      : form.outcome === 'loss' ? -Math.abs(total)
+      : Math.abs(total);
+    const sumOfLegs = selectedMirrorAccounts.reduce((s, a) => {
+      const raw = legOverrides[a.id];
+      const parsed = raw !== undefined && raw !== '' ? parseFloat(raw) : estimatedLegs[a.id] ?? 0;
+      return s + (isNaN(parsed) ? 0 : parsed);
+    }, 0);
+    return { total: signedTotal, sum: sumOfLegs, diff: sumOfLegs - signedTotal };
+  }, [customized, selectedMirrorAccounts, form.pnl, form.outcome, legOverrides, estimatedLegs]);
 
   const update = (key: string, value: string) => {
     setForm(prev => ({ ...prev, [key]: value }));
@@ -178,6 +232,17 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
     const outcome = form.outcome as 'win' | 'loss' | 'breakeven';
     const pnl = outcome === 'breakeven' ? 0 : outcome === 'loss' ? -Math.abs(rawPnl) : Math.abs(rawPnl);
 
+    if (mode === 'mirrored') {
+      if (selectedMirrorAccounts.length < 2) {
+        toast.error('Pick at least 2 accounts for a mirrored trade');
+        return;
+      }
+      if (!onMirroredSubmit) {
+        toast.error('Mirrored mode not available here');
+        return;
+      }
+    }
+
     if (submitLock.current) return;
     submitLock.current = true;
     setIsSubmitting(true);
@@ -200,14 +265,12 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         }
       }
 
-      const savedTrade = await onSubmit({
+      const sharedFields = {
         date: form.date,
         instrument: form.instrument,
         direction: form.direction as 'long' | 'short',
         strategy: form.strategy,
         session: form.session,
-        outcome,
-        pnl,
         rMultiple: form.rMultiple ? parseFloat(form.rMultiple) : undefined,
         riskPercent: form.riskPercent ? parseFloat(form.riskPercent) : undefined,
         htfBias: form.htfBias || undefined,
@@ -216,18 +279,48 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         timeInTrade: form.timeInTrade ? parseInt(form.timeInTrade) : undefined,
         followedPlan: form.followedPlan === 'yes' ? true : form.followedPlan === 'no' ? false : undefined,
         notes: form.notes,
-        accountId: form.accountId || undefined,
         screenshotUrl: screenshotPath,
-      });
+      } as const;
 
-      if (savedTrade?.id && Object.keys(checks).length > 0) {
+      let savedTrade: any = null;
+      let savedTrades: any[] = [];
+
+      if (mode === 'mirrored' && onMirroredSubmit) {
+        // Build legs from either customized overrides or the estimated split.
+        const legs = selectedMirrorAccounts.map(a => {
+          const raw = legOverrides[a.id];
+          const fromOverride = customized && raw !== undefined && raw !== ''
+            ? parseFloat(raw)
+            : NaN;
+          const legPnl = !isNaN(fromOverride) ? fromOverride : (estimatedLegs[a.id] ?? 0);
+          return { accountId: a.id, pnl: legPnl };
+        });
+        const result = await onMirroredSubmit({ ...sharedFields, outcome, legs });
+        savedTrades = Array.isArray(result) ? result : [];
+        savedTrade = savedTrades[0];
+      } else {
+        savedTrade = await onSubmit({
+          ...sharedFields,
+          outcome,
+          pnl,
+          accountId: form.accountId || undefined,
+        });
+      }
+
+      // Checklist verification: write to every saved trade (so mirrored legs all get
+      // the same checklist record). Skip when no checks toggled.
+      const idsToVerify = savedTrades.length > 0
+        ? savedTrades.map(t => t.id).filter(Boolean)
+        : savedTrade?.id ? [savedTrade.id] : [];
+      if (idsToVerify.length > 0 && Object.keys(checks).length > 0) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          await supabase.from('trade_verifications').upsert({
-            trade_id: savedTrade.id,
+          const rows = idsToVerify.map(tradeId => ({
+            trade_id: tradeId,
             user_id: user.id,
             checks,
-          }, { onConflict: 'trade_id' });
+          }));
+          await supabase.from('trade_verifications').upsert(rows, { onConflict: 'trade_id' });
         }
       }
 
@@ -271,18 +364,63 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         </div>
       <div className="p-5 space-y-4">
 
-        {/* Account */}
+        {/* Account + Mode */}
         {accounts.length > 1 && (
-          <div className="max-w-xs">
-            <Label className={LABEL}>Account</Label>
-            <Select value={form.accountId} onValueChange={v => update('accountId', v)}>
-              <SelectTrigger className={INPUT}><SelectValue placeholder="Select account" /></SelectTrigger>
-              <SelectContent>
-                {accounts.map(a => (
-                  <SelectItem key={a.id} value={a.id}>{a.name} ({a.type}) — {a.currency}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="space-y-3">
+            {mirrorAvailable && (
+              <div className="flex items-center gap-1.5">
+                <button type="button" onClick={() => setMode('single')} className={btn(mode === 'single')}>
+                  Single account
+                </button>
+                <button type="button" onClick={() => setMode('mirrored')} className={btn(mode === 'mirrored')}>
+                  Mirrored across accounts
+                </button>
+              </div>
+            )}
+
+            {mode === 'single' ? (
+              <div className="max-w-xs">
+                <Label className={LABEL}>Account</Label>
+                <Select value={form.accountId} onValueChange={v => update('accountId', v)}>
+                  <SelectTrigger className={INPUT}><SelectValue placeholder="Select account" /></SelectTrigger>
+                  <SelectContent>
+                    {accounts.map(a => (
+                      <SelectItem key={a.id} value={a.id}>{a.name} ({a.type}) — {a.currency}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : (
+              <div>
+                <Label className={LABEL}>Accounts (pick 2 or more)</Label>
+                <div className="mt-1 flex flex-wrap gap-1.5">
+                  {accounts.map(a => {
+                    const active = selectedMirrorIds.includes(a.id);
+                    return (
+                      <button
+                        key={a.id}
+                        type="button"
+                        onClick={() => toggleMirrorAccount(a.id)}
+                        className={cn(
+                          'px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all',
+                          active
+                            ? 'bg-foreground text-background border-transparent'
+                            : 'bg-transparent border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground'
+                        )}
+                      >
+                        {a.name}{' '}
+                        <span className="opacity-60">
+                          · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedMirrorIds.length === 1 && (
+                  <p className="mt-2 text-[11px] text-muted-foreground/60">Pick one more account or switch back to Single.</p>
+                )}
+              </div>
+            )}
           </div>
         )}
 
@@ -369,7 +507,7 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
         {/* Row 3: P&L, R-Multiple, Risk % */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
-            <Label className={LABEL}>P&L Amount ($)</Label>
+            <Label className={LABEL}>{mode === 'mirrored' ? 'Total P&L Amount ($)' : 'P&L Amount ($)'}</Label>
             <Input type="number" step="any" min="0" value={form.pnl} onChange={e => update('pnl', e.target.value)}
               placeholder="Enter amount" className={cn(INPUT, 'font-mono')} />
           </div>
@@ -384,6 +522,98 @@ export function TradeForm({ initialData, onSubmit, submitLabel = 'Log Trade', on
               placeholder="e.g. 1.0" className={cn(INPUT, 'font-mono')} />
           </div>
         </div>
+
+        {/* ─── Mirrored P&L breakdown ─── */}
+        {mode === 'mirrored' && selectedMirrorAccounts.length >= 2 && (
+          <div className="rounded-lg border border-border bg-muted/20 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60">
+                Per-account split {customized ? '(customized)' : '(estimated)'}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  if (!customized) {
+                    // Seed overrides from current estimate so user starts from the split, not blanks.
+                    const seed: Record<string, string> = {};
+                    selectedMirrorAccounts.forEach(a => { seed[a.id] = String(estimatedLegs[a.id] ?? 0); });
+                    setLegOverrides(seed);
+                  }
+                  setCustomized(v => !v);
+                }}
+                className="text-[11px] font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {customized ? 'Use auto-split' : 'Customize per account'}
+              </button>
+            </div>
+
+            <div className="space-y-1.5">
+              {selectedMirrorAccounts.map(a => {
+                const est = estimatedLegs[a.id] ?? 0;
+                if (customized) {
+                  return (
+                    <div key={a.id} className="flex items-center gap-2">
+                      <span className="text-[12px] flex-1 truncate text-foreground">
+                        {a.name}{' '}
+                        <span className="text-muted-foreground/60">
+                          · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
+                        </span>
+                      </span>
+                      <Input
+                        type="number"
+                        step="any"
+                        value={legOverrides[a.id] ?? ''}
+                        onChange={e => setLegOverrides(prev => ({ ...prev, [a.id]: e.target.value }))}
+                        className={cn('h-8 w-32 font-mono text-right')}
+                      />
+                    </div>
+                  );
+                }
+                const perInstance = a.quantity > 1 ? est / a.quantity : null;
+                return (
+                  <div key={a.id} className="flex items-center justify-between text-[12px]">
+                    <span className="text-foreground">
+                      {a.name}{' '}
+                      <span className="text-muted-foreground/60">
+                        · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
+                      </span>
+                    </span>
+                    <span className="text-right">
+                      <span className={cn(
+                        'font-mono',
+                        est > 0 ? 'text-[#10b981]' : est < 0 ? 'text-[#f87171]' : 'text-muted-foreground'
+                      )}>
+                        {est >= 0 ? '+' : ''}{est.toFixed(2)}
+                      </span>
+                      {perInstance !== null && (
+                        <span className="ml-2 text-[10px] text-muted-foreground/50 font-mono">
+                          (~{perInstance >= 0 ? '+' : ''}{perInstance.toFixed(2)}/acct)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {customizationDelta && Math.abs(customizationDelta.diff) > 0.01 && (
+              <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-border/60">
+                <span className="text-muted-foreground/70">
+                  Sum of legs: <span className="font-mono">{customizationDelta.sum.toFixed(2)}</span> vs Total: <span className="font-mono">{customizationDelta.total.toFixed(2)}</span>
+                </span>
+                <span className={cn(
+                  'font-mono font-semibold',
+                  Math.abs(customizationDelta.diff) > 1 ? 'text-[#f59e0b]' : 'text-muted-foreground'
+                )}>
+                  Δ {customizationDelta.diff >= 0 ? '+' : ''}{customizationDelta.diff.toFixed(2)}
+                </span>
+              </div>
+            )}
+            <p className="text-[10px] text-muted-foreground/50 pt-0.5">
+              Estimates use each account's copy weight. Slippage and missed fills can make real outcomes differ — customize when needed.
+            </p>
+          </div>
+        )}
         </div>
       </div>
 

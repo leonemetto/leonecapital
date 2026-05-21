@@ -13,6 +13,12 @@ export interface TradingAccount {
   maxTotalDdPct?: number;
   trailingDrawdown?: boolean;
   challengeStartDate?: string;
+  /** Copy weight used to split mirrored trade P&L proportionally. Default 1. */
+  copyWeight: number;
+  /** Number of identical funded accounts this row represents. Default 1.
+   * Trader with 20 mirrored FTMO 50k accounts sets quantity = 20 instead of
+   * creating 20 separate rows. Effective mirror weight = copyWeight × quantity. */
+  quantity: number;
 }
 
 export type AccountFormData = Omit<TradingAccount, 'id' | 'createdAt'>;

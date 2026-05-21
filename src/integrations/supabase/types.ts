@@ -16,31 +16,37 @@ export type Database = {
     Tables: {
       accounts: {
         Row: {
+          copy_weight: number | null
           created_at: string
           currency: string
           current_balance: number
           id: string
           name: string
+          quantity: number | null
           starting_balance: number
           type: string
           user_id: string
         }
         Insert: {
+          copy_weight?: number | null
           created_at?: string
           currency?: string
           current_balance?: number
           id?: string
           name: string
+          quantity?: number | null
           starting_balance?: number
           type: string
           user_id: string
         }
         Update: {
+          copy_weight?: number | null
           created_at?: string
           currency?: string
           current_balance?: number
           id?: string
           name?: string
+          quantity?: number | null
           starting_balance?: number
           type?: string
           user_id?: string
@@ -209,6 +215,7 @@ export type Database = {
           strategy: string
           time_in_trade: number | null
           screenshot_url: string | null
+          trade_group_id: string | null
           user_id: string
         }
         Insert: {
@@ -231,6 +238,7 @@ export type Database = {
           session?: string
           strategy?: string
           time_in_trade?: number | null
+          trade_group_id?: string | null
           user_id: string
         }
         Update: {
@@ -253,6 +261,7 @@ export type Database = {
           session?: string
           strategy?: string
           time_in_trade?: number | null
+          trade_group_id?: string | null
           user_id?: string
         }
         Relationships: [
