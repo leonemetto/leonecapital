@@ -83,15 +83,26 @@ describe('splitPnlByCopyWeight', () => {
   // Quantity is applied at the call site (effective weight = copyWeight × quantity).
   // This documents the contract: callers MUST multiply quantity in before passing.
   it('treats pre-multiplied effective weights correctly', () => {
-    // FTMO 50k Pool: weight 1, qty 20 → effective 20
-    // FTMO 100k Pool: weight 2, qty 5 → effective 10
+    // FTMO 50k Pool: balance 50000, qty 20 → effective 1,000,000
+    // FTMO 100k Pool: balance 100000, qty 5 → effective 500,000
     // Total $1.5M of capital, split 2:1
     const result = splitPnlByCopyWeight(750, [
-      { id: 'pool50', copyWeight: 20 },
-      { id: 'pool100', copyWeight: 10 },
+      { id: 'pool50', copyWeight: 1_000_000 },
+      { id: 'pool100', copyWeight: 500_000 },
     ]);
     expect(result.pool50).toBe(500);
     expect(result.pool100).toBe(250);
+  });
+
+  // Documents the TradeForm contract: split by starting_balance × quantity.
+  // copy_weight stays at default 1 for normal users; balance drives the split.
+  it('balance-based split: $50k + $100k accounts → 1:2 ratio', () => {
+    const result = splitPnlByCopyWeight(900, [
+      { id: 'a', copyWeight: 50000 },  // $50k account, qty 1
+      { id: 'b', copyWeight: 100000 }, // $100k account, qty 1
+    ]);
+    expect(result.a).toBe(300);
+    expect(result.b).toBe(600);
   });
 });
 

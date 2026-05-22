@@ -124,8 +124,9 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
     [accounts, selectedMirrorIds]
   );
 
-  // Estimated split based on total P&L + effective weight (copyWeight × quantity).
-  // A pool of 20 FTMO 50ks (qty 20, weight 1) gets 20x the share of a single 50k.
+  // Estimated split by capital exposed: startingBalance × quantity. A pool of 20
+  // FTMO 50ks (qty 20, balance $50k) gets 20x the share of one 50k. copy_weight
+  // remains an advanced override — non-default values still take precedence.
   const estimatedLegs = useMemo(() => {
     if (mode !== 'mirrored' || selectedMirrorAccounts.length === 0) return {};
     const totalPnl = parseFloat(form.pnl);
@@ -133,10 +134,14 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
     const signed = form.outcome === 'breakeven' ? 0
       : form.outcome === 'loss' ? -Math.abs(totalPnl)
       : Math.abs(totalPnl);
-    const effective = selectedMirrorAccounts.map(a => ({
-      id: a.id,
-      copyWeight: (a.copyWeight > 0 ? a.copyWeight : 1) * (a.quantity > 0 ? a.quantity : 1),
-    }));
+    const effective = selectedMirrorAccounts.map(a => {
+      const qty = a.quantity > 0 ? a.quantity : 1;
+      // Default copy_weight = 1 → balance drives the split. Non-1 → user explicitly
+      // overrode, respect it. Falls back to 1 unit of weight if balance is missing.
+      const sizeWeight = (a.startingBalance && a.startingBalance > 0) ? a.startingBalance : 1;
+      const weight = a.copyWeight && a.copyWeight !== 1 ? a.copyWeight : sizeWeight;
+      return { id: a.id, copyWeight: weight * qty };
+    });
     return splitPnlByCopyWeight(signed, effective);
   }, [mode, selectedMirrorAccounts, form.pnl, form.outcome]);
 
@@ -408,10 +413,8 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
                             : 'bg-transparent border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground'
                         )}
                       >
-                        {a.name}{' '}
-                        <span className="opacity-60">
-                          · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
-                        </span>
+                        {a.name}
+                        {a.quantity > 1 && <span className="opacity-60"> ×{a.quantity}</span>}
                       </button>
                     );
                   })}
@@ -554,10 +557,8 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
                   return (
                     <div key={a.id} className="flex items-center gap-2">
                       <span className="text-[12px] flex-1 truncate text-foreground">
-                        {a.name}{' '}
-                        <span className="text-muted-foreground/60">
-                          · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
-                        </span>
+                        {a.name}
+                        {a.quantity > 1 && <span className="text-muted-foreground/60"> ×{a.quantity}</span>}
                       </span>
                       <Input
                         type="number"
@@ -573,10 +574,8 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
                 return (
                   <div key={a.id} className="flex items-center justify-between text-[12px]">
                     <span className="text-foreground">
-                      {a.name}{' '}
-                      <span className="text-muted-foreground/60">
-                        · w{a.copyWeight}{a.quantity > 1 ? ` ×${a.quantity}` : ''}
-                      </span>
+                      {a.name}
+                      {a.quantity > 1 && <span className="text-muted-foreground/60"> ×{a.quantity}</span>}
                     </span>
                     <span className="text-right">
                       <span className={cn(
@@ -610,7 +609,7 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
               </div>
             )}
             <p className="text-[10px] text-muted-foreground/50 pt-0.5">
-              Estimates use each account's copy weight. Slippage and missed fills can make real outcomes differ — customize when needed.
+              Estimates split P&L by account size. A $100k account gets twice the share of a $50k. Customize per account if slippage or missed fills changed real outcomes.
             </p>
           </div>
         )}
