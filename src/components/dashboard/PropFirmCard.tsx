@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { TradingAccount } from '@/types/account';
 import { Trade } from '@/types/trade';
 import { cn } from '@/lib/utils';
-import { Trophy, Warning, TrendDown, CalendarCheck, CaretDown, CaretUp } from '@phosphor-icons/react';
+import { Trophy, Warning, TrendDown, CalendarCheck, CaretDown, CaretUp, Gear } from '@phosphor-icons/react';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   account: TradingAccount;
@@ -23,19 +24,53 @@ function ProgressBar({ value, max, color }: { value: number; max: number; color:
 
 export function PropFirmCard({ account, trades }: Props) {
   const [expanded, setExpanded] = useState(false);
+  const navigate = useNavigate();
   const accountTrades = useMemo(
     () => trades.filter(t => t.accountId === account.id),
     [trades, account.id]
   );
 
   const {
-    challengeSize = account.startingBalance,
+    challengeSize: rawChallengeSize,
     profitTargetPct = 10,
     maxDailyDdPct = 5,
     maxTotalDdPct = 10,
     trailingDrawdown = false,
     challengeStartDate,
   } = account;
+
+  const challengeSize = rawChallengeSize && rawChallengeSize > 0
+    ? rawChallengeSize
+    : (account.startingBalance && account.startingBalance > 0 ? account.startingBalance : null);
+
+  // If no valid challenge size, show setup prompt instead of broken metrics
+  if (!challengeSize) {
+    return (
+      <div className="rounded-xl bg-card border border-border">
+        <button
+          onClick={() => setExpanded(v => !v)}
+          className="w-full flex items-center gap-4 text-left outline-none"
+          style={{ padding: '12px 20px' }}
+        >
+          <div className="shrink-0">
+            <p className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/50">Prop Challenge</p>
+            <p className="text-[13px] font-semibold text-foreground leading-tight mt-0.5">{account.name}</p>
+          </div>
+          <div className="flex-1 flex items-center gap-2">
+            <Warning className="h-3.5 w-3.5 text-amber-400 shrink-0" weight="fill" />
+            <span className="text-[12px] text-amber-300/80">Challenge size not configured</span>
+          </div>
+          <button
+            onClick={e => { e.stopPropagation(); navigate('/accounts'); }}
+            className="flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-amber-400/15 text-amber-300 border border-amber-400/20 hover:bg-amber-400/25 transition-colors shrink-0"
+          >
+            <Gear className="h-3 w-3" weight="fill" />
+            Configure
+          </button>
+        </button>
+      </div>
+    );
+  }
 
   const profitTarget = (challengeSize * profitTargetPct) / 100;
   const maxDailyLoss = (challengeSize * maxDailyDdPct) / 100;

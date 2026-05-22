@@ -62,10 +62,13 @@ export function DashboardRail({ trades, stats, accounts, selectedAccountId, sele
   }, [accounts, selectedAccountId]);
 
   const dailyLossAlert = useMemo(() => {
-    if (!selectedAccount?.startingBalance || todayPnl >= 0) return null;
-    const maxDailyLoss = selectedPropAccount
-      ? (selectedPropAccount.challengeSize ?? selectedPropAccount.startingBalance) * ((selectedPropAccount.maxDailyDdPct ?? 5) / 100)
-      : selectedAccount.startingBalance * 0.05;
+    if (!selectedAccount || todayPnl >= 0) return null;
+    const size = selectedPropAccount
+      ? (selectedPropAccount.challengeSize ?? selectedPropAccount.startingBalance)
+      : selectedAccount.startingBalance;
+    if (!size || size <= 0) return null;
+    const maxDailyLoss = size * ((selectedPropAccount?.maxDailyDdPct ?? 5) / 100);
+    if (maxDailyLoss <= 0) return null;
     const pct = Math.abs(todayPnl) / maxDailyLoss * 100;
     if (pct < 70) return null;
     return { pct: Math.min(pct, 100), breached: pct >= 100 };
@@ -74,12 +77,13 @@ export function DashboardRail({ trades, stats, accounts, selectedAccountId, sele
   const propProgress = useMemo(() => {
     if (!selectedPropAccount) return null;
     const size = selectedPropAccount.challengeSize ?? selectedPropAccount.startingBalance;
+    if (!size || size <= 0) return null;
     const target = size * ((selectedPropAccount.profitTargetPct ?? 10) / 100);
     const maxDD = size * ((selectedPropAccount.maxTotalDdPct ?? 10) / 100);
     const pnl = trades.reduce((s, t) => s + t.pnl, 0);
     return {
-      profitPct: Math.min(Math.max((pnl / target) * 100, 0), 100),
-      ddPct: Math.min(Math.max((Math.max(0, -pnl) / maxDD) * 100, 0), 100),
+      profitPct: target > 0 ? Math.min(Math.max((pnl / target) * 100, 0), 100) : 0,
+      ddPct: maxDD > 0 ? Math.min(Math.max((Math.max(0, -pnl) / maxDD) * 100, 0), 100) : 0,
       netPnl: pnl,
       target,
       name: selectedPropAccount.name,

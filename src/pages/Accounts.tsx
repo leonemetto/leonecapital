@@ -3,7 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useSharedTrades } from '@/contexts/TradesContext';
-import { AccountFormData, ACCOUNT_TYPES, CURRENCIES } from '@/types/account';
+import { AccountFormData, TradingAccount, ACCOUNT_TYPES, CURRENCIES } from '@/types/account';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import { Plus, Wallet, Trash, PencilSimple, Check, X } from '@phosphor-icons/react';
+import { Plus, Wallet, Trash, PencilSimple, Check, X, Gear, Warning } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
@@ -28,6 +28,15 @@ import { Trade } from '@/types/trade';
 
 type BalanceEditState = { id: string; balance: string } | null;
 type NameEditState = { id: string; name: string } | null;
+type ChallengeEditState = {
+  id: string;
+  challengeSize: string;
+  profitTargetPct: string;
+  maxDailyDdPct: string;
+  maxTotalDdPct: string;
+  trailingDrawdown: boolean;
+  challengeStartDate: string;
+} | null;
 
 function AccountSparkline({ trades, accountId }: { trades: Trade[]; accountId: string }) {
   const points = useMemo(() => {
@@ -76,6 +85,42 @@ const Accounts = () => {
   const [editingName, setEditingName] = useState<NameEditState>(null);
   const [editingQuantity, setEditingQuantity] = useState<{ id: string; quantity: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
+  const [editingChallenge, setEditingChallenge] = useState<ChallengeEditState>(null);
+
+  const openChallengeEditor = (account: TradingAccount) => {
+    setEditingChallenge({
+      id: account.id,
+      challengeSize: account.challengeSize != null ? String(account.challengeSize) : '',
+      profitTargetPct: account.profitTargetPct != null ? String(account.profitTargetPct) : '10',
+      maxDailyDdPct: account.maxDailyDdPct != null ? String(account.maxDailyDdPct) : '5',
+      maxTotalDdPct: account.maxTotalDdPct != null ? String(account.maxTotalDdPct) : '10',
+      trailingDrawdown: account.trailingDrawdown ?? false,
+      challengeStartDate: account.challengeStartDate ?? '',
+    });
+  };
+
+  const saveChallengeSettings = async () => {
+    if (!editingChallenge) return;
+    const size = parseFloat(editingChallenge.challengeSize);
+    if (!editingChallenge.challengeSize || isNaN(size) || size <= 0) {
+      toast.error('Account size must be greater than 0');
+      return;
+    }
+    try {
+      await updateAccount(editingChallenge.id, {
+        challengeSize: size,
+        profitTargetPct: parseFloat(editingChallenge.profitTargetPct) || 10,
+        maxDailyDdPct: parseFloat(editingChallenge.maxDailyDdPct) || 5,
+        maxTotalDdPct: parseFloat(editingChallenge.maxTotalDdPct) || 10,
+        trailingDrawdown: editingChallenge.trailingDrawdown,
+        challengeStartDate: editingChallenge.challengeStartDate || undefined,
+      });
+      toast.success('Challenge settings saved');
+      setEditingChallenge(null);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save challenge settings');
+    }
+  };
 
   const pendingDeleteTradeCount = useMemo(
     () => (pendingDelete ? trades.filter(t => t.accountId === pendingDelete.id).length : 0),
@@ -454,6 +499,49 @@ const Accounts = () => {
                     </span>
                   )}
                 </div>
+                {/* Prop challenge settings summary + edit */}
+                {account.type === 'prop' && (
+                  <div className="mt-3 pt-3 border-t border-dashed border-border">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <span className="text-[10px] uppercase tracking-[0.08em] font-semibold text-amber-300/70">Challenge Settings</span>
+                      <button
+                        onClick={() => openChallengeEditor(account)}
+                        className="flex items-center gap-1 text-[10px] text-amber-300/70 hover:text-amber-300 transition-colors"
+                      >
+                        <Gear className="h-3 w-3" weight="fill" />
+                        Edit
+                      </button>
+                    </div>
+                    {(!account.challengeSize || account.challengeSize <= 0) ? (
+                      <button
+                        onClick={() => openChallengeEditor(account)}
+                        className="w-full flex items-center gap-2 text-[11px] text-amber-300/80 bg-amber-400/10 border border-amber-400/20 rounded-lg px-2.5 py-2 hover:bg-amber-400/15 transition-colors"
+                      >
+                        <Warning className="h-3.5 w-3.5 shrink-0" weight="fill" />
+                        Account size not set — click to configure
+                      </button>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <div className="flex justify-between text-[10px]">
+                          <span className="text-muted-foreground/50">Size</span>
+                          <span className="font-mono text-foreground/80">${account.challengeSize.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                          <span className="text-muted-foreground/50">Target</span>
+                          <span className="font-mono text-foreground/80">{account.profitTargetPct ?? 10}%</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                          <span className="text-muted-foreground/50">Daily DD</span>
+                          <span className="font-mono text-foreground/80">{account.maxDailyDdPct ?? 5}%</span>
+                        </div>
+                        <div className="flex justify-between text-[10px]">
+                          <span className="text-muted-foreground/50">Total DD</span>
+                          <span className="font-mono text-foreground/80">{account.maxTotalDdPct ?? 10}%{account.trailingDrawdown ? ' trail' : ''}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 {/* Mirror quantity (for users mirroring across N identical funded accounts) */}
                 <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground/60 mt-1">
                   <span>Mirror quantity:</span>
@@ -502,6 +590,97 @@ const Accounts = () => {
           })}
         </div>
       )}
+
+      {/* Challenge settings editor dialog */}
+      <Dialog open={!!editingChallenge} onOpenChange={o => !o && setEditingChallenge(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Challenge Settings</DialogTitle>
+          </DialogHeader>
+          {editingChallenge && (
+            <div className="space-y-4 pt-2">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className={FIELD_LABEL}>Account Size ($) *</Label>
+                  <Input
+                    type="number" step="any"
+                    value={editingChallenge.challengeSize}
+                    onChange={e => setEditingChallenge(s => s && ({ ...s, challengeSize: e.target.value }))}
+                    placeholder="e.g. 50000"
+                    className={cn(FIELD_INPUT, 'font-mono')}
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <Label className={FIELD_LABEL}>Profit Target (%)</Label>
+                  <Input
+                    type="number" step="0.1"
+                    value={editingChallenge.profitTargetPct}
+                    onChange={e => setEditingChallenge(s => s && ({ ...s, profitTargetPct: e.target.value }))}
+                    placeholder="e.g. 10"
+                    className={cn(FIELD_INPUT, 'font-mono')}
+                  />
+                </div>
+                <div>
+                  <Label className={FIELD_LABEL}>Max Daily DD (%)</Label>
+                  <Input
+                    type="number" step="0.1"
+                    value={editingChallenge.maxDailyDdPct}
+                    onChange={e => setEditingChallenge(s => s && ({ ...s, maxDailyDdPct: e.target.value }))}
+                    placeholder="e.g. 5"
+                    className={cn(FIELD_INPUT, 'font-mono')}
+                  />
+                </div>
+                <div>
+                  <Label className={FIELD_LABEL}>Max Total DD (%)</Label>
+                  <Input
+                    type="number" step="0.1"
+                    value={editingChallenge.maxTotalDdPct}
+                    onChange={e => setEditingChallenge(s => s && ({ ...s, maxTotalDdPct: e.target.value }))}
+                    placeholder="e.g. 10"
+                    className={cn(FIELD_INPUT, 'font-mono')}
+                  />
+                </div>
+              </div>
+              <div>
+                <Label className={FIELD_LABEL}>Challenge Start Date</Label>
+                <Input
+                  type="date"
+                  value={editingChallenge.challengeStartDate}
+                  onChange={e => setEditingChallenge(s => s && ({ ...s, challengeStartDate: e.target.value }))}
+                  className={cn(FIELD_INPUT, 'font-mono')}
+                />
+              </div>
+              <div className="flex items-center gap-2.5 p-2.5 rounded-lg bg-muted/40 border border-border">
+                <input
+                  type="checkbox"
+                  id="edit-trailing-dd"
+                  checked={editingChallenge.trailingDrawdown}
+                  onChange={e => setEditingChallenge(s => s && ({ ...s, trailingDrawdown: e.target.checked }))}
+                  className="h-3.5 w-3.5 accent-amber-400"
+                />
+                <label htmlFor="edit-trailing-dd" className="text-xs text-foreground/80 cursor-pointer">
+                  Trailing drawdown (from equity high watermark) — FTMO, Apex, etc.
+                </label>
+              </div>
+              <div className="flex gap-2 pt-1">
+                <button
+                  onClick={saveChallengeSettings}
+                  style={{ flex: 1, height: 36, borderRadius: 10, background: 'var(--ef-ink)', color: 'var(--ef-bg)', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, border: 'none', cursor: 'pointer' }}
+                >
+                  <Check className="h-3.5 w-3.5" weight="bold" /> Save Settings
+                </button>
+                <button
+                  onClick={() => setEditingChallenge(null)}
+                  style={{ height: 36, padding: '0 16px', borderRadius: 10, background: 'transparent', border: '1px solid var(--ef-line)', color: 'var(--ef-ink-2)', fontSize: 13, cursor: 'pointer' }}
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <AlertDialog open={!!pendingDelete} onOpenChange={o => !o && setPendingDelete(null)}>
         <AlertDialogContent>
