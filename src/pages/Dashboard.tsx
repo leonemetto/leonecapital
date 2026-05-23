@@ -226,7 +226,7 @@ const Dashboard = () => {
           {/* Header skeleton */}
           <div style={{ height: 28, width: 200, borderRadius: 8, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
           {/* Stat bar skeleton */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-[10px]">
             {[...Array(5)].map((_, i) => (
               <div key={i} style={{ height: 72, borderRadius: 12, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }} />
             ))}
@@ -378,7 +378,7 @@ const Dashboard = () => {
       </motion.div>
 
       {/* Row 2: Heat Map Calendar (1.55fr) + Instrument Performance (1fr) */}
-      <motion.div style={{ display: 'grid', gridTemplateColumns: '1.55fr 1fr', gap: 14 }} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}>
+      <motion.div className="grid grid-cols-1 md:grid-cols-[1.55fr_1fr] gap-[14px]" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}>
         <HeatMapCalendar trades={filteredTrades} />
         <InstrumentPerformance trades={filteredTrades} />
       </motion.div>
