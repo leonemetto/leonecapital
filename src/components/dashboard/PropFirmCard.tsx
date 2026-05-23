@@ -171,6 +171,11 @@ export function PropFirmCard({ account, trades }: Props) {
   const profitBarPct = Math.min(Math.max(profitPct, 0), 100);
   const ddBarPct = Math.min(Math.max(totalDdPct, 0), 100);
 
+  // Header shows the most dangerous DD metric (daily vs total — whichever is higher)
+  const headerDdPct = Math.max(dailyDdPct, totalDdPct);
+  const headerDdColor = headerDdPct >= 100 ? '#f87171' : headerDdPct >= 80 ? '#f59e0b' : totalDdColor;
+  const headerDdBarPct = Math.min(headerDdPct, 100);
+
   return (
     <div className="rounded-xl bg-card border border-border">
       {/* Compact summary row — always visible */}
@@ -197,16 +202,16 @@ export function PropFirmCard({ account, trades }: Props) {
           </div>
         </div>
 
-        {/* DD mini */}
+        {/* DD mini — shows highest of daily vs total DD */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] text-muted-foreground/50 font-mono">DD</span>
-            <span className={cn('text-[11px] font-mono font-semibold', totalDdPct >= 80 ? 'text-[#f87171]' : 'text-muted-foreground/70')}>
-              {totalDdPct.toFixed(0)}%
+            <span className={cn('text-[11px] font-mono font-semibold', headerDdPct >= 80 ? (headerDdPct >= 100 ? 'text-[#f87171]' : 'text-[#f59e0b]') : 'text-muted-foreground/70')}>
+              {headerDdPct.toFixed(0)}%
             </span>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: ddBarPct + '%', backgroundColor: totalDdColor }} />
+            <div className="h-full rounded-full transition-all duration-500" style={{ width: headerDdBarPct + '%', backgroundColor: headerDdColor }} />
           </div>
         </div>
 
