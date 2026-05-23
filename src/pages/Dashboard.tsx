@@ -332,27 +332,27 @@ const Dashboard = () => {
             onClick={handleDailyReview}
             className="flex items-center gap-1.5 outline-none transition-colors"
             style={{
-              height: 34, padding: '0 14px', borderRadius: 10,
+              height: 34, padding: '0 10px', borderRadius: 10,
               background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
               fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
             }}
           >
             <NotePencil className="h-3.5 w-3.5" weight="regular" />
-            Daily Review
+            <span className="hidden sm:inline">Daily Review</span>
           </button>
 
           <Link
             to="/add-trade"
             className="flex items-center gap-1.5 outline-none transition-colors"
             style={{
-              height: 34, padding: '0 14px', borderRadius: 10,
+              height: 34, padding: '0 10px', borderRadius: 10,
               background: 'var(--ef-ink)', color: 'var(--ef-bg)',
               fontSize: 13, fontWeight: 500,
               border: '1px solid var(--ef-ink)',
             }}
           >
             <Plus className="h-3.5 w-3.5" weight="bold" />
-            Log trade
+            <span className="hidden sm:inline">Log trade</span>
           </Link>
         </div>
       </div>

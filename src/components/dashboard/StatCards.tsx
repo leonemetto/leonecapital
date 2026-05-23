@@ -48,6 +48,7 @@ interface CardProps {
   label: string;
   value: string;
   delta?: string;
+  mobileRowBorder?: boolean;
   deltaTone?: 'pos' | 'neg' | 'neutral';
   foot?: string;
   sparkData?: number[];
@@ -55,7 +56,7 @@ interface CardProps {
   last?: boolean;
 }
 
-function StatCard({ label, value, delta, deltaTone, foot, sparkData, sparkColor, last }: CardProps) {
+function StatCard({ label, value, delta, deltaTone, foot, sparkData, sparkColor, last, mobileRowBorder }: CardProps) {
   const deltaColor =
     deltaTone === 'pos' ? 'var(--ef-pos)' :
     deltaTone === 'neg' ? 'var(--ef-neg)' :
@@ -63,6 +64,7 @@ function StatCard({ label, value, delta, deltaTone, foot, sparkData, sparkColor,
 
   return (
     <div
+      className={mobileRowBorder ? 'border-b border-border md:border-b-0' : ''}
       style={{
         padding: '20px 22px',
         minHeight: 118,
@@ -166,9 +168,8 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
 
   return (
     <div
+      className="grid grid-cols-2 md:grid-cols-4"
       style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
         border: '1px solid var(--ef-line)',
         borderRadius: 14,
         overflow: 'hidden',
@@ -183,6 +184,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
         foot={`${trades.length} trades`}
         sparkData={balanceSpark}
         sparkColor={stats.netPnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)'}
+        mobileRowBorder
       />
       <StatCard
         label="Win rate · all time"
@@ -191,6 +193,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
         deltaTone={stats.winRate >= 50 ? 'pos' : 'neg'}
         sparkData={dailySpark}
         sparkColor="oklch(0.58 0.18 25)"
+        mobileRowBorder
       />
       <StatCard
         label="Profit factor"
