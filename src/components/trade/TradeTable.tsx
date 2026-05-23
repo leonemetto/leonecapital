@@ -454,7 +454,11 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
 
       {/* Edit Dialog */}
       <Dialog open={!!editTrade} onOpenChange={() => { setEditTrade(null); setEditIsGroup(false); }}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent
+          className="max-w-2xl max-h-[90vh] overflow-y-auto"
+          onPointerDownOutside={(e) => e.preventDefault()}
+          onFocusOutside={(e) => e.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle className="text-white">
               {editIsGroup ? 'Edit Mirrored Trade (all legs)' : 'Edit Trade'}

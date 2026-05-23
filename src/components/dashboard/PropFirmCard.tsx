@@ -87,12 +87,37 @@ export function PropFirmCard({ account, trades }: Props) {
     [challengeTrades]
   );
 
-  // Today's P&L
+  // Today's P&L + recent day context
   const today = new Date().toISOString().slice(0, 10);
   const dailyPnl = useMemo(
     () => challengeTrades.filter(t => t.date === today).reduce((s, t) => s + t.pnl, 0),
     [challengeTrades, today]
   );
+
+  // Per-day P&L map for worst-day and breach detection
+  const dayPnlMap = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const t of challengeTrades) {
+      map.set(t.date, (map.get(t.date) ?? 0) + t.pnl);
+    }
+    return map;
+  }, [challengeTrades]);
+
+  // Most recent trading day before today (to show when today is flat)
+  const prevTradingDayPnl = useMemo(() => {
+    const days = [...dayPnlMap.entries()]
+      .filter(([d]) => d < today)
+      .sort(([a], [b]) => b.localeCompare(a));
+    return days.length > 0 ? days[0] : null; // [date, pnl]
+  }, [dayPnlMap, today]);
+
+  // Any day in the challenge that breached the daily DD limit
+  const dailyLimitBreachDays = useMemo(() => {
+    if (maxDailyLoss <= 0) return [];
+    return [...dayPnlMap.entries()]
+      .filter(([, pnl]) => pnl < -maxDailyLoss)
+      .sort(([a], [b]) => b.localeCompare(a));
+  }, [dayPnlMap, maxDailyLoss]);
 
   // Trailing drawdown — track equity high watermark
   const trailingDdUsed = useMemo(() => {
@@ -235,16 +260,53 @@ export function PropFirmCard({ account, trades }: Props) {
             <Warning className="h-3 w-3 text-muted-foreground/50" weight="fill" />
             <span className="text-[10px] uppercase tracking-[0.08em] text-muted-foreground/60">Daily Drawdown</span>
           </div>
-          <div className="flex items-baseline justify-between mb-2">
-            <span className={cn('text-[22px] leading-none metric-number', dailyPnl >= 0 ? 'text-foreground' : 'text-[#f87171]')}>
-              {dailyPnl >= 0 ? '+' : '-'}${fmt(Math.abs(dailyPnl))}
-            </span>
-            <span className="text-[11px] text-muted-foreground/50">/ -${fmt(maxDailyLoss)}</span>
-          </div>
-          <ProgressBar value={Math.abs(Math.min(dailyPnl, 0))} max={maxDailyLoss} color={dailyDdColor} />
-          <p className="text-[10px] mt-1.5" style={{ color: dailyDdColor }}>
-            {dailyDdPct >= 100 ? '🚨 Daily limit breached' : dailyDdPct >= 80 ? `⚠️ ${dailyDdPct.toFixed(0)}% used — caution` : `${dailyDdPct.toFixed(0)}% used today`}
-          </p>
+          {/* Show today if there are trades, otherwise show last trading day */}
+          {dailyPnl !== 0 || dayPnlMap.has(today) ? (
+            <>
+              <div className="flex items-baseline justify-between mb-2">
+                <span className={cn('text-[22px] leading-none metric-number', dailyPnl >= 0 ? 'text-foreground' : 'text-[#f87171]')}>
+                  {dailyPnl >= 0 ? '+' : '-'}${fmt(Math.abs(dailyPnl))}
+                </span>
+                <span className="text-[11px] text-muted-foreground/50">/ -${fmt(maxDailyLoss)}</span>
+              </div>
+              <ProgressBar value={Math.abs(Math.min(dailyPnl, 0))} max={maxDailyLoss} color={dailyDdColor} />
+              <p className="text-[10px] mt-1.5" style={{ color: dailyDdColor }}>
+                {dailyDdPct >= 100 ? '🚨 Daily limit breached' : dailyDdPct >= 80 ? `⚠️ ${dailyDdPct.toFixed(0)}% used — caution` : `${dailyDdPct.toFixed(0)}% used today`}
+              </p>
+            </>
+          ) : prevTradingDayPnl ? (
+            <>
+              <div className="flex items-baseline justify-between mb-2">
+                <span className={cn('text-[22px] leading-none metric-number', prevTradingDayPnl[1] >= 0 ? 'text-foreground' : 'text-[#f87171]')}>
+                  {prevTradingDayPnl[1] >= 0 ? '+' : '-'}${fmt(Math.abs(prevTradingDayPnl[1]))}
+                </span>
+                <span className="text-[11px] text-muted-foreground/50">/ -${fmt(maxDailyLoss)}</span>
+              </div>
+              {(() => {
+                const prevPct = maxDailyLoss > 0 ? Math.abs(Math.min(prevTradingDayPnl[1], 0)) / maxDailyLoss * 100 : 0;
+                const prevColor = prevPct >= 100 ? '#f87171' : prevPct >= 80 ? '#f59e0b' : '#10b981';
+                return (
+                  <>
+                    <ProgressBar value={Math.abs(Math.min(prevTradingDayPnl[1], 0))} max={maxDailyLoss} color={prevColor} />
+                    <p className="text-[10px] mt-1.5" style={{ color: prevPct >= 100 ? '#f87171' : 'var(--ef-ink-3)' }}>
+                      {prevPct >= 100 ? '🚨 Limit breached yesterday' : `Yesterday · ${prevPct.toFixed(0)}% of limit`}
+                    </p>
+                  </>
+                );
+              })()}
+            </>
+          ) : (
+            <>
+              <p className="text-[22px] leading-none metric-number text-foreground mb-2">—</p>
+              <p className="text-[10px] text-muted-foreground/50 mt-1.5">No trades yet this challenge</p>
+            </>
+          )}
+          {/* Breach history warning — shown whenever any prior day exceeded the limit */}
+          {dailyLimitBreachDays.length > 0 && (
+            <p className="text-[10px] text-[#f87171] mt-2 pt-1.5 border-t border-border/50">
+              ⚠️ {dailyLimitBreachDays.length} day{dailyLimitBreachDays.length > 1 ? 's' : ''} exceeded the limit ({dailyLimitBreachDays[0][0]})
+            </p>
+          )}
         </div>
 
         {/* Max Drawdown (static or trailing) */}
