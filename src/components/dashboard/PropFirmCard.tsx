@@ -162,6 +162,12 @@ export function PropFirmCard({ account, trades }: Props) {
   const dailyDdPct = maxDailyLoss > 0 ? (Math.abs(Math.min(dailyPnl, 0)) / maxDailyLoss) * 100 : 0;
   const totalDdPct = maxTotalLoss > 0 ? (trailingDdUsed / maxTotalLoss) * 100 : 0;
 
+  // For the header: use yesterday's daily DD if there are no trades today
+  const activeDailyPnl = dailyPnl !== 0 || dayPnlMap.has(today)
+    ? dailyPnl
+    : (prevTradingDayPnl ? prevTradingDayPnl[1] : 0);
+  const activeDailyDdPct = maxDailyLoss > 0 ? (Math.abs(Math.min(activeDailyPnl, 0)) / maxDailyLoss) * 100 : 0;
+
   const profitColor = netPnl >= 0 ? '#10b981' : '#f87171';
   const dailyDdColor = dailyDdPct >= 100 ? '#f87171' : dailyDdPct >= 80 ? '#f59e0b' : '#10b981';
   const totalDdColor = totalDdPct >= 100 ? '#f87171' : totalDdPct >= 80 ? '#f59e0b' : '#10b981';
@@ -171,8 +177,8 @@ export function PropFirmCard({ account, trades }: Props) {
   const profitBarPct = Math.min(Math.max(profitPct, 0), 100);
   const ddBarPct = Math.min(Math.max(totalDdPct, 0), 100);
 
-  // Header shows the most dangerous DD metric (daily vs total — whichever is higher)
-  const headerDdPct = Math.max(dailyDdPct, totalDdPct);
+  // Header shows the most dangerous DD metric (active daily vs total — whichever is higher)
+  const headerDdPct = Math.max(activeDailyDdPct, totalDdPct);
   const headerDdColor = headerDdPct >= 100 ? '#f87171' : headerDdPct >= 80 ? '#f59e0b' : totalDdColor;
   const headerDdBarPct = Math.min(headerDdPct, 100);
 
