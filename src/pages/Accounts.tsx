@@ -20,7 +20,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
-import { Plus, Wallet, Trash, PencilSimple, Check, X, Gear, Warning } from '@phosphor-icons/react';
+import { Plus, Wallet, Trash, PencilSimple, Check, X, Gear, Warning, ArrowCircleDown, ArrowCircleUp } from '@phosphor-icons/react';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
@@ -28,6 +28,8 @@ import { Trade } from '@/types/trade';
 
 type BalanceEditState = { id: string; balance: string } | null;
 type NameEditState = { id: string; name: string } | null;
+type AdjustmentState = { id: string; amount: string; type: 'withdraw' | 'deposit' } | null;
+
 type ChallengeEditState = {
   id: string;
   challengeSize: string;
@@ -86,6 +88,24 @@ const Accounts = () => {
   const [editingQuantity, setEditingQuantity] = useState<{ id: string; quantity: string } | null>(null);
   const [pendingDelete, setPendingDelete] = useState<{ id: string; name: string } | null>(null);
   const [editingChallenge, setEditingChallenge] = useState<ChallengeEditState>(null);
+  const [adjustment, setAdjustment] = useState<AdjustmentState>(null);
+
+  const applyAdjustment = async () => {
+    if (!adjustment) return;
+    const amount = parseFloat(adjustment.amount);
+    if (isNaN(amount) || amount <= 0) { toast.error('Enter a positive amount'); return; }
+    const account = accounts.find(a => a.id === adjustment.id);
+    if (!account) return;
+    const delta = adjustment.type === 'withdraw' ? -amount : amount;
+    const newAdj = (account.balanceAdjustment ?? 0) + delta;
+    try {
+      await updateAccount(adjustment.id, { balanceAdjustment: newAdj });
+      toast.success(adjustment.type === 'withdraw' ? `Withdrawal of $${amount.toLocaleString()} recorded` : `Deposit of $${amount.toLocaleString()} recorded`);
+      setAdjustment(null);
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to save');
+    }
+  };
 
   const openChallengeEditor = (account: TradingAccount) => {
     setEditingChallenge({
@@ -141,7 +161,7 @@ const Accounts = () => {
     }
   };
   const [form, setForm] = useState<AccountFormData>({
-    name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', copyWeight: 1, quantity: 1, // copyWeight hidden from UI; advanced override only
+    name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', balanceAdjustment: 0, copyWeight: 1, quantity: 1,
   });
 
   const update = (key: string, value: string | number | boolean) => setForm(prev => ({ ...prev, [key]: value }));
@@ -152,7 +172,7 @@ const Accounts = () => {
     try {
       await addAccount(form);
       toast.success('Account created!');
-      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', copyWeight: 1, quantity: 1, // copyWeight hidden from UI; advanced override only
+      setForm({ name: '', type: 'live', startingBalance: 0, currentBalance: 0, currency: 'USD', balanceAdjustment: 0, copyWeight: 1, quantity: 1,
         challengeSize: undefined, profitTargetPct: undefined, maxDailyDdPct: undefined,
         maxTotalDdPct: undefined, trailingDrawdown: false, challengeStartDate: undefined });
       setOpen(false);
@@ -161,9 +181,9 @@ const Accounts = () => {
     }
   };
 
-  const getAccountBalance = (accountId: string, currentBalance: number) => {
+  const getAccountBalance = (accountId: string, currentBalance: number, balanceAdjustment: number = 0) => {
     const totalPnl = trades.filter(t => t.accountId === accountId).reduce((sum, t) => sum + t.pnl, 0);
-    return currentBalance + totalPnl;
+    return currentBalance + totalPnl + balanceAdjustment;
   };
 
   const getAccountTradeCount = (accountId: string) => trades.filter(t => t.accountId === accountId).length;
@@ -350,7 +370,7 @@ const Accounts = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {accounts.map((account, i) => {
-            const currentBalance = getAccountBalance(account.id, account.currentBalance);
+            const currentBalance = getAccountBalance(account.id, account.currentBalance, account.balanceAdjustment);
             const pnl = currentBalance - account.startingBalance;
             const pnlPercent = account.startingBalance > 0 ? (pnl / account.startingBalance) * 100 : 0;
             const tradeCount = getAccountTradeCount(account.id);
@@ -434,9 +454,58 @@ const Accounts = () => {
                     <p className="text-[22px] text-foreground mt-0.5 leading-none metric-number">
                       {currencySymbol(account.currency)}{currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                     </p>
+                    {account.balanceAdjustment !== 0 && (
+                      <p className="text-[10px] text-muted-foreground/50 mt-0.5 font-mono">
+                        {account.balanceAdjustment > 0 ? '+' : ''}{currencySymbol(account.currency)}{account.balanceAdjustment.toLocaleString()} net {account.balanceAdjustment > 0 ? 'deposited' : 'withdrawn'}
+                      </p>
+                    )}
                   </div>
                   <AccountSparkline trades={trades} accountId={account.id} />
                 </div>
+
+                {/* Withdrawal / Deposit quick entry */}
+                {adjustment?.id === account.id ? (
+                  <div className="flex items-center gap-2 mb-3 p-2.5 rounded-lg bg-muted/40 border border-border">
+                    <span className="text-[11px] text-muted-foreground/70 shrink-0">
+                      {adjustment.type === 'withdraw' ? 'Withdraw' : 'Deposit'} {currencySymbol(account.currency)}
+                    </span>
+                    <Input
+                      type="number"
+                      step="any"
+                      min="0"
+                      value={adjustment.amount}
+                      onChange={e => setAdjustment(s => s && ({ ...s, amount: e.target.value }))}
+                      placeholder="0.00"
+                      className="h-7 flex-1 text-[12px] font-mono px-2"
+                      autoFocus
+                      onKeyDown={e => { if (e.key === 'Enter') applyAdjustment(); if (e.key === 'Escape') setAdjustment(null); }}
+                    />
+                    <button
+                      onClick={applyAdjustment}
+                      className="p-1 rounded hover:bg-muted text-muted-foreground/60 hover:text-foreground"
+                    >
+                      <Check className="h-3.5 w-3.5" weight="bold" />
+                    </button>
+                    <button onClick={() => setAdjustment(null)} className="p-1 rounded hover:bg-muted text-muted-foreground/60">
+                      <X className="h-3 w-3" weight="bold" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2 mb-3">
+                    <button
+                      onClick={() => setAdjustment({ id: account.id, amount: '', type: 'withdraw' })}
+                      className="flex-1 flex items-center justify-center gap-1.5 h-7 rounded-md border border-border text-[11px] text-muted-foreground/70 hover:text-[var(--ef-neg)] hover:border-[color-mix(in_oklab,var(--ef-neg)_40%,transparent)] hover:bg-[rgba(248,113,113,0.06)] transition-colors"
+                    >
+                      <ArrowCircleDown className="h-3.5 w-3.5" weight="regular" /> Log Withdrawal
+                    </button>
+                    <button
+                      onClick={() => setAdjustment({ id: account.id, amount: '', type: 'deposit' })}
+                      className="flex-1 flex items-center justify-center gap-1.5 h-7 rounded-md border border-border text-[11px] text-muted-foreground/70 hover:text-[var(--ef-pos)] hover:border-[color-mix(in_oklab,var(--ef-pos)_40%,transparent)] hover:bg-[rgba(16,185,129,0.06)] transition-colors"
+                    >
+                      <ArrowCircleUp className="h-3.5 w-3.5" weight="regular" /> Log Deposit
+                    </button>
+                  </div>
+                )}
 
                 {/* Stats row */}
                 <div className="flex items-center gap-2 mb-3">

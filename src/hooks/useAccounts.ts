@@ -18,6 +18,7 @@ function rowToAccount(r: any): TradingAccount {
     maxTotalDdPct: r.max_total_dd_pct != null ? Number(r.max_total_dd_pct) : undefined,
     trailingDrawdown: r.trailing_drawdown ?? false,
     challengeStartDate: r.challenge_start_date ?? undefined,
+    balanceAdjustment: r.balance_adjustment != null ? Number(r.balance_adjustment) : 0,
     copyWeight: r.copy_weight != null ? Number(r.copy_weight) : 1,
     quantity: r.quantity != null ? Number(r.quantity) : 1,
   };
@@ -50,6 +51,7 @@ export function useAccounts() {
       starting_balance: form.startingBalance,
       current_balance: form.currentBalance,
       currency: form.currency,
+      balance_adjustment: form.balanceAdjustment ?? 0,
       copy_weight: form.copyWeight ?? 1,
       quantity: form.quantity ?? 1,
       ...(form.type === 'prop' ? {
@@ -80,6 +82,7 @@ export function useAccounts() {
     if (form.maxTotalDdPct !== undefined) updates.max_total_dd_pct = form.maxTotalDdPct;
     if (form.trailingDrawdown !== undefined) updates.trailing_drawdown = form.trailingDrawdown;
     if (form.challengeStartDate !== undefined) updates.challenge_start_date = form.challengeStartDate;
+    if (form.balanceAdjustment !== undefined) updates.balance_adjustment = form.balanceAdjustment;
     if (form.copyWeight !== undefined) updates.copy_weight = form.copyWeight;
     if (form.quantity !== undefined) updates.quantity = form.quantity;
 

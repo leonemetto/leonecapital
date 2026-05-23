@@ -13,6 +13,8 @@ export interface TradingAccount {
   maxTotalDdPct?: number;
   trailingDrawdown?: boolean;
   challengeStartDate?: string;
+  /** Net balance adjustment: negative = withdrawals, positive = deposits. Applied to displayed balance without affecting PnL metrics. */
+  balanceAdjustment: number;
   /** Copy weight used to split mirrored trade P&L proportionally. Default 1. */
   copyWeight: number;
   /** Number of identical funded accounts this row represents. Default 1.
