@@ -168,6 +168,11 @@ const Dashboard = () => {
     return accounts.find(a => a.id === selectedAccountId)?.currentBalance ?? 0;
   }, [accounts, selectedAccountId]);
 
+  const balanceAdjustment = useMemo(() => {
+    if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + (a.balanceAdjustment ?? 0), 0);
+    return accounts.find(a => a.id === selectedAccountId)?.balanceAdjustment ?? 0;
+  }, [accounts, selectedAccountId]);
+
   const selectedPropAccount = useMemo(() => {
     if (selectedAccountId === '__all__') return null;
     const acct = accounts.find(a => a.id === selectedAccountId);
@@ -366,7 +371,7 @@ const Dashboard = () => {
 
       {/* Stat strip */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}>
-        <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} />
+        <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} balanceAdjustment={balanceAdjustment} />
       </motion.div>
 
       {/* Row 1: Equity curve full width */}
@@ -374,6 +379,7 @@ const Dashboard = () => {
         <PremiumEquityCurve
           trades={filteredTrades}
           startingBalance={startingBalance}
+          balanceAdjustment={balanceAdjustment}
         />
       </motion.div>
 

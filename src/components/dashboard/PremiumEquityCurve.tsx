@@ -12,10 +12,11 @@ type Period = 'daily' | 'weekly' | 'monthly';
 interface Props {
   trades: Trade[];
   startingBalance?: number;
+  balanceAdjustment?: number;
   projectedGain?: number;
 }
 
-export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain = 0 }: Props) {
+export function PremiumEquityCurve({ trades, startingBalance = 0, balanceAdjustment = 0, projectedGain = 0 }: Props) {
   const [period, setPeriod] = useState<Period>('daily');
 
   const data = useMemo(() => {
@@ -23,7 +24,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain 
     if (sorted.length === 0) return [];
 
     if (period === 'daily') {
-      let bal = startingBalance;
+      let bal = startingBalance + balanceAdjustment;
       const dayMap = new Map<string, number>();
       for (const t of sorted) {
         const d = t.date.split('T')[0];
@@ -47,16 +48,17 @@ export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain 
       groups.set(key, (groups.get(key) || 0) + t.pnl);
     }
 
-    let bal = startingBalance;
+    let bal = startingBalance + balanceAdjustment;
     return Array.from(groups.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([date, pnl]) => {
         bal += pnl;
         return { date, balance: Number(bal.toFixed(2)), pnl };
       });
-  }, [trades, period, startingBalance]);
+  }, [trades, period, startingBalance, balanceAdjustment]);
 
-  const lastBal = data.length > 0 ? data[data.length - 1].balance : startingBalance;
+  const baselineBalance = startingBalance + balanceAdjustment;
+  const lastBal = data.length > 0 ? data[data.length - 1].balance : baselineBalance;
   const netPnl = lastBal - startingBalance;
   const netPct = startingBalance > 0 ? (netPnl / startingBalance) * 100 : 0;
   const isPositive = netPnl >= 0;
@@ -77,11 +79,11 @@ export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain 
     if (data.length === 0) return ['auto', 'auto'] as ['auto', 'auto'];
     const vals = data.map(d => d.balance);
     const projMax = projectedGain > 0 ? (lastBal + projectedGain) : 0;
-    const min = Math.min(...vals, startingBalance);
-    const max = Math.max(...vals, startingBalance, projMax);
+    const min = Math.min(...vals, baselineBalance);
+    const max = Math.max(...vals, baselineBalance, projMax);
     const pad = (max - min) * 0.15 || 50;
     return [Math.floor(min - pad), Math.ceil(max + pad)] as [number, number];
-  }, [data, startingBalance, projectedGain, lastBal]);
+  }, [data, baselineBalance, projectedGain, lastBal]);
 
   const periods: { key: Period; label: string }[] = [
     { key: 'daily', label: '30D' },
@@ -104,7 +106,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain 
             className="font-mono"
             style={{ fontSize: 12, color: 'var(--ef-ink-3)', marginTop: 2 }}
           >
-            {period} · ${startingBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })} start
+            {period} · ${baselineBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })} start
           </div>
         </div>
 
@@ -222,13 +224,13 @@ export function PremiumEquityCurve({ trades, startingBalance = 0, projectedGain 
                 width={40}
               />
               <ReferenceLine
-                y={startingBalance}
+                y={baselineBalance}
                 stroke="var(--ef-ink-3)"
                 strokeDasharray="4 4"
                 strokeWidth={1.5}
                 opacity={0.7}
                 label={{
-                  value: `start · $${startingBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
+                  value: `start · $${baselineBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}`,
                   position: 'insideTopRight',
                   style: {
                     fill: 'var(--ef-ink-4)',

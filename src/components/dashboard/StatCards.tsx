@@ -8,6 +8,7 @@ interface Props {
   stats: Analytics;
   trades: Trade[];
   startingBalance?: number;
+  balanceAdjustment?: number;
 }
 
 function LineSpark({ data, color, height = 34 }: { data: number[]; color: string; height?: number }) {
@@ -126,8 +127,8 @@ function StatCard({ label, value, delta, deltaTone, foot, sparkData, sparkColor,
   );
 }
 
-export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
-  const currentBalance = startingBalance + stats.netPnl;
+export function StatCards({ stats, trades, startingBalance = 0, balanceAdjustment = 0 }: Props) {
+  const currentBalance = startingBalance + stats.netPnl + balanceAdjustment;
 
   const { balanceSpark, dailySpark } = useMemo(() => {
     const map = getDailyPnl(trades);
@@ -148,12 +149,12 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
 
     const balanceSpark = days.map(day => {
       const lastDate = sortedDates.filter(d => d <= day).pop();
-      return startingBalance + (lastDate ? (cumByDate.get(lastDate) ?? 0) : 0);
+      return startingBalance + balanceAdjustment + (lastDate ? (cumByDate.get(lastDate) ?? 0) : 0);
     });
 
     const dailySpark = days.map(day => map.get(day)?.pnl ?? 0);
     return { balanceSpark, dailySpark };
-  }, [trades, startingBalance]);
+  }, [trades, startingBalance, balanceAdjustment]);
 
   const streak = stats.currentStreak;
   const streakText =
@@ -163,7 +164,7 @@ export function StatCards({ stats, trades, startingBalance = 0 }: Props) {
   const streakTone: 'pos' | 'neg' | 'neutral' =
     streak.type === 'win' ? 'pos' : streak.type === 'loss' ? 'neg' : 'neutral';
 
-  const balanceDeltaPct = startingBalance > 0 ? (stats.netPnl / startingBalance) * 100 : 0;
+  const balanceDeltaPct = startingBalance > 0 ? ((stats.netPnl + balanceAdjustment) / startingBalance) * 100 : 0;
   const expectancyPerTrade = trades.length > 0 ? stats.netPnl / trades.length : 0;
 
   return (
