@@ -40,6 +40,7 @@ const Landing = lazy(() => import("./pages/Landing"));
 const HowToUse = lazy(() => import("./pages/HowToUse"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
+const Refunds = lazy(() => import("./pages/Refunds"));
 const ImportTrades = lazy(() => import("./pages/ImportTrades"));
 const LeakDetection = lazy(() => import("./pages/LeakDetection"));
 const WhatIfSimulator = lazy(() => import("./pages/WhatIfSimulator"));
@@ -180,6 +181,10 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
     })();
   }, [needsNickname, autoNicknaming, setNickname]);
 
+  useEffect(() => {
+    if (!needsNickname && autoNicknaming) setAutoNicknaming(false);
+  }, [needsNickname, autoNicknaming]);
+
   if (isLoading || autoNicknaming) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -231,6 +236,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/refunds" element={<Refunds />} />
             <Route path="/how-to-use" element={<HowToUse />} />
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
