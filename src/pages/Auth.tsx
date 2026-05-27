@@ -26,12 +26,37 @@ const AUTH_STARS = Array.from({ length: 120 }, (_, i) => {
   };
 });
 
+const EMAIL_TYPO_MAP: Record<string, string> = {
+  'gnail.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gmali.com': 'gmail.com',
+  'gmaill.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com',
+  'gmsil.com': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com',
+  'gmail.con': 'gmail.com', 'gmail.om': 'gmail.com', 'gmail.cmo': 'gmail.com',
+  'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'yhaoo.com': 'yahoo.com',
+  'yahoo.co': 'yahoo.com', 'yahoo.cm': 'yahoo.com', 'yahoo.con': 'yahoo.com',
+  'hotnail.com': 'hotmail.com', 'hotmial.com': 'hotmail.com', 'hotmali.com': 'hotmail.com',
+  'hotmaill.com': 'hotmail.com', 'hotmail.co': 'hotmail.com', 'hotmail.cm': 'hotmail.com',
+  'hotmail.con': 'hotmail.com',
+  'outloo.com': 'outlook.com', 'outlok.com': 'outlook.com', 'outloook.com': 'outlook.com',
+  'outlook.co': 'outlook.com', 'outlook.cm': 'outlook.com',
+  'iclod.com': 'icloud.com', 'iclould.com': 'icloud.com', 'icloid.com': 'icloud.com',
+  'icloud.co': 'icloud.com', 'icloud.cm': 'icloud.com',
+  'proton.co': 'proton.me', 'protonmail.co': 'protonmail.com',
+};
+
+function suggestEmail(email: string): string | null {
+  const at = email.lastIndexOf('@');
+  if (at < 1 || at === email.length - 1) return null;
+  const domain = email.slice(at + 1).toLowerCase();
+  const fix = EMAIL_TYPO_MAP[domain];
+  return fix ? email.slice(0, at + 1) + fix : null;
+}
+
 function authErrorMessage(error: { message: string; code?: string }): string {
   const msg = error.message?.toLowerCase() ?? '';
   if (msg.includes('invalid login credentials') || error.code === 'invalid_credentials')
     return 'Incorrect email or password.';
   if (msg.includes('email not confirmed') || error.code === 'email_not_confirmed')
-    return 'Please confirm your email before signing in. Check your inbox.';
+    return 'Please verify your email before signing in. Check your inbox for the 6-digit code.';
   if (msg.includes('user not found') || msg.includes('no user found'))
     return 'No account found with this email address.';
   if (msg.includes('too many requests') || error.code === 'over_request_rate_limit')
@@ -204,6 +229,8 @@ export default function Auth() {
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [totpCode, setTotpCode] = useState('');
   const [verifying, setVerifying] = useState(false);
+  const [signupOtp, setSignupOtp] = useState('');
+  const [verifyingSignup, setVerifyingSignup] = useState(false);
 
   useEffect(() => {
     return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
@@ -223,7 +250,7 @@ export default function Auth() {
     setResending(true);
     const { error } = await supabase.auth.resend({ type: 'signup', email });
     if (error) toast.error(error.message);
-    else { toast.success('Confirmation email resent.'); startCooldown(); }
+    else { toast.success('New code sent. Check your email.'); startCooldown(); }
     setResending(false);
   };
 
@@ -264,14 +291,28 @@ export default function Auth() {
       navigate('/dashboard', { replace: true });
       return;
     } else {
-      const { error } = await supabase.auth.signUp({
-        email, password,
-        options: { emailRedirectTo: `${window.location.origin}/auth/callback` },
-      });
+      const { error } = await supabase.auth.signUp({ email, password });
       if (error) toast.error(authErrorMessage(error));
-      else setAwaitingOtp(true);
+      else { setSignupOtp(''); setAwaitingOtp(true); }
     }
     setLoading(false);
+  };
+
+  const handleVerifySignupOtp = async () => {
+    if (signupOtp.length < 6) return;
+    setVerifyingSignup(true);
+    const { error } = await supabase.auth.verifyOtp({
+      email, token: signupOtp, type: 'signup',
+    });
+    if (error) {
+      toast.error(error.message?.toLowerCase().includes('expired')
+        ? 'Code expired. Tap "Resend code" to get a new one.'
+        : 'Incorrect code. Check your email and try again.');
+      setVerifyingSignup(false);
+      return;
+    }
+    toast.success('Email verified!');
+    navigate('/dashboard', { replace: true });
   };
 
   const handleMfaVerify = async () => {
@@ -418,22 +459,42 @@ export default function Auth() {
     </>
   );
 
-  /* ── Email confirmation ── */
+  /* ── Email OTP verification ── */
   if (awaitingOtp) return wrap(
     <>
       <Card>
-        <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto' }}>
-            <EnvelopeSimple size={20} color="rgba(255,255,255,0.6)" />
-          </div>
-          <div>
-            <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.02em' }}>Check your email</p>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+              <EnvelopeSimple size={20} color="rgba(255,255,255,0.6)" />
+            </div>
+            <p style={{ fontSize: 16, fontWeight: 700, color: '#fff', margin: '0 0 6px', letterSpacing: '-0.02em' }}>Enter verification code</p>
             <p style={{ fontSize: 12.5, color: 'rgba(255,255,255,0.4)', lineHeight: 1.65, margin: 0 }}>
-              Confirmation link sent to{' '}
+              We sent a code to{' '}
               <span style={{ color: 'rgba(255,255,255,0.75)' }}>{email}</span>.
-              Click the link to activate your account.
+            </p>
+            <p style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.3)', lineHeight: 1.6, margin: '10px 0 0' }}>
+              Don't see it? Check your spam or promotions folder.
             </p>
           </div>
+          <div>
+            <FieldLabel>Verification code</FieldLabel>
+            <Input
+              value={signupOtp}
+              onChange={e => setSignupOtp(e.target.value.replace(/\D/g, '').slice(0, 10))}
+              placeholder="Paste code"
+              maxLength={10}
+              autoFocus
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              className="h-12 text-center text-xl tracking-[0.3em] font-mono"
+              style={inputStyle}
+              onKeyDown={e => { if (e.key === 'Enter' && signupOtp.length >= 6) handleVerifySignupOtp(); }}
+            />
+          </div>
+          <PrimaryBtn onClick={handleVerifySignupOtp} disabled={signupOtp.length < 6} loading={verifyingSignup}>
+            {verifyingSignup ? 'Verifying…' : 'Verify and continue'}
+          </PrimaryBtn>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
             <button
               type="button"
@@ -444,9 +505,9 @@ export default function Auth() {
                 background: 'none', border: 'none', cursor: resendCooldown > 0 ? 'default' : 'pointer', padding: 0,
               }}
             >
-              {resending ? 'Sending…' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend email'}
+              {resending ? 'Sending…' : resendCooldown > 0 ? `Resend in ${resendCooldown}s` : 'Resend code'}
             </button>
-            <GhostBtn onClick={() => setAwaitingOtp(false)}>← Back to sign up</GhostBtn>
+            <GhostBtn onClick={() => { setAwaitingOtp(false); setSignupOtp(''); }}>Wrong email? Change it</GhostBtn>
           </div>
         </div>
       </Card>
@@ -537,6 +598,21 @@ export default function Auth() {
                   type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder="you@example.com" required autoFocus className="h-10" style={inputStyle}
                 />
+                {!isLogin && (() => {
+                  const s = suggestEmail(email);
+                  return s ? (
+                    <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', margin: '6px 0 0' }}>
+                      Did you mean{' '}
+                      <button
+                        type="button"
+                        onClick={() => setEmail(s)}
+                        style={{ color: G, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', padding: 0, fontSize: 11, textDecoration: 'underline' }}
+                      >
+                        {s}
+                      </button>?
+                    </p>
+                  ) : null;
+                })()}
               </div>
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
