@@ -26,7 +26,7 @@ const SECTIONS = [
   },
   {
     title: '3. Monthly Subscriptions — Renewals',
-    body: `Monthly subscriptions auto-renew at the end of each billing period. Renewal charges are not eligible for refund.\n\nYou can cancel at any time from Settings → Subscription. Cancellations take effect at the end of the current paid period — your access continues until that date, and you are not charged again.\n\nIf you forget to cancel and are charged for a renewal you did not intend, contact support@edgeflow.capital within 72 hours of the renewal charge. We will review the request on a case-by-case basis (see Section 5).`,
+    body: `You are responsible for cancelling your subscription before the renewal date. EdgeFlow is not responsible for charges resulting from a failure to cancel on time. Self-serve cancellation is available 24/7 from Settings → Subscription.\n\nMonthly subscriptions auto-renew at the end of each billing period. Renewal charges are not eligible for refund.\n\nCancellations take effect at the end of the current paid period — your access continues until that date, and you are not charged again.\n\nIf you forget to cancel and are charged for a renewal you did not intend, you may contact support@edgeflow.capital within 72 hours of the renewal charge. We will review the request on a case-by-case basis (see Section 5), but we are under no obligation to refund renewals.`,
   },
   {
     title: '4. Annual Subscriptions',
@@ -54,7 +54,7 @@ const SECTIONS = [
   },
   {
     title: '10. Changes to This Policy',
-    body: `We may update this Refund Policy from time to time. The version in effect at the time of your purchase governs that purchase.\n\nMaterial changes will be announced by email to active subscribers at least 14 days before they take effect.\n\nLast updated: May 2026.`,
+    body: `We may update this Refund Policy from time to time. The version in effect at the time of your purchase governs that purchase.\n\nMaterial changes will be announced by email to active subscribers at least 14 days before they take effect.\n\nLast updated: 28 May 2026.`,
   },
   {
     title: '11. Contact',
@@ -92,7 +92,7 @@ export default function Refunds() {
           <span style={{ fontSize: 13, color: G, fontWeight: 600 }}>Legal</span>
         </div>
         <h1 style={{ fontSize: 'clamp(40px, 5vw, 72px)', fontWeight: 800, letterSpacing: '-2.5px', lineHeight: 1.0, marginBottom: 16 }}>Refund Policy</h1>
-        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 64 }}>Last updated: May 2026</p>
+        <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 64 }}>Last updated: 28 May 2026</p>
 
         {SECTIONS.map(({ title, body }) => (
           <div key={title} style={{ marginBottom: 52 }}>
