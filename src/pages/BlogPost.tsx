@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { getBlogPost, getRelatedPosts, type BlogSection } from '@/data/blogPosts';
 import logoImg from '@/assets/logo.svg';
@@ -77,7 +77,6 @@ function renderSection(section: BlogSection, i: number) {
 
 export default function BlogPost() {
   const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
   const post = slug ? getBlogPost(slug) : undefined;
   const related = post ? getRelatedPosts(post) : [];
 
@@ -86,9 +85,9 @@ export default function BlogPost() {
       <div style={{ minHeight: '100vh', background: '#080807', color: '#f2f0ea', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 16 }}>
         <Helmet><title>Post Not Found — EdgeFlow Blog</title></Helmet>
         <p style={{ fontSize: 18, fontWeight: 600 }}>Post not found</p>
-        <button onClick={() => navigate('/blog')} style={{ background: '#f2f0ea', color: '#080807', border: 'none', borderRadius: 24, padding: '10px 24px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+        <Link to="/blog" style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '10px 24px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}>
           Back to blog
-        </button>
+        </Link>
       </div>
     );
   }
@@ -122,16 +121,16 @@ export default function BlogPost() {
       <nav style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '0 32px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(8,8,7,0.92)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <img src={logoImg} alt="EdgeFlow" style={{ height: 28, width: 28, borderRadius: 8 }} />
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#f2f0ea', fontSize: 15, fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.02em' }}>EdgeFlow</button>
+          <Link to="/" style={{ color: '#f2f0ea', fontSize: 15, fontWeight: 600, textDecoration: 'none', letterSpacing: '-0.02em' }}>EdgeFlow</Link>
           <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 4px' }}>/</span>
-          <button onClick={() => navigate('/blog')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: 14, cursor: 'pointer' }}>Blog</button>
+          <Link to="/blog" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14, textDecoration: 'none' }}>Blog</Link>
         </div>
-        <button
-          onClick={() => navigate('/auth')}
-          style={{ background: '#f2f0ea', color: '#080807', border: 'none', borderRadius: 24, padding: '7px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+        <Link
+          to="/auth"
+          style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '7px 18px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}
         >
           Start free
-        </button>
+        </Link>
       </nav>
 
       {/* Article */}
@@ -166,15 +165,15 @@ export default function BlogPost() {
           <p style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)', marginBottom: 24 }}>Related articles</p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
             {related.map(r => (
-              <button
+              <Link
                 key={r.slug}
-                onClick={() => navigate(`/blog/${r.slug}`)}
-                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '18px 20px', textAlign: 'left', cursor: 'pointer', color: '#f2f0ea' }}
+                to={`/blog/${r.slug}`}
+                style={{ display: 'block', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: '18px 20px', textDecoration: 'none', color: '#f2f0ea' }}
               >
                 <p style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', margin: '0 0 8px' }}>{r.category}</p>
                 <p style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em', margin: '0 0 8px' }}>{r.title}</p>
                 <p style={{ fontSize: 13, color: 'rgba(242,240,234,0.45)', margin: 0, lineHeight: 1.5 }}>{r.excerpt}</p>
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -188,12 +187,12 @@ export default function BlogPost() {
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.45)', marginBottom: 24, maxWidth: 460, margin: '0 auto 24px' }}>
           EdgeFlow automates the analytics covered in this guide. Log trades, detect leaks, and get AI-powered insights into your specific patterns.
         </p>
-        <button
-          onClick={() => navigate('/auth')}
-          style={{ background: '#f2f0ea', color: '#080807', border: 'none', borderRadius: 24, padding: '12px 32px', fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em' }}
+        <Link
+          to="/auth"
+          style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '12px 32px', fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.01em' }}
         >
           Start free — no card required
-        </button>
+        </Link>
       </div>
     </div>
   );

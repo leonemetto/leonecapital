@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { blogPosts } from '@/data/blogPosts';
 import logoImg from '@/assets/logo.svg';
@@ -12,7 +12,6 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 export default function BlogIndex() {
-  const navigate = useNavigate();
   const sorted = [...blogPosts].sort(
     (a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime()
   );
@@ -29,18 +28,18 @@ export default function BlogIndex() {
       <nav style={{ borderBottom: '1px solid rgba(255,255,255,0.07)', padding: '0 32px', height: 56, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: 'rgba(8,8,7,0.92)', backdropFilter: 'blur(12px)', zIndex: 50 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <img src={logoImg} alt="EdgeFlow" style={{ height: 28, width: 28, borderRadius: 8 }} />
-          <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', color: '#f2f0ea', fontSize: 15, fontWeight: 600, cursor: 'pointer', letterSpacing: '-0.02em' }}>EdgeFlow</button>
+          <Link to="/" style={{ color: '#f2f0ea', fontSize: 15, fontWeight: 600, textDecoration: 'none', letterSpacing: '-0.02em' }}>EdgeFlow</Link>
           <span style={{ color: 'rgba(255,255,255,0.2)', margin: '0 4px' }}>/</span>
           <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: 14 }}>Blog</span>
         </div>
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-          <button onClick={() => navigate('/how-to-use')} style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.5)', fontSize: 13, cursor: 'pointer' }}>Docs</button>
-          <button
-            onClick={() => navigate('/auth')}
-            style={{ background: '#f2f0ea', color: '#080807', border: 'none', borderRadius: 24, padding: '7px 18px', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+          <Link to="/how-to-use" style={{ color: 'rgba(255,255,255,0.5)', fontSize: 13, textDecoration: 'none' }}>Docs</Link>
+          <Link
+            to="/auth"
+            style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '7px 18px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}
           >
             Start free
-          </button>
+          </Link>
         </div>
       </nav>
 
@@ -62,10 +61,10 @@ export default function BlogIndex() {
             const catColor = CATEGORY_COLORS[post.category] || '#888';
             const date = new Date(post.publishedAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
             return (
-              <article
+              <Link
                 key={post.slug}
-                onClick={() => navigate(`/blog/${post.slug}`)}
-                style={{ padding: '28px 0', borderBottom: '1px solid rgba(255,255,255,0.07)', cursor: 'pointer' }}
+                to={`/blog/${post.slug}`}
+                style={{ display: 'block', textDecoration: 'none', color: 'inherit', padding: '28px 0', borderBottom: '1px solid rgba(255,255,255,0.07)', opacity: 1, transition: 'opacity 0.15s' }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
               >
@@ -83,7 +82,7 @@ export default function BlogIndex() {
                 <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.6, margin: 0 }}>
                   {post.excerpt}
                 </p>
-              </article>
+              </Link>
             );
           })}
         </div>
@@ -94,12 +93,12 @@ export default function BlogIndex() {
         <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>
           Ready to apply this to your own trading data?
         </p>
-        <button
-          onClick={() => navigate('/auth')}
-          style={{ background: '#f2f0ea', color: '#080807', border: 'none', borderRadius: 24, padding: '12px 32px', fontSize: 14, fontWeight: 700, cursor: 'pointer', letterSpacing: '-0.01em' }}
+        <Link
+          to="/auth"
+          style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '12px 32px', fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.01em' }}
         >
           Start your free trading journal
-        </button>
+        </Link>
       </div>
     </div>
   );

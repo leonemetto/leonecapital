@@ -161,7 +161,6 @@ The app uses a token-based design system with light + dark variants. Always use 
 - ✅ Session Journal — mood selector (1-5), session notes, key lesson, 14-day history panel
 - ✅ P&L Goals widget — daily/weekly/monthly targets with live progress bars
 - ✅ Drawdown alerts — toast warning at 80%, error toast at 100% of daily loss limit
-- ✅ Position size calculator — on Log Trade page, auto-reads account balance
 - ✅ Journal page summary stats bar (trades, win rate, P&L, avg R)
 - ✅ Trades DB pagination — 50 trades per page with filter/sort preserved
 - ✅ Accounts sparkline fixed
@@ -487,12 +486,80 @@ these tables use `as any` casts intentionally until `supabase gen types typescri
   - Steps: (1) add MX records at Spaceship pointing to Resend inbound, (2) configure Resend inbound forwarding rule to leone.metto@gmail.com, (3) Gmail Settings → Accounts → Add another email address → leone@edgeflow.capital, (4) enter Resend SMTP credentials, (5) confirm verification code that arrives in Gmail
   - Outcome: send personal founder emails from leone@edgeflow.capital, receive replies in Gmail
 
-### MONETISATION — Build this before public launch
-- [ ] Payment integration — Lemon Squeezy (international cards)
-- [ ] Payment integration — Intasend (Kenya M-Pesa)
-- [ ] subscriptions table in Supabase + tier enforcement (free/pro/elite feature gating)
-- [ ] Upgrade prompts / paywall screens for gated features
+### MONETISATION — PAYSTACK GO-LIVE SEQUENCE
+Primary processor decision (May 2026): Paystack for both international (cards/Amex) and Kenya (M-Pesa). Lemon Squeezy + Intasend deferred until 50+ paying customers (single-rail risk acceptable while we have zero customers).
+
+**PRE-FIRST-CUSTOMER (must ship before any real payment runs)**
+- [x] Branding cleanup — leone.capital → edgeflow.capital in Terms, Privacy, Landing ✅
+- [x] /refunds page — standalone, carved out of Terms §6, linked from footer ✅
+- [x] Terms §6 rewritten with chargeback "contact us first" clause + free-plan-first defense ✅
+- [ ] **subscriptions table** in Supabase with audit columns:
+  - user_id, plan, status, started_at, current_period_end, cancel_at, paystack_subscription_id,
+    paystack_customer_code, amount, currency, channel (card/mpesa), terms_version_accepted,
+    ip_at_signup, user_agent_at_signup
+  - RLS: user_id = auth.uid()
+  - Index on paystack_subscription_id (webhook lookup) + on user_id+status
+- [ ] **refunds_issued table**: user_id, amount, currency, reason, paystack_refund_id, issued_at
+  - Used to prove refund-rate discipline if Paystack ever audits
+- [ ] **Upgrade modal** with REQUIRED consent checkbox:
+  - "I have read and agree to the Terms, Privacy Policy, and Refund Policy"
+  - Cannot submit without ticking. Persist terms_version_accepted to subscriptions row.
+- [ ] **Free-plan gate on upgrade**: user must have created an account and logged ≥1 trade before
+  the upgrade button is clickable. Defends against "I didn't know what I was buying" chargebacks.
+- [ ] **Webhook handler** (Supabase edge function `paystack-webhook`):
+  - Verify X-Paystack-Signature HMAC SHA-512 against PAYSTACK_SECRET_KEY
+  - Handle: subscription.create, subscription.disable, charge.success, invoice.payment_failed, refund.processed
+  - Idempotency: store event ID, drop duplicates
+  - Never grant Pro access from client — only the verified webhook flips status
+- [ ] **Welcome-to-Pro Resend email** triggered on charge.success:
+  - Restates: amount paid, next billing date, how to cancel (link to Settings → Subscription),
+    refund window (link to /refunds), support email
+- [ ] **Self-serve cancel** in Settings → Subscription:
+  - Calls Paystack disable subscription endpoint
+  - Updates local subscriptions.cancel_at + status=cancelling
+  - Confirmation email via Resend
+- [ ] **Test mode dry-run** before flipping to live keys:
+  - Full happy path: signup → trade → upgrade → webhook → access granted → welcome email
+  - Refund path: refund issued → webhook → access revoked at period end
+  - Failed payment: card declined → no access granted
+  - Cancel path: cancel → access until period end → no renewal charge
+
+**WITHIN 30 DAYS OF GO-LIVE**
+- [ ] Register sole proprietorship on eCitizen (~KES 1,000, 1–3 days). Lifts Paystack Starter Business
+      KES 600K transaction cap. Needed before MRR scales.
+- [ ] Audit Atlas system prompt for forward-looking advice language (target: 30 minutes).
+      Confirm the "never predict market direction" guardrail at atlas-prompt.ts:250 is intact.
+- [ ] Audit landing page copy for: "make money", "guaranteed", "profit guarantee", "signals",
+      "predictions". Replace with: "see your patterns", "find your leaks", "improve discipline".
+- [ ] Sign Supabase + Vercel DPAs in dashboards (15 min each, free). Save signed copies to Drive.
+
+**WITHIN 90 DAYS OF GO-LIVE (or if dispute happens)**
+- [ ] Self-serve account deletion in Settings → Profile (right-to-erasure under Kenya DPA Art. 40).
+      Wipes profiles, trades, accounts, trader_profiles, daily_journals, trader_goals, storage files.
+- [ ] Request Paystack reserve reduction via support — only after clean track record (0 chargebacks,
+      <2% refund rate, 90+ days). Many merchants don't ask; they release on request.
+- [ ] Sign Anthropic + Resend DPAs (only at 100+ customers — they're free, just admin overhead).
+
+**AT KES 20K MRR / FIRST PAYING CUSTOMERS TRACTION**
+- [ ] Add Lemon Squeezy as backup international rail (single-rail = single point of failure)
+- [ ] Add direct M-Pesa Paybill (separate from Paystack) as backup Kenyan rail
+- [ ] Hire Kenyan CPA (~KES 50–150K/yr) — at KES 100K MRR this is cheap insurance
+
+**AT KES 5M/yr REVENUE RUN-RATE**
+- [ ] Register for VAT proactively (statutory threshold)
+- [ ] Register Limited Company on eCitizen (transfers liability off your personal assets;
+      also unlocks better banking, investor-readiness)
+
+**DEFERRED — premature optimization for current stage**
+- Lemon Squeezy + Intasend (until 50+ paying customers; we have 0)
+- Cookie banner (only if EU traffic >5%)
+- Quarterly API key rotation (set calendar reminder; don't rotate today)
+
 - Design doc: ~/.gstack/projects/leonemetto-leonecapital/ceo-plans/2026-04-24-paywall.md
+- Pricing (gross): $19/mo Pro, $39/mo Elite (intl) / KES 1,499 Pro, KES 2,999 Elite (M-Pesa)
+- Paystack fees: 2.9% local card, 3.8% intl/Amex, 1.5% M-Pesa (VAT included in rate)
+- Settlement: T+2 local KES, T+7 international. Maintain 1-month cost buffer in KCB.
+- Reserve: assume 10% held for first 6 months as new Starter Business.
 
 ### GROWTH (post-launch)
 - [ ] Prop firm challenge mode — per-phase drawdown limits, FTMO/Topstep/MFF rules, live headroom tracking (Elite feature)
