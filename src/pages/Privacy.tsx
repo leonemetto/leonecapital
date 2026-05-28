@@ -18,7 +18,7 @@ function EdgeFlowMark({ size = 18 }: { size?: number }) {
 const SECTIONS = [
   {
     title: '1. Who We Are',
-    body: `EdgeFlow ("we", "us", "our") operates the trading journal and analytics platform available at leone.capital. This Privacy Policy explains how we collect, use, store, and protect your personal data when you use our Service.\n\nBy creating an account or using EdgeFlow, you acknowledge that you have read and understood this Privacy Policy.`,
+    body: `EdgeFlow ("we", "us", "our") operates the trading journal and analytics platform available at edgeflow.capital. This Privacy Policy explains how we collect, use, store, and protect your personal data when you use our Service.\n\nBy creating an account or using EdgeFlow, you acknowledge that you have read and understood this Privacy Policy.`,
   },
   {
     title: '2. Information We Collect',
@@ -30,7 +30,7 @@ const SECTIONS = [
   },
   {
     title: '4. Legal Basis for Processing (GDPR)',
-    body: `If you are located in the European Economic Area (EEA) or United Kingdom, we process your personal data under the following legal bases:\n\n• Contract performance: Processing necessary to provide the Service you have signed up for\n• Legitimate interests: Security monitoring, fraud prevention, and service improvement\n• Consent: Marketing emails (you may withdraw consent at any time)\n• Legal obligation: Where processing is required to comply with applicable law\n\nYou have the right to object to processing based on legitimate interests by contacting us at support@leone.capital.`,
+    body: `If you are located in the European Economic Area (EEA) or United Kingdom, we process your personal data under the following legal bases:\n\n• Contract performance: Processing necessary to provide the Service you have signed up for\n• Legitimate interests: Security monitoring, fraud prevention, and service improvement\n• Consent: Marketing emails (you may withdraw consent at any time)\n• Legal obligation: Where processing is required to comply with applicable law\n\nYou have the right to object to processing based on legitimate interests by contacting us at support@edgeflow.capital.`,
   },
   {
     title: '5. Sub-Processors and Third-Party Services',
@@ -50,11 +50,11 @@ const SECTIONS = [
   },
   {
     title: '9. Your Rights',
-    body: `Depending on your location, you may have the following rights regarding your personal data:\n\n• Access: Request a copy of the personal data we hold about you\n• Correction: Request correction of inaccurate or incomplete data\n• Deletion: Request permanent deletion of your data ("right to be forgotten")\n• Portability: Export your trade data as CSV at any time from the Trades DB page\n• Restriction: Request that we restrict processing of your data in certain circumstances\n• Objection: Object to processing based on legitimate interests\n• Withdrawal of consent: Unsubscribe from marketing emails at any time via the link in any email\n\nTo exercise any of these rights, contact us at support@leone.capital. We will respond within 30 days. We may need to verify your identity before processing certain requests.`,
+    body: `Depending on your location, you may have the following rights regarding your personal data:\n\n• Access: Request a copy of the personal data we hold about you\n• Correction: Request correction of inaccurate or incomplete data\n• Deletion: Request permanent deletion of your data ("right to be forgotten")\n• Portability: Export your trade data as CSV at any time from the Trades DB page\n• Restriction: Request that we restrict processing of your data in certain circumstances\n• Objection: Object to processing based on legitimate interests\n• Withdrawal of consent: Unsubscribe from marketing emails at any time via the link in any email\n\nTo exercise any of these rights, contact us at support@edgeflow.capital. We will respond within 30 days. We may need to verify your identity before processing certain requests.`,
   },
   {
     title: '10. Children\'s Privacy',
-    body: `EdgeFlow is not directed at or intended for use by individuals under the age of 18. We do not knowingly collect personal data from anyone under 18. If you believe we have inadvertently collected data from a minor, please contact us at support@leone.capital and we will delete it promptly.`,
+    body: `EdgeFlow is not directed at or intended for use by individuals under the age of 18. We do not knowingly collect personal data from anyone under 18. If you believe we have inadvertently collected data from a minor, please contact us at support@edgeflow.capital and we will delete it promptly.`,
   },
   {
     title: '11. Cookies',
@@ -70,7 +70,7 @@ const SECTIONS = [
   },
   {
     title: '14. Contact and Complaints',
-    body: `If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your data, please contact us at:\n\nsupport@leone.capital\n\nWe aim to respond to all privacy enquiries within 5 business days.\n\nIf you are located in the EEA or UK and are not satisfied with our response, you have the right to lodge a complaint with your local data protection authority.`,
+    body: `If you have any questions, concerns, or requests regarding this Privacy Policy or how we handle your data, please contact us at:\n\nsupport@edgeflow.capital\n\nWe aim to respond to all privacy enquiries within 5 business days.\n\nIf you are located in the EEA or UK and are not satisfied with our response, you have the right to lodge a complaint with your local data protection authority.`,
   },
 ];
 

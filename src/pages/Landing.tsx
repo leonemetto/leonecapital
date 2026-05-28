@@ -97,7 +97,7 @@ export default function Landing() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [previewImg, setPreviewImg] = useState(tabScreenshots[0]);
-  const [previewUrl, setPreviewUrl] = useState('leone.capital/dashboard');
+  const [previewUrl, setPreviewUrl] = useState('edgeflow.capital/dashboard');
   const [imgOpacity, setImgOpacity] = useState(1);
   const [openFaq, setOpenFaq] = useState<number>(0);
   const [annualBilling, setAnnualBilling] = useState(false);
@@ -113,7 +113,7 @@ export default function Landing() {
     setImgOpacity(0);
     setTimeout(() => {
       setPreviewImg(tabScreenshots[i]);
-      setPreviewUrl('leone.capital/' + tabPaths[i]);
+      setPreviewUrl('edgeflow.capital/' + tabPaths[i]);
       setImgOpacity(1);
     }, 100);
   }
@@ -968,7 +968,7 @@ export default function Landing() {
               <div>
                 <span className="lg eyebrow">FAQ</span>
                 <h2 className="section-title" style={{ fontSize: 'clamp(32px,3.8vw,48px)', marginTop: 18 }}>Questions<br />traders ask.</h2>
-                <p className="section-sub" style={{ marginLeft: 0, marginTop: 14 }}>Still curious? <a href="mailto:support@leone.capital" style={{ color: 'var(--purple)', textDecoration: 'underline' }}>Email us →</a></p>
+                <p className="section-sub" style={{ marginLeft: 0, marginTop: 14 }}>Still curious? <a href="mailto:support@edgeflow.capital" style={{ color: 'var(--purple)', textDecoration: 'underline' }}>Email us →</a></p>
               </div>
             </Reveal>
             <Stagger className="faq-list">
@@ -1045,6 +1045,7 @@ export default function Landing() {
               <ul>
                 <li><a href="/privacy">Privacy Policy</a></li>
                 <li><a href="/terms">Terms of Service</a></li>
+                <li><a href="/refunds">Refund Policy</a></li>
               </ul>
             </div>
           </div>

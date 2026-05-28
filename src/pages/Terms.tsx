@@ -30,7 +30,7 @@ const SECTIONS = [
   },
   {
     title: '4. Account Responsibilities',
-    body: `You are responsible for:\n\n• Maintaining the confidentiality of your login credentials\n• All activity that occurs under your account\n• Ensuring the accuracy of information you enter into the Service\n• Complying with these Terms at all times\n\nYou must not share your account with any other person. You must notify us immediately at support@leone.capital if you suspect unauthorised access to your account. We will not be liable for any loss or damage arising from your failure to protect your credentials.`,
+    body: `You are responsible for:\n\n• Maintaining the confidentiality of your login credentials\n• All activity that occurs under your account\n• Ensuring the accuracy of information you enter into the Service\n• Complying with these Terms at all times\n\nYou must not share your account with any other person. You must notify us immediately at support@edgeflow.capital if you suspect unauthorised access to your account. We will not be liable for any loss or damage arising from your failure to protect your credentials.`,
   },
   {
     title: '5. Acceptable Use',
@@ -38,7 +38,7 @@ const SECTIONS = [
   },
   {
     title: '6. Subscription, Billing, and Refunds',
-    body: `Free Plan: Access to limited features as described on the pricing page at the time of sign-up. Feature limits may change with reasonable notice.\n\nPaid Plans (Pro and Elite): Subscriptions are billed in advance on a monthly or annual basis. Prices are displayed in USD. All payments are processed by our third-party payment provider.\n\nAutomatic Renewal: Subscriptions renew automatically at the end of each billing period. You may cancel at any time through your account settings or by contacting support@leone.capital.\n\nCancellation: Monthly subscriptions cancelled before the renewal date will not be charged for the next period. Access continues until the end of the current paid period. No partial refunds are issued for unused time on monthly plans.\n\nRefunds: Annual subscriptions are eligible for a full refund within 14 days of purchase if you have logged fewer than 10 trades. After 14 days, no refunds are issued on annual subscriptions. We reserve the right to issue discretionary refunds in exceptional circumstances.\n\nPrice Changes: We reserve the right to modify pricing. Existing subscribers will receive at least 30 days' notice before any price increase takes effect.`,
+    body: `Free Plan: Access to limited features as described on the pricing page at the time of sign-up. Feature limits may change with reasonable notice. Use of the free plan is required before purchasing a paid plan, so that upgrading reflects an informed decision based on actual product experience.\n\nPaid Plans (Pro and Elite): Subscriptions are billed in advance on a monthly or annual basis. Prices are displayed in USD for international customers and KES for Kenyan customers. All payments are processed by our third-party payment providers, including Paystack for Kenyan customers.\n\nAutomatic Renewal: Subscriptions renew automatically at the end of each billing period. You may cancel at any time through Settings → Subscription, or by contacting support@edgeflow.capital.\n\nRefunds: Refunds are governed by our Refund Policy at /refunds, which forms part of these Terms. In summary: the first monthly subscription is refundable within 7 days, no questions asked (once per user, lifetime). Annual subscriptions are refundable within 14 days of purchase if fewer than 10 trades have been logged. Discretionary refunds may be issued for technical outages, double-charges, or currency-conversion errors.\n\nChargebacks: Before initiating a chargeback through your bank or card issuer, you agree to contact support@edgeflow.capital first. We will respond within 2 business days and resolve eligible refund requests faster than any chargeback process. Chargebacks initiated without prior contact may result in immediate account suspension, in addition to any chargeback fees passed through from the payment processor.\n\nPrice Changes: We reserve the right to modify pricing. Existing subscribers will receive at least 30 days' notice before any price increase takes effect.`,
   },
   {
     title: '7. Intellectual Property',
@@ -82,7 +82,7 @@ const SECTIONS = [
   },
   {
     title: '17. Contact',
-    body: `For questions, concerns, or legal notices regarding these Terms, contact us at:\n\nsupport@leone.capital\n\nWe aim to respond to all enquiries within 5 business days.`,
+    body: `For questions, concerns, or legal notices regarding these Terms, contact us at:\n\nsupport@edgeflow.capital\n\nWe aim to respond to all enquiries within 5 business days.`,
   },
 ];
 
