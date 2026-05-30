@@ -41,6 +41,7 @@ const HowToUse = lazy(() => import("./pages/HowToUse"));
 const Privacy = lazy(() => import("./pages/Privacy"));
 const Terms = lazy(() => import("./pages/Terms"));
 const Refunds = lazy(() => import("./pages/Refunds"));
+const BillingReturn = lazy(() => import("./pages/BillingReturn"));
 const ImportTrades = lazy(() => import("./pages/ImportTrades"));
 const LeakDetection = lazy(() => import("./pages/LeakDetection"));
 const WhatIfSimulator = lazy(() => import("./pages/WhatIfSimulator"));
@@ -237,6 +238,7 @@ const App = () => (
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
             <Route path="/refunds" element={<Refunds />} />
+            <Route path="/billing/return" element={<BillingReturn />} />
             <Route path="/how-to-use" element={<HowToUse />} />
             <Route path="/blog" element={<BlogIndex />} />
             <Route path="/blog/:slug" element={<BlogPost />} />

@@ -3,7 +3,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 
 export type SubscriptionTier = 'free' | 'pro' | 'elite';
-export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing';
+export type SubscriptionStatus =
+  | 'trialing'
+  | 'active'
+  | 'past_due'
+  | 'cancelling'
+  | 'cancelled'
+  | 'expired';
 
 export interface UseSubscriptionResult {
   tier: SubscriptionTier;
@@ -16,6 +22,12 @@ export interface UseSubscriptionResult {
   isLoading: boolean;
 }
 
+type SubscriptionRow = {
+  plan?: string | null;
+  status?: string | null;
+  current_period_end?: string | null;
+};
+
 export function useSubscription(): UseSubscriptionResult {
   const { user } = useAuth();
 
@@ -23,22 +35,31 @@ export function useSubscription(): UseSubscriptionResult {
     queryKey: ['subscription', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
+      // A user can have historical 'cancelled' rows alongside an 'active' one.
+      // Sort by created_at desc + limit 1 to fetch the relevant subscription.
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('tier, status, current_period_end')
+        .select('plan, status, current_period_end')
         .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
       if (error) throw error;
-      return data;
+      return data as SubscriptionRow | null;
     },
     enabled: !!user?.id,
     staleTime: 0, // always fresh — a stale "free" after payment is a bad user experience
     gcTime: 60 * 1000,
   });
 
-  const tier = (data?.tier ?? 'free') as SubscriptionTier;
+  const tier = (data?.plan ?? 'free') as SubscriptionTier;
   const status = (data?.status ?? 'active') as SubscriptionStatus;
-  const isActive = status === 'active' || status === 'trialing';
+  // Active access includes cancellation grace period and past_due retry window.
+  const isActive =
+    status === 'active' ||
+    status === 'trialing' ||
+    status === 'cancelling' ||
+    status === 'past_due';
 
   return {
     tier,

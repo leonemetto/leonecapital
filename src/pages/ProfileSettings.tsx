@@ -15,6 +15,7 @@ import { useTheme } from 'next-themes';
 import { Camera, Key as KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldSlash as ShieldOff, CircleNotch as Loader2, Brain, Trash as Trash2, Flask as FlaskConical } from '@phosphor-icons/react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { SubscriptionPanel } from '@/components/billing/SubscriptionPanel';
 
 function DemoDataSection() {
   const { deleteDemoAccount } = useOnboarding();
@@ -367,6 +368,15 @@ export default function ProfileSettings() {
           <Button size="sm" onClick={handlePasswordChange} disabled={savingPassword || !newPassword}>
             {savingPassword ? 'Updating...' : 'Update Password'}
           </Button>
+        </div>
+
+        {/* Subscription */}
+        <div className="glass-card p-6 space-y-3">
+          <div className="flex items-center gap-2 mb-1">
+            <Shield className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-sm font-semibold">Subscription</h2>
+          </div>
+          <SubscriptionPanel />
         </div>
 
         {/* 2FA */}

@@ -224,10 +224,12 @@ export default function Landing() {
     };
   }, []);
 
-  const proPrice = annualBilling ? '$15.83' : '$19';
-  const elitePrice = annualBilling ? '$32.50' : '$39';
-  const proLabel = annualBilling ? 'per month · $190 billed annually' : 'per month · cancel anytime';
-  const eliteLabel = annualBilling ? 'per month · $390 billed annually' : 'per month · cancel anytime';
+  // KES-only pricing until Paystack enables USD on the account. When USD
+  // activates, swap these back to dollar pricing (or render both side-by-side).
+  const proPrice = annualBilling ? 'KES 1,249' : 'KES 1,499';
+  const elitePrice = annualBilling ? 'KES 2,499' : 'KES 2,999';
+  const proLabel = annualBilling ? 'per month · KES 14,990 billed annually' : 'per month · cancel anytime';
+  const eliteLabel = annualBilling ? 'per month · KES 29,990 billed annually' : 'per month · cancel anytime';
 
   const allTesti = [...testimonials, ...testimonials];
 
