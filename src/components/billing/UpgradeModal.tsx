@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
@@ -268,20 +267,37 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
             </div>
           )}
 
-          {/* Consent checkbox — REQUIRED for chargeback defense */}
-          <label className="flex items-start gap-3 cursor-pointer">
-            <Checkbox
-              checked={consent}
-              onCheckedChange={(v) => setConsent(v === true)}
-              className="mt-0.5"
-            />
-            <span className="text-xs text-muted-foreground leading-relaxed">
-              I have read and agree to the{' '}
-              <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-foreground">Terms</a>,{' '}
-              <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-foreground">Privacy Policy</a>, and{' '}
-              <a href="/refunds" target="_blank" rel="noopener" className="underline hover:text-foreground">Refund Policy</a>. I understand my subscription will auto-renew until I cancel.
+          {/* Consent checkbox — REQUIRED for chargeback defense.
+              Custom-styled so the box is obviously visible on dark backgrounds. */}
+          <button
+            type="button"
+            onClick={() => setConsent((v) => !v)}
+            className={`w-full text-left flex items-start gap-3 rounded-[10px] border p-3 transition cursor-pointer ${
+              consent
+                ? 'border-[#10b981] bg-[#10b981]/10'
+                : 'border-border bg-muted/30 hover:bg-muted/50'
+            }`}
+            aria-pressed={consent}
+          >
+            <span
+              aria-hidden
+              className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-[5px] border-2 transition ${
+                consent ? 'border-[#10b981] bg-[#10b981]' : 'border-foreground/40 bg-background'
+              }`}
+            >
+              {consent && (
+                <svg viewBox="0 0 14 14" className="h-3 w-3 text-black" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M2 7l3.5 3.5L12 4" />
+                </svg>
+              )}
             </span>
-          </label>
+            <span className="text-xs text-foreground/80 leading-relaxed">
+              I have read and agree to the{' '}
+              <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Terms</a>,{' '}
+              <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>, and{' '}
+              <a href="/refunds" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Refund Policy</a>. I understand my subscription will auto-renew until I cancel.
+            </span>
+          </button>
 
           <Button
             onClick={handleSubmit}

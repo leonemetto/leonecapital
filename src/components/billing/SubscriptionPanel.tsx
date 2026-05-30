@@ -72,7 +72,25 @@ export function SubscriptionPanel() {
     try {
       const { data, error } = await supabase.functions.invoke('paystack-cancel-subscription', { body: {} });
       if (error) {
-        toast.error(`Could not cancel: ${error.message ?? 'unknown error'}`);
+        // supabase-js v2 hides the function's response body behind a generic
+        // "non-2xx" message. Read it manually so we can show what actually broke.
+        let detail = error.message ?? 'unknown error';
+        type ErrWithContext = { context?: { body?: ReadableStream<Uint8Array> | string; status?: number } };
+        const ctx = (error as ErrWithContext).context;
+        try {
+          if (ctx?.body && typeof ctx.body !== 'string') {
+            const text = await new Response(ctx.body).text();
+            const parsed = JSON.parse(text);
+            if (parsed?.error) detail = parsed.error;
+          } else if (typeof ctx?.body === 'string') {
+            const parsed = JSON.parse(ctx.body);
+            if (parsed?.error) detail = parsed.error;
+          }
+        } catch {
+          // ignore parsing failures, fall back to generic message
+        }
+        console.error('cancel failed', { error, detail });
+        toast.error(`Could not cancel: ${detail}`);
         return;
       }
       const cancelAt = (data as { cancel_at?: string })?.cancel_at;
