@@ -48,6 +48,11 @@ Target: $2,000/month from paying traders globally
 - trade_verifications (checklist completions per trade — checks JSONB map of criteriaId → boolean)
 - daily_journals (session notes, mood 1-5, key lesson — unique per user per date)
 - trader_goals (daily/weekly/monthly P&L targets + max daily loss)
+- subscriptions (Paystack-aware: plan/status/channel enums + 14 audit columns — paystack_subscription_id, paystack_customer_code, amount, currency, billing_cycle, terms_version_accepted, ip/user_agent at signup; partial unique index on active rows)
+- refunds_issued (refund-rate audit trail — user_id, amount, currency, reason, paystack_refund_id, issued_at)
+- webhook_events (Paystack webhook idempotency + replay defense — event id PK, raw_payload, processed_at)
+- pending_intents (orphan detector — paid-but-no-webhook intents; swept by paystack-reconcile cron)
+- support_emails (audit trail for every email to support@/dpo@/leone@ — chargeback defense, written by support-inbox)
 
 ## Storage Buckets
 - avatars (public) — user profile pictures, path: {user_id}/{filename}
@@ -286,12 +291,21 @@ The app uses a token-based design system with light + dark variants. Always use 
 - extract-insight — behavioral insight extraction, requires ANTHROPIC_API_KEY secret
 - re-engagement — daily email to users inactive 3 or 7 days, requires RESEND_API_KEY secret
 - weekly-digest — Monday email to users who traded last 7 days, requires ANTHROPIC_API_KEY + RESEND_API_KEY
+- paystack-init-transaction — resolves plan_code + amount, creates pending_intent, returns Paystack checkout URL (verify_jwt=true)
+- paystack-webhook — HMAC SHA-512 verified, idempotent via webhook_events; handles charge.success, subscription.create, subscription.disable, invoice.payment_failed, invoice.update, refund.processed; flips subscription status; sends welcome email (verify_jwt=false)
+- paystack-cancel-subscription — calls Paystack disable endpoint, sets cancel_at + status=cancelling, sends confirmation email (verify_jwt=true)
+- paystack-reconcile — orphan detector; sweeps pending_intents >10min old, marks orphaned >24h, Sentry-alerts; called by pg_cron every 10 min with X-Reconcile-Key (verify_jwt=false)
+- support-inbox — receives inbound support email via Resend webhook, logs to support_emails, fans out to Telegram + Gmail forward (verify_jwt=false)
+- Shared: _shared/paystack-hmac.ts, _shared/paystack-plans.ts (pricing matrix + plan_code resolution), _shared/subscription-upsert.ts
 
 ## Supabase Secrets Required
 - ANTHROPIC_API_KEY — Anthropic API key for Claude Haiku (trade-advisor + extract-insight + weekly-digest)
 - RESEND_API_KEY — Resend email API key (noreply@leone.capital)
 - SUPABASE_URL — auto-set by Supabase
 - SUPABASE_SERVICE_ROLE_KEY — auto-set by Supabase
+- PAYSTACK_SECRET_KEY — Paystack API key (webhook HMAC verify + init/cancel/refund calls)
+- PAYSTACK_PLAN_CODES — JSON map of planKey → Paystack plan_code (e.g. {"pro_monthly_kes":"PLN_...", ...})
+- PAYSTACK_RECONCILE_INTERNAL_KEY — shared secret pg_cron uses to authenticate calls to paystack-reconcile (also mirrored in Supabase Vault as 'paystack_reconcile_key')
 
 ## Key Analytics Functions (src/lib/analytics.ts)
 - calculateAnalytics(trades) — 15+ metrics: winRate, netPnl, profitFactor, expectancy, avgR, maxDrawdown, currentStreak
@@ -493,36 +507,42 @@ Primary processor decision (May 2026): Paystack for both international (cards/Am
 - [x] Branding cleanup — leone.capital → edgeflow.capital in Terms, Privacy, Landing ✅
 - [x] /refunds page — standalone, carved out of Terms §6, linked from footer ✅
 - [x] Terms §6 rewritten with chargeback "contact us first" clause + free-plan-first defense ✅
-- [ ] **subscriptions table** in Supabase with audit columns:
-  - user_id, plan, status, started_at, current_period_end, cancel_at, paystack_subscription_id,
-    paystack_customer_code, amount, currency, channel (card/mpesa), terms_version_accepted,
-    ip_at_signup, user_agent_at_signup
-  - RLS: user_id = auth.uid()
-  - Index on paystack_subscription_id (webhook lookup) + on user_id+status
-- [ ] **refunds_issued table**: user_id, amount, currency, reason, paystack_refund_id, issued_at
-  - Used to prove refund-rate discipline if Paystack ever audits
-- [ ] **Upgrade modal** with REQUIRED consent checkbox:
-  - "I have read and agree to the Terms, Privacy Policy, and Refund Policy"
-  - Cannot submit without ticking. Persist terms_version_accepted to subscriptions row.
-- [ ] **Free-plan gate on upgrade**: user must have created an account and logged ≥1 trade before
-  the upgrade button is clickable. Defends against "I didn't know what I was buying" chargebacks.
-- [ ] **Webhook handler** (Supabase edge function `paystack-webhook`):
-  - Verify X-Paystack-Signature HMAC SHA-512 against PAYSTACK_SECRET_KEY
-  - Handle: subscription.create, subscription.disable, charge.success, invoice.payment_failed, refund.processed
-  - Idempotency: store event ID, drop duplicates
-  - Never grant Pro access from client — only the verified webhook flips status
-- [ ] **Welcome-to-Pro Resend email** triggered on charge.success:
-  - Restates: amount paid, next billing date, how to cancel (link to Settings → Subscription),
-    refund window (link to /refunds), support email
-- [ ] **Self-serve cancel** in Settings → Subscription:
-  - Calls Paystack disable subscription endpoint
-  - Updates local subscriptions.cancel_at + status=cancelling
-  - Confirmation email via Resend
-- [ ] **Test mode dry-run** before flipping to live keys:
+- [x] **subscriptions table** in Supabase with audit columns ✅
+  - Migration 20260529130000 migrates the April table → Paystack schema (plan/status/channel/billing_cycle
+    enums + 14 audit columns) in a single transaction, no data loss. Partial unique index on active rows.
+- [x] **refunds_issued table** ✅ (migration 20260529140000)
+- [x] **webhook_events + pending_intents tables** ✅ (migration 20260529140000) — idempotency/replay + orphan detection
+- [x] **Upgrade modal** with REQUIRED consent checkbox ✅
+  - src/components/billing/UpgradeModal.tsx — checkbox blocks submit, captures versioned consent
+    (TERMS/REFUNDS/PRIVACY version stamps) to the subscriptions row.
+- [x] **Free-plan gate on upgrade** ✅ — UpgradeModal requires ≥1 logged trade (hasLoggedTrade) before submit is enabled
+- [x] **Webhook handler** (`paystack-webhook`) ✅
+  - HMAC SHA-512 verified; idempotent via webhook_events (event id PK) + 5-min replay window.
+    Handles charge.success, subscription.create, subscription.disable, invoice.payment_failed,
+    invoice.update, refund.processed. Only the verified webhook flips status.
+- [x] **Welcome-to-Pro Resend email** triggered on charge.success ✅ — restates amount, renewal cycle, cancel path, /refunds link
+- [x] **Self-serve cancel** in Settings → Subscription ✅
+  - src/components/billing/SubscriptionPanel.tsx → paystack-cancel-subscription edge function
+    (Paystack disable + cancel_at + status=cancelling + confirmation email)
+- [x] **Init transaction flow** ✅ — paystack-init-transaction edge function + /billing/return page (BillingReturn.tsx) + useSubscription hook gating (isPro/isElite/isFree)
+- [x] **paystack-reconcile cron** ✅ — orphan detector sweeps pending_intents every 10 min (migration 20260529150000)
+- [x] **support-inbox + support_emails** ✅ — inbound email audit trail for chargeback defense (migration 20260529100000)
+- [ ] **Test mode dry-run** before flipping to live keys (MANUAL — your action):
   - Full happy path: signup → trade → upgrade → webhook → access granted → welcome email
   - Refund path: refund issued → webhook → access revoked at period end
   - Failed payment: card declined → no access granted
   - Cancel path: cancel → access until period end → no renewal charge
+
+**USD ACTIVATION FOLLOW-UP**
+Currently shipping KES-only because Paystack hasn't enabled USD on the merchant
+account yet. International cards still work — Paystack charges them on the KES
+plan and the customer's bank handles FX. Once USD is enabled, do these in order:
+- [ ] Build 4 USD plans in Paystack dashboard (Pro/Elite × Monthly/Annual @ $19/$39/$190/$390)
+- [ ] Extend `PAYSTACK_PLAN_CODES` Supabase secret with the 4 USD `PLN_xxx` codes
+      (keep the 4 KES codes too)
+- [ ] Flip `USD_AVAILABLE = true` in src/components/billing/UpgradeModal.tsx
+- [ ] Restore dual-currency pricing in src/pages/Landing.tsx (KES + USD toggle)
+- [ ] Test full USD checkout flow with Paystack test card 4084 0840 8408 4081
 
 **WITHIN 30 DAYS OF GO-LIVE**
 - [ ] Register sole proprietorship on eCitizen (~KES 1,000, 1–3 days). Lifts Paystack Starter Business
