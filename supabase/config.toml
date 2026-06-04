@@ -15,14 +15,14 @@ verify_jwt = false
 [functions.support-inbox]
 verify_jwt = false
 
-[functions.paystack-init-transaction]
+[functions.lemon-checkout-create]
 verify_jwt = true
 
-[functions.paystack-webhook]
+[functions.lemon-webhook]
 verify_jwt = false
 
-[functions.paystack-cancel-subscription]
+[functions.lemon-cancel-subscription]
 verify_jwt = true
 
-[functions.paystack-reconcile]
+[functions.lemon-reconcile]
 verify_jwt = false
