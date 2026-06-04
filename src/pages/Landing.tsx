@@ -6,7 +6,7 @@ import { Reveal, Stagger, item, SlidePair } from '@/components/ui/Reveal';
 import './landing.css';
 
 const testimonials = [
-  { quote: 'Found out my Friday New York session had a negative expectancy of −0.4R. Stopped trading it. My monthly P&L improved immediately.', name: 'James O.', role: 'Forex day trader' },
+  { quote: 'Found out my Friday New York session had a negative expectancy of −0.4R. Stopped trading it. My monthly P&L improved immediately.', name: 'James O.', role: 'FX day trader' },
   { quote: 'The leak detection flagged a pattern I had no idea about — I was losing 30% more on trades taken after a gap open. That insight alone was worth it.', name: 'Priya S.', role: 'Futures trader' },
   { quote: 'I failed 3 prop firm challenges before EdgeFlow. It showed me I was overtrading on Thursdays. Passed the 4th challenge with 8% headroom left.', name: 'Tom K.', role: 'FTMO trader' },
   { quote: 'I used to keep a spreadsheet with 12 tabs. EdgeFlow does everything in seconds and surfaces things I would never have calculated manually.', name: 'Marcus L.', role: 'Swing trader, US equities' },
@@ -17,12 +17,12 @@ const testimonials = [
 ];
 
 const brokers = [
-  { name: 'Exness', cat: 'Forex / CFD' }, { name: 'XM', cat: 'Forex / CFD' },
-  { name: 'Pepperstone', cat: 'Forex / CFD' }, { name: 'IC Markets', cat: 'Forex / CFD' },
-  { name: 'HFM', cat: 'Forex / CFD' }, { name: 'FBS', cat: 'Forex / CFD' },
-  { name: 'Admirals', cat: 'Forex / CFD' }, { name: 'Vantage', cat: 'Forex / CFD' },
-  { name: 'Deriv', cat: 'Forex / CFD' }, { name: 'OANDA', cat: 'Forex' },
-  { name: 'IG Markets', cat: 'CFD' }, { name: 'FxPro', cat: 'Forex / CFD' },
+  { name: 'Exness', cat: 'CFD / FX' }, { name: 'XM', cat: 'CFD / FX' },
+  { name: 'Pepperstone', cat: 'CFD / FX' }, { name: 'IC Markets', cat: 'CFD / FX' },
+  { name: 'HFM', cat: 'CFD / FX' }, { name: 'FBS', cat: 'CFD / FX' },
+  { name: 'Admirals', cat: 'CFD / FX' }, { name: 'Vantage', cat: 'CFD / FX' },
+  { name: 'Deriv', cat: 'CFD / FX' }, { name: 'OANDA', cat: 'FX' },
+  { name: 'IG Markets', cat: 'CFD' }, { name: 'FxPro', cat: 'CFD / FX' },
   { name: 'TradingView', cat: 'Multi-asset' }, { name: 'cTrader', cat: 'Platform' },
   { name: 'Binance', cat: 'Crypto' }, { name: 'Bybit', cat: 'Crypto' },
   { name: 'Interactive Brokers', cat: 'Multi-asset' }, { name: 'Thinkorswim', cat: 'US Markets' },
@@ -73,7 +73,7 @@ const faqs = [
   },
   {
     q: 'Does EdgeFlow work for prop firm challenges?',
-    a: "Yes. The Elite plan includes per-phase challenge tracking — set your firm's specific drawdown limit, daily loss limit, and profit target, and EdgeFlow tracks your remaining cushion live. Works for FTMO, MyForexFunds, Topstep, Apex, and any firm with standard rules.",
+    a: "Yes. The Elite plan includes per-phase challenge tracking — set your firm's specific drawdown limit, daily loss limit, and profit target, and EdgeFlow tracks your remaining cushion live. Works for FTMO, MFF, Topstep, Apex, and any firm with standard rules.",
   },
   {
     q: 'Can I import my existing trade history?',
@@ -1039,7 +1039,6 @@ export default function Landing() {
                 <li><a href="/blog">Trading Journal Blog</a></li>
                 <li><a href="/how-to-use">Platform Guide</a></li>
                 <li><a href="https://www.investopedia.com/articles/trading/09/how-to-trade-like-a-hedge-fund.asp" target="_blank" rel="noopener noreferrer">Trading Performance Guide</a></li>
-                <li><a href="https://www.babypips.com/learn/forex/use-a-trading-journal" target="_blank" rel="noopener noreferrer">Why Keep a Trading Journal</a></li>
               </ul>
             </div>
             <div className="footer-col">
