@@ -25,6 +25,14 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
 import { verifyLemonSignature } from "../_shared/lemon-hmac.ts";
 import { upsertSubscriptionFromLemon } from "../_shared/lemon-subscription-state.ts";
+import {
+  sendWelcomeToPro,
+  sendPaymentFailed,
+  sendSubscriptionCancelled,
+  sendSubscriptionExpired,
+  sendRefundProcessed,
+} from "../_shared/lemon-emails.ts";
+import { variantIdToInfo } from "../_shared/lemon-variants.ts";
 
 Deno.serve(async (req) => {
   if (req.method !== "POST") {
@@ -149,10 +157,29 @@ async function routeEvent(supa: any, eventName: string, payload: any) {
     intentId: custom.intent_id ?? null,
   };
 
+  // Best-effort customer email: LS attaches it to most subscription events
+  const userEmail: string | null = attrs.user_email ?? null;
+  // Customer portal URL for "update payment method" CTAs
+  const customerPortalUrl: string | null = attrs.urls?.customer_portal ?? null;
+
   switch (eventName) {
     case "subscription_created":
+    case "subscription_resumed": {
+      const result = await upsertSubscriptionFromLemon(supa, subPayload);
+      // Send welcome only on a fresh insert — UPDATEs (resumed of an existing
+      // row, or a re-fire of subscription_created from LS) skip the email.
+      if (result.inserted && userEmail) {
+        const info = variantIdToInfo(subPayload.variantId);
+        await sendWelcomeToPro({
+          to: userEmail,
+          plan: info?.plan ?? "pro",
+          billingCycle: info?.billingCycle ?? "monthly",
+        });
+      }
+      return;
+    }
+
     case "subscription_updated":
-    case "subscription_resumed":
     case "subscription_payment_recovered":
     case "subscription_payment_success": {
       await upsertSubscriptionFromLemon(supa, subPayload);
@@ -160,18 +187,20 @@ async function routeEvent(supa: any, eventName: string, payload: any) {
     }
 
     case "subscription_payment_failed": {
-      // Force status to past_due regardless of what LS reports
       await upsertSubscriptionFromLemon(supa, { ...subPayload, status: "past_due" });
+      if (userEmail) await sendPaymentFailed({ to: userEmail, customerPortalUrl });
       return;
     }
 
     case "subscription_cancelled": {
       await upsertSubscriptionFromLemon(supa, { ...subPayload, status: "cancelled" });
+      if (userEmail) await sendSubscriptionCancelled({ to: userEmail, cancelAt: subPayload.endsAt });
       return;
     }
 
     case "subscription_expired": {
       await upsertSubscriptionFromLemon(supa, { ...subPayload, status: "expired" });
+      if (userEmail) await sendSubscriptionExpired({ to: userEmail });
       return;
     }
 
@@ -225,6 +254,25 @@ async function routeEvent(supa: any, eventName: string, payload: any) {
             ended_at: new Date().toISOString(),
           })
           .eq("id", internalSubRowId);
+      }
+
+      // Notify the user. Look up their email if not already on the payload.
+      let refundEmail: string | null = userEmail;
+      if (!refundEmail && userId) {
+        const { data: prof } = await supa
+          .from("auth.users" as any)
+          .select("email")
+          .eq("id", userId)
+          .maybeSingle();
+        refundEmail = (prof as any)?.email ?? null;
+      }
+      if (refundEmail) {
+        const currency = (attrs.currency ?? "USD").toUpperCase();
+        const amountDisplay =
+          currency === "USD"
+            ? `$${(amount / 100).toFixed(2)}`
+            : `${currency} ${(amount / 100).toFixed(2)}`;
+        await sendRefundProcessed({ to: refundEmail, amountUsd: amountDisplay });
       }
       return;
     }

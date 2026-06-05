@@ -70,7 +70,7 @@ export function SubscriptionPanel() {
   async function handleCancel() {
     setCancelling(true);
     try {
-      const { data, error } = await supabase.functions.invoke('paystack-cancel-subscription', { body: {} });
+      const { data, error } = await supabase.functions.invoke('lemon-cancel-subscription', { body: {} });
       if (error) {
         // supabase-js v2 hides the function's response body behind a generic
         // "non-2xx" message. Read it manually so we can show what actually broke.

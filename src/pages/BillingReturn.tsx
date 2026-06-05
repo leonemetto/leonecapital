@@ -11,7 +11,15 @@ const POLL_TIMEOUT_MS = 10_000;
 export default function BillingReturn() {
   const navigate = useNavigate();
   const [params] = useSearchParams();
-  const reference = params.get('reference') ?? params.get('trxref');
+  // Provider-agnostic reference lookup. Lemon Squeezy redirects with
+  // ?order_id=... (sometimes ?order_number=...). Paystack used ?reference= /
+  // ?trxref=. Future Intasend uses ?invoice_id=. Try them all.
+  const reference =
+    params.get('order_id') ??
+    params.get('order_number') ??
+    params.get('reference') ??
+    params.get('trxref') ??
+    params.get('invoice_id');
   const { user, loading: authLoading } = useAuth();
   const { isPro, isLoading: subLoading } = useSubscription();
   const invalidate = useInvalidateSubscription();
