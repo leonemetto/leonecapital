@@ -161,16 +161,42 @@ const Dashboard = () => {
     [trades, selectedAccountId]
   );
 
-  const stats = useMemo(() => calculateAnalytics(filteredTrades), [filteredTrades]);
+  // Mirror quantity per account. A trader running N identical funded accounts
+  // sets one account row to quantity = N instead of creating N separate rows.
+  const mirrorQty = (a?: { quantity?: number }) => (a && a.quantity && a.quantity > 0 ? a.quantity : 1);
+  const accountQuantity = useMemo(() => {
+    const m = new Map<string, number>();
+    for (const a of accounts) m.set(a.id, mirrorQty(a));
+    return m;
+  }, [accounts]);
+
+  // Scale every dollar figure on the dashboard to the combined total across
+  // mirrored accounts: a trade logged on a quantity = 3 account contributes 3×
+  // its P&L. We only touch the pnl field — counts, win rate, R-multiple and all
+  // ratios stay single-account because we never duplicate rows or scale rMultiple.
+  const scaledTrades = useMemo(() => {
+    const hasMirror = accounts.some(a => mirrorQty(a) > 1);
+    if (!hasMirror) return filteredTrades;
+    return filteredTrades.map(t => {
+      const q = t.accountId ? (accountQuantity.get(t.accountId) ?? 1) : 1;
+      return q === 1 ? t : { ...t, pnl: t.pnl * q };
+    });
+  }, [filteredTrades, accountQuantity, accounts]);
+
+  const stats = useMemo(() => calculateAnalytics(scaledTrades), [scaledTrades]);
 
   const startingBalance = useMemo(() => {
-    if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + (a.currentBalance ?? 0), 0);
-    return accounts.find(a => a.id === selectedAccountId)?.currentBalance ?? 0;
+    const base = (a: typeof accounts[number]) => (a.currentBalance ?? 0) * mirrorQty(a);
+    if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + base(a), 0);
+    const a = accounts.find(x => x.id === selectedAccountId);
+    return a ? base(a) : 0;
   }, [accounts, selectedAccountId]);
 
   const balanceAdjustment = useMemo(() => {
-    if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + (a.balanceAdjustment ?? 0), 0);
-    return accounts.find(a => a.id === selectedAccountId)?.balanceAdjustment ?? 0;
+    const adj = (a: typeof accounts[number]) => (a.balanceAdjustment ?? 0) * mirrorQty(a);
+    if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + adj(a), 0);
+    const a = accounts.find(x => x.id === selectedAccountId);
+    return a ? adj(a) : 0;
   }, [accounts, selectedAccountId]);
 
   const selectedPropAccount = useMemo(() => {
@@ -284,7 +310,7 @@ const Dashboard = () => {
 
   const rail = (
     <DashboardRail
-      trades={filteredTrades}
+      trades={scaledTrades}
       stats={stats}
       accounts={accounts}
       selectedAccountId={selectedAccountId}
@@ -365,19 +391,19 @@ const Dashboard = () => {
       {/* Prop Firm Challenge Card */}
       {selectedPropAccount && (
         <div style={{ marginBottom: 14 }}>
-          <PropFirmCard account={selectedPropAccount} trades={filteredTrades} />
+          <PropFirmCard account={selectedPropAccount} trades={scaledTrades} />
         </div>
       )}
 
       {/* Stat strip */}
       <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}>
-        <StatCards stats={stats} trades={filteredTrades} startingBalance={startingBalance} balanceAdjustment={balanceAdjustment} />
+        <StatCards stats={stats} trades={scaledTrades} startingBalance={startingBalance} balanceAdjustment={balanceAdjustment} />
       </motion.div>
 
       {/* Row 1: Equity curve full width */}
       <motion.div style={{ marginBottom: 14 }} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}>
         <PremiumEquityCurve
-          trades={filteredTrades}
+          trades={scaledTrades}
           startingBalance={startingBalance}
           balanceAdjustment={balanceAdjustment}
         />
@@ -385,8 +411,8 @@ const Dashboard = () => {
 
       {/* Row 2: Heat Map Calendar (1.55fr) + Instrument Performance (1fr) */}
       <motion.div className="grid grid-cols-1 md:grid-cols-[1.55fr_1fr] gap-[14px]" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}>
-        <HeatMapCalendar trades={filteredTrades} />
-        <InstrumentPerformance trades={filteredTrades} />
+        <HeatMapCalendar trades={scaledTrades} />
+        <InstrumentPerformance trades={scaledTrades} />
       </motion.div>
     </AppLayout>
   );
