@@ -250,13 +250,6 @@ export default function Landing() {
         <div style={{ position: 'absolute', top: '12%', bottom: '12%', right: 0, width: 1, background: 'linear-gradient(180deg,transparent,rgba(30,211,134,0.28) 25%,rgba(58,255,157,0.36) 50%,rgba(30,211,134,0.28) 75%,transparent)', boxShadow: '0 0 12px rgba(30,211,134,0.15),-3px 0 20px rgba(30,211,134,0.08)' }} />
       </div>
 
-      {/* ============ ANNOUNCE BAR ============ */}
-      <div className="announce-bar">
-        <span className="announce-badge">Early access</span>
-        Free for the first 100 traders — no card required.
-        <a onClick={() => navigate('/auth')} className="announce-cta" style={{ cursor: 'pointer' }}>Get started →</a>
-      </div>
-
       {/* ============ NAV ============ */}
       <nav className="nav">
         <div className="nav-inner">
