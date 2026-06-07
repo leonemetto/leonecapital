@@ -53,6 +53,8 @@ function suggestEmail(email: string): string | null {
 
 function authErrorMessage(error: { message: string; code?: string }): string {
   const msg = error.message?.toLowerCase() ?? '';
+  if (msg.includes('already registered') || msg.includes('already exists') || msg.includes('user already'))
+    return 'An account already exists with this email. Try logging in instead.';
   if (msg.includes('invalid login credentials') || error.code === 'invalid_credentials')
     return 'Incorrect email or password.';
   if (msg.includes('email not confirmed') || error.code === 'email_not_confirmed')
@@ -271,6 +273,7 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    const normalizedEmail = email.trim().toLowerCase();
     setLoading(true);
     if (!isLogin && password.length < 8) {
       toast.error('Password must be at least 8 characters');
@@ -278,7 +281,7 @@ export default function Auth() {
       return;
     }
     if (isLogin) {
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
       if (error) { toast.error(authErrorMessage(error)); setLoading(false); return; }
       const { data: factorsData } = await supabase.auth.mfa.listFactors();
       const verifiedFactors = factorsData?.totp?.filter((f: any) => f.status === 'verified') || [];
@@ -291,9 +294,18 @@ export default function Auth() {
       navigate('/dashboard', { replace: true });
       return;
     } else {
-      const { error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({ email: normalizedEmail, password });
+      const identities = data.user?.identities;
+      const existingAccount = Array.isArray(identities) && identities.length === 0;
       if (error) toast.error(authErrorMessage(error));
-      else { setSignupOtp(''); setAwaitingOtp(true); }
+      else if (existingAccount) {
+        toast.error('An account already exists with this email. Try logging in instead.');
+        setIsLogin(true);
+      } else {
+        setEmail(normalizedEmail);
+        setSignupOtp('');
+        setAwaitingOtp(true);
+      }
     }
     setLoading(false);
   };
