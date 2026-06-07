@@ -169,7 +169,6 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   if (!onboardingCompleted) {
     return (
       <OnboardingFlow
-        nickname={profile.nickname}
         onComplete={completeOnboarding}
       />
     );
