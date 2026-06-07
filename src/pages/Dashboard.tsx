@@ -1,12 +1,10 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
-import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
-import { PropFirmCard } from '@/components/dashboard/PropFirmCard';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
-import { calculateAnalytics, getExpectancyByField, getSessionPerformance, type Analytics } from '@/lib/analytics';
+import { calculateAnalytics, getDailyPnl, getExpectancyByField, getSessionPerformance, type Analytics } from '@/lib/analytics';
 import { useInvalidateSubscription } from '@/hooks/useSubscription';
 import {
   ArrowDown,
@@ -14,7 +12,9 @@ import {
   ArrowUpRight,
   ChartBar,
   Clock,
+  Calendar,
   Funnel,
+  Hash,
   NotePencil,
   Plus,
   ShieldCheck,
@@ -37,6 +37,7 @@ import {
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import type { Trade } from '@/types/trade';
+import type { TradingAccount } from '@/types/account';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -110,11 +111,13 @@ function MetricPlate({
   value,
   caption,
   tone = 'neutral',
+  compact = false,
 }: {
   label: string;
   value: string;
   caption?: string;
   tone?: 'positive' | 'negative' | 'neutral' | 'warning';
+  compact?: boolean;
 }) {
   const color =
     tone === 'positive' ? 'var(--ef-pos)' :
@@ -125,21 +128,21 @@ function MetricPlate({
   return (
     <div
       style={{
-        minHeight: 94,
-        padding: '16px 16px 14px',
-        borderRadius: 14,
+        minHeight: compact ? 62 : 94,
+        padding: compact ? '11px 12px' : '16px 16px 14px',
+        borderRadius: compact ? 12 : 14,
         background: 'color-mix(in oklab, var(--ef-bg-sunken) 78%, transparent)',
         border: '1px solid color-mix(in oklab, var(--ef-line) 72%, transparent)',
       }}
     >
-      <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.12em', color: 'var(--ef-ink-4)' }}>
+      <p className="font-mono uppercase" style={{ margin: 0, fontSize: compact ? 9 : 10, letterSpacing: '0.12em', color: 'var(--ef-ink-4)' }}>
         {label}
       </p>
-      <p className="font-mono" style={{ margin: '10px 0 0', fontSize: 26, lineHeight: 1, letterSpacing: '-0.035em', color }}>
+      <p className="font-mono" style={{ margin: compact ? '7px 0 0' : '10px 0 0', fontSize: compact ? 19 : 26, lineHeight: 1, letterSpacing: '-0.035em', color }}>
         {value}
       </p>
       {caption && (
-        <p className="font-mono" style={{ margin: '9px 0 0', fontSize: 11, color: 'var(--ef-ink-4)' }}>
+        <p className="font-mono truncate" style={{ margin: compact ? '6px 0 0' : '9px 0 0', fontSize: compact ? 10 : 11, color: 'var(--ef-ink-4)' }}>
           {caption}
         </p>
       )}
@@ -181,9 +184,9 @@ function EquityCommandPanel({
   }, [data, baselineBalance]);
 
   return (
-    <Panel className="overflow-hidden" style={{ minHeight: 520 }}>
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] min-h-[520px]">
-        <div style={{ padding: '28px 30px 26px', borderRight: '1px solid var(--ef-line)' }}>
+    <Panel className="overflow-hidden h-full" style={{ minHeight: 0 }}>
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_270px] h-full min-h-0">
+        <div style={{ padding: '18px 20px 16px', borderRight: '1px solid var(--ef-line)', minHeight: 0 }}>
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
             <div>
               <div className="flex items-center gap-2">
@@ -204,7 +207,7 @@ function EquityCommandPanel({
                 className="font-mono"
                 style={{
                   margin: '14px 0 0',
-                  fontSize: 'clamp(42px, 5vw, 72px)',
+                  fontSize: 'clamp(34px, 4vw, 54px)',
                   lineHeight: 0.92,
                   fontWeight: 500,
                   letterSpacing: '-0.065em',
@@ -231,12 +234,12 @@ function EquityCommandPanel({
               to="/analyst"
               className="inline-flex items-center justify-center gap-2 transition-colors"
               style={{
-                height: 38,
-                padding: '0 14px',
-                borderRadius: 12,
+                height: 34,
+                padding: '0 12px',
+                borderRadius: 10,
                 background: 'var(--ef-ink)',
                 color: 'var(--ef-bg)',
-                fontSize: 13,
+                fontSize: 12,
                 fontWeight: 600,
               }}
             >
@@ -245,7 +248,7 @@ function EquityCommandPanel({
             </Link>
           </div>
 
-          <div style={{ height: 285, marginTop: 24 }}>
+          <div style={{ height: 'clamp(150px, 24vh, 235px)', marginTop: 16 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={{ top: 14, right: 8, bottom: 6, left: 0 }}>
                 <defs>
@@ -308,24 +311,28 @@ function EquityCommandPanel({
               value={`${stats.winRate.toFixed(1)}%`}
               caption={`${stats.wins} wins · ${stats.losses} losses`}
               tone={stats.winRate >= 50 ? 'positive' : 'negative'}
+              compact
             />
             <MetricPlate
               label="Profit factor"
               value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)}
               caption={stats.profitFactor >= 1.5 ? 'strong edge' : stats.profitFactor >= 1 ? 'marginal edge' : 'below break-even'}
               tone={stats.profitFactor >= 1 ? 'positive' : 'negative'}
+              compact
             />
             <MetricPlate
               label="Expectancy"
               value={fmtSignedMoney(expectancyPerTrade, 2)}
               caption={`avg R ${stats.rExpectancy >= 0 ? '+' : ''}${stats.rExpectancy.toFixed(2)}`}
               tone={expectancyPerTrade >= 0 ? 'positive' : 'negative'}
+              compact
             />
             <MetricPlate
               label="Max drawdown"
               value={fmtMoney(stats.maxDrawdown)}
               caption="largest equity pullback"
               tone={stats.maxDrawdown > 0 ? 'warning' : 'neutral'}
+              compact
             />
           </div>
         </div>
@@ -349,21 +356,21 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
   const riskTone = lossStreak >= 2 || todayPnl < 0 ? 'negative' : 'positive';
 
   return (
-    <aside style={{ padding: '26px 22px' }}>
+    <aside style={{ padding: '18px 16px', minHeight: 0, overflow: 'hidden' }}>
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
             Risk state
           </p>
-          <h3 style={{ margin: '8px 0 0', fontSize: 24, fontWeight: 600, letterSpacing: '-0.04em', color: 'var(--ef-ink)' }}>
+          <h3 style={{ margin: '7px 0 0', fontSize: 20, fontWeight: 600, letterSpacing: '-0.04em', color: 'var(--ef-ink)' }}>
             {riskTone === 'positive' ? 'Clear to execute' : 'Trade smaller'}
           </h3>
         </div>
         <div
           style={{
-            width: 42,
-            height: 42,
-            borderRadius: 14,
+            width: 36,
+            height: 36,
+            borderRadius: 12,
             display: 'grid',
             placeItems: 'center',
             background: riskTone === 'positive' ? 'var(--ef-pos-wash)' : 'var(--ef-neg-wash)',
@@ -374,39 +381,41 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mt-6">
+      <div className="grid grid-cols-2 gap-2 mt-4">
         <MetricPlate
           label="Today"
           value={fmtSignedMoney(todayPnl)}
           caption={`${todayTrades.length} trades`}
           tone={todayPnl >= 0 ? 'positive' : 'negative'}
+          compact
         />
         <MetricPlate
           label="Plan"
           value={planRate === null ? '—' : `${planRate.toFixed(0)}%`}
           caption="followed"
           tone={planRate === null ? 'neutral' : planRate >= 70 ? 'positive' : 'warning'}
+          compact
         />
       </div>
 
-      <div style={{ marginTop: 22 }}>
+      <div style={{ marginTop: 16 }}>
         <div className="flex items-center justify-between">
           <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--ef-ink)' }}>
-            Last 5 decisions
+            Last decisions
           </p>
           <Link to="/journal" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
             trades →
           </Link>
         </div>
-        <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
-          {lastFive.map(t => (
+        <div style={{ display: 'grid', gap: 0, marginTop: 8 }}>
+          {lastFive.slice(0, 4).map(t => (
             <div
               key={t.id}
               className="grid items-center"
               style={{
                 gridTemplateColumns: '28px 1fr auto',
                 gap: 10,
-                padding: '10px 0',
+                padding: '8px 0',
                 borderBottom: '1px dashed var(--ef-line)',
               }}
             >
@@ -448,6 +457,174 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
   );
 }
 
+function ChallengeMiniCard({ account, trades }: { account: TradingAccount; trades: Trade[] }) {
+  const challengeSize = account.challengeSize && account.challengeSize > 0
+    ? account.challengeSize
+    : account.startingBalance;
+  const startDate = account.challengeStartDate ?? account.createdAt?.slice(0, 10);
+  const challengeTrades = useMemo(
+    () => trades.filter(t => t.accountId === account.id && (!startDate || t.date >= startDate)),
+    [trades, account.id, startDate]
+  );
+  const netPnl = challengeTrades.reduce((sum, t) => sum + t.pnl, 0);
+  const wins = challengeTrades.filter(t => t.outcome === 'win').length;
+  const winRate = challengeTrades.length > 0 ? (wins / challengeTrades.length) * 100 : 0;
+  const target = challengeSize * ((account.profitTargetPct ?? 10) / 100);
+  const progress = target > 0 ? Math.min(Math.max((netPnl / target) * 100, 0), 100) : 0;
+  const start = startDate ? new Date(startDate) : new Date();
+  const elapsedDays = Math.max(0, Math.ceil((Date.now() - start.getTime()) / 86_400_000));
+  const daysLeft = Math.max(0, 30 - elapsedDays);
+  const funded = progress >= 100 || netPnl >= target;
+  const positive = netPnl >= 0;
+  const accent = funded ? 'var(--ef-pos)' : positive ? 'var(--ef-warn)' : 'var(--ef-neg)';
+  const wash = funded ? 'var(--ef-pos-wash)' : positive ? 'var(--ef-warn-wash)' : 'var(--ef-neg-wash)';
+  const end = new Date(start);
+  end.setDate(end.getDate() + 30);
+
+  return (
+    <article
+      style={{
+        minHeight: 132,
+        padding: '18px 20px',
+        borderRadius: 18,
+        overflow: 'hidden',
+        position: 'relative',
+        background: `linear-gradient(135deg, color-mix(in oklab, var(--ef-bg-elev) 88%, ${wash} 22%), var(--ef-bg-elev))`,
+        border: '1px solid color-mix(in oklab, var(--ef-line) 82%, white 8%)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `radial-gradient(circle at 88% 12%, ${wash}, transparent 44%)`,
+          opacity: 0.48,
+          pointerEvents: 'none',
+        }}
+      />
+      <div style={{ position: 'relative' }}>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="font-mono" style={{ margin: 0, fontSize: 30, lineHeight: 1, letterSpacing: '-0.055em', color: 'var(--ef-ink)' }}>
+                {fmtMoney(challengeSize)}
+              </h3>
+              {account.quantity > 1 && (
+                <span className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)' }}>x{account.quantity}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 mt-3" style={{ color: 'var(--ef-ink-4)', fontSize: 11 }}>
+              <Calendar size={12} weight="regular" />
+              <span>
+                {start.toLocaleDateString('en', { month: 'short', day: 'numeric' })} → {end.toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <span
+              className="font-mono inline-flex items-center gap-1"
+              style={{
+                height: 27,
+                padding: '0 9px',
+                borderRadius: 999,
+                background: 'color-mix(in oklab, var(--ef-bg-sunken) 72%, transparent)',
+                color: 'var(--ef-ink-3)',
+                fontSize: 10,
+                border: '1px solid var(--ef-line)',
+              }}
+            >
+              <Hash size={10} weight="bold" />
+              {account.id.slice(0, 6)}
+            </span>
+            <span
+              className="font-mono"
+              style={{
+                height: 27,
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '0 10px',
+                borderRadius: 999,
+                background: wash,
+                color: accent,
+                fontSize: 10,
+                fontWeight: 700,
+              }}
+            >
+              {funded ? 'Funded' : 'Phase 1'}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3" style={{ marginTop: 18 }}>
+          {[
+            { label: 'Profit/Loss', value: fmtSignedMoney(netPnl), color: positive ? 'var(--ef-pos)' : 'var(--ef-neg)' },
+            { label: 'Win Rate', value: `${winRate.toFixed(0)}%`, color: 'var(--ef-ink)' },
+            { label: 'Days Left', value: String(daysLeft), color: 'var(--ef-ink)' },
+          ].map(item => (
+            <div key={item.label}>
+              <p style={{ margin: 0, fontSize: 11, color: 'var(--ef-ink-4)' }}>{item.label}</p>
+              <p className="font-mono" style={{ margin: '6px 0 0', fontSize: 18, lineHeight: 1, color: item.color, letterSpacing: '-0.03em' }}>
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <div className="flex items-center justify-between">
+            <span style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>Target achievement</span>
+            <span className="font-mono" style={{ fontSize: 11, color: accent, fontWeight: 700 }}>{progress.toFixed(1)}%</span>
+          </div>
+          <div
+            style={{
+              height: 14,
+              marginTop: 8,
+              borderRadius: 99,
+              overflow: 'hidden',
+              background: 'repeating-linear-gradient(90deg, var(--ef-bg-sunken) 0 4px, transparent 4px 8px)',
+              border: '1px solid color-mix(in oklab, var(--ef-line) 70%, transparent)',
+            }}
+          >
+            <div
+              style={{
+                width: `${progress}%`,
+                height: '100%',
+                background: `repeating-linear-gradient(90deg, ${accent} 0 4px, transparent 4px 8px)`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ActiveChallengesPanel({ accounts, trades }: { accounts: TradingAccount[]; trades: Trade[] }) {
+  const propAccounts = accounts.filter(account => account.type === 'prop').slice(0, 2);
+  if (propAccounts.length === 0) return null;
+
+  return (
+    <Panel style={{ padding: '16px 18px', overflow: 'hidden' }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 12 }}>
+        <h2 style={{ margin: 0, color: 'var(--ef-ink-2)', fontSize: 14, fontWeight: 500, letterSpacing: '-0.02em' }}>
+          Active challenges
+        </h2>
+        <Link to="/accounts" className="font-mono inline-flex items-center gap-1" style={{ color: 'var(--ef-ink-3)', fontSize: 11 }}>
+          View all
+          <ArrowUpRight size={12} weight="bold" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+        {propAccounts.map(account => (
+          <ChallengeMiniCard key={account.id} account={account} trades={trades} />
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
 function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: number; outcome: string }[] }) {
   const pairs = useMemo(() => {
     if (trades.length === 0) return [];
@@ -461,8 +638,8 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
   const maxAbs = Math.max(...pairs.map(p => Math.abs(p.expectancy)), 1);
 
   return (
-    <Panel style={{ padding: '22px 24px', minHeight: 300 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+    <Panel className="h-full overflow-hidden" style={{ padding: '16px 18px', minHeight: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 11 }}>
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
             Market selection
@@ -488,7 +665,7 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
           const barPct = Math.abs(pair.expectancy) / maxAbs * 48;
           const pos = pair.pnl >= 0;
           return (
-            <div key={pair.key} className="flex items-center gap-3" style={{ padding: '10px 0', fontSize: 12.5, borderTop: '1px solid var(--ef-line)' }}>
+            <div key={pair.key} className="flex items-center gap-3" style={{ padding: '8px 0', fontSize: 12.5, borderTop: '1px solid var(--ef-line)' }}>
               <div className="font-mono shrink-0" style={{ width: 72, color: 'var(--ef-ink-2)', fontWeight: 600 }}>
                 {pair.key}
               </div>
@@ -535,8 +712,8 @@ function SessionPerformancePanel({ trades }: { trades: Trade[] }) {
   const maxAbs = Math.max(...sessions.map(s => Math.abs(s.pnl ?? 0)), 1);
 
   return (
-    <Panel style={{ padding: '22px 24px', minHeight: 300 }}>
-      <div className="flex items-start justify-between gap-4" style={{ marginBottom: 18 }}>
+    <Panel className="h-full overflow-hidden" style={{ padding: '16px 18px', minHeight: 0 }}>
+      <div className="flex items-start justify-between gap-4" style={{ marginBottom: 12 }}>
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
             Timing
@@ -548,7 +725,7 @@ function SessionPerformancePanel({ trades }: { trades: Trade[] }) {
         <Clock size={20} color="var(--ef-ink-4)" weight="regular" />
       </div>
 
-      <div style={{ display: 'grid', gap: 11 }}>
+      <div style={{ display: 'grid', gap: 9 }}>
         {sessions.map(s => {
           const pnl = s.pnl ?? 0;
           const pos = pnl >= 0;
@@ -585,13 +762,13 @@ function SessionPerformancePanel({ trades }: { trades: Trade[] }) {
 
 function ExecutionTape({ trades }: { trades: Trade[] }) {
   const recent = useMemo(
-    () => [...trades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 9),
+    () => [...trades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5),
     [trades]
   );
 
   return (
-    <Panel style={{ padding: 0, overflow: 'hidden' }}>
-      <div className="flex items-center justify-between" style={{ padding: '20px 24px 14px', borderBottom: '1px solid var(--ef-line)' }}>
+    <Panel className="h-full" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="flex items-center justify-between" style={{ padding: '15px 18px 11px', borderBottom: '1px solid var(--ef-line)' }}>
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
             Execution tape
@@ -612,9 +789,9 @@ function ExecutionTape({ trades }: { trades: Trade[] }) {
             className="grid items-center"
             style={{
               gridTemplateColumns: '42px minmax(110px,1.1fr) minmax(90px,0.8fr) 72px 72px',
-              gap: 14,
-              minHeight: 58,
-              padding: '0 24px',
+              gap: 10,
+              minHeight: 45,
+              padding: '0 18px',
               borderTop: index === 0 ? 'none' : '1px solid var(--ef-line)',
             }}
           >
@@ -651,6 +828,103 @@ function ExecutionTape({ trades }: { trades: Trade[] }) {
             <span className="font-mono text-right" style={{ color: trade.pnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)', fontSize: 12, fontWeight: 650 }}>
               {fmtSignedMoney(trade.pnl)}
             </span>
+          </div>
+        ))}
+      </div>
+    </Panel>
+  );
+}
+
+function MonthPulsePanel({ trades }: { trades: Trade[] }) {
+  const dailyPnl = useMemo(() => getDailyPnl(trades), [trades]);
+  const now = new Date();
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const days = useMemo(() => {
+    const result: Date[] = [];
+    const cursor = new Date(monthStart);
+    while (cursor.getMonth() === monthStart.getMonth() && result.length < 25) {
+      const day = cursor.getDay();
+      if (day !== 0 && day !== 6) result.push(new Date(cursor));
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return result;
+  }, [monthStart.getFullYear(), monthStart.getMonth()]);
+
+  const monthStats = useMemo(() => {
+    let pnl = 0;
+    let winDays = 0;
+    let lossDays = 0;
+    dailyPnl.forEach((value, date) => {
+      const d = new Date(date);
+      if (d.getMonth() !== now.getMonth() || d.getFullYear() !== now.getFullYear()) return;
+      pnl += value.pnl;
+      if (value.pnl > 0) winDays++;
+      if (value.pnl < 0) lossDays++;
+    });
+    return { pnl, winDays, lossDays };
+  }, [dailyPnl, now.getMonth(), now.getFullYear()]);
+
+  const maxAbs = Math.max(...Array.from(dailyPnl.values()).map(v => Math.abs(v.pnl)), 1);
+
+  return (
+    <Panel className="h-full overflow-hidden" style={{ padding: '16px 18px' }}>
+      <div className="flex items-start justify-between" style={{ marginBottom: 12 }}>
+        <div>
+          <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
+            Month pulse
+          </p>
+          <h3 style={{ margin: '7px 0 0', fontSize: 18, fontWeight: 600, letterSpacing: '-0.03em', color: 'var(--ef-ink)' }}>
+            {now.toLocaleDateString('en', { month: 'long' })}
+          </h3>
+        </div>
+        <span className="font-mono" style={{ fontSize: 12, color: monthStats.pnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
+          {fmtSignedMoney(monthStats.pnl)}
+        </span>
+      </div>
+
+      <div className="grid grid-cols-5 gap-1.5">
+        {days.map(day => {
+          const key = day.toISOString().slice(0, 10);
+          const data = dailyPnl.get(key);
+          const pnl = data?.pnl ?? 0;
+          const ratio = Math.min(Math.abs(pnl) / maxAbs, 1);
+          const bg = pnl > 0
+            ? `color-mix(in oklab, var(--ef-pos) ${20 + ratio * 42}%, var(--ef-bg-sunken))`
+            : pnl < 0
+              ? `color-mix(in oklab, var(--ef-neg) ${20 + ratio * 42}%, var(--ef-bg-sunken))`
+              : 'var(--ef-bg-sunken)';
+          return (
+            <div
+              key={key}
+              className="font-mono"
+              title={`${key}: ${fmtSignedMoney(pnl)}`}
+              style={{
+                height: 25,
+                borderRadius: 7,
+                border: '1px solid var(--ef-line)',
+                background: bg,
+                color: pnl === 0 ? 'var(--ef-ink-4)' : 'var(--ef-ink)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: 10,
+              }}
+            >
+              {day.getDate()}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="grid grid-cols-3 gap-2" style={{ marginTop: 12 }}>
+        {[
+          { label: 'Win days', value: String(monthStats.winDays), color: 'var(--ef-pos)' },
+          { label: 'Loss days', value: String(monthStats.lossDays), color: 'var(--ef-neg)' },
+          { label: 'Trades', value: String(trades.length), color: 'var(--ef-ink)' },
+        ].map(item => (
+          <div key={item.label} style={{ borderTop: '1px solid var(--ef-line)', paddingTop: 9 }}>
+            <p className="font-mono uppercase" style={{ margin: 0, fontSize: 9, letterSpacing: '0.1em', color: 'var(--ef-ink-4)' }}>{item.label}</p>
+            <p className="font-mono" style={{ margin: '5px 0 0', fontSize: 15, color: item.color }}>{item.value}</p>
           </div>
         ))}
       </div>
@@ -740,12 +1014,6 @@ const Dashboard = () => {
     if (selectedAccountId === '__all__') return accounts.reduce((sum, a) => sum + adj(a), 0);
     const a = accounts.find(x => x.id === selectedAccountId);
     return a ? adj(a) : 0;
-  }, [accounts, selectedAccountId]);
-
-  const selectedPropAccount = useMemo(() => {
-    if (selectedAccountId === '__all__') return null;
-    const acct = accounts.find(a => a.id === selectedAccountId);
-    return acct?.type === 'prop' ? acct : null;
   }, [accounts, selectedAccountId]);
 
   const handleDailyReview = () => {
@@ -853,99 +1121,104 @@ const Dashboard = () => {
 
   return (
     <AppLayout>
-      {/* Topbar */}
       <div
-        className="flex flex-col lg:flex-row lg:items-center gap-5"
-        style={{ paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid var(--ef-line)' }}
+        className="dashboard-cockpit"
+        style={{
+          height: 'calc(100dvh - 72px)',
+          minHeight: 680,
+          display: 'grid',
+          gridTemplateRows: accounts.some(account => account.type === 'prop')
+            ? '58px minmax(154px, 0.24fr) minmax(0, 1fr)'
+            : '58px minmax(0, 1fr)',
+          gap: 12,
+          overflow: 'hidden',
+        }}
       >
-        <div className="flex-1 min-w-0">
-          <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.16em', color: 'var(--ef-ink-4)' }}>
-            EdgeFlow command center
-          </p>
-          <h1 style={{ margin: '8px 0 0', fontSize: 30, lineHeight: 1.05, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>
-            {getGreeting()}, {profile?.nickname || 'Trader'}.
-          </h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
-            {getLocationFromTimezone()} · {currentTime} · {filteredTrades.length} trades logged
+        {/* Topbar */}
+        <div
+          className="flex flex-col lg:flex-row lg:items-center gap-4"
+          style={{ paddingBottom: 10, borderBottom: '1px solid var(--ef-line)', minHeight: 0 }}
+        >
+          <div className="flex-1 min-w-0">
+            <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.16em', color: 'var(--ef-ink-4)' }}>
+              EdgeFlow command center
+            </p>
+            <h1 style={{ margin: '5px 0 0', fontSize: 24, lineHeight: 1.05, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>
+              {getGreeting()}, {profile?.nickname || 'Trader'}.
+            </h1>
+            <div className="font-mono" style={{ fontSize: 12, color: 'var(--ef-ink-3)', marginTop: 1 }}>
+              {getLocationFromTimezone()} · {currentTime} · {filteredTrades.length} trades logged
+            </div>
           </div>
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {accounts.length > 1 && (
-            <Select
-              value={selectedAccountId}
-              onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}
-            >
-              <SelectTrigger
-                className="h-[38px] text-xs font-mono border-border rounded-[12px]"
-                style={{ width: 150, background: 'var(--ef-bg-elev)', fontSize: 12 }}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            {accounts.length > 1 && (
+              <Select
+                value={selectedAccountId}
+                onValueChange={(v) => { setSelectedAccountId(v); localStorage.setItem('dashboard_account_filter', v); }}
               >
-                <Funnel className="h-3 w-3 mr-1 text-muted-foreground/50" weight="regular" />
-                <SelectValue placeholder="All Accounts" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all__">All Accounts</SelectItem>
-                {accounts.map(a => (
-                  <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+                <SelectTrigger
+                  className="h-[34px] text-xs font-mono border-border rounded-[11px]"
+                  style={{ width: 150, background: 'var(--ef-bg-elev)', fontSize: 12 }}
+                >
+                  <Funnel className="h-3 w-3 mr-1 text-muted-foreground/50" weight="regular" />
+                  <SelectValue placeholder="All Accounts" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="__all__">All Accounts</SelectItem>
+                  {accounts.map(a => (
+                    <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
-          <button
-            onClick={handleDailyReview}
-            className="flex items-center gap-1.5 outline-none transition-colors"
-            style={{
-              height: 38, padding: '0 13px', borderRadius: 12,
-              background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
-              fontSize: 13, fontWeight: 500, color: 'var(--ef-ink-2)',
-            }}
-          >
-            <NotePencil className="h-3.5 w-3.5" weight="regular" />
-            <span className="hidden sm:inline">Daily Review</span>
-          </button>
+            <button
+              onClick={handleDailyReview}
+              className="flex items-center gap-1.5 outline-none transition-colors"
+              style={{
+                height: 34, padding: '0 12px', borderRadius: 11,
+                background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)',
+                fontSize: 12, fontWeight: 500, color: 'var(--ef-ink-2)',
+              }}
+            >
+              <NotePencil className="h-3.5 w-3.5" weight="regular" />
+              <span className="hidden sm:inline">Daily Review</span>
+            </button>
 
-          <Link
-            to="/add-trade"
-            className="flex items-center gap-1.5 outline-none transition-colors"
-            style={{
-              height: 38, padding: '0 14px', borderRadius: 12,
-              background: 'var(--ef-ink)', color: 'var(--ef-bg)',
-              fontSize: 13, fontWeight: 650,
-              border: '1px solid var(--ef-ink)',
-            }}
-          >
-            <Plus className="h-3.5 w-3.5" weight="bold" />
-            <span className="hidden sm:inline">Log trade</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Prop Firm Challenge Card */}
-      {selectedPropAccount && (
-        <div style={{ marginBottom: 16 }}>
-          <PropFirmCard account={selectedPropAccount} trades={scaledTrades} />
-        </div>
-      )}
-
-      <div style={{ display: 'grid', gap: 16 }}>
-        <EquityCommandPanel
-          trades={scaledTrades}
-          stats={stats}
-          startingBalance={startingBalance}
-          balanceAdjustment={balanceAdjustment}
-        />
-
-        <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4">
-          <SessionPerformancePanel trades={scaledTrades} />
-          <InstrumentPerformance trades={scaledTrades} />
-        </div>
-
-        <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-4">
-          <div className="min-w-0">
-            <HeatMapCalendar trades={scaledTrades} />
+            <Link
+              to="/add-trade"
+              className="flex items-center gap-1.5 outline-none transition-colors"
+              style={{
+                height: 34, padding: '0 13px', borderRadius: 11,
+                background: 'var(--ef-ink)', color: 'var(--ef-bg)',
+                fontSize: 12, fontWeight: 650,
+                border: '1px solid var(--ef-ink)',
+              }}
+            >
+              <Plus className="h-3.5 w-3.5" weight="bold" />
+              <span className="hidden sm:inline">Log trade</span>
+            </Link>
           </div>
-          <ExecutionTape trades={scaledTrades} />
+        </div>
+
+        <ActiveChallengesPanel accounts={accounts} trades={scaledTrades} />
+
+        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.72fr)_minmax(300px,0.82fr)] gap-3 min-h-0">
+          <EquityCommandPanel
+            trades={scaledTrades}
+            stats={stats}
+            startingBalance={startingBalance}
+            balanceAdjustment={balanceAdjustment}
+          />
+          <div className="grid grid-rows-2 gap-3 min-h-0">
+            <SessionPerformancePanel trades={scaledTrades} />
+            <MonthPulsePanel trades={scaledTrades} />
+          </div>
+          <div className="grid grid-rows-[0.88fr_1fr] gap-3 min-h-0">
+            <InstrumentPerformance trades={scaledTrades} />
+            <ExecutionTape trades={scaledTrades} />
+          </div>
         </div>
       </div>
     </AppLayout>
