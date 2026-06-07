@@ -1,7 +1,6 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
-import { PropFirmCard } from '@/components/dashboard/PropFirmCard';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useProfile } from '@/hooks/useProfile';
@@ -12,9 +11,11 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpRight,
+  Calendar,
   ChartBar,
   Clock,
   Funnel,
+  Hash,
   NotePencil,
   Plus,
   ShieldCheck,
@@ -37,6 +38,7 @@ import {
 } from 'recharts';
 import { cn } from '@/lib/utils';
 import type { Trade } from '@/types/trade';
+import type { TradingAccount } from '@/types/account';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -181,9 +183,9 @@ function EquityCommandPanel({
   }, [data, baselineBalance]);
 
   return (
-    <Panel className="overflow-hidden" style={{ minHeight: 520 }}>
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] min-h-[520px]">
-        <div style={{ padding: '28px 30px 26px', borderRight: '1px solid var(--ef-line)' }}>
+    <Panel className="overflow-hidden" style={{ minHeight: 470 }}>
+      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] min-h-[470px]">
+        <div style={{ padding: '24px 28px 24px', borderRight: '1px solid var(--ef-line)' }}>
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
             <div>
               <div className="flex items-center gap-2">
@@ -204,7 +206,7 @@ function EquityCommandPanel({
                 className="font-mono"
                 style={{
                   margin: '14px 0 0',
-                  fontSize: 'clamp(42px, 5vw, 72px)',
+                  fontSize: 'clamp(40px, 5vw, 64px)',
                   lineHeight: 0.92,
                   fontWeight: 500,
                   letterSpacing: '-0.065em',
@@ -245,7 +247,7 @@ function EquityCommandPanel({
             </Link>
           </div>
 
-          <div style={{ height: 285, marginTop: 24 }}>
+          <div style={{ height: 245, marginTop: 20 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={{ top: 14, right: 8, bottom: 6, left: 0 }}>
                 <defs>
@@ -302,7 +304,7 @@ function EquityCommandPanel({
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-2">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-3">
             <MetricPlate
               label="Win rate"
               value={`${stats.winRate.toFixed(1)}%`}
@@ -445,6 +447,181 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
         </div>
       </div>
     </aside>
+  );
+}
+
+function ChallengeCard({ account, trades }: { account: TradingAccount; trades: Trade[] }) {
+  const challengeSize = account.challengeSize && account.challengeSize > 0
+    ? account.challengeSize
+    : account.startingBalance;
+  const startDate = account.challengeStartDate ?? account.createdAt?.slice(0, 10);
+  const challengeTrades = useMemo(
+    () => trades.filter(t => t.accountId === account.id && (!startDate || t.date >= startDate)),
+    [trades, account.id, startDate]
+  );
+  const netPnl = challengeTrades.reduce((sum, trade) => sum + trade.pnl, 0);
+  const wins = challengeTrades.filter(trade => trade.outcome === 'win').length;
+  const winRate = challengeTrades.length > 0 ? (wins / challengeTrades.length) * 100 : 0;
+  const target = challengeSize * ((account.profitTargetPct ?? 10) / 100);
+  const progress = target > 0 ? Math.min(Math.max((netPnl / target) * 100, 0), 100) : 0;
+  const start = startDate ? new Date(startDate) : new Date();
+  const end = new Date(start);
+  end.setDate(end.getDate() + 30);
+  const elapsedDays = Math.max(0, Math.ceil((Date.now() - start.getTime()) / 86_400_000));
+  const daysLeft = Math.max(0, 30 - elapsedDays);
+  const funded = progress >= 100 || netPnl >= target;
+  const positive = netPnl >= 0;
+  const accent = funded ? 'var(--ef-pos)' : positive ? 'var(--ef-warn)' : 'var(--ef-neg)';
+  const wash = funded ? 'var(--ef-pos-wash)' : positive ? 'var(--ef-warn-wash)' : 'var(--ef-neg-wash)';
+
+  return (
+    <article
+      style={{
+        minHeight: 205,
+        padding: '24px 26px 22px',
+        borderRadius: 20,
+        position: 'relative',
+        overflow: 'hidden',
+        background: `linear-gradient(132deg, color-mix(in oklab, var(--ef-bg-elev) 92%, ${wash} 18%), color-mix(in oklab, var(--ef-bg-elev) 94%, black 4%))`,
+        border: '1px solid color-mix(in oklab, var(--ef-line) 80%, white 8%)',
+        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.04)',
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          background: `radial-gradient(circle at 86% 18%, ${wash}, transparent 44%)`,
+          opacity: 0.55,
+          pointerEvents: 'none',
+        }}
+      />
+      <div style={{ position: 'relative' }}>
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3
+                className="font-mono"
+                style={{ margin: 0, fontSize: 36, lineHeight: 1, letterSpacing: '-0.06em', color: 'var(--ef-ink)', fontWeight: 500 }}
+              >
+                {fmtMoney(challengeSize)}
+              </h3>
+              {account.quantity > 1 && (
+                <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
+                  x{account.quantity}
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 mt-4" style={{ color: 'var(--ef-ink-4)', fontSize: 12 }}>
+              <Calendar size={13} weight="regular" />
+              <span>
+                {start.toLocaleDateString('en', { month: 'short', day: 'numeric' })} → {end.toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span
+              className="font-mono inline-flex items-center gap-1"
+              style={{
+                height: 30,
+                padding: '0 10px',
+                borderRadius: 999,
+                background: 'color-mix(in oklab, var(--ef-bg-sunken) 72%, transparent)',
+                color: 'var(--ef-ink-3)',
+                fontSize: 10,
+                border: '1px solid var(--ef-line)',
+              }}
+            >
+              <Hash size={10} weight="bold" />
+              {account.id.slice(0, 6)}
+            </span>
+            <span
+              className="font-mono"
+              style={{
+                height: 30,
+                display: 'inline-flex',
+                alignItems: 'center',
+                padding: '0 11px',
+                borderRadius: 999,
+                background: wash,
+                color: accent,
+                fontSize: 10,
+                fontWeight: 800,
+              }}
+            >
+              {funded ? 'Funded' : 'Phase 1'}
+            </span>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-3 gap-4" style={{ marginTop: 24 }}>
+          {[
+            { label: 'Profit/Loss', value: fmtSignedMoney(netPnl, 2), color: positive ? 'var(--ef-pos)' : 'var(--ef-neg)' },
+            { label: 'Win Rate', value: `${winRate.toFixed(0)}%`, color: 'var(--ef-ink)' },
+            { label: 'Days Left', value: String(daysLeft), color: 'var(--ef-ink)' },
+          ].map(item => (
+            <div key={item.label}>
+              <p style={{ margin: 0, color: 'var(--ef-ink-4)', fontSize: 12 }}>{item.label}</p>
+              <p className="font-mono" style={{ margin: '7px 0 0', fontSize: 20, lineHeight: 1, color: item.color, letterSpacing: '-0.03em' }}>
+                {item.value}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ marginTop: 22 }}>
+          <div className="flex items-center justify-between">
+            <span style={{ color: 'var(--ef-ink-4)', fontSize: 12 }}>Target achievement</span>
+            <span className="font-mono" style={{ color: accent, fontSize: 12, fontWeight: 800 }}>
+              {progress.toFixed(1)}%
+            </span>
+          </div>
+          <div
+            style={{
+              height: 16,
+              marginTop: 9,
+              borderRadius: 999,
+              background: 'repeating-linear-gradient(90deg, color-mix(in oklab, var(--ef-bg-sunken) 78%, transparent) 0 4px, transparent 4px 8px)',
+              border: '1px solid color-mix(in oklab, var(--ef-line) 70%, transparent)',
+              overflow: 'hidden',
+            }}
+          >
+            <div
+              style={{
+                height: '100%',
+                width: `${progress}%`,
+                background: `repeating-linear-gradient(90deg, ${accent} 0 4px, transparent 4px 8px)`,
+              }}
+            />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function ActiveChallenges({ accounts, trades }: { accounts: TradingAccount[]; trades: Trade[] }) {
+  const propAccounts = accounts.filter(account => account.type === 'prop').slice(0, 2);
+  if (propAccounts.length === 0) return null;
+
+  return (
+    <Panel style={{ padding: '18px 20px 20px', marginBottom: 16 }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+        <h2 style={{ margin: 0, fontSize: 15, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink-2)' }}>
+          Active challenges
+        </h2>
+        <Link to="/accounts" className="font-mono inline-flex items-center gap-1" style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}>
+          View all
+          <ArrowUpRight size={12} weight="bold" />
+        </Link>
+      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+        {propAccounts.map(account => (
+          <ChallengeCard key={account.id} account={account} trades={trades} />
+        ))}
+      </div>
+    </Panel>
   );
 }
 
@@ -742,12 +919,6 @@ const Dashboard = () => {
     return a ? adj(a) : 0;
   }, [accounts, selectedAccountId]);
 
-  const selectedPropAccount = useMemo(() => {
-    if (selectedAccountId === '__all__') return null;
-    const acct = accounts.find(a => a.id === selectedAccountId);
-    return acct?.type === 'prop' ? acct : null;
-  }, [accounts, selectedAccountId]);
-
   const handleDailyReview = () => {
     const today = format(new Date(), 'yyyy-MM-dd');
     const todayTrades = trades.filter(t => t.date === today);
@@ -921,12 +1092,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Prop Firm Challenge Card */}
-      {selectedPropAccount && (
-        <div style={{ marginBottom: 16 }}>
-          <PropFirmCard account={selectedPropAccount} trades={scaledTrades} />
-        </div>
-      )}
+      <ActiveChallenges accounts={accounts} trades={scaledTrades} />
 
       <div style={{ display: 'grid', gap: 16 }}>
         <EquityCommandPanel
