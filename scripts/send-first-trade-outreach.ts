@@ -36,6 +36,7 @@ const send = args.has("--send");
 const dryRun = args.has("--dry-run") || !send;
 const campaignKey = getArgValue("--campaign") ?? "first_trade_activation_june_2026";
 const limit = Number(getArgValue("--limit") ?? "0");
+const testTo = getArgValue("--test-to");
 
 loadDotEnv();
 
@@ -47,9 +48,23 @@ const replyTo = getEnv("OUTREACH_REPLY_TO") ?? "support@edgeflow.capital";
 const appUrl = getEnv("APP_URL") ?? "https://www.edgeflow.capital";
 
 if (!supabaseUrl) fail("Missing SUPABASE_URL or VITE_SUPABASE_URL.");
-if (!serviceRoleKey) fail("Missing SUPABASE_SERVICE_ROLE_KEY.");
-if (send && !resendApiKey) fail("Missing RESEND_API_KEY. It is only required when using --send.");
+if (!testTo && !serviceRoleKey) fail("Missing SUPABASE_SERVICE_ROLE_KEY.");
+if ((send || testTo) && !resendApiKey) fail("Missing RESEND_API_KEY. It is required when sending email.");
 if (send && args.has("--dry-run")) fail("Use either --dry-run or --send, not both.");
+
+if (testTo) {
+  const candidate = buildCandidate("test-user", testTo, "there", "onboarded_no_trades");
+  console.log("");
+  console.log("Sending test email only. No real users will be contacted or logged.");
+  console.log(`To: ${candidate.email}`);
+  console.log(`From: ${from}`);
+  console.log(`Reply-To: ${replyTo}`);
+  console.log(`Subject: ${candidate.subject}`);
+  console.log("");
+  await sendEmail(candidate);
+  console.log(`Test email sent to ${candidate.email}.`);
+  process.exit(0);
+}
 
 const supabase = createClient(supabaseUrl, serviceRoleKey, {
   auth: { autoRefreshToken: false, persistSession: false },
