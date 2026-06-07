@@ -18,7 +18,6 @@ import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
 import { LeaksProvider } from "@/contexts/LeaksContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
-import { NicknamePrompt } from "@/components/NicknamePrompt";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageErrorBoundary } from "@/components/PageErrorBoundary";
 import * as Sentry from '@sentry/react';
@@ -156,37 +155,10 @@ function PagePrefetcher() {
 }
 
 function ProfileGate({ children }: { children: React.ReactNode }) {
-  const { isLoading, needsNickname, setNickname, profile } = useProfile();
+  const { isLoading, profile } = useProfile();
   const { onboardingCompleted, completeOnboarding } = useOnboarding();
-  const [autoNicknaming, setAutoNicknaming] = useState(false);
 
-  useEffect(() => {
-    if (!needsNickname || autoNicknaming) return;
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const m = user.user_metadata ?? {};
-      const fromMeta = (m.full_name || m.name || m.given_name || m.nickname || '').toString().trim();
-      const fromEmail = (user.email ?? '').split('@')[0]?.replace(/[._-]/g, ' ').trim() ?? '';
-      const raw = fromMeta || fromEmail || 'Trader';
-      const derived = (raw.split(/\s+/)[0] || 'Trader').slice(0, 30);
-
-      setAutoNicknaming(true);
-      try {
-        await setNickname(derived);
-      } catch (err) {
-        console.error('Auto-nickname failed, falling back to manual prompt:', err);
-        setAutoNicknaming(false);
-      }
-    })();
-  }, [needsNickname, autoNicknaming, setNickname]);
-
-  useEffect(() => {
-    if (!needsNickname && autoNicknaming) setAutoNicknaming(false);
-  }, [needsNickname, autoNicknaming]);
-
-  if (isLoading || autoNicknaming) {
+  if (isLoading || !profile) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-muted-foreground text-sm">Loading...</div>
@@ -194,14 +166,10 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (needsNickname) {
-    return <NicknamePrompt onSubmit={setNickname} />;
-  }
-
   if (!onboardingCompleted) {
     return (
       <OnboardingFlow
-        nickname={profile?.nickname ?? ''}
+        nickname={profile.nickname}
         onComplete={completeOnboarding}
       />
     );

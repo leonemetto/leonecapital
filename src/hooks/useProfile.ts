@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
 
 export interface Profile {
   id: string;
@@ -10,6 +11,30 @@ export interface Profile {
   createdAt: string;
   onboardingCompleted: boolean;
   guideProgress: { sections: string[] };
+}
+
+type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+
+function deriveNickname(user: { email?: string | null; user_metadata?: Record<string, unknown> }): string {
+  const meta = user.user_metadata ?? {};
+  const fromMeta = [meta.full_name, meta.name, meta.given_name, meta.nickname]
+    .find((value): value is string => typeof value === 'string' && value.trim().length > 0)
+    ?.trim();
+  const fromEmail = (user.email ?? '').split('@')[0]?.replace(/[._-]/g, ' ').trim() ?? '';
+  const raw = fromMeta || fromEmail || 'Trader';
+  return (raw.split(/\s+/)[0] || 'Trader').slice(0, 30);
+}
+
+function rowToProfile(data: ProfileRow): Profile {
+  return {
+    id: data.id,
+    userId: data.user_id,
+    nickname: data.nickname,
+    avatarUrl: data.avatar_url || '',
+    createdAt: data.created_at,
+    onboardingCompleted: data.onboarding_completed ?? false,
+    guideProgress: (data.guide_progress as Profile['guideProgress'] | null) ?? { sections: [] },
+  };
 }
 
 export function useProfile() {
@@ -29,17 +54,21 @@ export function useProfile() {
         .maybeSingle();
 
       if (error) throw error;
-      if (!data) return null;
+      if (!data) {
+        const { data: created, error: createError } = await supabase
+          .from('profiles')
+          .upsert(
+            { user_id: user.id, nickname: deriveNickname(user) },
+            { onConflict: 'user_id' }
+          )
+          .select('*')
+          .single();
 
-      return {
-        id: data.id,
-        userId: data.user_id,
-        nickname: data.nickname,
-        avatarUrl: (data as any).avatar_url || '',
-        createdAt: data.created_at,
-        onboardingCompleted: (data as any).onboarding_completed ?? false,
-        guideProgress: (data as any).guide_progress ?? { sections: [] },
-      } as Profile;
+        if (createError) throw createError;
+        return rowToProfile(created);
+      }
+
+      return rowToProfile(data);
     },
   });
 
@@ -68,7 +97,5 @@ export function useProfile() {
     qc.invalidateQueries({ queryKey: key });
   }, [qc]);
 
-  const needsNickname = !isLoading && profile === null;
-
-  return { profile, isLoading, needsNickname, setNickname, updateAvatarUrl };
+  return { profile, isLoading, setNickname, updateAvatarUrl };
 }
