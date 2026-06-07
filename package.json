@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "test": "vitest run",
     "test:watch": "vitest",
-    "evals:atlas": "tsx scripts/atlas-evals/run.ts"
+    "evals:atlas": "tsx scripts/atlas-evals/run.ts",
+    "outreach:first-trade": "tsx scripts/send-first-trade-outreach.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
