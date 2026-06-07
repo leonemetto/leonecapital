@@ -129,24 +129,28 @@ Founder, EdgeFlow`,
     };
   }
 
-  const subject = "your EdgeFlow setup";
+  const subject = "You haven't logged your first trade yet.";
   return {
     userId,
     email,
     nickname,
     segment,
     subject,
-    text: `Hey, quick one — you're set up on EdgeFlow but haven't logged a trade yet.
+    text: `Hey,
 
-EdgeFlow starts becoming useful once there are a few trades in your journal, because that's when your Dashboard and Analytics can show real patterns.
+Quick one — you created your EdgeFlow account, but your journal is still empty.
 
-If you have 3 recent trades, wins or losses, log them today and check what the data shows.
+That means right now, you're trading without the one thing most traders avoid looking at: real data.
 
-Also, if anything about logging the first trade feels confusing or too slow, reply and tell me bluntly. I'm tightening that flow now.
+EdgeFlow becomes useful once you log a few trades. That's when your dashboard starts showing patterns — what setups work, where you're leaking money, and what habits are hurting your consistency.
+
+Add 3 recent trades today. Wins or losses. Doesn't matter.
 
 ${appUrl}/add-trade
 
-- Leone
+And be honest — if logging your first trade feels confusing, slow, or badly designed, reply and tell me. I'm tightening that flow now and blunt feedback helps.
+
+Leone
 Founder, EdgeFlow`,
   };
 }
