@@ -16,6 +16,12 @@ type OutreachRow = {
   campaign_key: string;
 };
 
+type AuthUser = {
+  id: string;
+  email: string;
+  createdAt: string | null;
+};
+
 type Candidate = {
   userId: string;
   email: string;
@@ -50,25 +56,25 @@ const supabase = createClient(supabaseUrl, serviceRoleKey, {
 });
 
 const profiles = await getProfiles();
-const emailByUserId = await getAuthEmails();
+const authUsers = await getAuthUsers();
+const profileByUserId = new Map(profiles.map((profile) => [profile.user_id, profile]));
 const tradeCountByUserId = await getTradeCounts();
 const alreadyContacted = await getAlreadyContacted();
 
-const candidates = profiles
-  .map((profile): Candidate | null => {
-    const email = emailByUserId.get(profile.user_id);
-    if (!email) return null;
-    if (alreadyContacted.has(profile.user_id)) return null;
+const candidates = authUsers
+  .map((authUser): Candidate | null => {
+    if (alreadyContacted.has(authUser.id)) return null;
 
-    const tradeCount = tradeCountByUserId.get(profile.user_id) ?? 0;
-    const nickname = cleanNickname(profile.nickname);
+    const profile = profileByUserId.get(authUser.id) ?? null;
+    const tradeCount = tradeCountByUserId.get(authUser.id) ?? 0;
+    const nickname = cleanNickname(profile?.nickname ?? null);
 
-    if (!profile.onboarding_completed) {
-      return buildCandidate(profile.user_id, email, nickname, "dropped_before_onboarding");
+    if (!profile || !profile.onboarding_completed) {
+      return buildCandidate(authUser.id, authUser.email, nickname, "dropped_before_onboarding");
     }
 
     if (tradeCount === 0) {
-      return buildCandidate(profile.user_id, email, nickname, "onboarded_no_trades");
+      return buildCandidate(authUser.id, authUser.email, nickname, "onboarded_no_trades");
     }
 
     return null;
@@ -85,6 +91,7 @@ console.log(`Mode: ${dryRun ? "dry run" : "send"}`);
 console.log(`From: ${from}`);
 console.log(`Reply-To: ${replyTo}`);
 console.log("");
+console.log(`Auth users checked: ${authUsers.length}`);
 console.log(`Profiles checked: ${profiles.length}`);
 console.log(`Already contacted for this campaign: ${alreadyContacted.size}`);
 console.log(`Ready to contact: ${candidates.length}`);
@@ -165,8 +172,8 @@ async function getProfiles(): Promise<ProfileRow[]> {
   return (data ?? []) as ProfileRow[];
 }
 
-async function getAuthEmails(): Promise<Map<string, string>> {
-  const emailByUserId = new Map<string, string>();
+async function getAuthUsers(): Promise<AuthUser[]> {
+  const authUsers: AuthUser[] = [];
   const perPage = 1000;
 
   for (let page = 1; ; page++) {
@@ -175,13 +182,19 @@ async function getAuthEmails(): Promise<Map<string, string>> {
 
     const users = data.users ?? [];
     for (const user of users) {
-      if (user.email) emailByUserId.set(user.id, user.email);
+      if (!user.email) continue;
+
+      authUsers.push({
+        id: user.id,
+        email: user.email,
+        createdAt: user.created_at ?? null,
+      });
     }
 
     if (users.length < perPage) break;
   }
 
-  return emailByUserId;
+  return authUsers.sort((a, b) => (a.createdAt ?? "").localeCompare(b.createdAt ?? ""));
 }
 
 async function getTradeCounts(): Promise<Map<string, number>> {
