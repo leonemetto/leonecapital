@@ -88,20 +88,20 @@ serve(async (req) => {
     const userId = user.id;
 
     // ── Subscription tier check ─────────────────────────────────────────────
-    const { data: subscription } = await supabase
+    const { data: subscriptions } = await supabase
       .from("subscriptions")
-      .select("plan, status, current_period_end")
+      .select("plan, status, current_period_end, created_at")
       .eq("user_id", userId)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle();
+      .order("created_at", { ascending: false });
 
-    const tier = subscription?.plan ?? "free";
-    const status = subscription?.status ?? "active";
-    const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end).getTime() : null;
-    const trialActive = status === "trialing" && periodEnd !== null && periodEnd > Date.now();
-    const isPro = (tier === "pro" || tier === "elite") &&
-      (status === "active" || status === "past_due" || status === "cancelling" || trialActive);
+    const hasAccess = (row: { plan?: string | null; status?: string | null; current_period_end?: string | null } | null | undefined) => {
+      const periodEnd = row?.current_period_end ? new Date(row.current_period_end).getTime() : null;
+      const trialActive = row?.status === "trialing" && periodEnd !== null && periodEnd > Date.now();
+      return (row?.plan === "pro" || row?.plan === "elite") &&
+        (row?.status === "active" || row?.status === "past_due" || row?.status === "cancelling" || trialActive);
+    };
+
+    const isPro = (subscriptions ?? []).some(hasAccess);
 
     if (!isPro) {
       return new Response(

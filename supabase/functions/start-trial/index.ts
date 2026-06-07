@@ -49,7 +49,7 @@ Deno.serve(async (req) => {
 
   const { data: rows, error: rowsErr } = await supa
     .from("subscriptions")
-    .select("id, plan, status, current_period_end, created_at")
+    .select("id, plan, status, provider, current_period_end, created_at")
     .eq("user_id", userId)
     .order("created_at", { ascending: false });
 
@@ -60,7 +60,8 @@ Deno.serve(async (req) => {
     const status = row.status;
     const periodEnd = row.current_period_end ? new Date(row.current_period_end).getTime() : null;
     const trialStillActive = status === "trialing" && periodEnd != null && periodEnd > now.getTime();
-    return row.plan === "pro" && (status === "active" || status === "past_due" || status === "cancelling" || trialStillActive);
+    return (row.plan === "pro" || row.plan === "elite") &&
+      (status === "active" || status === "past_due" || status === "cancelling" || trialStillActive);
   });
 
   if (existingAccess) {
@@ -68,15 +69,6 @@ Deno.serve(async (req) => {
       started: false,
       already_active: true,
       subscription: existingAccess,
-    }, 200, origin);
-  }
-
-  const priorTrialOrPaid = existingRows.some((row) => row.plan === "pro" || row.plan === "elite");
-  if (priorTrialOrPaid) {
-    return json({
-      started: false,
-      trial_available: false,
-      error: "trial already used",
     }, 200, origin);
   }
 
@@ -94,6 +86,33 @@ Deno.serve(async (req) => {
     current_period_start: now.toISOString(),
     current_period_end: trialEnds.toISOString(),
   };
+
+  const reusableManualTrial = existingRows.find((row) =>
+    row.plan === "pro" &&
+    row.status === "trialing" &&
+    (!row.provider || row.provider === "manual")
+  );
+
+  if (reusableManualTrial?.id) {
+    const { data, error } = await supa
+      .from("subscriptions")
+      .update(trialPayload)
+      .eq("id", reusableManualTrial.id)
+      .select("id, plan, status, current_period_end")
+      .single();
+
+    if (error) return json({ error: "failed to start trial" }, 500, origin);
+    return json({ started: true, subscription: data }, 200, origin);
+  }
+
+  const priorTrialOrPaid = existingRows.some((row) => row.plan === "pro" || row.plan === "elite");
+  if (priorTrialOrPaid) {
+    return json({
+      started: false,
+      trial_available: false,
+      error: "trial already used",
+    }, 200, origin);
+  }
 
   if (legacyFree?.id) {
     const { data, error } = await supa

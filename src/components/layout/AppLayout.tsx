@@ -32,7 +32,7 @@ export function AppLayout({ children, rail }: AppLayoutProps) {
           {isTrialing && !isTrialExpired && trialDaysLeft !== null && (
             <div className="border-b border-border bg-muted/35 px-5 py-2.5 text-center text-xs text-muted-foreground">
               Pro trial active. <span className="font-mono tabular-nums text-foreground">{trialDaysLeft}</span> {trialDaysLeft === 1 ? 'day' : 'days'} left.
-              {' '}Upgrade from Settings when you are ready.
+              {' '}Use the dashboard upgrade prompt when you are ready.
             </div>
           )}
           <main className="max-w-[1560px] mx-auto p-5 md:p-6 lg:p-7 pt-16 lg:pt-7">

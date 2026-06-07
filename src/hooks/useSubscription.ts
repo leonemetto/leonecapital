@@ -32,7 +32,16 @@ type SubscriptionRow = {
   plan?: string | null;
   status?: string | null;
   current_period_end?: string | null;
+  created_at?: string | null;
 };
+
+function subscriptionHasCurrentAccess(row: SubscriptionRow | null | undefined): boolean {
+  if (!row || (row.plan !== 'pro' && row.plan !== 'elite')) return false;
+
+  const periodEnd = row.current_period_end ? new Date(row.current_period_end).getTime() : null;
+  const trialActive = row.status === 'trialing' && periodEnd != null && periodEnd > Date.now();
+  return row.status === 'active' || row.status === 'past_due' || row.status === 'cancelling' || trialActive;
+}
 
 export function useSubscription(): UseSubscriptionResult {
   const { user } = useAuth();
@@ -41,17 +50,17 @@ export function useSubscription(): UseSubscriptionResult {
     queryKey: ['subscription', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
-      // A user can have historical 'cancelled' rows alongside an 'active' one.
-      // Sort by created_at desc + limit 1 to fetch the relevant subscription.
+      // A user can have historical rows. Prefer any current access row before
+      // falling back to the newest row for read-only/expired messaging.
       const { data, error } = await supabase
         .from('subscriptions')
-        .select('id, plan, status, current_period_end')
+        .select('id, plan, status, current_period_end, created_at')
         .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
+        .order('created_at', { ascending: false });
       if (error) throw error;
-      return data as SubscriptionRow | null;
+
+      const rows = (data ?? []) as SubscriptionRow[];
+      return rows.find(subscriptionHasCurrentAccess) ?? rows[0] ?? null;
     },
     enabled: !!user?.id,
     staleTime: 0, // always fresh — a stale "free" after payment is a bad user experience

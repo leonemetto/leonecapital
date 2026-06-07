@@ -10,23 +10,31 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const invalidateSubscription = useInvalidateSubscription();
   const { user } = useAuth();
   const [startingTrial, setStartingTrial] = useState(false);
+  const [trialAttemptFinishedForUser, setTrialAttemptFinishedForUser] = useState<string | null>(null);
   const attemptedForUser = useRef<string | null>(null);
+  const needsTrial =
+    !!user?.id &&
+    !subscription.isLoading &&
+    (!subscription.hasSubscription || subscription.tier === 'free') &&
+    trialAttemptFinishedForUser !== user.id;
 
   useEffect(() => {
-    const needsTrial = !subscription.hasSubscription || subscription.tier === 'free';
-    if (!user?.id || subscription.isLoading || !needsTrial) return;
+    if (!user?.id || !needsTrial) return;
     if (attemptedForUser.current === user.id) return;
 
     attemptedForUser.current = user.id;
     setStartingTrial(true);
     supabase.functions.invoke('start-trial', { body: {} })
       .then(() => invalidateSubscription())
-      .finally(() => setStartingTrial(false));
-  }, [invalidateSubscription, subscription.hasSubscription, subscription.isLoading, subscription.tier, user?.id]);
+      .finally(() => {
+        setTrialAttemptFinishedForUser(user.id);
+        setStartingTrial(false);
+      });
+  }, [invalidateSubscription, needsTrial, user?.id]);
 
   const value = {
     ...subscription,
-    isLoading: subscription.isLoading || startingTrial,
+    isLoading: subscription.isLoading || startingTrial || needsTrial,
   };
 
   return (
