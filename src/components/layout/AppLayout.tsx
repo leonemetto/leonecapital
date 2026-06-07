@@ -18,7 +18,13 @@ export function AppLayout({ children, rail }: AppLayoutProps) {
     : null;
 
   return (
-    <div className="relative min-h-screen flex bg-background [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div
+      className="relative min-h-screen flex bg-background [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+      style={{
+        background:
+          'radial-gradient(circle at 78% -12%, color-mix(in oklab, var(--ef-bg-elev) 55%, transparent), transparent 34%), var(--ef-bg)',
+      }}
+    >
       <AppSidebar />
       <div className="relative z-10 flex-1 min-w-0 flex">
         <div className="flex-1 min-w-0">
@@ -29,7 +35,7 @@ export function AppLayout({ children, rail }: AppLayoutProps) {
               {' '}Upgrade from Settings when you are ready.
             </div>
           )}
-          <main className="max-w-[1400px] mx-auto p-5 md:p-6 lg:p-7 pt-16 lg:pt-7">
+          <main className="max-w-[1560px] mx-auto p-5 md:p-6 lg:p-7 pt-16 lg:pt-7">
             {children}
           </main>
         </div>

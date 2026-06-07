@@ -58,7 +58,9 @@
     --sidebar-ring: 38 92% 46%;
 
     /* Design token aliases for fintech components */
-    --ff-mono: 'Roboto Mono', 'Courier New', monospace;
+    --ff-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --ff-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --ff-mono: 'Geist Mono', 'SFMono-Regular', 'Roboto Mono', 'Courier New', monospace;
     --ef-bg: #fafaf7;
     --ef-bg-elev: #ffffff;
     --ef-bg-sunken: #f3f2ed;
@@ -122,9 +124,9 @@
     --sidebar-ring: 38 92% 54%;
 
     /* Dark mode design token aliases */
-    --ef-bg: #000000;
+    --ef-bg: #030303;
     --ef-bg-elev: #141413;
-    --ef-bg-sunken: #000000;
+    --ef-bg-sunken: #050504;
     --ef-ink: #f2f0ea;
     --ef-ink-2: #cfcdc5;
     --ef-ink-3: #908e87;
@@ -155,8 +157,8 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Geist', system-ui, sans-serif;
-    font-feature-settings: 'ss01' on, 'ss02' on;
+    font-family: var(--ff-body);
+    font-feature-settings: 'ss01' on, 'ss02' on, 'kern' on;
     font-variant-numeric: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -164,9 +166,9 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Geist', system-ui, sans-serif;
-    font-weight: 700;
-    letter-spacing: -0.02em;
+    font-family: var(--ff-display);
+    font-weight: 580;
+    letter-spacing: -0.035em;
   }
 
   /* Custom scrollbar */
@@ -188,15 +190,15 @@
 
 @layer utilities {
   .font-mono {
-    font-family: 'Geist', system-ui, sans-serif;
+    font-family: var(--ff-mono);
     font-variant-numeric: tabular-nums lining-nums;
-    font-feature-settings: 'tnum' on, 'lnum' on;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on, 'zero' on;
   }
 
   .tabular-nums {
-    font-family: 'Geist', system-ui, sans-serif;
+    font-family: var(--ff-mono);
     font-variant-numeric: tabular-nums lining-nums;
-    font-feature-settings: 'tnum' on, 'lnum' on;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on, 'zero' on;
   }
 
   /* ─── Liquid Glass System ─── */
@@ -387,9 +389,9 @@
 
 /* ─── metric-number: outside @layer so it wins the cascade unconditionally ─── */
 .metric-number {
-  font-family: 'Geist', system-ui, sans-serif;
-  font-weight: 800;
-  letter-spacing: -1.5px;
+  font-family: var(--ff-mono);
+  font-weight: 560;
+  letter-spacing: -0.055em;
   font-variant-numeric: tabular-nums lining-nums;
-  font-feature-settings: 'tnum' on, 'lnum' on;
+  font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on, 'zero' on;
 }

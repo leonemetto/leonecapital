@@ -83,20 +83,24 @@ function Panel({
   children,
   className,
   style,
+  quiet = false,
 }: {
   children: React.ReactNode;
   className?: string;
   style?: React.CSSProperties;
+  quiet?: boolean;
 }) {
   return (
     <section
       className={className}
       style={{
         background:
-          'linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, white 3%), var(--ef-bg-elev))',
-        border: '1px solid color-mix(in oklab, var(--ef-line) 82%, white 8%)',
+          quiet
+            ? 'linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 88%, transparent), color-mix(in oklab, var(--ef-bg) 72%, var(--ef-bg-elev) 28%))'
+            : 'linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, white 3%), var(--ef-bg-elev))',
+        border: quiet ? '1px solid color-mix(in oklab, var(--ef-line) 48%, transparent)' : '1px solid color-mix(in oklab, var(--ef-line) 82%, white 8%)',
         borderRadius: 18,
-        boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.035)',
+        boxShadow: quiet ? 'none' : 'inset 0 1px 0 rgba(255,255,255,0.035)',
         ...style,
       }}
     >
@@ -130,8 +134,10 @@ function MetricPlate({
         minHeight: compact ? 64 : 94,
         padding: compact ? '11px 12px' : '16px 16px 14px',
         borderRadius: compact ? 12 : 14,
-        background: 'color-mix(in oklab, var(--ef-bg-sunken) 78%, transparent)',
-        border: '1px solid color-mix(in oklab, var(--ef-line) 72%, transparent)',
+        background: compact
+          ? 'linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-sunken) 72%, transparent), color-mix(in oklab, var(--ef-bg) 82%, transparent))'
+          : 'color-mix(in oklab, var(--ef-bg-sunken) 78%, transparent)',
+        border: compact ? '1px solid color-mix(in oklab, var(--ef-line) 45%, transparent)' : '1px solid color-mix(in oklab, var(--ef-line) 72%, transparent)',
       }}
     >
       <p className="font-mono uppercase" style={{ margin: 0, fontSize: compact ? 9 : 10, letterSpacing: '0.12em', color: 'var(--ef-ink-4)' }}>
@@ -172,6 +178,9 @@ function EquityCommandPanel({
   const expectancyPerTrade = trades.length > 0 ? stats.netPnl / trades.length : 0;
   const isPositive = netPnl >= 0;
   const lineColor = isPositive ? 'var(--ef-pos)' : 'var(--ef-neg)';
+  const avgTrade = trades.length > 0 ? stats.netPnl / trades.length : 0;
+  const avgWin = stats.wins > 0 ? trades.filter(t => t.outcome === 'win').reduce((sum, t) => sum + t.pnl, 0) / stats.wins : 0;
+  const avgLoss = stats.losses > 0 ? Math.abs(trades.filter(t => t.outcome === 'loss').reduce((sum, t) => sum + t.pnl, 0) / stats.losses) : 0;
 
   const yDomain = useMemo(() => {
     if (data.length === 0) return ['auto', 'auto'] as ['auto', 'auto'];
@@ -183,8 +192,8 @@ function EquityCommandPanel({
   }, [data, baselineBalance]);
 
   return (
-    <Panel className="overflow-hidden h-full" style={{ minHeight: 410 }}>
-      <div style={{ padding: '22px 24px 20px' }}>
+    <Panel className="overflow-hidden h-full" style={{ minHeight: 500 }}>
+      <div style={{ padding: '24px 26px 22px' }}>
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
             <div>
               <div className="flex items-center gap-2">
@@ -246,7 +255,7 @@ function EquityCommandPanel({
             </Link>
           </div>
 
-          <div style={{ height: 210, marginTop: 18 }}>
+          <div style={{ height: 260, marginTop: 18 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={{ top: 14, right: 8, bottom: 6, left: 0 }}>
                 <defs>
@@ -303,7 +312,7 @@ function EquityCommandPanel({
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
             <MetricPlate
               label="Win rate"
               value={`${stats.winRate.toFixed(1)}%`}
@@ -333,6 +342,32 @@ function EquityCommandPanel({
               compact
             />
           </div>
+
+          <div
+            className="grid grid-cols-2 md:grid-cols-4"
+            style={{
+              marginTop: 14,
+              borderTop: '1px solid color-mix(in oklab, var(--ef-line) 58%, transparent)',
+              paddingTop: 14,
+              gap: 16,
+            }}
+          >
+            {[
+              { label: 'Avg trade', value: fmtSignedMoney(avgTrade, 2), tone: avgTrade >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' },
+              { label: 'Avg winner', value: fmtMoney(avgWin, 2), tone: 'var(--ef-pos)' },
+              { label: 'Avg loser', value: fmtMoney(avgLoss, 2), tone: 'var(--ef-neg)' },
+              { label: 'Streak', value: `${stats.currentStreak.count} ${stats.currentStreak.type}`, tone: stats.currentStreak.type === 'win' ? 'var(--ef-pos)' : stats.currentStreak.type === 'loss' ? 'var(--ef-neg)' : 'var(--ef-ink-3)' },
+            ].map(item => (
+              <div key={item.label}>
+                <p className="font-mono uppercase" style={{ margin: 0, fontSize: 9, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
+                  {item.label}
+                </p>
+                <p className="font-mono" style={{ margin: '6px 0 0', fontSize: 15, lineHeight: 1, color: item.tone }}>
+                  {item.value}
+                </p>
+              </div>
+            ))}
+          </div>
       </div>
     </Panel>
   );
@@ -357,7 +392,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
   const maxSessionPnl = Math.max(...sessions.map(s => Math.abs(s.pnl ?? 0)), 1);
 
   return (
-    <aside style={{ padding: '20px 18px', minHeight: 0 }}>
+    <Panel quiet style={{ padding: '22px 22px 20px', minHeight: 500 }}>
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
@@ -382,7 +417,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mt-4">
+      <div className="grid grid-cols-2 gap-3 mt-5">
         <MetricPlate
           label="Today"
           value={fmtSignedMoney(todayPnl)}
@@ -400,16 +435,16 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
       </div>
 
       {sessions.length > 0 && (
-        <div style={{ marginTop: 16 }}>
+        <div style={{ marginTop: 22 }}>
           <div className="flex items-center justify-between">
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--ef-ink)' }}>
+            <p style={{ margin: 0, fontSize: 15, fontWeight: 560, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
               Sessions
             </p>
             <Link to="/analyst" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
               all →
             </Link>
           </div>
-          <div style={{ display: 'grid', gap: 9, marginTop: 10 }}>
+          <div style={{ display: 'grid', gap: 13, marginTop: 13 }}>
             {sessions.map(session => {
               const pnl = session.pnl ?? 0;
               const pos = pnl >= 0;
@@ -417,12 +452,12 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
               return (
                 <div key={session.session}>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="truncate" style={{ fontSize: 12, color: 'var(--ef-ink-2)' }}>{session.session}</span>
-                    <span className="font-mono" style={{ fontSize: 11, color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
+                    <span className="truncate" style={{ fontSize: 13, color: 'var(--ef-ink-2)' }}>{session.session}</span>
+                    <span className="font-mono" style={{ fontSize: 12, color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
                       {session.winRate.toFixed(0)}% · {fmtSignedMoney(pnl)}
                     </span>
                   </div>
-                  <div style={{ height: 6, borderRadius: 99, background: 'var(--ef-bg-sunken)', marginTop: 6, overflow: 'hidden' }}>
+                  <div style={{ height: 7, borderRadius: 99, background: 'var(--ef-bg-sunken)', marginTop: 8, overflow: 'hidden' }}>
                     <div
                       style={{
                         height: '100%',
@@ -440,32 +475,32 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
         </div>
       )}
 
-      <div style={{ marginTop: 16 }}>
+      <div style={{ marginTop: 24 }}>
         <div className="flex items-center justify-between">
-          <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--ef-ink)' }}>
+          <p style={{ margin: 0, fontSize: 15, fontWeight: 560, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
             Recent trades
           </p>
           <Link to="/journal" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
             trades →
           </Link>
         </div>
-        <div style={{ display: 'grid', gap: 0, marginTop: 8 }}>
+        <div style={{ display: 'grid', gap: 0, marginTop: 11 }}>
           {lastFive.slice(0, 4).map(t => (
             <div
               key={t.id}
               className="grid items-center"
               style={{
-                gridTemplateColumns: '28px 1fr auto',
-                gap: 10,
-                padding: '8px 0',
-                borderBottom: '1px dashed var(--ef-line)',
+                gridTemplateColumns: '34px minmax(0,1fr) auto',
+                gap: 12,
+                padding: '11px 0',
+                borderTop: '1px solid color-mix(in oklab, var(--ef-line) 50%, transparent)',
               }}
             >
               <span
                 className="font-mono"
                 style={{
-                  width: 28,
-                  height: 28,
+                  width: 32,
+                  height: 32,
                   borderRadius: 8,
                   display: 'grid',
                   placeItems: 'center',
@@ -478,16 +513,16 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
                 {t.outcome === 'win' ? 'W' : t.outcome === 'loss' ? 'L' : 'BE'}
               </span>
               <div className="min-w-0">
-                <p className="font-mono truncate" style={{ margin: 0, fontSize: 12, color: 'var(--ef-ink)' }}>
+                <p className="font-mono truncate" style={{ margin: 0, fontSize: 13, color: 'var(--ef-ink)' }}>
                   {t.instrument} · {t.direction === 'long' ? 'Long' : 'Short'}
                 </p>
-                <p className="truncate" style={{ margin: '3px 0 0', fontSize: 11, color: 'var(--ef-ink-4)' }}>
+                <p className="truncate" style={{ margin: '4px 0 0', fontSize: 12, color: 'var(--ef-ink-4)' }}>
                   {t.session || t.strategy || t.date}
                 </p>
               </div>
               <span
                 className="font-mono"
-                style={{ fontSize: 12, color: t.pnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' }}
+                style={{ fontSize: 13, color: t.pnl >= 0 ? 'var(--ef-pos)' : 'var(--ef-neg)' }}
               >
                 {fmtSignedMoney(t.pnl)}
               </span>
@@ -495,7 +530,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
           ))}
         </div>
       </div>
-    </aside>
+    </Panel>
   );
 }
 
@@ -655,7 +690,7 @@ function ActiveChallenges({ accounts, trades }: { accounts: TradingAccount[]; tr
   if (propAccounts.length === 0) return null;
 
   return (
-    <Panel style={{ padding: '14px 16px 16px', marginBottom: 14 }}>
+    <Panel quiet style={{ padding: '14px 16px 16px', marginBottom: 14 }}>
       <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
         <h2 style={{ margin: 0, fontSize: 15, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink-2)' }}>
           Active challenges
@@ -687,7 +722,7 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
   const maxAbs = Math.max(...pairs.map(p => Math.abs(p.expectancy)), 1);
 
   return (
-    <Panel style={{ padding: '22px 24px', minHeight: 300 }}>
+    <Panel quiet style={{ padding: '22px 24px', minHeight: 300 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
@@ -758,7 +793,7 @@ function ExecutionTape({ trades }: { trades: Trade[] }) {
   );
 
   return (
-    <Panel style={{ padding: 0, overflow: 'hidden' }}>
+    <Panel quiet style={{ padding: 0, overflow: 'hidden' }}>
       <div className="flex items-center justify-between" style={{ padding: '20px 24px 14px', borderBottom: '1px solid var(--ef-line)' }}>
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
@@ -1086,7 +1121,7 @@ const Dashboard = () => {
       <ActiveChallenges accounts={accounts} trades={scaledTrades} />
 
       <div style={{ display: 'grid', gap: 14 }}>
-        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_330px] gap-4 items-stretch">
+        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_390px] gap-4 items-stretch">
           <EquityCommandPanel
             trades={scaledTrades}
             stats={stats}
@@ -1096,7 +1131,7 @@ const Dashboard = () => {
           <RiskCommandPanel trades={scaledTrades} stats={stats} />
         </div>
 
-        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)] gap-4">
+        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,0.9fr)_minmax(390px,1.1fr)] gap-4">
           <div className="min-w-0">
             <HeatMapCalendar trades={scaledTrades} />
           </div>
