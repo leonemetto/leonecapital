@@ -14,10 +14,14 @@ export function useOnboarding() {
   const completeOnboarding = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
-    await supabase
+    const { error } = await supabase
       .from('profiles')
       .update({ onboarding_completed: true } as any)
       .eq('user_id', user.id);
+    if (error) throw error;
+    qc.setQueryData(['profile'], (current: any) => (
+      current ? { ...current, onboardingCompleted: true } : current
+    ));
     qc.invalidateQueries({ queryKey: ['profile'] });
   }, [qc]);
 

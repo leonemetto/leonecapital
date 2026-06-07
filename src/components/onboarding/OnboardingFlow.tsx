@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -159,6 +160,7 @@ function card(step: Step, content: React.ReactNode) {
 
 export function OnboardingFlow({ onComplete }: Props) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const [step, setStep] = useState<Step>(1);
   const [saving, setSaving] = useState(false);
@@ -251,45 +253,48 @@ export function OnboardingFlow({ onComplete }: Props) {
     }
   };
 
-  /* loads demo data in the background — does NOT block onboarding completion,
-     so a slow/failed demo insert can't break the funnel. */
-  const loadDemoInBackground = async (userId: string, existingAccountId: string | null) => {
-    try {
-      const { generateDemoTrades } = await import('@/lib/demoData');
+  const loadDemoData = async (userId: string, existingAccountId: string | null) => {
+    const { generateDemoTrades } = await import('@/lib/demoData');
 
-      let accountId = existingAccountId;
-      if (!accountId) {
-        const { data: acc } = await supabase.from('accounts').insert({
-          user_id: userId,
-          name: 'Demo Account',
-          type: 'demo',
-          starting_balance: 10000,
-          current_balance: 10000,
-          currency: 'USD',
-        }).select().single();
-        accountId = acc?.id ?? null;
-      }
-      if (!accountId) return;
-
-      const demoTrades = generateDemoTrades();
-      const totalPnl = demoTrades.reduce((s, t) => s + t.pnl, 0);
-      const rows = demoTrades.map(t => ({
+    let accountId = existingAccountId;
+    if (!accountId) {
+      const { data: acc, error: accountError } = await supabase.from('accounts').insert({
         user_id: userId,
-        account_id: accountId,
-        date: t.date, instrument: t.instrument, direction: t.direction,
-        outcome: t.outcome, pnl: t.pnl, strategy: t.strategy, session: t.session,
-        htf_bias: t.htf_bias, notes: t.notes, r_multiple: t.r_multiple,
-        risk_percent: t.risk_percent, confidence_level: t.confidence_level,
-        emotional_state: t.emotional_state, followed_plan: t.followed_plan,
-        time_in_trade: t.time_in_trade, is_demo: true,
-      }));
-      await supabase.from('trades').insert(rows);
-      await supabase.from('accounts')
-        .update({ current_balance: 10000 + totalPnl })
-        .eq('id', accountId);
-    } catch (err) {
-      console.warn('Demo data load failed (non-fatal):', err);
+        name: 'Demo Account',
+        type: 'demo',
+        starting_balance: 10000,
+        current_balance: 10000,
+        currency: 'USD',
+      }).select().single();
+      if (accountError) throw accountError;
+      accountId = acc?.id ?? null;
     }
+    if (!accountId) throw new Error('Could not create an account for demo data');
+
+    const demoTrades = generateDemoTrades();
+    const totalPnl = demoTrades.reduce((s, t) => s + t.pnl, 0);
+    const rows = demoTrades.map(t => ({
+      user_id: userId,
+      account_id: accountId,
+      date: t.date, instrument: t.instrument, direction: t.direction,
+      outcome: t.outcome, pnl: t.pnl, strategy: t.strategy, session: t.session,
+      htf_bias: t.htf_bias, notes: t.notes, r_multiple: t.r_multiple,
+      risk_percent: t.risk_percent, confidence_level: t.confidence_level,
+      emotional_state: t.emotional_state, followed_plan: t.followed_plan,
+      time_in_trade: t.time_in_trade, is_demo: true,
+    }));
+    const { error: tradesError } = await supabase.from('trades').insert(rows);
+    if (tradesError) throw tradesError;
+
+    const { error: balanceError } = await supabase.from('accounts')
+      .update({ current_balance: 10000 + totalPnl })
+      .eq('id', accountId);
+    if (balanceError) throw balanceError;
+
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['accounts'] }),
+      queryClient.invalidateQueries({ queryKey: ['trades'] }),
+    ]);
   };
 
   const handleFinish = async (target: '/add-trade' | '/import-trades' | '/dashboard', loadDemo = false) => {
@@ -298,11 +303,8 @@ export function OnboardingFlow({ onComplete }: Props) {
       const userId = await getUserId();
       trackStep(loadDemo ? 'finished_with_demo' : `finished_to_${target.replace('/', '')}`);
 
-      /* mark onboarding complete FIRST so a slow demo insert can't fail the flow */
+      if (loadDemo) await loadDemoData(userId, createdAccountId);
       await onComplete();
-
-      /* fire-and-forget demo load — user lands on dashboard while it streams in */
-      if (loadDemo) void loadDemoInBackground(userId, createdAccountId);
 
       /* navigate immediately — no setTimeout, no unmount race */
       navigate(target, { replace: true });

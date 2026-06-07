@@ -6,12 +6,11 @@ import { HelmetProvider } from "react-helmet-async";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useProfile } from "@/hooks/useProfile";
-import { useCriteria } from "@/hooks/useCriteria";
 import { useOnboarding } from "@/hooks/useOnboarding";
 import { MfaChallenge } from "@/components/MfaChallenge";
-import { ChecklistSetup } from "@/components/criteria/ChecklistSetup";
 import { OnboardingFlow } from "@/components/onboarding/OnboardingFlow";
 import { useState, useEffect, Suspense } from "react";
+import { MotionConfig } from "framer-motion";
 import { lazyWithRetry as lazy } from "@/lib/lazyWithRetry";
 import { supabase } from "@/integrations/supabase/client";
 import { TradesProvider } from "@/contexts/TradesContext";
@@ -123,17 +122,6 @@ function AuthGate({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-function ChecklistGate({ children }: { children: React.ReactNode }) {
-  const { criteria, isLoading } = useCriteria();
-  const [dismissed, setDismissed] = useState(false);
-
-  if (isLoading) return <>{children}</>;
-  if (!dismissed && criteria.length === 0) {
-    return <ChecklistSetup onDone={() => setDismissed(true)} />;
-  }
-  return <>{children}</>;
-}
-
 function PagePrefetcher() {
   useEffect(() => {
     const t = setTimeout(() => {
@@ -219,7 +207,7 @@ const App = () => (
                   <AccountsProvider>
                     <TradesProvider>
                       <LeaksProvider>
-                      <ChecklistGate>
+                      <MotionConfig reducedMotion="always">
                         <Routes>
                           <Route path="/dashboard" element={<PageErrorBoundary pageName="dashboard"><Dashboard /></PageErrorBoundary>} />
                           <Route path="/add-trade" element={<PageErrorBoundary pageName="add-trade"><AddTrade /></PageErrorBoundary>} />
@@ -235,7 +223,7 @@ const App = () => (
                           <Route path="/what-if" element={<PageErrorBoundary pageName="what-if"><WhatIfSimulator /></PageErrorBoundary>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
-                      </ChecklistGate>
+                      </MotionConfig>
                       </LeaksProvider>
                     </TradesProvider>
                   </AccountsProvider>

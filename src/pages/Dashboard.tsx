@@ -1,5 +1,4 @@
 import { useMemo, useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { StatCards } from '@/components/dashboard/StatCards';
 import { PremiumEquityCurve } from '@/components/dashboard/PremiumEquityCurve';
@@ -396,24 +395,24 @@ const Dashboard = () => {
       )}
 
       {/* Stat strip */}
-      <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}>
+      <div>
         <StatCards stats={stats} trades={scaledTrades} startingBalance={startingBalance} balanceAdjustment={balanceAdjustment} />
-      </motion.div>
+      </div>
 
       {/* Row 1: Equity curve full width */}
-      <motion.div style={{ marginBottom: 14 }} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}>
+      <div style={{ marginBottom: 14 }}>
         <PremiumEquityCurve
           trades={scaledTrades}
           startingBalance={startingBalance}
           balanceAdjustment={balanceAdjustment}
         />
-      </motion.div>
+      </div>
 
       {/* Row 2: Heat Map Calendar (1.55fr) + Instrument Performance (1fr) */}
-      <motion.div className="grid grid-cols-1 md:grid-cols-[1.55fr_1fr] gap-[14px]" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2, ease: [0.25, 0.46, 0.45, 0.94] }}>
+      <div className="grid grid-cols-1 md:grid-cols-[1.55fr_1fr] gap-[14px]">
         <HeatMapCalendar trades={scaledTrades} />
         <InstrumentPerformance trades={scaledTrades} />
-      </motion.div>
+      </div>
     </AppLayout>
   );
 };
