@@ -3,10 +3,12 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { HeatMapCalendar } from '@/components/dashboard/HeatMapCalendar';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { useSharedSubscription } from '@/contexts/SubscriptionContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
 import { calculateAnalytics, getExpectancyByField, getSessionPerformance, type Analytics } from '@/lib/analytics';
 import { useInvalidateSubscription } from '@/hooks/useSubscription';
+import { UpgradeModal } from '@/components/billing/UpgradeModal';
 import {
   ArrowDown,
   ArrowUp,
@@ -152,6 +154,49 @@ function MetricPlate({
         </p>
       )}
     </div>
+  );
+}
+
+function UpgradePromptStrip({ onUpgrade }: { onUpgrade: () => void }) {
+  const { hasProAccess, isTrialing, isTrialExpired, trialEndsAt } = useSharedSubscription();
+  if (hasProAccess && !isTrialing) return null;
+  if (!isTrialing && !isTrialExpired) return null;
+
+  const daysLeft = trialEndsAt
+    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / 86_400_000))
+    : 0;
+  const urgent = isTrialExpired || daysLeft <= 3;
+
+  return (
+    <Panel
+      quiet={!urgent}
+      style={{
+        padding: '14px 16px',
+        marginBottom: 18,
+        borderColor: urgent ? 'var(--ef-warn)' : 'var(--ef-line)',
+        background: urgent ? 'var(--ef-warn-wash)' : undefined,
+      }}
+    >
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+        <div>
+          <p className="font-mono uppercase" style={{ margin: 0, fontSize: 9, letterSpacing: '0.14em', color: urgent ? 'var(--ef-warn-high)' : 'var(--ef-ink-4)' }}>
+            {isTrialExpired ? 'Pro trial ended' : 'Pro trial active'}
+          </p>
+          <p style={{ margin: '5px 0 0', fontSize: 13.5, lineHeight: 1.45, color: 'var(--ef-ink-2)' }}>
+            {isTrialExpired
+              ? 'Your data is safe. Upgrade to keep logging trades, importing history, and using Atlas.'
+              : `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left. Upgrade now if EdgeFlow is earning its place in your trading routine.`}
+          </p>
+        </div>
+        <button
+          onClick={onUpgrade}
+          className="shrink-0 rounded-[24px] px-4 py-2 text-sm font-semibold transition-colors"
+          style={{ background: 'var(--ef-ink)', color: 'var(--ef-bg)' }}
+        >
+          Upgrade to Pro
+        </button>
+      </div>
+    </Panel>
   );
 }
 
@@ -868,6 +913,7 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const invalidateSubscription = useInvalidateSubscription();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   // Invalidate subscription cache when returning from payment — Lemon Squeezy
   // redirects to /dashboard?payment=success after checkout completes
@@ -1013,6 +1059,7 @@ const Dashboard = () => {
   if (accounts.length === 0) {
     return (
       <AppLayout>
+        <UpgradePromptStrip onUpgrade={() => setUpgradeOpen(true)} />
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <Wallet className="h-8 w-8 text-muted-foreground/30 mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
@@ -1021,6 +1068,7 @@ const Dashboard = () => {
             <Button size="sm" className="gap-1.5"><Wallet className="h-3.5 w-3.5" weight="regular" /> Add Account</Button>
           </Link>
         </div>
+        <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
       </AppLayout>
     );
   }
@@ -1029,6 +1077,7 @@ const Dashboard = () => {
   if (trades.length === 0) {
     return (
       <AppLayout>
+        <UpgradePromptStrip onUpgrade={() => setUpgradeOpen(true)} />
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center">
           <ChartBar className="h-8 w-8 text-muted-foreground/30 mb-4" weight="regular" />
           <h1 className="text-xl font-semibold mb-1">{getGreeting()}, {profile?.nickname || 'Trader'}</h1>
@@ -1044,6 +1093,7 @@ const Dashboard = () => {
             </Button>
           </div>
         </div>
+        <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
       </AppLayout>
     );
   }
@@ -1118,6 +1168,8 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <UpgradePromptStrip onUpgrade={() => setUpgradeOpen(true)} />
+
       <ActiveChallenges accounts={accounts} trades={scaledTrades} />
 
       <div style={{ display: 'grid', gap: 14 }}>
@@ -1141,6 +1193,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </AppLayout>
   );
 };
