@@ -118,7 +118,7 @@ function buildCandidate(userId: string, email: string, nickname: string, segment
       nickname,
       segment,
       subject,
-      text: `Hey ${nickname}, quick one — I saw you signed up for EdgeFlow but didn't get to logging a trade yet.
+      text: `Hey, quick one — I saw you signed up for EdgeFlow but didn't get to logging a trade yet.
 
 Was anything confusing, or did you just not have time?
 
@@ -136,11 +136,13 @@ Founder, EdgeFlow`,
     nickname,
     segment,
     subject,
-    text: `Hey ${nickname}, quick one — you're set up on EdgeFlow but haven't logged a trade yet.
+    text: `Hey, quick one — you're set up on EdgeFlow but haven't logged a trade yet.
 
-The product starts becoming useful once you add a few trades, because that's when it can show patterns in your performance.
+EdgeFlow starts becoming useful once there are a few trades in your journal, because that's when your Dashboard and Analytics can show real patterns.
 
-If you log 3 recent trades today, wins or losses, I'll personally help you read what the data says.
+If you have 3 recent trades, wins or losses, log them today and check what the data shows.
+
+Also, if anything about logging the first trade feels confusing or too slow, reply and tell me bluntly. I'm tightening that flow now.
 
 ${appUrl}/add-trade
 
