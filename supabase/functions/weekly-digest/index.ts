@@ -182,13 +182,16 @@ serve(async (req) => {
     const { data: profiles } = await supabase.from("profiles").select("id, nickname");
     const profileMap = new Map((profiles ?? []).map((p: any) => [p.id, p.nickname ?? "Trader"]));
 
-    // Only send weekly digest to Pro/Elite subscribers
+    // Only send weekly digest to Pro subscribers and active trials.
     const { data: proSubs } = await supabase
       .from("subscriptions")
-      .select("user_id")
-      .in("tier", ["pro", "elite"])
+      .select("user_id, status, current_period_end")
+      .eq("plan", "pro")
       .in("status", ["active", "trialing"]);
-    const proUserIds = new Set((proSubs ?? []).map((s: any) => s.user_id));
+    const now = Date.now();
+    const proUserIds = new Set((proSubs ?? [])
+      .filter((s: any) => s.status === "active" || (s.current_period_end && new Date(s.current_period_end).getTime() > now))
+      .map((s: any) => s.user_id));
 
     let sent = 0;
     for (const user of authUsers) {

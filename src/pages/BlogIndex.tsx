@@ -38,7 +38,7 @@ export default function BlogIndex() {
             to="/auth"
             style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '7px 18px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}
           >
-            Start free
+            Start Pro trial
           </Link>
         </div>
       </nav>
@@ -97,7 +97,7 @@ export default function BlogIndex() {
           to="/auth"
           style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '12px 32px', fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.01em' }}
         >
-          Start your free trading journal
+          Start your Pro trial
         </Link>
       </div>
     </div>

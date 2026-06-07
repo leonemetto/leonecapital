@@ -337,12 +337,12 @@ export function TradeForm({ initialData, onSubmit, onMirroredSubmit, submitLabel
       }
       if (onCancel) onCancel();
     } catch (err: any) {
-      if (err.message?.includes('Free tier limit reached')) {
-        toast.error('You\'ve reached the 50-trade limit on the free plan. Upgrade to Pro to log more trades.', {
+      if (err.message?.includes('Trial ended') || err.message?.includes('Upgrade to Pro')) {
+        toast.error('Your Pro trial ended. Upgrade to Pro to continue logging trades.', {
           duration: 6000,
           action: {
             label: 'Upgrade',
-            onClick: () => window.location.href = '/pricing',
+            onClick: () => window.location.href = '/profile',
           },
         });
       } else {

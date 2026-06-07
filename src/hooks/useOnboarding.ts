@@ -19,10 +19,12 @@ export function useOnboarding() {
       .update({ onboarding_completed: true } as any)
       .eq('user_id', user.id);
     if (error) throw error;
+    await supabase.functions.invoke('start-trial', { body: {} }).catch(() => null);
     qc.setQueryData(['profile'], (current: any) => (
       current ? { ...current, onboardingCompleted: true } : current
     ));
     qc.invalidateQueries({ queryKey: ['profile'] });
+    qc.invalidateQueries({ queryKey: ['subscription'] });
   }, [qc]);
 
   const markSectionComplete = useCallback(async (sectionId: string) => {

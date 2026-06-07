@@ -657,7 +657,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   box-shadow: inset 1px 1px 1px -0.5px rgba(255,255,255,0.6), inset -1px -1px 1px -0.5px rgba(255,255,255,0.4), 0 0 12px rgba(58,255,157,0.25);
 }
 .save-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(110,231,183,0.15); color: #6ee7b7; margin-left: 6px; }
-.pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 50px; }
+.pricing-grid { display: grid; grid-template-columns: minmax(0, 520px); justify-content: center; gap: 18px; margin-top: 50px; }
 .price-card {
   background:
     radial-gradient(ellipse 120% 80% at 50% 0%, rgba(255,255,255,0.04), transparent 60%),

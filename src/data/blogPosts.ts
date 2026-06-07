@@ -59,7 +59,7 @@ export const blogPosts: BlogPost[] = [
       { type: 'p', text: 'A useful monthly journal review answers three questions:' },
       { type: 'ol', items: ['Where am I leaking? — Which instrument, session, or strategy is dragging down my overall expectancy?', 'What am I doing right? — Which setup or context produces my best results? Am I trading it enough?', 'What behavioral patterns appeared? — Revenge trading after losses? Overtrading on certain days? Reducing size when I should hold? These cost as much as bad setups.'] },
       { type: 'callout', label: 'Key insight', text: 'The goal is not to trade more setups. It is to trade the setups where your data shows you have edge — and stop trading everything else.' },
-      { type: 'cta', text: 'EdgeFlow automates this entire analysis. It segments your results by session, instrument, strategy, and emotional state — and flags the leaks automatically. Free to start, no credit card required.' },
+      { type: 'cta', text: 'EdgeFlow automates this entire analysis. It segments your results by session, instrument, strategy, and emotional state — and flags the leaks automatically. Start the 14-day Pro trial, no credit card required.' },
     ],
   },
 
@@ -107,7 +107,7 @@ export const blogPosts: BlogPost[] = [
       { type: 'ul', items: ['Win rate by session — are you profitable in Asian hours? Most retail forex traders are not.', 'Win rate by pair — do you have edge on all 8 pairs you trade, or really just 2–3?', 'Win rate by direction — do you have a long bias that hurts you in bearish markets?', 'Expectancy by day of week — many traders underperform on Mondays and Fridays due to low liquidity and choppy price action.'] },
       { type: 'p', text: 'The goal of this analysis is to find where your edge actually exists — not where you think it exists — and to concentrate your trading there. Most traders who do this seriously narrow down from 8 pairs to 2–3, from 5 sessions to 2, and increase their profitability in the process by doing less, not more.' },
       { type: 'callout', label: 'Real example', text: 'A trader analysing their first 60 EUR/USD trades found a 62% win rate during London session but only 38% during New York afternoon. Same setup, same pair — 24 percentage points difference just from session timing. They stopped trading after 2pm London and their monthly P&L turned positive.' },
-      { type: 'cta', text: 'EdgeFlow logs all 12 of these fields and runs the session, instrument, and direction breakdowns automatically. Start your free forex trading journal today.' },
+      { type: 'cta', text: 'EdgeFlow logs all 12 of these fields and runs the session, instrument, and direction breakdowns automatically. Start your 14-day Pro trial today.' },
     ],
   },
 
@@ -147,7 +147,7 @@ export const blogPosts: BlogPost[] = [
       { type: 'ol', items: ['Trading through the daily loss limit by a small amount — often on a trade that "should have worked"', 'Not accounting for swap/overnight fees that count toward drawdown', 'Trading on news events that create spreads that temporarily breach the daily limit', 'Losing track of trailing drawdown as balance peaks — the floor moved higher without noticing', 'Overtrading late in the challenge when behind on the profit target'] },
       { type: 'p', text: 'Every one of these failures is a journaling failure, not a strategy failure. The data was available — it just was not visible in real time.' },
       { type: 'callout', label: 'Key rule', text: 'Treat the daily loss limit as an absolute hard stop, not a guideline. The best prop traders leave 20–30% of it unused every single day. The profit target deadline is flexible. The drawdown breach is not.' },
-      { type: 'cta', text: 'EdgeFlow tracks your prop firm challenge drawdown, daily limits, and phase progress automatically. Set your firm\'s rules once and get real-time headroom warnings as you trade. Free to start.' },
+      { type: 'cta', text: 'EdgeFlow tracks your prop firm challenge drawdown, daily limits, and phase progress automatically. Set your firm\'s rules once and get real-time headroom warnings as you trade. Start the 14-day Pro trial.' },
     ],
   },
 
@@ -187,7 +187,7 @@ export const blogPosts: BlogPost[] = [
       { type: 'p', text: 'Leak detection requires data. With fewer than 30 trades, you will see patterns that are not really there — variance disguised as signal. With 50 trades, you can start drawing conclusions. With 100 trades, the patterns become reliable.' },
       { type: 'p', text: 'This is why logging every trade matters — not just the interesting ones. Every trade you skip logging is data you cannot use.' },
       { type: 'callout', label: 'Important', text: 'Negative expectancy in a segment is not always a leak. It might be a strategy that needs more trades to be evaluated, or a temporary drawdown period. Look for consistent patterns across multiple months before making permanent changes.' },
-      { type: 'cta', text: 'EdgeFlow\'s Leak Detection page finds these patterns automatically. It analyses every combination of instrument, session, and direction in your trade history and flags the ones with negative expectancy. Free to start — no spreadsheet required.' },
+      { type: 'cta', text: 'EdgeFlow\'s Leak Detection page finds these patterns automatically. It analyses every combination of instrument, session, and direction in your trade history and flags the ones with negative expectancy. Start the 14-day Pro trial — no spreadsheet required.' },
     ],
   },
 
@@ -224,7 +224,7 @@ export const blogPosts: BlogPost[] = [
       { type: 'p', text: 'If any part of the answer is "because I just lost," "to make back what I lost," or "this looks like it will be quick," that is a revenge trade. Do not take it.' },
       { type: 'p', text: 'The act of writing the reason down — before entering, not after — interrupts the emotional cycle just enough to make the decision conscious instead of reactive.' },
       { type: 'callout', label: 'Real pattern', text: 'In a dataset of 500 trades from a single trader, the win rate on trades taken within 30 minutes of a loss was 29% — against an overall win rate of 54%. Those post-loss trades, while accounting for only 18% of all trades, accounted for 61% of total losses.' },
-      { type: 'cta', text: 'EdgeFlow automatically detects revenge trading patterns in your trade history — multiple trades after losses, compressed timing, and performance drops on high-volume days. See your own behavioral data clearly. Free to start.' },
+      { type: 'cta', text: 'EdgeFlow automatically detects revenge trading patterns in your trade history — multiple trades after losses, compressed timing, and performance drops on high-volume days. See your own behavioral data clearly in the 14-day Pro trial.' },
     ],
   },
 ];

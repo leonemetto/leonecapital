@@ -307,12 +307,10 @@ export default function AIAdvisor() {
 
       if (!resp.ok || !resp.body) {
         const err = await resp.json().catch(() => ({ error: 'Failed to connect' }));
-        if (resp.status === 429 && err.error === 'upgrade_required') {
-          const used = err.used ?? 3;
-          const limit = err.limit ?? 3;
+        if (err.error === 'upgrade_required') {
           setMessages(prev => trimMessages([...prev, {
             role: 'assistant',
-            content: `You've used ${used}/${limit} free Atlas messages. Upgrade to Pro for unlimited access.\n\n[Upgrade to Pro →](/pricing)`,
+            content: 'Your Pro trial ended. Upgrade to Pro to keep using Atlas with your trading data.',
             id: assistantId,
           }]));
         } else {

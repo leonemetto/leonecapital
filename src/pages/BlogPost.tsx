@@ -66,7 +66,7 @@ function renderSection(section: BlogSection, i: number) {
             href="/auth"
             style={{ display: 'inline-block', background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '10px 28px', fontSize: 13, fontWeight: 700, textDecoration: 'none', letterSpacing: '-0.01em' }}
           >
-            Start free — no card required
+            Start 14-day Pro trial
           </a>
         </div>
       );
@@ -129,7 +129,7 @@ export default function BlogPost() {
           to="/auth"
           style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '7px 18px', fontSize: 13, fontWeight: 600, textDecoration: 'none', display: 'inline-block' }}
         >
-          Start free
+          Start Pro trial
         </Link>
       </nav>
 
@@ -191,7 +191,7 @@ export default function BlogPost() {
           to="/auth"
           style={{ background: '#f2f0ea', color: '#080807', borderRadius: 24, padding: '12px 32px', fontSize: 14, fontWeight: 700, textDecoration: 'none', display: 'inline-block', letterSpacing: '-0.01em' }}
         >
-          Start free — no card required
+          Start 14-day Pro trial
         </Link>
       </div>
     </div>

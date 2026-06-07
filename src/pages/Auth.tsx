@@ -650,7 +650,7 @@ export default function Auth() {
               onClick={() => setIsLogin(!isLogin)}
               style={{ color: G, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12 }}
             >
-              {isLogin ? 'Sign up free' : 'Sign in'}
+              {isLogin ? 'Start Pro trial' : 'Sign in'}
             </button>
           </p>
 

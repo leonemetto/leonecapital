@@ -674,7 +674,7 @@
   }
   .save-tag { font-size: 10px; padding: 2px 6px; border-radius: 4px; background: rgba(110,231,183,0.15); color: #6ee7b7; margin-left: 6px; }
   .pricing-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px;
+    display: grid; grid-template-columns: minmax(0, 520px); justify-content: center; gap: 18px;
     margin-top: 50px;
   }
   .price-card {
@@ -1345,7 +1345,7 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-shrink:0;">
       <a href="/auth" class="lg btn-ghost">Log in</a>
-      <a href="/auth" class="lg btn-primary">Start free →</a>
+      <a href="/auth" class="lg btn-primary">Start trial →</a>
     </div>
   </div>
 </nav>
@@ -1912,46 +1912,28 @@
   <div class="wrap">
     <div class="section-head">
       <span class="lg eyebrow">Pricing</span>
-      <h2 class="section-title">Start free.<br>Upgrade when you're ready to go deep.</h2>
-      <p class="section-sub">No commitment. Your trade history carries over on any plan.</p>
+      <h2 class="section-title">Start your 14-day Pro trial.<br>Upgrade when it earns its place.</h2>
+      <p class="section-sub">No credit card required. Your trade history carries over when you upgrade.</p>
       <div class="lg pricing-toggle" id="pricing-toggle">
         <button class="active" data-period="monthly">Monthly</button>
         <button data-period="yearly">Annual <span class="save-tag">2 months free</span></button>
       </div>
     </div>
     <div class="pricing-grid">
-      <!-- Starter -->
-      <div class="price-card">
-        <div class="price-head">
-          <div class="price-name">Starter</div>
-        </div>
-        <div class="price-amount"><span class="num" data-monthly="$0" data-yearly="$0">$0</span></div>
-        <div class="price-per-label">Free to start</div>
-        <a href="/auth" class="lg btn-primary price-cta">Get started free</a>
-        <div class="price-divider"><span class="dot-l"></span><span>FEATURES</span><span class="dot-r"></span></div>
-        <ul class="price-features">
-          <li><span class="check">✓</span> Up to 50 trades</li>
-          <li><span class="check">✓</span> Equity curve &amp; calendar</li>
-          <li><span class="check">✓</span> Basic P&amp;L analytics</li>
-          <li><span class="check">✓</span> Manual trade entry</li>
-          <li><span class="check">✓</span> Single account</li>
-          <li><span class="check">✓</span> 3 Atlas messages</li>
-        </ul>
-      </div>
-      <!-- Pro -->
       <div class="price-card featured">
         <div class="price-head">
           <div class="price-name">Pro</div>
-          <div class="lg price-popular">Best value</div>
+          <div class="lg price-popular">14-day trial</div>
         </div>
         <div class="price-amount"><span class="num" data-monthly="$19" data-yearly="$15.83">$19</span><span class="per">/mo</span></div>
         <div class="price-per-label" id="pro-billing-label">per month · cancel anytime</div>
-        <a href="/auth" class="lg btn-primary price-cta">Get Pro</a>
+        <a href="/auth" class="lg btn-primary price-cta">Start 14-day trial</a>
         <div class="price-divider"><span class="dot-l"></span><span>FEATURES</span><span class="dot-r"></span></div>
         <ul class="price-features">
+          <li><span class="check">✓</span> 14-day full Pro trial</li>
           <li><span class="check">✓</span> Unlimited trades</li>
           <li><span class="check">✓</span> Session &amp; instrument analytics</li>
-          <li><span class="check">✓</span> Unlimited Atlas (Claude)</li>
+          <li><span class="check">✓</span> Atlas AI analyst</li>
           <li><span class="check">✓</span> Leak Detection</li>
           <li><span class="check">✓</span> Strategy Optimizer</li>
           <li><span class="check">✓</span> Trading Plan enforcement</li>
@@ -1961,28 +1943,8 @@
           <li><span class="check">✓</span> Weekly AI digest email</li>
         </ul>
       </div>
-      <!-- Elite -->
-      <div class="price-card">
-        <div class="price-head">
-          <div class="price-name">Elite</div>
-        </div>
-        <div class="price-amount"><span class="num" data-monthly="$39" data-yearly="$32.50">$39</span><span class="per">/mo</span></div>
-        <div class="price-per-label" id="elite-billing-label">per month · cancel anytime</div>
-        <a href="/auth" class="lg btn-primary price-cta">Get Elite</a>
-        <div class="price-divider"><span class="dot-l"></span><span>FEATURES</span><span class="dot-r"></span></div>
-        <ul class="price-features">
-          <li><span class="check">✓</span> Everything in Pro</li>
-          <li><span class="check">✓</span> Prop firm challenge tracking</li>
-          <li><span class="check">✓</span> Per-phase drawdown &amp; daily loss limits</li>
-          <li><span class="check">✓</span> FTMO, Topstep, MFF &amp; custom rules</li>
-          <li><span class="check">✓</span> Extended AI memory (50 insights)</li>
-          <li><span class="check">✓</span> Advanced behavioral scoring</li>
-          <li><span class="check">✓</span> Priority support</li>
-          <li><span class="check">✓</span> Early access to new features</li>
-        </ul>
-      </div>
     </div>
-    <div class="pricing-note">New here? Start free — no credit card required. Upgrade only when you're ready.</div>
+    <div class="pricing-note">New here? Start the full Pro trial — no credit card required. Upgrade only when EdgeFlow earns its place in your process.</div>
   </div>
 </section>
 
@@ -2002,7 +1964,7 @@
         </div>
         <div class="faq-item">
           <button class="faq-q">Does EdgeFlow work for prop firm challenges? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">Yes. The Elite plan includes per-phase challenge tracking — set your firm's specific drawdown limit, daily loss limit, and profit target, and EdgeFlow tracks your remaining cushion live. Works for FTMO, MyForexFunds, Topstep, Apex, and any firm with standard rules.</div>
+          <div class="faq-a">Yes. EdgeFlow lets you track prop firm accounts, daily loss limits, maximum drawdown, profit targets, and account progress from the same journal you use for trade review.</div>
         </div>
         <div class="faq-item">
           <button class="faq-q">Can I import my existing trade history? <span class="faq-q-icon">+</span></button>
@@ -2018,7 +1980,7 @@
         </div>
         <div class="faq-item">
           <button class="faq-q">Can I cancel my subscription at any time? <span class="faq-q-icon">+</span></button>
-          <div class="faq-a">Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro or Elite access until the end of your billing period. Your trade data is always yours to export as CSV at any time.</div>
+          <div class="faq-a">Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro access until the end of your billing period. Your trade data is always yours to export as CSV at any time.</div>
         </div>
       </div>
     </div>
@@ -2032,7 +1994,7 @@
     <h2 class="cta-title">Your edge is already<br>in your data.</h2>
     <p class="cta-sub">Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
     <div class="cta-btns">
-      <a href="/auth" class="lg btn-lg">Start free — no credit card <span>→</span></a>
+      <a href="/auth" class="lg btn-lg">Start 14-day Pro trial <span>→</span></a>
     </div>
   </div>
 </section>

@@ -146,6 +146,36 @@ export async function upsertSubscriptionFromLemon(
     consent_checkbox_text: consent.consent_checkbox_text ?? null,
   };
 
+  // A no-card Pro trial creates a manual trial row first. When the user pays,
+  // convert that current row into the Lemon Squeezy subscription instead of
+  // inserting a second active row that would collide with the one-current-row
+  // subscription index.
+  const { data: currentUserRow } = await supa
+    .from("subscriptions")
+    .select("id, plan, status, provider")
+    .eq("user_id", payload.userId)
+    .in("status", ["trialing", "active"])
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (currentUserRow && currentUserRow.provider !== "lemonsqueezy") {
+    const { error } = await supa
+      .from("subscriptions")
+      .update(insertRow)
+      .eq("id", currentUserRow.id);
+    if (error) throw error;
+
+    if (payload.intentId) {
+      await supa
+        .from("pending_intents")
+        .update({ status: "completed", completed_at: new Date().toISOString() })
+        .eq("id", payload.intentId);
+    }
+
+    return { inserted: true, userId: payload.userId };
+  }
+
   const { error } = await supa.from("subscriptions").insert(insertRow);
   if (error) throw error;
 

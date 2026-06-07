@@ -17,12 +17,12 @@ function EdgeFlowMark({ size = 18 }: { size?: number }) {
 
 const SECTIONS = [
   {
-    title: '1. Free Plan',
-    body: `EdgeFlow offers a free plan that allows you to evaluate the platform before paying. Because every user has free access first, upgrading to a paid plan reflects an informed decision based on real product usage.\n\nThere is no charge associated with the free plan, and therefore no refund is applicable.`,
+    title: '1. Pro Trial',
+    body: `EdgeFlow offers a 14-day no-card Pro trial after onboarding so you can evaluate the platform before paying. During the trial, there is no charge and therefore no refund is applicable.\n\nWhen the trial ends, you can still sign in and view existing data. A paid Pro subscription is required to continue logging trades, importing trade history, using Atlas, and accessing advanced analysis.`,
   },
   {
     title: '2. Monthly Subscriptions — 7-Day No-Questions Refund',
-    body: `Your first paid monthly subscription (Pro or Elite) is eligible for a full refund within 7 calendar days of the initial charge, no questions asked.\n\nThis applies once per user, lifetime. Subsequent monthly renewals are not eligible for the no-questions window.\n\nTo request a refund within the 7-day window, email support@edgeflow.capital from the address on your EdgeFlow account. Refunds are processed within 5 business days through the original payment method.`,
+    body: `Your first paid monthly Pro subscription is eligible for a full refund within 7 calendar days of the initial charge, no questions asked.\n\nThis applies once per user, lifetime. Subsequent monthly renewals are not eligible for the no-questions window.\n\nTo request a refund within the 7-day window, email support@edgeflow.capital from the address on your EdgeFlow account. Refunds are processed within 5 business days through the original payment method.`,
   },
   {
     title: '3. Monthly Subscriptions — Renewals',
@@ -50,7 +50,7 @@ const SECTIONS = [
   },
   {
     title: '9. Account Deletion and Data',
-    body: `Cancelling your subscription downgrades you to the free plan but does not delete your trade data.\n\nIf you want all your data permanently deleted, request account deletion from Settings → Profile, or email support@edgeflow.capital. Deletion is irreversible and your data cannot be recovered afterwards. See our Privacy Policy for full details on data retention.`,
+    body: `Cancelling your subscription removes paid Pro access after the current billing period but does not delete your trade data.\n\nIf you want all your data permanently deleted, request account deletion from Settings → Profile, or email support@edgeflow.capital. Deletion is irreversible and your data cannot be recovered afterwards. See our Privacy Policy for full details on data retention.`,
   },
   {
     title: '10. Changes to This Policy',

@@ -614,8 +614,8 @@ export default function ImportTrades() {
     const tmpl = TEMPLATES[template];
     let imported = 0, skipped = 0, mergedGroups = 0, tierBlocked = 0;
     let tierLimitHit = false;
-    const isFreeLimitError = (err: unknown) =>
-      err instanceof Error && err.message?.includes('Free tier limit reached');
+    const isAccessError = (err: unknown) =>
+      err instanceof Error && (err.message?.includes('Trial ended') || err.message?.includes('Upgrade to Pro'));
 
     if (tmpl.groupKeyColumn) {
       // ── Brokers with partial fills: use groupFills for safe aggregation ──────
@@ -675,7 +675,7 @@ export default function ImportTrades() {
           });
           imported++;
         } catch (err) {
-          if (isFreeLimitError(err)) { tierLimitHit = true; tierBlocked++; }
+          if (isAccessError(err)) { tierLimitHit = true; tierBlocked++; }
           else { skipped++; }
         }
       }
@@ -706,7 +706,7 @@ export default function ImportTrades() {
           });
           imported++;
         } catch (err) {
-          if (isFreeLimitError(err)) { tierLimitHit = true; tierBlocked++; }
+          if (isAccessError(err)) { tierLimitHit = true; tierBlocked++; }
           else { skipped++; }
         }
       }
@@ -753,16 +753,16 @@ export default function ImportTrades() {
               <div style={{ marginTop: 16, padding: '14px 16px', background: 'var(--ef-warn-wash)', border: '1px solid var(--ef-warn)', borderRadius: 10, textAlign: 'left' }}>
                 <div className="flex items-center gap-2 mb-1.5">
                   <Lock size={14} color="var(--ef-warn-high)" weight="fill" />
-                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ef-warn-high)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Free plan limit reached</span>
+                  <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--ef-warn-high)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Pro access required</span>
                 </div>
                 <p style={{ fontSize: 12.5, color: 'var(--ef-ink-2)', margin: '0 0 10px', lineHeight: 1.5 }}>
-                  The free plan is capped at 50 trades lifetime. {result.tierBlocked} {result.tierBlocked === 1 ? 'trade was' : 'trades were'} not imported. Upgrade to Pro to log unlimited trades.
+                  Your Pro trial ended. {result.tierBlocked} {result.tierBlocked === 1 ? 'trade was' : 'trades were'} not imported. Upgrade to Pro to continue importing trades.
                 </p>
                 <button
-                  onClick={() => { window.location.href = '/#pricing'; }}
+                  onClick={() => { window.location.href = '/profile'; }}
                   className="px-3.5 py-1.5 rounded-[18px] bg-foreground text-background text-xs font-semibold"
                 >
-                  See Pro plans
+                  Upgrade to Pro
                 </button>
               </div>
             )}

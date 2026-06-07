@@ -73,7 +73,7 @@ const faqs = [
   },
   {
     q: 'Does EdgeFlow work for prop firm challenges?',
-    a: "Yes. The Elite plan includes per-phase challenge tracking — set your firm's specific drawdown limit, daily loss limit, and profit target, and EdgeFlow tracks your remaining cushion live. Works for FTMO, MFF, Topstep, Apex, and any firm with standard rules.",
+    a: "Yes. EdgeFlow lets you track prop firm accounts, daily loss limits, maximum drawdown, profit targets, and account progress from the same journal you use for trade review.",
   },
   {
     q: 'Can I import my existing trade history?',
@@ -89,7 +89,7 @@ const faqs = [
   },
   {
     q: 'Can I cancel my subscription at any time?',
-    a: 'Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro or Elite access until the end of your billing period. Your trade data is always yours to export as CSV at any time.',
+    a: 'Yes — no contracts, no cancellation fees. Cancel anytime and retain Pro access until the end of your billing period. Your trade data is always yours to export as CSV at any time.',
   },
 ];
 
@@ -225,9 +225,7 @@ export default function Landing() {
   }, []);
 
   const proPrice = annualBilling ? '$15.83' : '$19';
-  const elitePrice = annualBilling ? '$32.50' : '$39';
   const proLabel = annualBilling ? 'per month · $190 billed annually' : 'per month · cancel anytime';
-  const eliteLabel = annualBilling ? 'per month · $390 billed annually' : 'per month · cancel anytime';
 
   const allTesti = [...testimonials, ...testimonials];
 
@@ -235,7 +233,7 @@ export default function Landing() {
     <>
       <Helmet>
         <title>EdgeFlow — Professional Trading Journal | Track, Analyze & Improve</title>
-        <meta name="description" content="EdgeFlow is a professional trading journal for serious traders. Log trades, detect performance leaks, and get AI-powered insights to build a winning edge. Free to start." />
+        <meta name="description" content="EdgeFlow is a professional trading journal for serious traders. Start a 14-day Pro trial, log trades, detect performance leaks, and get AI-powered insights." />
         <link rel="canonical" href="https://www.edgeflow.capital/" />
       </Helmet>
       {/* ============ AMBIENT + EDGE LAYER ============ */}
@@ -269,7 +267,7 @@ export default function Landing() {
           <div className="nav-cta-group" style={{ display: 'flex', gap: 10, alignItems: 'center', flexShrink: 0 }}>
             <a href="/blog" className="lg btn-ghost nav-cta-blog" style={{ textDecoration: 'none' }}>Blog</a>
             <button className="lg btn-ghost nav-cta-login" onClick={() => navigate('/auth')}>Log in</button>
-            <button className="lg btn-primary nav-cta-start" onClick={() => navigate('/auth')}>Start free →</button>
+            <button className="lg btn-primary nav-cta-start" onClick={() => navigate('/auth')}>Start trial →</button>
           </div>
           <button
             className="nav-burger"
@@ -289,7 +287,7 @@ export default function Landing() {
           <a href="/blog" onClick={() => setMobileMenuOpen(false)}>Blog</a>
           <div className="nav-mobile-actions">
             <button className="btn-ghost" onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}>Log in</button>
-            <button className="btn-primary" onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}>Start free →</button>
+            <button className="btn-primary" onClick={() => { setMobileMenuOpen(false); navigate('/auth'); }}>Start trial →</button>
           </div>
         </div>
       </nav>
@@ -625,7 +623,7 @@ export default function Landing() {
               <li>Simulate the impact of removing any leak on your equity curve</li>
               <li>No other journal does this</li>
             </ul>
-            <button className="lg btn-lg" style={{ marginTop: 24 }} onClick={() => navigate('/auth')}>See your leaks free <span>→</span></button>
+            <button className="lg btn-lg" style={{ marginTop: 24 }} onClick={() => navigate('/auth')}>See your leaks in the trial <span>→</span></button>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: 36 }}
@@ -702,7 +700,7 @@ export default function Landing() {
               <li>Builds a behavioral memory across every conversation</li>
               <li>Powered by Claude (Anthropic)</li>
             </ul>
-            <button className="lg btn-lg" style={{ marginTop: 24 }} onClick={() => navigate('/auth')}>Try Atlas free <span>→</span></button>
+            <button className="lg btn-lg" style={{ marginTop: 24 }} onClick={() => navigate('/auth')}>Try Atlas in the Pro trial <span>→</span></button>
           </motion.div>
           <motion.div
             initial={{ opacity: 0, x: -36 }}
@@ -877,46 +875,28 @@ export default function Landing() {
         <div className="wrap">
           <div className="section-head">
             <span className="lg eyebrow">Pricing</span>
-            <h2 className="section-title">Start free.<br />Upgrade when you're ready to go deep.</h2>
-            <p className="section-sub">No commitment. Your trade history carries over on any plan.</p>
+            <h2 className="section-title">Start your 14-day Pro trial.<br />Upgrade when it earns its place.</h2>
+            <p className="section-sub">No credit card required. Your trade history carries over when you upgrade.</p>
             <div className="lg pricing-toggle">
               <button className={!annualBilling ? 'active' : ''} onClick={() => setAnnualBilling(false)}>Monthly</button>
               <button className={annualBilling ? 'active' : ''} onClick={() => setAnnualBilling(true)}>Annual <span className="save-tag">2 months free</span></button>
             </div>
           </div>
           <Stagger className="pricing-grid" stagger={0.12}>
-            {/* Starter */}
-            <motion.div className="price-card" variants={item}>
-              <div className="price-head">
-                <div className="price-name">Starter</div>
-              </div>
-              <div className="price-amount"><span className="num">$0</span></div>
-              <div className="price-per-label">Free to start</div>
-              <button className="lg btn-primary price-cta" onClick={() => navigate('/auth')}>Get started free</button>
-              <div className="price-divider"><span className="dot-l" /><span>FEATURES</span><span className="dot-r" /></div>
-              <ul className="price-features">
-                <li><span className="check">✓</span> Up to 50 trades</li>
-                <li><span className="check">✓</span> Equity curve &amp; calendar</li>
-                <li><span className="check">✓</span> Basic P&amp;L analytics</li>
-                <li><span className="check">✓</span> Manual trade entry</li>
-                <li><span className="check">✓</span> Single account</li>
-                <li><span className="check">✓</span> 3 Atlas messages</li>
-              </ul>
-            </motion.div>
-            {/* Pro */}
             <motion.div className="price-card featured" variants={item}>
               <div className="price-head">
                 <div className="price-name">Pro</div>
-                <div className="lg price-popular">Best value</div>
+                <div className="lg price-popular">14-day trial</div>
               </div>
               <div className="price-amount"><span className="num">{proPrice}</span><span className="per">/mo</span></div>
               <div className="price-per-label">{proLabel}</div>
-              <button className="lg btn-primary price-cta" onClick={() => navigate('/auth')}>Get Pro</button>
+              <button className="lg btn-primary price-cta" onClick={() => navigate('/auth')}>Start 14-day trial</button>
               <div className="price-divider"><span className="dot-l" /><span>FEATURES</span><span className="dot-r" /></div>
               <ul className="price-features">
+                <li><span className="check">✓</span> 14-day full Pro trial</li>
                 <li><span className="check">✓</span> Unlimited trades</li>
                 <li><span className="check">✓</span> Session &amp; instrument analytics</li>
-                <li><span className="check">✓</span> Unlimited Atlas (Claude)</li>
+                <li><span className="check">✓</span> Atlas AI analyst</li>
                 <li><span className="check">✓</span> Leak Detection</li>
                 <li><span className="check">✓</span> Strategy Optimizer</li>
                 <li><span className="check">✓</span> Trading Plan enforcement</li>
@@ -926,29 +906,9 @@ export default function Landing() {
                 <li><span className="check">✓</span> Weekly AI digest email</li>
               </ul>
             </motion.div>
-            {/* Elite */}
-            <motion.div className="price-card" variants={item}>
-              <div className="price-head">
-                <div className="price-name">Elite</div>
-              </div>
-              <div className="price-amount"><span className="num">{elitePrice}</span><span className="per">/mo</span></div>
-              <div className="price-per-label">{eliteLabel}</div>
-              <button className="lg btn-primary price-cta" onClick={() => navigate('/auth')}>Get Elite</button>
-              <div className="price-divider"><span className="dot-l" /><span>FEATURES</span><span className="dot-r" /></div>
-              <ul className="price-features">
-                <li><span className="check">✓</span> Everything in Pro</li>
-                <li><span className="check">✓</span> Prop firm challenge tracking</li>
-                <li><span className="check">✓</span> Per-phase drawdown &amp; daily loss limits</li>
-                <li><span className="check">✓</span> FTMO, Topstep, MFF &amp; custom rules</li>
-                <li><span className="check">✓</span> Extended AI memory (50 insights)</li>
-                <li><span className="check">✓</span> Advanced behavioral scoring</li>
-                <li><span className="check">✓</span> Priority support</li>
-                <li><span className="check">✓</span> Early access to new features</li>
-              </ul>
-            </motion.div>
           </Stagger>
           <Reveal delay={0.2}>
-            <div className="pricing-note">New here? Start free — no credit card required. Upgrade only when you're ready.</div>
+            <div className="pricing-note">New here? Start the full Pro trial — no credit card required. Upgrade only when EdgeFlow earns its place in your process.</div>
           </Reveal>
         </div>
       </section>
@@ -985,7 +945,7 @@ export default function Landing() {
           <h2 className="cta-title">Your edge is already<br />in your data.</h2>
           <p className="cta-sub">Stop guessing. Start with your own trade history and discover exactly where your edge is — and where it isn't. Set up in under 5 minutes.</p>
           <div className="cta-btns">
-            <button className="lg btn-lg" onClick={() => navigate('/auth')}>Start free — no credit card <span>→</span></button>
+            <button className="lg btn-lg" onClick={() => navigate('/auth')}>Start 14-day Pro trial <span>→</span></button>
           </div>
         </Reveal>
       </section>

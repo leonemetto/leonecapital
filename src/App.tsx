@@ -17,8 +17,11 @@ import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
 import { LeaksProvider } from "@/contexts/LeaksContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { useSharedSubscription } from "@/contexts/SubscriptionContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageErrorBoundary } from "@/components/PageErrorBoundary";
+import { AppLayout } from "@/components/layout/AppLayout";
+import { UpgradeModal } from "@/components/billing/UpgradeModal";
 import * as Sentry from '@sentry/react';
 import NotFound from "./pages/NotFound";
 
@@ -165,6 +168,53 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
   return <><PagePrefetcher />{children}</>;
 }
 
+function PremiumRoute({ children }: { children: React.ReactNode }) {
+  const { hasProAccess, isLoading } = useSharedSubscription();
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
+
+  if (isLoading) {
+    return (
+      <AppLayout>
+        <div className="min-h-[50vh] flex items-center justify-center text-sm text-muted-foreground">
+          Loading subscription...
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (!hasProAccess) {
+    return (
+      <AppLayout>
+        <div className="max-w-lg mx-auto min-h-[60vh] flex flex-col items-center justify-center text-center gap-5">
+          <div className="rounded-[14px] border border-border bg-card px-4 py-3">
+            <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground/60 font-semibold">
+              Pro trial ended
+            </div>
+          </div>
+          <div>
+            <h1 className="text-[22px] font-medium tracking-[-0.02em] text-foreground mb-2">
+              Your Pro trial ended.
+            </h1>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Your data is safe. Upgrade to continue logging trades, importing history,
+              using Atlas, and running advanced analysis.
+            </p>
+          </div>
+          <button
+            onClick={() => setUpgradeOpen(true)}
+            className="rounded-[24px] bg-foreground text-background px-5 py-2.5 text-sm font-semibold hover:bg-foreground/90"
+          >
+            Upgrade to Pro
+          </button>
+        </div>
+        <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
+      </AppLayout>
+    );
+  }
+
+  return <>{children}</>;
+}
+
 const BlogIndex = lazy(() => import("./pages/BlogIndex"));
 const BlogPost = lazy(() => import("./pages/BlogPost"));
 
@@ -210,17 +260,17 @@ const App = () => (
                       <MotionConfig reducedMotion="always">
                         <Routes>
                           <Route path="/dashboard" element={<PageErrorBoundary pageName="dashboard"><Dashboard /></PageErrorBoundary>} />
-                          <Route path="/add-trade" element={<PageErrorBoundary pageName="add-trade"><AddTrade /></PageErrorBoundary>} />
+                          <Route path="/add-trade" element={<PageErrorBoundary pageName="add-trade"><PremiumRoute><AddTrade /></PremiumRoute></PageErrorBoundary>} />
                           <Route path="/journal" element={<PageErrorBoundary pageName="journal"><Journal /></PageErrorBoundary>} />
                           <Route path="/accounts" element={<PageErrorBoundary pageName="accounts"><Accounts /></PageErrorBoundary>} />
-                          <Route path="/ai" element={<PageErrorBoundary pageName="ai"><AIAdvisor /></PageErrorBoundary>} />
-                          <Route path="/analyst" element={<PageErrorBoundary pageName="analyst"><PerformanceAnalyst /></PageErrorBoundary>} />
+                          <Route path="/ai" element={<PageErrorBoundary pageName="ai"><PremiumRoute><AIAdvisor /></PremiumRoute></PageErrorBoundary>} />
+                          <Route path="/analyst" element={<PageErrorBoundary pageName="analyst"><PremiumRoute><PerformanceAnalyst /></PremiumRoute></PageErrorBoundary>} />
                           <Route path="/profile" element={<PageErrorBoundary pageName="profile"><ProfileSettings /></PageErrorBoundary>} />
-                          <Route path="/import-trades" element={<PageErrorBoundary pageName="import-trades"><ImportTrades /></PageErrorBoundary>} />
-                          <Route path="/trading-plan" element={<PageErrorBoundary pageName="trading-plan"><TradingPlan /></PageErrorBoundary>} />
+                          <Route path="/import-trades" element={<PageErrorBoundary pageName="import-trades"><PremiumRoute><ImportTrades /></PremiumRoute></PageErrorBoundary>} />
+                          <Route path="/trading-plan" element={<PageErrorBoundary pageName="trading-plan"><PremiumRoute><TradingPlan /></PremiumRoute></PageErrorBoundary>} />
                           <Route path="/guide" element={<PageErrorBoundary pageName="guide"><Guide /></PageErrorBoundary>} />
-                          <Route path="/leak-detection" element={<PageErrorBoundary pageName="leak-detection"><LeakDetection /></PageErrorBoundary>} />
-                          <Route path="/what-if" element={<PageErrorBoundary pageName="what-if"><WhatIfSimulator /></PageErrorBoundary>} />
+                          <Route path="/leak-detection" element={<PageErrorBoundary pageName="leak-detection"><PremiumRoute><LeakDetection /></PremiumRoute></PageErrorBoundary>} />
+                          <Route path="/what-if" element={<PageErrorBoundary pageName="what-if"><PremiumRoute><WhatIfSimulator /></PremiumRoute></PageErrorBoundary>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </MotionConfig>

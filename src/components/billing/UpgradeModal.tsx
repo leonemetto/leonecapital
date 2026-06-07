@@ -4,10 +4,9 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useSharedTrades } from '@/contexts/TradesContext';
 import { toast } from 'sonner';
 
-type Plan = 'pro' | 'elite';
+type Plan = 'pro';
 type Cycle = 'monthly' | 'annual';
 
 // Version stamps for consent capture — bump these any time the relevant page
@@ -22,8 +21,6 @@ const PRIVACY_VERSION = '2026-06-04';
 const PRICING: Record<`${Plan}_${Cycle}`, { amountMinor: number; display: string; perMonth?: string; savings?: string }> = {
   pro_monthly:   { amountMinor: 1_900,  display: '$19 / month' },
   pro_annual:    { amountMinor: 19_000, display: '$190 / year', perMonth: '$15.83 / mo', savings: 'Save ~16%' },
-  elite_monthly: { amountMinor: 3_900,  display: '$39 / month' },
-  elite_annual:  { amountMinor: 39_000, display: '$390 / year', perMonth: '$32.50 / mo', savings: 'Save ~16%' },
 };
 
 interface UpgradeModalProps {
@@ -34,13 +31,9 @@ interface UpgradeModalProps {
 
 export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: UpgradeModalProps) {
   const { user } = useAuth();
-  const { isPro } = useSubscription();
-  const { trades } = useSharedTrades();
-  // is_demo is on the DB row but stripped from the Trade type, so we approximate
-  // client-side and let the backend enforce the real check (it returns 403).
-  const hasLoggedTrade = trades.length >= 1;
+  const { isPro, isTrialing } = useSubscription();
 
-  const [plan, setPlan] = useState<Plan>(initialPlan);
+  const plan: Plan = initialPlan;
   const [cycle, setCycle] = useState<Cycle>('monthly');
   const [consent, setConsent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -57,7 +50,7 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
 
   const consentText = `I have read and agree to the Terms, Privacy Policy, and Refund Policy (versions Terms ${TERMS_VERSION}, Refunds ${REFUNDS_VERSION}, Privacy ${PRIVACY_VERSION}).`;
 
-  const canSubmit = consent && hasLoggedTrade && !isPro && !submitting;
+  const canSubmit = consent && (!isPro || isTrialing) && !submitting;
 
   async function handleSubmit() {
     if (!user) {
@@ -66,10 +59,6 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
     }
     if (!consent) {
       toast.error('Tick the agreement checkbox to continue');
-      return;
-    }
-    if (!hasLoggedTrade) {
-      toast.error('Log at least one real trade before upgrading');
       return;
     }
     setSubmitting(true);
@@ -123,37 +112,16 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upgrade to {plan === 'elite' ? 'Elite' : 'Pro'}</DialogTitle>
+          <DialogTitle>Upgrade to Pro</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
-          {/* Plan selector */}
-          <div>
-            <label className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Plan</label>
-            <div className="grid grid-cols-2 gap-2 mt-2">
-              <button
-                type="button"
-                onClick={() => setPlan('pro')}
-                className={`px-3 py-2 rounded-[10px] border text-sm font-medium transition ${
-                  plan === 'pro'
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-transparent border-border text-foreground hover:bg-muted'
-                }`}
-              >
-                Pro
-              </button>
-              <button
-                type="button"
-                onClick={() => setPlan('elite')}
-                className={`px-3 py-2 rounded-[10px] border text-sm font-medium transition ${
-                  plan === 'elite'
-                    ? 'bg-foreground text-background border-foreground'
-                    : 'bg-transparent border-border text-foreground hover:bg-muted'
-                }`}
-              >
-                Elite
-              </button>
-            </div>
+          <div className="rounded-[12px] border border-border bg-muted/30 p-4">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground font-semibold">Plan</div>
+            <div className="mt-1 text-lg font-semibold">EdgeFlow Pro</div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Unlimited trades, analytics, Atlas, Leak Detection, Optimizer, imports, and reports.
+            </p>
           </div>
 
           {/* Cycle toggle */}
@@ -201,15 +169,8 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
             )}
           </div>
 
-          {/* Free-plan gate warning */}
-          {!hasLoggedTrade && (
-            <div className="rounded-[10px] border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
-              Log at least one real trade before upgrading. This is for your protection — we want to make sure EdgeFlow is right for your trading first.
-            </div>
-          )}
-
           {/* Already-subscribed warning */}
-          {isPro && (
+          {isPro && !isTrialing && (
             <div className="rounded-[10px] border border-border bg-muted/30 p-3 text-xs">
               You already have an active subscription. Manage it in Settings → Subscription.
             </div>

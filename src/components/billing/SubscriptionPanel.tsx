@@ -43,7 +43,7 @@ function statusBadge(status: string | null): { label: string; color: string } {
 
 export function SubscriptionPanel() {
   const { user } = useAuth();
-  const { tier, status, isPro, isLoading } = useSubscription();
+  const { tier, status, isPro, isTrialing, isTrialExpired, isLoading } = useSubscription();
   const invalidate = useInvalidateSubscription();
   const [row, setRow] = useState<SubRow | null>(null);
   const [confirmCancel, setConfirmCancel] = useState(false);
@@ -107,7 +107,7 @@ export function SubscriptionPanel() {
   }
 
   const badge = statusBadge(status);
-  const showUpgrade = !isPro || status === 'cancelled' || status === 'expired';
+  const showUpgrade = !isPro || isTrialing || status === 'cancelled' || status === 'expired';
   const showCancel = isPro && (status === 'active' || status === 'past_due');
   const showReactivateNotice = status === 'cancelling';
 
@@ -117,7 +117,7 @@ export function SubscriptionPanel() {
         <div>
           <div className="text-xs uppercase tracking-wide text-muted-foreground/60 font-semibold">Plan</div>
           <div className="text-lg font-semibold mt-1">
-            {tier === 'free' ? 'Free' : tier === 'elite' ? 'Elite' : 'Pro'}
+            {isTrialing ? 'Pro Trial' : tier === 'free' ? 'No active plan' : tier === 'elite' ? 'Elite' : 'Pro'}
           </div>
         </div>
         <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badge.color}`}>
@@ -127,21 +127,25 @@ export function SubscriptionPanel() {
 
       {row && isPro && (
         <div className="rounded-[12px] border border-border bg-muted/20 p-4 space-y-2 text-sm">
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Billing</span>
-            <span className="font-mono tabular-nums">
-              {formatMoney(row.amount, row.currency)} / {row.billing_cycle === 'annual' ? 'year' : 'month'}
-            </span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-muted-foreground">Method</span>
-            <span>
-              {row.channel === 'mpesa' ? 'M-Pesa' : row.channel === 'card' ? 'Card' : row.channel ?? '—'}
-            </span>
-          </div>
+          {!isTrialing && (
+            <>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Billing</span>
+                <span className="font-mono tabular-nums">
+                  {formatMoney(row.amount, row.currency)} / {row.billing_cycle === 'annual' ? 'year' : 'month'}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Method</span>
+                <span>
+                  {row.channel === 'mpesa' ? 'M-Pesa' : row.channel === 'card' ? 'Card' : row.channel ?? '—'}
+                </span>
+              </div>
+            </>
+          )}
           <div className="flex justify-between">
             <span className="text-muted-foreground">
-              {showReactivateNotice ? 'Access until' : 'Next billing'}
+              {isTrialing ? 'Trial ends' : showReactivateNotice ? 'Access until' : 'Next billing'}
             </span>
             <span className="font-mono tabular-nums">
               {formatDate(row.cancel_at ?? row.current_period_end)}
@@ -165,7 +169,7 @@ export function SubscriptionPanel() {
             onClick={() => setUpgradeOpen(true)}
             className="rounded-[24px] bg-foreground text-background font-semibold hover:bg-foreground/90"
           >
-            {tier === 'free' ? 'Upgrade to Pro' : 'Resubscribe'}
+            {isTrialExpired ? 'Upgrade to Pro' : isTrialing ? 'Upgrade now' : tier === 'free' ? 'Upgrade to Pro' : 'Resubscribe'}
           </Button>
         )}
 
@@ -182,7 +186,7 @@ export function SubscriptionPanel() {
         {confirmCancel && (
           <div className="w-full rounded-[12px] border border-border bg-muted/30 p-4 space-y-3">
             <div className="text-sm">
-              You'll keep {tier === 'elite' ? 'Elite' : 'Pro'} access until{' '}
+              You'll keep Pro access until{' '}
               <span className="font-semibold">{formatDate(row?.current_period_end ?? null)}</span>.
               Your trade data stays on your account either way.
             </div>

@@ -90,34 +90,27 @@ serve(async (req) => {
     // ── Subscription tier check ─────────────────────────────────────────────
     const { data: subscription } = await supabase
       .from("subscriptions")
-      .select("tier, status")
+      .select("plan, status, current_period_end")
       .eq("user_id", userId)
+      .order("created_at", { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    const tier = subscription?.tier ?? "free";
+    const tier = subscription?.plan ?? "free";
     const status = subscription?.status ?? "active";
+    const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end).getTime() : null;
+    const trialActive = status === "trialing" && periodEnd !== null && periodEnd > Date.now();
     const isPro = (tier === "pro" || tier === "elite") &&
-      (status === "active" || status === "trialing");
+      (status === "active" || status === "past_due" || status === "cancelling" || trialActive);
 
-    // ── Free tier: DB-backed AI message cap (3 lifetime messages) ───────────
-    let aiMessagesUsed = 0;
     if (!isPro) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("ai_messages_used")
-        .eq("id", userId)
-        .single();
-
-      aiMessagesUsed = profile?.ai_messages_used ?? 0;
-      if (aiMessagesUsed >= 3) {
-        return new Response(
-          JSON.stringify({ error: "upgrade_required", used: aiMessagesUsed, limit: 3 }),
-          {
-            status: 429,
-            headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
-          }
-        );
-      }
+      return new Response(
+        JSON.stringify({ error: "upgrade_required" }),
+        {
+          status: 402,
+          headers: { ...getCorsHeaders(req), "Content-Type": "application/json" },
+        }
+      );
     }
 
     // ── Hourly rate limit (all tiers) ───────────────────────────────────────
@@ -196,7 +189,6 @@ serve(async (req) => {
     const encoder = new TextEncoder();
 
     (async () => {
-      let hasIncremented = false;
       try {
         const reader = response.body!.getReader();
         const decoder = new TextDecoder();
@@ -223,12 +215,6 @@ serve(async (req) => {
                 const chunk = JSON.stringify({ choices: [{ delta: { content: evt.delta.text } }] });
                 await writer.write(encoder.encode(`data: ${chunk}\n\n`));
 
-                // Increment free-tier counter after first successful chunk
-                // (crash before this = no charge; crash after = message was delivered)
-                if (!isPro && !hasIncremented) {
-                  hasIncremented = true;
-                  await supabase.rpc("increment_ai_messages", { p_user_id: userId });
-                }
               } else if (evt.type === "message_stop") {
                 await writer.write(encoder.encode("data: [DONE]\n\n"));
               }

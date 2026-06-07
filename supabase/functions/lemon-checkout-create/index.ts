@@ -1,16 +1,15 @@
 // lemon-checkout-create — called by the upgrade modal when the user clicks
-// "Upgrade to Pro/Elite". This function:
+// "Upgrade to Pro". This function:
 //   1. Verifies the user is authed (verify_jwt=true in config.toml)
-//   2. Enforces the free-plan gate (must have ≥1 logged trade)
-//   3. Resolves the {plan, billing_cycle} to a Lemon Squeezy variant_id
-//   4. Inserts a pending_intent row capturing consent at click-time
-//   5. Calls LS POST /v1/checkouts to mint a hosted checkout URL
-//   6. Returns the URL — the frontend then window.location's the user there
+//   2. Resolves the {plan, billing_cycle} to a Lemon Squeezy variant_id
+//   3. Inserts a pending_intent row capturing consent at click-time
+//   4. Calls LS POST /v1/checkouts to mint a hosted checkout URL
+//   5. Returns the URL — the frontend then window.location's the user there
 //
 // Required Supabase Edge Function secrets:
 //   LEMONSQUEEZY_API_KEY
 //   LEMONSQUEEZY_STORE_ID
-//   LEMONSQUEEZY_VARIANT_PRO_MONTHLY / _PRO_ANNUAL / _ELITE_MONTHLY / _ELITE_ANNUAL
+//   LEMONSQUEEZY_VARIANT_PRO_MONTHLY / _PRO_ANNUAL
 //   SUPABASE_URL                  (auto)
 //   SUPABASE_SERVICE_ROLE_KEY     (auto)
 
@@ -75,28 +74,14 @@ Deno.serve(async (req) => {
   if (userErr || !userData?.user) return err("unauthenticated", 401, origin);
   const user = userData.user;
 
-  // 2) Free-plan gate — require at least one logged trade
-  const { count: tradeCount } = await supa
-    .from("trades")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", user.id)
-    .eq("is_demo", false);
-  if ((tradeCount ?? 0) < 1) {
-    return err(
-      "Log at least one trade before upgrading. We want to make sure EdgeFlow is right for you first.",
-      403,
-      origin,
-    );
-  }
-
-  // 3) Parse + validate request
+  // 2) Parse + validate request
   let body: CheckoutRequest;
   try {
     body = await req.json();
   } catch {
     return err("invalid JSON body", 400, origin);
   }
-  if (!["pro", "elite"].includes(body.plan)) return err("invalid plan", 400, origin);
+  if (body.plan !== "pro") return err("invalid plan", 400, origin);
   if (!["monthly", "annual"].includes(body.billing_cycle)) {
     return err("invalid billing_cycle", 400, origin);
   }
@@ -105,14 +90,14 @@ Deno.serve(async (req) => {
   }
   if (!body.consent_checkbox_text) return err("missing consent_checkbox_text", 400, origin);
 
-  // 4) Resolve variant
+  // 3) Resolve variant
   const variant = resolveCheckoutVariant(body.plan, body.billing_cycle);
   const storeId = getStoreId();
   if (!variant || !storeId) {
     return err("LS variant or store not configured for this plan/cycle", 500, origin);
   }
 
-  // 5) Insert pending_intent (captures consent + IP/UA snapshot)
+  // 4) Insert pending_intent (captures consent + IP/UA snapshot)
   const intentId = crypto.randomUUID();
   const ipAtSignup =
     req.headers.get("cf-connecting-ip") ??
@@ -140,7 +125,7 @@ Deno.serve(async (req) => {
   });
   if (intentErr) return err("failed to create checkout intent", 500, origin, { detail: intentErr.message });
 
-  // 6) Call Lemon Squeezy to mint the checkout URL
+  // 5) Call Lemon Squeezy to mint the checkout URL
   const apiKey = Deno.env.get("LEMONSQUEEZY_API_KEY");
   if (!apiKey) return err("LEMONSQUEEZY_API_KEY is not configured", 500, origin);
 

@@ -111,7 +111,7 @@ export async function sendSubscriptionCancelled(args: { to: string; cancelAt: st
   const body = `
     <h1 style="font-size:22px;font-weight:600;margin:0 0 16px 0;color:#ffffff;">Subscription cancelled.</h1>
     <p style="margin:0 0 16px 0;line-height:1.6;font-size:15px;">
-      Your subscription has been cancelled. You'll keep full access until <strong style="color:#ffffff;">${dateStr}</strong>, then your account will return to the free plan.
+      Your subscription has been cancelled. You'll keep full access until <strong style="color:#ffffff;">${dateStr}</strong>, then your account will move to read-only access.
     </p>
     <p style="margin:0 0 16px 0;line-height:1.6;font-size:15px;">
       Your trade data stays on your account either way — nothing gets deleted. Export anytime as CSV from Settings.
@@ -131,10 +131,10 @@ export async function sendSubscriptionExpired(args: { to: string }) {
   const body = `
     <h1 style="font-size:22px;font-weight:600;margin:0 0 16px 0;color:#ffffff;">Your subscription has ended.</h1>
     <p style="margin:0 0 16px 0;line-height:1.6;font-size:15px;">
-      We tried to renew your subscription several times and couldn't process the payment. Your account is now on the free plan.
+      We tried to renew your subscription several times and couldn't process the payment. Your account now has read-only access.
     </p>
     <p style="margin:0 0 16px 0;line-height:1.6;font-size:15px;">
-      Your trade data is safe — nothing is deleted. You can keep using EdgeFlow at the free tier (up to 50 trades) or upgrade again anytime to restore full features.
+      Your trade data is safe — nothing is deleted. Upgrade again anytime to restore trade logging, imports, Atlas, and advanced analysis.
     </p>
   `;
   await send({
