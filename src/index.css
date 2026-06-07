@@ -1,4 +1,68 @@
 @font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/neue-haas-grotesk-font-fanily/neuehaasgrotdisp-55roman-trial.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/neue-haas-grotesk-font-fanily/neuehaasgrotdisp-65medium-trial.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Display';
+  src: url('/neue-haas-grotesk-font-fanily/neuehaasgrotdisp-75bold-trial.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Text';
+  src: url('/neue-haas-grotesk-font-fanily/neuehaasgrottext-55roman-trial.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Text';
+  src: url('/neue-haas-grotesk-font-fanily/neuehaasgrottext-65medium-trial.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Neue Haas Text';
+  src: url('/neue-haas-grotesk-font-fanily/neuehaasgrottext-75bold-trial.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Suisse Intl Mono';
+  src: url('/suisse-font-family/SuisseIntlMonoTrial-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Suisse Intl Mono';
+  src: url('/suisse-font-family/SuisseIntlMonoTrial-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
   font-family: 'Geist';
   src: url('/fonts/Geist-Variable.woff2') format('woff2');
   font-weight: 100 900;
@@ -58,9 +122,9 @@
     --sidebar-ring: 38 92% 46%;
 
     /* Design token aliases for fintech components */
-    --ff-display: 'Geist', ui-sans-serif, system-ui, sans-serif;
-    --ff-body: 'Geist', ui-sans-serif, system-ui, sans-serif;
-    --ff-mono: 'Geist Mono', 'SFMono-Regular', 'Roboto Mono', 'Courier New', monospace;
+    --ff-display: 'Neue Haas Display', 'Suisse Intl', 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --ff-body: 'Neue Haas Text', 'Suisse Intl', 'Geist', ui-sans-serif, system-ui, sans-serif;
+    --ff-mono: 'Suisse Intl Mono', 'Geist Mono', 'SFMono-Regular', 'Roboto Mono', 'Courier New', monospace;
     --ef-bg: #fafaf7;
     --ef-bg-elev: #ffffff;
     --ef-bg-sunken: #f3f2ed;
