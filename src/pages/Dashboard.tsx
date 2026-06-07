@@ -13,7 +13,6 @@ import {
   ArrowUpRight,
   Calendar,
   ChartBar,
-  Clock,
   Funnel,
   Hash,
   NotePencil,
@@ -36,7 +35,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { cn } from '@/lib/utils';
 import type { Trade } from '@/types/trade';
 import type { TradingAccount } from '@/types/account';
 
@@ -112,11 +110,13 @@ function MetricPlate({
   value,
   caption,
   tone = 'neutral',
+  compact = false,
 }: {
   label: string;
   value: string;
   caption?: string;
   tone?: 'positive' | 'negative' | 'neutral' | 'warning';
+  compact?: boolean;
 }) {
   const color =
     tone === 'positive' ? 'var(--ef-pos)' :
@@ -127,21 +127,21 @@ function MetricPlate({
   return (
     <div
       style={{
-        minHeight: 94,
-        padding: '16px 16px 14px',
-        borderRadius: 14,
+        minHeight: compact ? 64 : 94,
+        padding: compact ? '11px 12px' : '16px 16px 14px',
+        borderRadius: compact ? 12 : 14,
         background: 'color-mix(in oklab, var(--ef-bg-sunken) 78%, transparent)',
         border: '1px solid color-mix(in oklab, var(--ef-line) 72%, transparent)',
       }}
     >
-      <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.12em', color: 'var(--ef-ink-4)' }}>
+      <p className="font-mono uppercase" style={{ margin: 0, fontSize: compact ? 9 : 10, letterSpacing: '0.12em', color: 'var(--ef-ink-4)' }}>
         {label}
       </p>
-      <p className="font-mono" style={{ margin: '10px 0 0', fontSize: 26, lineHeight: 1, letterSpacing: '-0.035em', color }}>
+      <p className="font-mono" style={{ margin: compact ? '7px 0 0' : '10px 0 0', fontSize: compact ? 19 : 26, lineHeight: 1, letterSpacing: '-0.035em', color }}>
         {value}
       </p>
       {caption && (
-        <p className="font-mono" style={{ margin: '9px 0 0', fontSize: 11, color: 'var(--ef-ink-4)' }}>
+        <p className="font-mono truncate" style={{ margin: compact ? '6px 0 0' : '9px 0 0', fontSize: compact ? 10 : 11, color: 'var(--ef-ink-4)' }}>
           {caption}
         </p>
       )}
@@ -183,9 +183,8 @@ function EquityCommandPanel({
   }, [data, baselineBalance]);
 
   return (
-    <Panel className="overflow-hidden" style={{ minHeight: 470 }}>
-      <div className="grid grid-cols-1 xl:grid-cols-[1fr_300px] min-h-[470px]">
-        <div style={{ padding: '24px 28px 24px', borderRight: '1px solid var(--ef-line)' }}>
+    <Panel className="overflow-hidden h-full" style={{ minHeight: 410 }}>
+      <div style={{ padding: '22px 24px 20px' }}>
           <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
             <div>
               <div className="flex items-center gap-2">
@@ -206,7 +205,7 @@ function EquityCommandPanel({
                 className="font-mono"
                 style={{
                   margin: '14px 0 0',
-                  fontSize: 'clamp(40px, 5vw, 64px)',
+                  fontSize: 'clamp(36px, 4vw, 56px)',
                   lineHeight: 0.92,
                   fontWeight: 500,
                   letterSpacing: '-0.065em',
@@ -247,7 +246,7 @@ function EquityCommandPanel({
             </Link>
           </div>
 
-          <div style={{ height: 245, marginTop: 20 }}>
+          <div style={{ height: 210, marginTop: 18 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={{ top: 14, right: 8, bottom: 6, left: 0 }}>
                 <defs>
@@ -310,29 +309,30 @@ function EquityCommandPanel({
               value={`${stats.winRate.toFixed(1)}%`}
               caption={`${stats.wins} wins · ${stats.losses} losses`}
               tone={stats.winRate >= 50 ? 'positive' : 'negative'}
+              compact
             />
             <MetricPlate
               label="Profit factor"
               value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)}
               caption={stats.profitFactor >= 1.5 ? 'strong edge' : stats.profitFactor >= 1 ? 'marginal edge' : 'below break-even'}
               tone={stats.profitFactor >= 1 ? 'positive' : 'negative'}
+              compact
             />
             <MetricPlate
               label="Expectancy"
               value={fmtSignedMoney(expectancyPerTrade, 2)}
               caption={`avg R ${stats.rExpectancy >= 0 ? '+' : ''}${stats.rExpectancy.toFixed(2)}`}
               tone={expectancyPerTrade >= 0 ? 'positive' : 'negative'}
+              compact
             />
             <MetricPlate
               label="Max drawdown"
               value={fmtMoney(stats.maxDrawdown)}
               caption="largest equity pullback"
               tone={stats.maxDrawdown > 0 ? 'warning' : 'neutral'}
+              compact
             />
           </div>
-        </div>
-
-        <RiskCommandPanel trades={trades} stats={stats} />
       </div>
     </Panel>
   );
@@ -350,22 +350,28 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
   const lossStreak = stats.currentStreak.type === 'loss' ? stats.currentStreak.count : 0;
   const riskTone = lossStreak >= 2 || todayPnl < 0 ? 'negative' : 'positive';
 
+  const sessions = useMemo(
+    () => getSessionPerformance(trades).filter(s => s.total > 0).sort((a, b) => Math.abs((b.pnl ?? 0)) - Math.abs((a.pnl ?? 0))).slice(0, 3),
+    [trades]
+  );
+  const maxSessionPnl = Math.max(...sessions.map(s => Math.abs(s.pnl ?? 0)), 1);
+
   return (
-    <aside style={{ padding: '26px 22px' }}>
+    <aside style={{ padding: '20px 18px', minHeight: 0 }}>
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
             Risk state
           </p>
-          <h3 style={{ margin: '8px 0 0', fontSize: 24, fontWeight: 600, letterSpacing: '-0.04em', color: 'var(--ef-ink)' }}>
+          <h3 style={{ margin: '7px 0 0', fontSize: 20, fontWeight: 600, letterSpacing: '-0.04em', color: 'var(--ef-ink)' }}>
             {riskTone === 'positive' ? 'Clear to execute' : 'Trade smaller'}
           </h3>
         </div>
         <div
           style={{
-            width: 42,
-            height: 42,
-            borderRadius: 14,
+            width: 36,
+            height: 36,
+            borderRadius: 12,
             display: 'grid',
             placeItems: 'center',
             background: riskTone === 'positive' ? 'var(--ef-pos-wash)' : 'var(--ef-neg-wash)',
@@ -376,39 +382,82 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 mt-6">
+      <div className="grid grid-cols-2 gap-2 mt-4">
         <MetricPlate
           label="Today"
           value={fmtSignedMoney(todayPnl)}
           caption={`${todayTrades.length} trades`}
           tone={todayPnl >= 0 ? 'positive' : 'negative'}
+          compact
         />
         <MetricPlate
           label="Plan"
           value={planRate === null ? '—' : `${planRate.toFixed(0)}%`}
           caption="followed"
           tone={planRate === null ? 'neutral' : planRate >= 70 ? 'positive' : 'warning'}
+          compact
         />
       </div>
 
-      <div style={{ marginTop: 22 }}>
+      {sessions.length > 0 && (
+        <div style={{ marginTop: 16 }}>
+          <div className="flex items-center justify-between">
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--ef-ink)' }}>
+              Sessions
+            </p>
+            <Link to="/analyst" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
+              all →
+            </Link>
+          </div>
+          <div style={{ display: 'grid', gap: 9, marginTop: 10 }}>
+            {sessions.map(session => {
+              const pnl = session.pnl ?? 0;
+              const pos = pnl >= 0;
+              const width = Math.max(6, Math.abs(pnl) / maxSessionPnl * 100);
+              return (
+                <div key={session.session}>
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="truncate" style={{ fontSize: 12, color: 'var(--ef-ink-2)' }}>{session.session}</span>
+                    <span className="font-mono" style={{ fontSize: 11, color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
+                      {session.winRate.toFixed(0)}% · {fmtSignedMoney(pnl)}
+                    </span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 99, background: 'var(--ef-bg-sunken)', marginTop: 6, overflow: 'hidden' }}>
+                    <div
+                      style={{
+                        height: '100%',
+                        width: `${width}%`,
+                        marginLeft: pos ? 0 : `${100 - width}%`,
+                        borderRadius: 99,
+                        background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div style={{ marginTop: 16 }}>
         <div className="flex items-center justify-between">
           <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'var(--ef-ink)' }}>
-            Last 5 decisions
+            Recent trades
           </p>
           <Link to="/journal" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
             trades →
           </Link>
         </div>
-        <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
-          {lastFive.map(t => (
+        <div style={{ display: 'grid', gap: 0, marginTop: 8 }}>
+          {lastFive.slice(0, 4).map(t => (
             <div
               key={t.id}
               className="grid items-center"
               style={{
                 gridTemplateColumns: '28px 1fr auto',
                 gap: 10,
-                padding: '10px 0',
+                padding: '8px 0',
                 borderBottom: '1px dashed var(--ef-line)',
               }}
             >
@@ -477,9 +526,9 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
   return (
     <article
       style={{
-        minHeight: 205,
-        padding: '24px 26px 22px',
-        borderRadius: 20,
+        minHeight: 146,
+        padding: '18px 20px 16px',
+        borderRadius: 18,
         position: 'relative',
         overflow: 'hidden',
         background: `linear-gradient(132deg, color-mix(in oklab, var(--ef-bg-elev) 92%, ${wash} 18%), color-mix(in oklab, var(--ef-bg-elev) 94%, black 4%))`,
@@ -502,7 +551,7 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
             <div className="flex items-center gap-2">
               <h3
                 className="font-mono"
-                style={{ margin: 0, fontSize: 36, lineHeight: 1, letterSpacing: '-0.06em', color: 'var(--ef-ink)', fontWeight: 500 }}
+                style={{ margin: 0, fontSize: 30, lineHeight: 1, letterSpacing: '-0.06em', color: 'var(--ef-ink)', fontWeight: 500 }}
               >
                 {fmtMoney(challengeSize)}
               </h3>
@@ -512,7 +561,7 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1.5 mt-4" style={{ color: 'var(--ef-ink-4)', fontSize: 12 }}>
+            <div className="flex items-center gap-1.5 mt-3" style={{ color: 'var(--ef-ink-4)', fontSize: 11 }}>
               <Calendar size={13} weight="regular" />
               <span>
                 {start.toLocaleDateString('en', { month: 'short', day: 'numeric' })} → {end.toLocaleDateString('en', { month: 'short', day: 'numeric' })}
@@ -555,22 +604,22 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-4" style={{ marginTop: 24 }}>
+        <div className="grid grid-cols-3 gap-4" style={{ marginTop: 15 }}>
           {[
             { label: 'Profit/Loss', value: fmtSignedMoney(netPnl, 2), color: positive ? 'var(--ef-pos)' : 'var(--ef-neg)' },
             { label: 'Win Rate', value: `${winRate.toFixed(0)}%`, color: 'var(--ef-ink)' },
             { label: 'Days Left', value: String(daysLeft), color: 'var(--ef-ink)' },
           ].map(item => (
             <div key={item.label}>
-              <p style={{ margin: 0, color: 'var(--ef-ink-4)', fontSize: 12 }}>{item.label}</p>
-              <p className="font-mono" style={{ margin: '7px 0 0', fontSize: 20, lineHeight: 1, color: item.color, letterSpacing: '-0.03em' }}>
+              <p style={{ margin: 0, color: 'var(--ef-ink-4)', fontSize: 11 }}>{item.label}</p>
+              <p className="font-mono" style={{ margin: '6px 0 0', fontSize: 17, lineHeight: 1, color: item.color, letterSpacing: '-0.03em' }}>
                 {item.value}
               </p>
             </div>
           ))}
         </div>
 
-        <div style={{ marginTop: 22 }}>
+        <div style={{ marginTop: 15 }}>
           <div className="flex items-center justify-between">
             <span style={{ color: 'var(--ef-ink-4)', fontSize: 12 }}>Target achievement</span>
             <span className="font-mono" style={{ color: accent, fontSize: 12, fontWeight: 800 }}>
@@ -579,8 +628,8 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
           </div>
           <div
             style={{
-              height: 16,
-              marginTop: 9,
+              height: 12,
+              marginTop: 7,
               borderRadius: 999,
               background: 'repeating-linear-gradient(90deg, color-mix(in oklab, var(--ef-bg-sunken) 78%, transparent) 0 4px, transparent 4px 8px)',
               border: '1px solid color-mix(in oklab, var(--ef-line) 70%, transparent)',
@@ -606,8 +655,8 @@ function ActiveChallenges({ accounts, trades }: { accounts: TradingAccount[]; tr
   if (propAccounts.length === 0) return null;
 
   return (
-    <Panel style={{ padding: '18px 20px 20px', marginBottom: 16 }}>
-      <div className="flex items-center justify-between" style={{ marginBottom: 14 }}>
+    <Panel style={{ padding: '14px 16px 16px', marginBottom: 14 }}>
+      <div className="flex items-center justify-between" style={{ marginBottom: 10 }}>
         <h2 style={{ margin: 0, fontSize: 15, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink-2)' }}>
           Active challenges
         </h2>
@@ -693,64 +742,6 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
                 }}
               >
                 {pos ? '+' : ''}${pair.pnl.toFixed(0)}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    </Panel>
-  );
-}
-
-function SessionPerformancePanel({ trades }: { trades: Trade[] }) {
-  const sessions = useMemo(
-    () => getSessionPerformance(trades).filter(s => s.total > 0).sort((a, b) => Math.abs((b.pnl ?? 0)) - Math.abs((a.pnl ?? 0))).slice(0, 5),
-    [trades]
-  );
-  if (sessions.length === 0) return null;
-
-  const maxAbs = Math.max(...sessions.map(s => Math.abs(s.pnl ?? 0)), 1);
-
-  return (
-    <Panel style={{ padding: '22px 24px', minHeight: 300 }}>
-      <div className="flex items-start justify-between gap-4" style={{ marginBottom: 18 }}>
-        <div>
-          <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
-            Timing
-          </p>
-          <h3 style={{ margin: '7px 0 0', fontSize: 18, fontWeight: 600, letterSpacing: '-0.03em', color: 'var(--ef-ink)' }}>
-            Session readout
-          </h3>
-        </div>
-        <Clock size={20} color="var(--ef-ink-4)" weight="regular" />
-      </div>
-
-      <div style={{ display: 'grid', gap: 11 }}>
-        {sessions.map(s => {
-          const pnl = s.pnl ?? 0;
-          const pos = pnl >= 0;
-          const width = Math.max(6, Math.abs(pnl) / maxAbs * 100);
-          return (
-            <div key={s.session}>
-              <div className="flex items-center justify-between gap-3">
-                <span style={{ fontSize: 13, color: 'var(--ef-ink-2)', fontWeight: 500 }}>
-                  {s.session}
-                </span>
-                <span className="font-mono" style={{ fontSize: 12, color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
-                  {s.winRate.toFixed(0)}% · {fmtSignedMoney(pnl)}
-                </span>
-              </div>
-              <div style={{ height: 8, borderRadius: 99, background: 'var(--ef-bg-sunken)', marginTop: 8, overflow: 'hidden' }}>
-                <div
-                  style={{
-                    height: '100%',
-                    width: `${width}%`,
-                    marginLeft: pos ? 0 : `${100 - width}%`,
-                    borderRadius: 99,
-                    background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
-                    opacity: 0.9,
-                  }}
-                />
               </div>
             </div>
           );
@@ -1094,24 +1085,25 @@ const Dashboard = () => {
 
       <ActiveChallenges accounts={accounts} trades={scaledTrades} />
 
-      <div style={{ display: 'grid', gap: 16 }}>
-        <EquityCommandPanel
-          trades={scaledTrades}
-          stats={stats}
-          startingBalance={startingBalance}
-          balanceAdjustment={balanceAdjustment}
-        />
-
-        <div className="grid grid-cols-1 xl:grid-cols-[1.05fr_0.95fr] gap-4">
-          <SessionPerformancePanel trades={scaledTrades} />
-          <InstrumentPerformance trades={scaledTrades} />
+      <div style={{ display: 'grid', gap: 14 }}>
+        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_330px] gap-4 items-stretch">
+          <EquityCommandPanel
+            trades={scaledTrades}
+            stats={stats}
+            startingBalance={startingBalance}
+            balanceAdjustment={balanceAdjustment}
+          />
+          <RiskCommandPanel trades={scaledTrades} stats={stats} />
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-[0.95fr_1.05fr] gap-4">
+        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,0.95fr)_minmax(360px,1.05fr)] gap-4">
           <div className="min-w-0">
             <HeatMapCalendar trades={scaledTrades} />
           </div>
-          <ExecutionTape trades={scaledTrades} />
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+            <InstrumentPerformance trades={scaledTrades} />
+            <ExecutionTape trades={scaledTrades} />
+          </div>
         </div>
       </div>
     </AppLayout>
