@@ -87,11 +87,16 @@ Deno.serve(async (req) => {
     current_period_end: trialEnds.toISOString(),
   };
 
-  const reusableManualTrial = existingRows.find((row) =>
-    row.plan === "pro" &&
-    row.status === "trialing" &&
-    (!row.provider || row.provider === "manual")
-  );
+  const rolloutRepairWindowEnds = new Date("2026-06-08T23:59:59.999Z").getTime();
+  const reusableManualTrial = existingRows.find((row) => {
+    const periodEnd = row.current_period_end ? new Date(row.current_period_end).getTime() : null;
+    const brokenDuringLaunch = periodEnd == null || periodEnd <= now.getTime();
+    return now.getTime() <= rolloutRepairWindowEnds &&
+      row.plan === "pro" &&
+      row.status === "trialing" &&
+      (!row.provider || row.provider === "manual") &&
+      brokenDuringLaunch;
+  });
 
   if (reusableManualTrial?.id) {
     const { data, error } = await supa
