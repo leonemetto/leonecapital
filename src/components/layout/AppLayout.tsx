@@ -1,7 +1,6 @@
 import { AppSidebar } from './AppSidebar';
 import { SandboxBanner } from '@/components/onboarding/SandboxBanner';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
-import { useSharedSubscription } from '@/contexts/SubscriptionContext';
 
 interface AppLayoutProps {
   children: React.ReactNode;
@@ -10,12 +9,8 @@ interface AppLayoutProps {
 
 export function AppLayout({ children, rail }: AppLayoutProps) {
   const { accounts, selectedAccountId } = useSharedAccounts();
-  const { isTrialing, trialEndsAt, isTrialExpired } = useSharedSubscription();
   const selectedAccount = accounts.find(a => a.id === selectedAccountId);
   const isDemoSelected = selectedAccount?.type === 'demo';
-  const trialDaysLeft = trialEndsAt
-    ? Math.max(0, Math.ceil((trialEndsAt.getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
-    : null;
 
   return (
     <div
@@ -29,12 +24,6 @@ export function AppLayout({ children, rail }: AppLayoutProps) {
       <div className="relative z-10 flex-1 min-w-0 flex">
         <div className="flex-1 min-w-0">
           {isDemoSelected && <SandboxBanner />}
-          {isTrialing && !isTrialExpired && trialDaysLeft !== null && (
-            <div className="border-b border-border bg-muted/35 px-5 py-2.5 text-center text-xs text-muted-foreground">
-              Pro trial active. <span className="font-mono tabular-nums text-foreground">{trialDaysLeft}</span> {trialDaysLeft === 1 ? 'day' : 'days'} left.
-              {' '}Use the dashboard upgrade prompt when you are ready.
-            </div>
-          )}
           <main className="max-w-[1560px] mx-auto p-5 md:p-6 lg:p-7 pt-16 lg:pt-7">
             {children}
           </main>

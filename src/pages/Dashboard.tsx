@@ -157,6 +157,67 @@ function MetricPlate({
   );
 }
 
+function getRiskSignal(stats: Analytics, todayPnl: number) {
+  const lossStreak = stats.currentStreak.type === 'loss' ? stats.currentStreak.count : 0;
+  if (lossStreak >= 2) {
+    return {
+      label: 'Reduce size',
+      caption: `${lossStreak}-loss streak detected · Use 50% risk today`,
+      tone: 'negative' as const,
+    };
+  }
+  if (todayPnl < 0) {
+    return {
+      label: 'Reduce size',
+      caption: 'Today is red · protect execution quality',
+      tone: 'negative' as const,
+    };
+  }
+  return {
+    label: 'Clear to execute',
+    caption: 'No active warning · stay on plan',
+    tone: 'positive' as const,
+  };
+}
+
+function DashboardKpiStrip({
+  trades,
+  stats,
+}: {
+  trades: Trade[];
+  stats: Analytics;
+}) {
+  const expectancy = trades.length > 0 ? stats.netPnl / trades.length : 0;
+  const planTrades = trades.filter(t => t.followedPlan !== undefined);
+  const planRate = planTrades.length > 0
+    ? (planTrades.filter(t => t.followedPlan).length / planTrades.length) * 100
+    : null;
+
+  const items = [
+    { label: 'Win rate', value: `${stats.winRate.toFixed(1)}%`, caption: `${stats.wins}W · ${stats.losses}L`, tone: stats.winRate >= 50 ? 'positive' : 'negative' },
+    { label: 'Profit factor', value: stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2), caption: stats.profitFactor >= 1.5 ? 'strong edge' : 'needs work', tone: stats.profitFactor >= 1 ? 'positive' : 'negative' },
+    { label: 'Expectancy', value: fmtSignedMoney(expectancy, 2), caption: `avg R ${stats.rExpectancy >= 0 ? '+' : ''}${stats.rExpectancy.toFixed(2)}`, tone: expectancy >= 0 ? 'positive' : 'negative' },
+    { label: 'Max drawdown', value: fmtMoney(stats.maxDrawdown), caption: 'largest pullback', tone: stats.maxDrawdown > 0 ? 'warning' : 'neutral' },
+    { label: 'Trades logged', value: trades.length.toLocaleString(), caption: `${stats.wins}W · ${stats.losses}L · ${stats.breakevens}BE`, tone: 'neutral' },
+    { label: 'Plan followed', value: planRate === null ? '—' : `${planRate.toFixed(0)}%`, caption: planRate === null ? 'not tracked yet' : `${planTrades.length} tracked`, tone: planRate === null ? 'neutral' : planRate >= 70 ? 'positive' : 'warning' },
+  ] as const;
+
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 2xl:grid-cols-6 gap-2">
+      {items.map(item => (
+        <MetricPlate
+          key={item.label}
+          label={item.label}
+          value={item.value}
+          caption={item.caption}
+          tone={item.tone}
+          compact
+        />
+      ))}
+    </div>
+  );
+}
+
 function UpgradePromptStrip({ onUpgrade }: { onUpgrade: () => void }) {
   const { hasProAccess, isTrialing, isTrialExpired, trialEndsAt } = useSharedSubscription();
   if (hasProAccess && !isTrialing) return null;
@@ -171,26 +232,22 @@ function UpgradePromptStrip({ onUpgrade }: { onUpgrade: () => void }) {
     <Panel
       quiet={!urgent}
       style={{
-        padding: '14px 16px',
-        marginBottom: 18,
+        padding: '10px 12px',
+        marginBottom: 12,
         borderColor: urgent ? 'var(--ef-warn)' : 'var(--ef-line)',
         background: urgent ? 'var(--ef-warn-wash)' : undefined,
       }}
     >
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-        <div>
-          <p className="font-mono uppercase" style={{ margin: 0, fontSize: 9, letterSpacing: '0.14em', color: urgent ? 'var(--ef-warn-high)' : 'var(--ef-ink-4)' }}>
-            {isTrialExpired ? 'Pro trial ended' : 'Pro trial active'}
-          </p>
-          <p style={{ margin: '5px 0 0', fontSize: 13.5, lineHeight: 1.45, color: 'var(--ef-ink-2)' }}>
-            {isTrialExpired
-              ? 'Your data is safe. Upgrade to keep logging trades, importing history, and using Atlas.'
-              : `${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left. Upgrade now if EdgeFlow is earning its place in your trading routine.`}
-          </p>
-        </div>
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.35, color: 'var(--ef-ink-2)' }}>
+          <span className="font-mono" style={{ color: urgent ? 'var(--ef-warn-high)' : 'var(--ef-ink)' }}>
+            {isTrialExpired ? 'Trial ended' : `Trial: ${daysLeft} ${daysLeft === 1 ? 'day' : 'days'} left`}
+          </span>
+          {' '}· Upgrade when EdgeFlow earns its place.
+        </p>
         <button
           onClick={onUpgrade}
-          className="shrink-0 rounded-[24px] px-4 py-2 text-sm font-semibold transition-colors"
+          className="shrink-0 rounded-[24px] px-3.5 py-1.5 text-sm font-semibold transition-colors"
           style={{ background: 'var(--ef-ink)', color: 'var(--ef-bg)' }}
         >
           Upgrade to Pro
@@ -220,7 +277,6 @@ function EquityCommandPanel({
   const currentBalance = data.at(-1)?.balance ?? baselineBalance;
   const netPnl = currentBalance - startingBalance;
   const netPct = startingBalance > 0 ? (netPnl / startingBalance) * 100 : 0;
-  const expectancyPerTrade = trades.length > 0 ? stats.netPnl / trades.length : 0;
   const isPositive = netPnl >= 0;
   const lineColor = isPositive ? 'var(--ef-pos)' : 'var(--ef-neg)';
   const avgTrade = trades.length > 0 ? stats.netPnl / trades.length : 0;
@@ -237,9 +293,9 @@ function EquityCommandPanel({
   }, [data, baselineBalance]);
 
   return (
-    <Panel className="overflow-hidden h-full" style={{ minHeight: 500 }}>
-      <div style={{ padding: '24px 26px 22px' }}>
-          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-5">
+    <Panel className="overflow-hidden h-full" style={{ minHeight: 385 }}>
+      <div style={{ padding: '20px 24px 18px' }}>
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
                 <span
@@ -259,7 +315,7 @@ function EquityCommandPanel({
                 className="font-mono"
                 style={{
                   margin: '14px 0 0',
-                  fontSize: 'clamp(36px, 4vw, 56px)',
+                  fontSize: 'clamp(34px, 3.5vw, 50px)',
                   lineHeight: 0.92,
                   fontWeight: 500,
                   letterSpacing: '-0.065em',
@@ -300,7 +356,7 @@ function EquityCommandPanel({
             </Link>
           </div>
 
-          <div style={{ height: 260, marginTop: 18 }}>
+          <div style={{ height: 210, marginTop: 14 }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={data} margin={{ top: 14, right: 8, bottom: 6, left: 0 }}>
                 <defs>
@@ -357,43 +413,12 @@ function EquityCommandPanel({
             </ResponsiveContainer>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 mt-4">
-            <MetricPlate
-              label="Win rate"
-              value={`${stats.winRate.toFixed(1)}%`}
-              caption={`${stats.wins} wins · ${stats.losses} losses`}
-              tone={stats.winRate >= 50 ? 'positive' : 'negative'}
-              compact
-            />
-            <MetricPlate
-              label="Profit factor"
-              value={stats.profitFactor >= 999 ? '∞' : stats.profitFactor.toFixed(2)}
-              caption={stats.profitFactor >= 1.5 ? 'strong edge' : stats.profitFactor >= 1 ? 'marginal edge' : 'below break-even'}
-              tone={stats.profitFactor >= 1 ? 'positive' : 'negative'}
-              compact
-            />
-            <MetricPlate
-              label="Expectancy"
-              value={fmtSignedMoney(expectancyPerTrade, 2)}
-              caption={`avg R ${stats.rExpectancy >= 0 ? '+' : ''}${stats.rExpectancy.toFixed(2)}`}
-              tone={expectancyPerTrade >= 0 ? 'positive' : 'negative'}
-              compact
-            />
-            <MetricPlate
-              label="Max drawdown"
-              value={fmtMoney(stats.maxDrawdown)}
-              caption="largest equity pullback"
-              tone={stats.maxDrawdown > 0 ? 'warning' : 'neutral'}
-              compact
-            />
-          </div>
-
           <div
             className="grid grid-cols-2 md:grid-cols-4"
             style={{
-              marginTop: 14,
+              marginTop: 10,
               borderTop: '1px solid color-mix(in oklab, var(--ef-line) 58%, transparent)',
-              paddingTop: 14,
+              paddingTop: 12,
               gap: 16,
             }}
           >
@@ -427,25 +452,22 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
     ? (planTrades.filter(t => t.followedPlan).length / planTrades.length) * 100
     : null;
   const lastFive = [...trades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
-  const lossStreak = stats.currentStreak.type === 'loss' ? stats.currentStreak.count : 0;
-  const riskTone = lossStreak >= 2 || todayPnl < 0 ? 'negative' : 'positive';
-
-  const sessions = useMemo(
-    () => getSessionPerformance(trades).filter(s => s.total > 0).sort((a, b) => Math.abs((b.pnl ?? 0)) - Math.abs((a.pnl ?? 0))).slice(0, 3),
-    [trades]
-  );
-  const maxSessionPnl = Math.max(...sessions.map(s => Math.abs(s.pnl ?? 0)), 1);
+  const risk = getRiskSignal(stats, todayPnl);
+  const riskTone = risk.tone;
 
   return (
-    <Panel quiet style={{ padding: '22px 22px 20px', minHeight: 500 }}>
+    <Panel quiet style={{ padding: '20px 22px 18px', minHeight: 385 }}>
       <div className="flex items-center justify-between">
         <div>
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
             Risk state
           </p>
-          <h3 style={{ margin: '7px 0 0', fontSize: 20, fontWeight: 600, letterSpacing: '-0.04em', color: 'var(--ef-ink)' }}>
-            {riskTone === 'positive' ? 'Clear to execute' : 'Trade smaller'}
+          <h3 style={{ margin: '7px 0 0', fontSize: 22, fontWeight: 560, letterSpacing: '-0.04em', color: 'var(--ef-ink)' }}>
+            {risk.label}
           </h3>
+          <p style={{ margin: '7px 0 0', maxWidth: 270, fontSize: 12.5, lineHeight: 1.45, color: 'var(--ef-ink-3)' }}>
+            {risk.caption}
+          </p>
         </div>
         <div
           style={{
@@ -479,48 +501,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
         />
       </div>
 
-      {sessions.length > 0 && (
-        <div style={{ marginTop: 22 }}>
-          <div className="flex items-center justify-between">
-            <p style={{ margin: 0, fontSize: 15, fontWeight: 560, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
-              Sessions
-            </p>
-            <Link to="/analyst" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
-              all →
-            </Link>
-          </div>
-          <div style={{ display: 'grid', gap: 13, marginTop: 13 }}>
-            {sessions.map(session => {
-              const pnl = session.pnl ?? 0;
-              const pos = pnl >= 0;
-              const width = Math.max(6, Math.abs(pnl) / maxSessionPnl * 100);
-              return (
-                <div key={session.session}>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="truncate" style={{ fontSize: 13, color: 'var(--ef-ink-2)' }}>{session.session}</span>
-                    <span className="font-mono" style={{ fontSize: 12, color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
-                      {session.winRate.toFixed(0)}% · {fmtSignedMoney(pnl)}
-                    </span>
-                  </div>
-                  <div style={{ height: 7, borderRadius: 99, background: 'var(--ef-bg-sunken)', marginTop: 8, overflow: 'hidden' }}>
-                    <div
-                      style={{
-                        height: '100%',
-                        width: `${width}%`,
-                        marginLeft: pos ? 0 : `${100 - width}%`,
-                        borderRadius: 99,
-                        background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
-                      }}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      <div style={{ marginTop: 24 }}>
+      <div style={{ marginTop: 18 }}>
         <div className="flex items-center justify-between">
           <p style={{ margin: 0, fontSize: 15, fontWeight: 560, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>
             Recent trades
@@ -529,7 +510,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
             trades →
           </Link>
         </div>
-        <div style={{ display: 'grid', gap: 0, marginTop: 11 }}>
+        <div style={{ display: 'grid', gap: 0, marginTop: 9 }}>
           {lastFive.slice(0, 4).map(t => (
             <div
               key={t.id}
@@ -537,7 +518,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
               style={{
                 gridTemplateColumns: '34px minmax(0,1fr) auto',
                 gap: 12,
-                padding: '11px 0',
+                padding: '9px 0',
                 borderTop: '1px solid color-mix(in oklab, var(--ef-line) 50%, transparent)',
               }}
             >
@@ -831,6 +812,68 @@ function InstrumentPerformance({ trades }: { trades: { instrument: string; pnl: 
   );
 }
 
+function SessionPerformancePanel({ trades }: { trades: Trade[] }) {
+  const sessions = useMemo(
+    () => getSessionPerformance(trades)
+      .filter(s => s.total > 0)
+      .sort((a, b) => Math.abs((b.pnl ?? 0)) - Math.abs((a.pnl ?? 0)))
+      .slice(0, 5),
+    [trades]
+  );
+  if (sessions.length === 0) return null;
+
+  const maxAbs = Math.max(...sessions.map(s => Math.abs(s.pnl ?? 0)), 1);
+
+  return (
+    <Panel quiet style={{ padding: '20px 24px', minHeight: 270 }}>
+      <div className="flex items-start justify-between gap-4" style={{ marginBottom: 16 }}>
+        <div>
+          <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.14em', color: 'var(--ef-ink-4)' }}>
+            Timing
+          </p>
+          <h3 style={{ margin: '7px 0 0', fontSize: 18, fontWeight: 560, letterSpacing: '-0.03em', color: 'var(--ef-ink)' }}>
+            Session performance
+          </h3>
+        </div>
+        <Link to="/analyst" className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>
+          all →
+        </Link>
+      </div>
+
+      <div style={{ display: 'grid', gap: 12 }}>
+        {sessions.map(session => {
+          const pnl = session.pnl ?? 0;
+          const pos = pnl >= 0;
+          const width = Math.max(7, Math.abs(pnl) / maxAbs * 100);
+          return (
+            <div key={session.session}>
+              <div className="flex items-center justify-between gap-3">
+                <span className="truncate" style={{ fontSize: 13, color: 'var(--ef-ink-2)' }}>
+                  {session.session}
+                </span>
+                <span className="font-mono" style={{ fontSize: 12, color: pos ? 'var(--ef-pos)' : 'var(--ef-neg)' }}>
+                  {session.winRate.toFixed(0)}% · {fmtSignedMoney(pnl)}
+                </span>
+              </div>
+              <div style={{ height: 8, borderRadius: 99, background: 'var(--ef-bg-sunken)', marginTop: 8, overflow: 'hidden' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${width}%`,
+                    marginLeft: pos ? 0 : `${100 - width}%`,
+                    borderRadius: 99,
+                    background: pos ? 'var(--ef-pos)' : 'var(--ef-neg)',
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
+
 function ExecutionTape({ trades }: { trades: Trade[] }) {
   const recent = useMemo(
     () => [...trades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 9),
@@ -1102,14 +1145,14 @@ const Dashboard = () => {
     <AppLayout>
       {/* Topbar */}
       <div
-        className="flex flex-col lg:flex-row lg:items-center gap-5"
-        style={{ paddingBottom: 18, marginBottom: 18, borderBottom: '1px solid var(--ef-line)' }}
+        className="flex flex-col lg:flex-row lg:items-center gap-4"
+        style={{ paddingBottom: 14, marginBottom: 12, borderBottom: '1px solid var(--ef-line)' }}
       >
         <div className="flex-1 min-w-0">
           <p className="font-mono uppercase" style={{ margin: 0, fontSize: 10, letterSpacing: '0.16em', color: 'var(--ef-ink-4)' }}>
             EdgeFlow command center
           </p>
-          <h1 style={{ margin: '8px 0 0', fontSize: 30, lineHeight: 1.05, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>
+          <h1 style={{ margin: '7px 0 0', fontSize: 28, lineHeight: 1.05, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>
             {getGreeting()}, {profile?.nickname || 'Trader'}.
           </h1>
           <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>
@@ -1170,9 +1213,12 @@ const Dashboard = () => {
 
       <UpgradePromptStrip onUpgrade={() => setUpgradeOpen(true)} />
 
-      <ActiveChallenges accounts={accounts} trades={scaledTrades} />
+      <DashboardKpiStrip
+        trades={scaledTrades}
+        stats={stats}
+      />
 
-      <div style={{ display: 'grid', gap: 14 }}>
+      <div style={{ display: 'grid', gap: 14, marginTop: 12 }}>
         <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,1fr)_390px] gap-4 items-stretch">
           <EquityCommandPanel
             trades={scaledTrades}
@@ -1183,15 +1229,15 @@ const Dashboard = () => {
           <RiskCommandPanel trades={scaledTrades} stats={stats} />
         </div>
 
-        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,0.9fr)_minmax(390px,1.1fr)] gap-4">
+        <div className="grid grid-cols-1 2xl:grid-cols-[minmax(0,0.9fr)_minmax(300px,0.72fr)_minmax(360px,0.9fr)] gap-4">
           <div className="min-w-0">
             <HeatMapCalendar trades={scaledTrades} />
           </div>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <InstrumentPerformance trades={scaledTrades} />
-            <ExecutionTape trades={scaledTrades} />
-          </div>
+          <SessionPerformancePanel trades={scaledTrades} />
+          <InstrumentPerformance trades={scaledTrades} />
         </div>
+
+        <ActiveChallenges accounts={accounts} trades={scaledTrades} />
       </div>
       <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </AppLayout>
