@@ -17,6 +17,11 @@ begin
       from public.subscriptions
       where user_id = NEW.id
     )
+    and exists (
+      select 1
+      from auth.users
+      where id = NEW.id
+    )
   then
     insert into public.subscriptions (
       user_id,
@@ -83,6 +88,7 @@ select
   now(),
   now() + interval '14 days'
 from public.profiles p
+join auth.users u on u.id = p.id
 where p.onboarding_completed is true
   and not exists (
     select 1
