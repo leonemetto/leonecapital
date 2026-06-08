@@ -1,4 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react';
+import type { CSSProperties } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader } from '@/components/layout/PageHeader';
@@ -27,6 +28,65 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts';
 
+const ANALYTIC_PANEL_STYLE: CSSProperties = {
+  borderRadius: 18,
+  border: '1px solid color-mix(in oklab, var(--ef-line) 88%, white 4%)',
+  background: `
+    radial-gradient(circle at 88% 0%, color-mix(in oklab, var(--ef-pos-wash) 16%, transparent) 0, transparent 38%),
+    linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, white 2%) 0%, var(--ef-bg-elev) 100%)
+  `,
+  boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset, 0 22px 60px rgba(0,0,0,0.18)',
+};
+
+function MetricTile({
+  label,
+  value,
+  sub,
+  tone = 'neutral',
+  badge,
+  delay = 0,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  tone?: 'positive' | 'negative' | 'warning' | 'neutral';
+  badge?: boolean;
+  delay?: number;
+}) {
+  const toneColor = tone === 'positive'
+    ? 'var(--ef-pos)'
+    : tone === 'negative'
+      ? 'var(--ef-neg)'
+      : tone === 'warning'
+        ? 'var(--ef-warn)'
+        : 'var(--ef-ink)';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay }}
+      className="relative overflow-hidden px-5 py-5"
+      style={{
+        ...ANALYTIC_PANEL_STYLE,
+        background: `
+          radial-gradient(circle at 92% 10%, color-mix(in oklab, ${toneColor} 18%, transparent) 0, transparent 36%),
+          linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, ${toneColor} 4%) 0%, var(--ef-bg-elev) 100%)
+        `,
+      }}
+    >
+      <div className="flex items-center justify-between mb-5">
+        <p className="label-text">{label}</p>
+        {badge && <Lightning className="h-3.5 w-3.5" style={{ color: toneColor }} weight="fill" />}
+      </div>
+      <p className="text-[32px] leading-none mb-2 metric-number tracking-[-0.04em]" style={{ color: toneColor }}>
+        {value}
+      </p>
+      <p className="text-[11px] text-muted-foreground/55">{sub}</p>
+    </motion.div>
+  );
+}
+
 // ─── Expectancy Table ───
 function ExpectancyTable({
   title, data, field, onSimulate,
@@ -50,14 +110,14 @@ function ExpectancyTable({
   const minExp = Math.min(...cleanData.map(r => r.expectancy));
 
   return (
-    <div className="rounded-xl bg-card border border-border overflow-hidden">
-      <div className="px-6 py-4 border-b border-border">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">{title}</p>
+    <div className="overflow-hidden" style={ANALYTIC_PANEL_STYLE}>
+      <div className="px-6 py-4 border-b border-[color:var(--ef-line)]/70">
+        <p className="label-text">{title}</p>
       </div>
 
-      <div className="divide-y divide-border/50">
+      <div className="divide-y divide-border/40">
         {/* Column labels */}
-        <div className="grid grid-cols-[1fr_60px_60px_70px_70px_60px_32px] gap-2 px-6 py-2">
+        <div className="grid grid-cols-[1fr_60px_60px_70px_70px_60px_32px] gap-2 px-6 py-2.5 bg-black/10">
           {['Segment','Trades','Win%','Avg R','Expect.','P&L',''].map((h, i) => (
             <span key={i} className={cn(
               'text-[9px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/40',
@@ -78,15 +138,15 @@ function ExpectancyTable({
             <div
               key={row.key}
               className={cn(
-                'grid grid-cols-[1fr_60px_60px_70px_70px_60px_32px] gap-2 px-6 py-3.5 items-center transition-colors',
-                isBest ? 'hover:bg-[var(--ef-pos-wash)]' : isWorst ? 'hover:bg-[var(--ef-neg-wash)]' : 'hover:bg-muted/30'
+                'grid grid-cols-[1fr_60px_60px_70px_70px_60px_32px] gap-2 px-6 py-4 items-center transition-colors',
+                isBest ? 'hover:bg-[var(--ef-pos-wash)]/20' : isWorst ? 'hover:bg-[var(--ef-neg-wash)]/20' : 'hover:bg-white/[0.025]'
               )}
             >
               {/* Segment name */}
               <div className="flex items-center gap-2.5 min-w-0">
                 <div className={cn(
-                  'w-0.5 h-5 rounded-full shrink-0',
-                  isBest ? 'bg-[#10b981]' : isWorst ? 'bg-[#f87171]' : 'bg-border'
+                  'w-0.5 h-7 rounded-full shrink-0',
+                  isBest ? 'bg-[var(--ef-pos)]' : isWorst ? 'bg-[var(--ef-neg)]' : 'bg-border'
                 )} />
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
@@ -107,21 +167,21 @@ function ExpectancyTable({
 
               <span className="text-right text-[12px] font-mono text-muted-foreground/50">{row.trades}</span>
 
-              <span className={cn('text-right text-[12px] metric-number', row.winRate >= 50 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+              <span className={cn('text-right text-[12px] metric-number', row.winRate >= 50 ? 'text-[var(--ef-pos)]' : 'text-[var(--ef-neg)]')}>
                 {row.winRate}%
               </span>
 
-              <span className={cn('text-right text-[12px] metric-number', (row.avgR ?? 0) >= 0 ? 'text-muted-foreground' : 'text-[#f87171]')}>
+              <span className={cn('text-right text-[12px] metric-number', (row.avgR ?? 0) >= 0 ? 'text-muted-foreground' : 'text-[var(--ef-neg)]')}>
                 {row.avgR || '—'}
               </span>
 
               {/* Expectancy with bar */}
               <div className="relative flex items-center justify-end">
                 <div
-                  className={cn('absolute inset-y-0 right-0 rounded-sm opacity-[0.12]', row.expectancy > 0 ? 'bg-[#10b981]' : row.expectancy < 0 ? 'bg-[#f87171]' : '')}
+                  className={cn('absolute inset-y-0 right-0 rounded-full opacity-[0.16]', row.expectancy > 0 ? 'bg-[var(--ef-pos)]' : row.expectancy < 0 ? 'bg-[var(--ef-neg)]' : '')}
                   style={{ width: `${barWidth}%` }}
                 />
-                <span className={cn('relative z-10 text-[12px] metric-number', row.expectancy > 0 ? 'text-[#10b981]' : row.expectancy < 0 ? 'text-[#f87171]' : 'text-muted-foreground/60')}>
+                <span className={cn('relative z-10 text-[12px] metric-number', row.expectancy > 0 ? 'text-[var(--ef-pos)]' : row.expectancy < 0 ? 'text-[var(--ef-neg)]' : 'text-muted-foreground/60')}>
                   {row.expectancy}
                 </span>
               </div>
@@ -137,7 +197,7 @@ function ExpectancyTable({
                       : 'transparent',
                   }}
                 />
-                <span className={cn('relative z-10 text-right text-[12px] pr-1 metric-number', row.pnl >= 0 ? 'text-[#10b981]' : 'text-[#f87171]')}>
+                <span className={cn('relative z-10 text-right text-[12px] pr-1 metric-number', row.pnl >= 0 ? 'text-[var(--ef-pos)]' : 'text-[var(--ef-neg)]')}>
                   ${row.pnl}
                 </span>
               </div>
@@ -170,8 +230,10 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
 
   if (tradeCount < THRESHOLD) {
     return (
-      <div className="rounded-xl bg-card border border-border p-8 text-center">
-        <Brain className="h-8 w-8 text-muted-foreground/30 mx-auto mb-4" weight="regular" />
+      <div className="p-8 text-center" style={ANALYTIC_PANEL_STYLE}>
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-white/[0.035] border border-white/10">
+          <Brain className="h-7 w-7 text-muted-foreground/35" weight="regular" />
+        </div>
         <p className="text-[15px] font-semibold text-foreground mb-2">
           {THRESHOLD - tradeCount} more trades to unlock pattern detection
         </p>
@@ -179,10 +241,13 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
           EdgeFlow needs at least {THRESHOLD} trades to surface meaningful behavioral signals and psychological patterns.
         </p>
         <div className="flex items-center gap-3 max-w-xs mx-auto">
-          <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+          <div className="flex-1 h-2 bg-black/40 rounded-full overflow-hidden border border-white/10">
             <div
-              className="h-full bg-foreground rounded-full transition-all"
-              style={{ width: `${Math.min((tradeCount / THRESHOLD) * 100, 100)}%` }}
+              className="h-full rounded-full transition-all"
+              style={{
+                width: `${Math.min((tradeCount / THRESHOLD) * 100, 100)}%`,
+                background: 'linear-gradient(90deg, var(--ef-ink), var(--ef-pos))',
+              }}
             />
           </div>
           <span className="text-[12px] font-mono text-muted-foreground/50 shrink-0">{tradeCount} / {THRESHOLD}</span>
@@ -193,7 +258,7 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
 
   if (insights.length === 0) {
     return (
-      <div className="rounded-xl bg-card border border-border p-8 text-center">
+      <div className="p-8 text-center" style={ANALYTIC_PANEL_STYLE}>
         <ShieldCheck className="h-8 w-8 text-[#10b981] mx-auto mb-3" weight="regular" />
         <p className="text-[15px] font-semibold text-foreground mb-1">No significant patterns detected</p>
         <p className="text-sm text-muted-foreground/60">Keep logging consistently to build a reliable data set.</p>
@@ -217,7 +282,8 @@ function BehavioralAlerts({ insights, tradeCount, onSimulate }: { insights: Beha
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.05 }}
-            className={cn('rounded-xl border bg-card px-5 py-4', cfg.border)}
+            className={cn('px-5 py-4', cfg.border)}
+            style={ANALYTIC_PANEL_STYLE}
           >
             <div className="flex items-start gap-4">
               <div className={cn('w-0.5 h-full min-h-[2.5rem] rounded-full shrink-0 self-stretch', cfg.dot)} />
@@ -261,12 +327,21 @@ function RiskIndicator({ trades }: { trades: Trade[] }) {
   const { Icon } = config;
 
   return (
-    <div className={cn('rounded-xl border px-6 py-5 flex items-center gap-5', config.border, config.bg)}>
-      <div className={cn('p-3 rounded-xl shrink-0', config.iconBg)}>
+    <div
+      className={cn('relative overflow-hidden px-6 py-5 flex items-center gap-5', config.border, config.bg)}
+      style={{
+        ...ANALYTIC_PANEL_STYLE,
+        background: `
+          radial-gradient(circle at 96% 10%, ${risk.status === 'green' ? 'color-mix(in oklab, var(--ef-pos) 18%, transparent)' : risk.status === 'yellow' ? 'color-mix(in oklab, var(--ef-warn) 20%, transparent)' : 'color-mix(in oklab, var(--ef-neg) 18%, transparent)'} 0, transparent 38%),
+          linear-gradient(135deg, var(--ef-bg-elev), color-mix(in oklab, var(--ef-bg-elev) 88%, ${risk.status === 'green' ? 'var(--ef-pos-wash)' : risk.status === 'yellow' ? 'var(--ef-warn-wash)' : 'var(--ef-neg-wash)'}) 100%)
+        `,
+      }}
+    >
+      <div className={cn('p-3 rounded-xl shrink-0 border border-white/10', config.iconBg)}>
         <Icon className={cn('h-5 w-5', config.text)} weight="regular" />
       </div>
       <div className="flex-1">
-        <p className={cn('text-[13px] font-bold mb-0.5', config.text)}>{config.label}</p>
+        <p className={cn('text-[13px] font-bold mb-0.5', config.text)}>Risk state · {config.label}</p>
         <p className="text-[13px] text-muted-foreground/60">{risk.message}</p>
       </div>
       {risk.drawdownR > 0 && (
@@ -360,58 +435,47 @@ const PerformanceAnalyst = () => {
 
       {/* ── Key Metrics ── */}
       <div className="mb-8">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60 mb-4">
-          Key Metrics
-        </p>
+        <p className="label-text mb-4">Key metrics</p>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
             {
               label: 'R-Expectancy',
               value: stats.rExpectancy ? stats.rExpectancy.toFixed(3) : '—',
               sub: 'Expected R per trade',
-              color: stats.rExpectancy > 0 ? 'text-[#10b981]' : stats.rExpectancy < 0 ? 'text-[#f87171]' : 'text-foreground',
+              tone: stats.rExpectancy > 0 ? 'positive' : stats.rExpectancy < 0 ? 'negative' : 'neutral',
               badge: stats.rExpectancy > 0.5,
             },
             {
               label: 'Avg Win',
               value: stats.avgRWin ? `+${stats.avgRWin}R` : '—',
               sub: 'Average winning trade',
-              color: 'text-[#10b981]',
+              tone: 'positive',
               badge: false,
             },
             {
               label: 'Avg Loss',
               value: stats.avgRLoss ? `−${stats.avgRLoss}R` : '—',
               sub: 'Average losing trade',
-              color: 'text-[#f87171]',
+              tone: 'negative',
               badge: false,
             },
             {
               label: 'Max Drawdown',
               value: `$${stats.maxDrawdown}`,
               sub: 'Peak to trough loss',
-              color: stats.maxDrawdown > 0 ? 'text-[#f87171]' : 'text-foreground',
+              tone: stats.maxDrawdown > 0 ? 'warning' : 'neutral',
               badge: false,
             },
           ].map((s, i) => (
-            <motion.div
+            <MetricTile
               key={s.label}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06 }}
-              className="rounded-xl bg-card border border-border px-5 py-5"
-            >
-              <div className="flex items-center justify-between mb-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
-                  {s.label}
-                </p>
-                {s.badge && <Lightning className="h-3.5 w-3.5 text-[#10b981]" weight="fill" />}
-              </div>
-              <p className={cn('text-[32px] leading-none mb-2 metric-number', s.color)}>
-                {s.value}
-              </p>
-              <p className="text-[11px] text-muted-foreground/50">{s.sub}</p>
-            </motion.div>
+              label={s.label}
+              value={s.value}
+              sub={s.sub}
+              tone={s.tone as 'positive' | 'negative' | 'warning' | 'neutral'}
+              badge={s.badge}
+              delay={i * 0.06}
+            />
           ))}
         </div>
       </div>
@@ -420,9 +484,7 @@ const PerformanceAnalyst = () => {
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-4">
           <Brain className="h-4 w-4 text-muted-foreground/50" weight="regular" />
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
-            Behavioral Patterns
-          </p>
+          <p className="label-text">Behavioral patterns</p>
           {behavioral.length > 0 && (
             <span className="text-[10px] font-mono text-muted-foreground/40 ml-auto">
               {behavioral.length} signal{behavioral.length !== 1 ? 's' : ''}
@@ -435,9 +497,7 @@ const PerformanceAnalyst = () => {
       {/* ── Expectancy Breakdown ── */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/60">
-            Expectancy Breakdown
-          </p>
+          <p className="label-text">Expectancy breakdown</p>
           <p className="text-[11px] text-muted-foreground/40">
             Click ⚡ on any row to see how your equity curve looks if you removed that setup from your trading
           </p>
@@ -456,11 +516,11 @@ const PerformanceAnalyst = () => {
       </div>
 
       {/* ── Strategy Optimizer link ── */}
-      <div className="rounded-xl bg-card border border-border px-6 py-5 flex items-center justify-between gap-4">
+      <div className="px-6 py-5 flex items-center justify-between gap-4" style={ANALYTIC_PANEL_STYLE}>
         <div>
           <div className="flex items-center gap-2 mb-1">
             <Lightning className="h-4 w-4 text-muted-foreground/50" weight="regular" />
-            <p className="text-[13px] font-semibold text-foreground">Strategy Optimizer</p>
+            <p className="text-[13px] font-semibold text-foreground">Strategy optimizer</p>
           </div>
           <p className="text-[12px] text-muted-foreground/60">
             Click the <Lightning className="h-3 w-3 inline" weight="bold" /> icon on any row above to simulate removing that segment — or open the full optimizer to build custom filters.

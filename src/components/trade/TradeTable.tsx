@@ -32,7 +32,7 @@ type DirectionFilter = 'all' | 'long' | 'short';
 type DateRange = 'all' | 'week' | 'month';
 
 const PAGE_SIZE = 50;
-const CARD = 'rounded-xl bg-card border border-border';
+const CARD = 'rounded-[18px] border border-white/10 bg-[linear-gradient(180deg,color-mix(in_oklab,var(--ef-bg-elev)_96%,white_2%),var(--ef-bg-elev))] shadow-[0_1px_0_rgba(255,255,255,0.04)_inset,0_22px_60px_rgba(0,0,0,0.18)]';
 
 function TradeScreenshot({ path }: { path: string }) {
   const [open, setOpen] = useState(false);
@@ -166,7 +166,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
       'px-3 py-1 rounded-full text-[11px] font-medium border transition-all',
       active
         ? 'bg-foreground text-background border-transparent'
-        : 'bg-transparent border-border text-muted-foreground hover:border-foreground/25 hover:text-foreground'
+        : 'bg-white/[0.025] border-white/10 text-muted-foreground hover:border-foreground/25 hover:text-foreground hover:bg-white/[0.05]'
     );
 
   // Empty state
@@ -188,18 +188,18 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
       {/* Toolbar */}
-      <div className="flex flex-col sm:flex-row gap-2 mb-2">
+      <div className="flex flex-col sm:flex-row gap-2 mb-3 rounded-[18px] border border-white/10 bg-white/[0.025] p-2">
         <div className="relative flex-1">
           <MagnifyingGlass className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/50" weight="regular" />
           <Input
             value={search}
             onChange={e => { setSearch(e.target.value); resetPage(); }}
             placeholder="Search instrument, strategy, notes..."
-            className="pl-8 h-8 text-sm"
+            className="pl-8 h-9 text-sm rounded-full bg-black/20 border-white/10"
           />
         </div>
         <Select value={dateRange} onValueChange={(v: DateRange) => { setDateRange(v); resetPage(); }}>
-          <SelectTrigger className="w-[130px] h-8 text-xs">
+          <SelectTrigger className="w-[130px] h-9 text-xs rounded-full bg-black/20 border-white/10">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -214,7 +214,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
           variant="outline"
           size="sm"
           onClick={() => exportTradesCSV(trades)}
-          className="gap-1 h-8 text-xs rounded-full"
+          className="gap-1 h-9 text-xs rounded-full border-white/10 bg-black/20"
         >
           <DownloadSimple className="h-3 w-3" weight="regular" /> CSV
         </Button>
@@ -240,7 +240,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border">
+              <tr className="border-b border-white/10 bg-white/[0.025]">
                 <th className="text-left p-3"><SortHeader field="date">Date</SortHeader></th>
                 <th className="text-left p-3"><SortHeader field="instrument">Pair</SortHeader></th>
                 <th className="text-left p-3 hidden md:table-cell">
@@ -300,7 +300,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
                     <tr
                       key={trade.id}
                       onClick={(e) => toggleExpand(trade.id, e)}
-                      className="border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer"
+                      className="border-b border-white/10 hover:bg-white/[0.025] transition-colors cursor-pointer"
                     >
                       <td className="p-3 text-[13px] font-mono whitespace-nowrap text-muted-foreground">
                         {new Date(trade.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -308,10 +308,10 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
                       <td className="p-3 text-[13px] font-semibold text-foreground">{trade.instrument}</td>
                       <td className="p-3 hidden md:table-cell">
                         <span className={cn(
-                          'text-[10px] font-bold px-1.5 py-0.5 rounded',
+                            'text-[10px] font-bold px-1.5 py-0.5 rounded-md border border-white/10',
                           trade.direction === 'long'
-                            ? 'bg-muted text-foreground'
-                            : 'bg-muted/50 text-muted-foreground'
+                            ? 'bg-white/[0.055] text-foreground'
+                            : 'bg-black/25 text-muted-foreground'
                         )}>
                           {trade.direction === 'long' ? 'L' : 'S'}
                         </span>
@@ -327,7 +327,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
                       <td className="p-3 text-center">
                         <div className="flex items-center justify-center gap-1.5">
                           <span className={cn(
-                            'w-0.5 h-3.5 rounded-full shrink-0',
+                            'w-1.5 h-1.5 rounded-full shrink-0',
                             trade.outcome === 'win' ? 'bg-[#10b981]' : trade.outcome === 'loss' ? 'bg-[#f87171]' : 'bg-muted-foreground/30'
                           )} />
                           <span className={cn(
@@ -381,7 +381,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
                           transition={{ duration: 0.15 }}
                         >
                           <td colSpan={9} className="px-4 pb-4 pt-0">
-                            <div className="rounded-lg p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 bg-muted/30 border border-border">
+                            <div className="rounded-2xl p-4 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 bg-black/25 border border-white/10">
                               {[
                                 {
                                   label: 'R-Multiple',
@@ -544,7 +544,7 @@ function GroupRow({ groupId, legs, isExpanded, onToggle, hasCriteria, accountNam
     <>
       <tr
         onClick={(e) => { if (!(e.target as HTMLElement).closest('button')) onToggle(); }}
-        className="border-b border-border/50 hover:bg-muted/30 transition-colors cursor-pointer bg-[rgba(16,185,129,0.04)]"
+        className="border-b border-white/10 hover:bg-white/[0.025] transition-colors cursor-pointer bg-[rgba(16,185,129,0.045)]"
       >
         <td className="p-3 text-[13px] font-mono whitespace-nowrap text-muted-foreground">
           {new Date(head.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -560,8 +560,8 @@ function GroupRow({ groupId, legs, isExpanded, onToggle, hasCriteria, accountNam
         </td>
         <td className="p-3 hidden md:table-cell">
           <span className={cn(
-            'text-[10px] font-bold px-1.5 py-0.5 rounded',
-            head.direction === 'long' ? 'bg-muted text-foreground' : 'bg-muted/50 text-muted-foreground'
+            'text-[10px] font-bold px-1.5 py-0.5 rounded-md border border-white/10',
+            head.direction === 'long' ? 'bg-white/[0.055] text-foreground' : 'bg-black/25 text-muted-foreground'
           )}>
             {head.direction === 'long' ? 'L' : 'S'}
           </span>
@@ -577,7 +577,7 @@ function GroupRow({ groupId, legs, isExpanded, onToggle, hasCriteria, accountNam
         <td className="p-3 text-center">
           <div className="flex items-center justify-center gap-1.5">
             <span className={cn(
-              'w-0.5 h-3.5 rounded-full shrink-0',
+              'w-1.5 h-1.5 rounded-full shrink-0',
               headerOutcome === 'win' ? 'bg-[#10b981]'
               : headerOutcome === 'loss' ? 'bg-[#f87171]'
               : headerOutcome === 'mixed' ? 'bg-[#f59e0b]'
@@ -625,12 +625,12 @@ function GroupRow({ groupId, legs, isExpanded, onToggle, hasCriteria, accountNam
             transition={{ duration: 0.15 }}
           >
             <td colSpan={9} className="px-4 pb-4 pt-0">
-              <div className="rounded-lg p-4 bg-muted/30 border border-border space-y-3">
+              <div className="rounded-2xl p-4 bg-black/25 border border-white/10 space-y-3">
                 <div>
                   <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-muted-foreground/60 mb-2">Per-account legs</p>
                   <div className="space-y-1.5">
                     {legs.map(leg => (
-                      <div key={leg.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded border border-border/60">
+                      <div key={leg.id} className="flex items-center justify-between gap-2 py-1.5 px-2 rounded-xl border border-white/10 bg-white/[0.025]">
                         <div className="flex items-center gap-2 flex-1 min-w-0">
                           <span className="text-[12px] font-medium text-foreground truncate">{accountName(leg.accountId)}</span>
                           <span className={cn(

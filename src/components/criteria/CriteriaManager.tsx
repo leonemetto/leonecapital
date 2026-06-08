@@ -74,31 +74,32 @@ export function CriteriaManager() {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Table */}
-      <div className="rounded-lg border border-border overflow-hidden">
+      <div className="overflow-hidden rounded-2xl border border-white/10 bg-black/20">
         <table className="w-full text-sm">
           <thead>
-            <tr className="bg-secondary/50">
-              <th className="text-left px-3 py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Label</th>
-              <th className="text-left px-3 py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium w-28">Category</th>
-              <th className="px-3 py-2 text-[10px] text-muted-foreground uppercase tracking-wider font-medium w-16 text-center">Active</th>
-              <th className="px-3 py-2 w-20" />
+            <tr className="border-b border-white/10 bg-white/[0.025]">
+              <th className="text-left px-4 py-3 text-[10px] text-muted-foreground uppercase tracking-[0.14em] font-semibold">Rule</th>
+              <th className="text-left px-4 py-3 text-[10px] text-muted-foreground uppercase tracking-[0.14em] font-semibold w-32">Group</th>
+              <th className="px-4 py-3 text-[10px] text-muted-foreground uppercase tracking-[0.14em] font-semibold w-20 text-center">Live</th>
+              <th className="px-4 py-3 w-24" />
             </tr>
           </thead>
-          <tbody className="divide-y divide-border">
+          <tbody className="divide-y divide-white/10">
             {criteria.length === 0 && (
               <tr>
-                <td colSpan={4} className="px-3 py-6 text-center text-xs text-muted-foreground">
-                  No criteria yet. Add your first entry rule below.
+                <td colSpan={4} className="px-4 py-10 text-center">
+                  <p className="text-sm font-semibold text-foreground">No entry rules yet</p>
+                  <p className="mt-1 text-xs text-muted-foreground/60">Add the checks that must be true before you enter a trade.</p>
                 </td>
               </tr>
             )}
             {criteria.map(c => (
-              <tr key={c.id} className="hover:bg-secondary/30 transition-colors">
+              <tr key={c.id} className="hover:bg-white/[0.025] transition-colors">
                 {editingId === c.id ? (
                   <>
-                    <td className="px-3 py-1.5">
+                    <td className="px-4 py-2">
                       <Input
                         value={editLabel}
                         onChange={e => setEditLabel(e.target.value)}
@@ -106,7 +107,7 @@ export function CriteriaManager() {
                         autoFocus
                       />
                     </td>
-                    <td className="px-3 py-1.5">
+                    <td className="px-4 py-2">
                       <Input
                         value={editCategory}
                         onChange={e => setEditCategory(e.target.value)}
@@ -114,8 +115,8 @@ export function CriteriaManager() {
                         placeholder="Category"
                       />
                     </td>
-                    <td className="px-3 py-1.5" />
-                    <td className="px-3 py-1.5">
+                    <td className="px-4 py-2" />
+                    <td className="px-4 py-2">
                       <div className="flex gap-1 justify-end">
                         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => saveEdit(c.id)}>
                           <Check className="h-3 w-3 text-profit" />
@@ -128,22 +129,22 @@ export function CriteriaManager() {
                   </>
                 ) : (
                   <>
-                    <td className="px-3 py-2.5 text-xs font-medium">{c.label}</td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-4 py-3 text-[13px] font-medium text-foreground">{c.label}</td>
+                    <td className="px-4 py-3">
                       {c.category ? (
-                        <span className="text-[10px] bg-secondary px-2 py-0.5 rounded-full text-muted-foreground">{c.category}</span>
+                        <span className="text-[10px] bg-white/[0.045] border border-white/10 px-2 py-1 rounded-full text-muted-foreground">{c.category}</span>
                       ) : (
                         <span className="text-[10px] text-muted-foreground/40">—</span>
                       )}
                     </td>
-                    <td className="px-3 py-2.5 text-center">
+                    <td className="px-4 py-3 text-center">
                       <Switch
                         checked={c.isActive}
                         onCheckedChange={() => handleToggle(c)}
                         className="scale-75"
                       />
                     </td>
-                    <td className="px-3 py-2.5">
+                    <td className="px-4 py-3">
                       <div className="flex gap-1 justify-end">
                         <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(c)}>
                           <Pencil className="h-3 w-3 text-muted-foreground" />
@@ -160,8 +161,8 @@ export function CriteriaManager() {
 
             {/* Add new row inline */}
             {showAddRow && (
-              <tr className="bg-primary/5">
-                <td className="px-3 py-1.5">
+              <tr className="bg-white/[0.025]">
+                <td className="px-4 py-2">
                   <Input
                     value={newLabel}
                     onChange={e => setNewLabel(e.target.value)}
@@ -171,7 +172,7 @@ export function CriteriaManager() {
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                   />
                 </td>
-                <td className="px-3 py-1.5">
+                <td className="px-4 py-2">
                   <Input
                     value={newCategory}
                     onChange={e => setNewCategory(e.target.value)}
@@ -180,8 +181,8 @@ export function CriteriaManager() {
                     onKeyDown={e => e.key === 'Enter' && handleAdd()}
                   />
                 </td>
-                <td className="px-3 py-1.5" />
-                <td className="px-3 py-1.5">
+                <td className="px-4 py-2" />
+                <td className="px-4 py-2">
                   <div className="flex gap-1 justify-end">
                     <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleAdd} disabled={adding || !newLabel.trim()}>
                       {adding ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 text-profit" />}
@@ -198,9 +199,9 @@ export function CriteriaManager() {
       </div>
 
       {!showAddRow && (
-        <Button variant="ghost" size="sm" className="gap-1.5 text-xs" onClick={() => setShowAddRow(true)}>
+        <Button variant="ghost" size="sm" className="gap-1.5 rounded-full border border-white/10 bg-white/[0.035] px-4 text-xs hover:bg-white/[0.06]" onClick={() => setShowAddRow(true)}>
           <Plus className="h-3.5 w-3.5" />
-          Add Criterion
+          Add rule
         </Button>
       )}
     </div>

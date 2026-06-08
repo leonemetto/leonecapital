@@ -2,9 +2,9 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import {
   ChartLineUp,
-  ChartBar,
-  Rows,
-  CurrencyDollar,
+  ChartBarHorizontal,
+  Table,
+  Wallet,
   Brain,
   GearSix,
   SignOut,
@@ -14,9 +14,10 @@ import {
   X,
   Plus,
   ClipboardText,
-  Drop,
+  DropHalf,
   Scales,
   Question,
+  Crosshair,
 } from '@phosphor-icons/react';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfile } from '@/hooks/useProfile';
@@ -32,13 +33,13 @@ function EdgeFlowMark({ size = 20 }: { size?: number }) {
 
 const baseNavItems = [
   { title: 'Dashboard',       short: 'Dash',    path: '/dashboard',       Icon: ChartLineUp },
-  { title: 'Trades DB',       short: 'Trades',  path: '/journal',         Icon: Rows },
-  { title: 'Analytics',       short: 'Stats',   path: '/analyst',         Icon: ChartBar },
-  { title: 'Leak Detection',  short: 'Leaks',   path: '/leak-detection',  Icon: Drop,   badge: true },
+  { title: 'Trades DB',       short: 'Trades',  path: '/journal',         Icon: Table },
+  { title: 'Analytics',       short: 'Stats',   path: '/analyst',         Icon: ChartBarHorizontal },
+  { title: 'Leak Detection',  short: 'Leaks',   path: '/leak-detection',  Icon: DropHalf,   badge: true },
   { title: 'Optimizer',       short: 'Optim.',  path: '/what-if',         Icon: Scales },
   { title: 'Atlas',           short: 'AI',      path: '/ai',              Icon: Brain },
   { title: 'Trading Plan',    short: 'Plan',    path: '/trading-plan',    Icon: ClipboardText },
-  { title: 'Accounts',        short: 'Accts',   path: '/accounts',        Icon: CurrencyDollar },
+  { title: 'Accounts',        short: 'Accts',   path: '/accounts',        Icon: Wallet },
 ];
 
 export function AppSidebar() {
@@ -113,12 +114,12 @@ export function AppSidebar() {
             className={({ isActive }) => cn(
               'flex transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[8px] mb-2',
               collapsed
-                ? 'flex-col items-center justify-center gap-1 py-2.5 px-1 bg-foreground text-background'
-                : 'flex-row items-center gap-2 px-3 py-2.5 bg-foreground text-background',
+                ? 'flex-col items-center justify-center gap-1 py-2.5 px-1 bg-foreground text-background shadow-[0_16px_34px_rgba(0,0,0,0.28)]'
+                : 'flex-row items-center gap-2 px-3 py-2.5 bg-foreground text-background shadow-[0_16px_34px_rgba(0,0,0,0.28)]',
               isActive && 'opacity-80'
             )}
           >
-            <Plus className={collapsed ? 'h-[16px] w-[16px] shrink-0' : 'h-[14px] w-[14px] shrink-0'} weight="bold" />
+            <Crosshair className={collapsed ? 'h-[16px] w-[16px] shrink-0' : 'h-[14px] w-[14px] shrink-0'} weight="bold" />
             {collapsed
               ? <span className="text-[8px] font-bold tracking-[0.04em] leading-none">Log</span>
               : <span className="text-[13px] font-semibold">Log Trade</span>
@@ -141,19 +142,37 @@ export function AppSidebar() {
                 end={item.path === '/'}
                 onClick={() => setMobileOpen(false)}
                 className={({ isActive }) => cn(
-                  'flex transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[8px]',
+                  'group relative flex transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-[10px]',
                   collapsed
                     ? 'flex-col items-center justify-center gap-1 py-2.5 px-1'
-                    : 'flex-row items-center gap-2.5 px-2.5 py-2',
+                    : 'flex-row items-center gap-2.5 px-2 py-1.5',
                   isActive
-                    ? 'bg-foreground text-background'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    ? 'bg-white/[0.055] text-foreground shadow-[inset_0_0_0_1px_rgba(255,255,255,0.055)]'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-white/[0.035]'
                 )}
               >
-                <span className="relative shrink-0">
+                {({ isActive }) => (
+                  <>
+                    <span
+                      aria-hidden
+                      className={cn(
+                        'absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full transition-opacity',
+                        isActive ? 'opacity-100' : 'opacity-0'
+                      )}
+                      style={{ background: 'var(--ef-ink)' }}
+                    />
+                    <span
+                      className={cn(
+                        'relative grid shrink-0 place-items-center rounded-lg transition-all',
+                        collapsed ? 'h-7 w-7' : 'h-7 w-7',
+                        isActive
+                          ? 'bg-foreground text-background shadow-[0_8px_22px_rgba(255,255,255,0.08)]'
+                          : 'bg-white/[0.035] text-muted-foreground/75 group-hover:bg-white/[0.06] group-hover:text-foreground'
+                      )}
+                    >
                   <item.Icon
-                    className={collapsed ? 'h-[17px] w-[17px]' : 'h-[16px] w-[16px]'}
-                    weight="regular"
+                        className={collapsed ? 'h-[16px] w-[16px]' : 'h-[15px] w-[15px]'}
+                        weight={isActive ? 'fill' : 'regular'}
                   />
                   {showBadge && (
                     <span style={{
@@ -164,24 +183,26 @@ export function AppSidebar() {
                       display: 'block',
                     }} />
                   )}
-                </span>
-                {collapsed ? (
-                  <span className="text-[8px] font-medium tracking-[0.04em] leading-none">{item.short}</span>
-                ) : (
-                  <span className="truncate text-[13px] font-medium flex-1">{item.title}</span>
-                )}
-                {!collapsed && showBadge && (
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-                    minWidth: 18, height: 18, borderRadius: 9,
-                    background: 'var(--ef-neg)',
-                    color: 'white',
-                    fontSize: 10, fontWeight: 700,
-                    fontFamily: 'var(--ff-mono)',
-                    flexShrink: 0,
-                  }}>
-                    {leakCount}
-                  </span>
+                    </span>
+                    {collapsed ? (
+                      <span className="text-[8px] font-medium tracking-[0.04em] leading-none">{item.short}</span>
+                    ) : (
+                      <span className="truncate text-[13px] font-medium flex-1">{item.title}</span>
+                    )}
+                    {!collapsed && showBadge && (
+                      <span style={{
+                        display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                        minWidth: 18, height: 18, borderRadius: 9,
+                        background: 'var(--ef-neg)',
+                        color: 'white',
+                        fontSize: 10, fontWeight: 700,
+                        fontFamily: 'var(--ff-mono)',
+                        flexShrink: 0,
+                      }}>
+                        {leakCount}
+                      </span>
+                    )}
+                  </>
                 )}
               </NavLink>
             );

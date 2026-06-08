@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import type { CSSProperties } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
@@ -166,6 +167,17 @@ function buildTradesSummary(rawTrades: any[], accounts: any[]) {
 }
 
 const TRADE_GATE = 10;
+
+const ATLAS_PANEL_STYLE: CSSProperties = {
+  borderRadius: 22,
+  border: '1px solid color-mix(in oklab, var(--ef-line) 88%, white 4%)',
+  background: `
+    radial-gradient(circle at 82% 4%, color-mix(in oklab, var(--ef-pos-wash) 18%, transparent) 0, transparent 34%),
+    radial-gradient(circle at 0% 100%, color-mix(in oklab, var(--ef-cool-wash) 26%, transparent) 0, transparent 38%),
+    linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, white 2%) 0%, var(--ef-bg-elev) 100%)
+  `,
+  boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset, 0 26px 80px rgba(0,0,0,0.24)',
+};
 
 const SUGGESTIONS = [
   "Which instrument makes me the most money?",
@@ -380,30 +392,32 @@ export default function AIAdvisor() {
   if (trades.length < TRADE_GATE) {
     return (
       <AppLayout>
-        <div className="max-w-md mx-auto flex flex-col items-center justify-center min-h-[60vh] text-center gap-6">
-          <div style={{ padding: 16, borderRadius: 14, background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
-            <Lock size={40} color="var(--ef-ink-3)" weight="regular" />
+        <div className="mx-auto flex min-h-[64vh] max-w-2xl items-center justify-center">
+          <div className="relative w-full overflow-hidden p-8 text-center" style={ATLAS_PANEL_STYLE}>
+          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-white/[0.035]">
+            <Lock size={34} color="var(--ef-ink-3)" weight="regular" />
           </div>
           <div>
-            <h2 style={{ margin: '0 0 8px', fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Your AI advisor needs more data</h2>
-            <p style={{ fontSize: 13, lineHeight: 1.6, color: 'var(--ef-ink-3)', margin: 0 }}>
+            <h2 style={{ margin: '0 0 10px', fontSize: 30, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>Atlas needs more decisions</h2>
+            <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ef-ink-3)', margin: '0 auto', maxWidth: 460 }}>
               Log at least {TRADE_GATE} trades before your AI advisor can give you meaningful insights. Right now there isn't enough data to detect patterns.
             </p>
           </div>
-          <div className="w-full max-w-xs">
+          <div className="mx-auto mt-7 w-full max-w-sm">
             <div className="flex items-center justify-between mb-2">
               <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}>{trades.length}/{TRADE_GATE} trades logged</span>
               <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>{TRADE_GATE - trades.length} remaining</span>
             </div>
-            <div style={{ height: 4, borderRadius: 99, overflow: 'hidden', background: 'var(--ef-bg-elev)', border: '1px solid var(--ef-line)' }}>
-              <div style={{ height: '100%', borderRadius: 99, background: 'var(--ef-ink-3)', transition: 'width 0.3s', width: `${(trades.length / TRADE_GATE) * 100}%` }} />
+            <div style={{ height: 10, borderRadius: 99, overflow: 'hidden', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', padding: 3 }}>
+              <div style={{ height: '100%', borderRadius: 99, background: 'linear-gradient(90deg, var(--ef-ink), var(--ef-pos))', transition: 'width 0.3s', width: `${(trades.length / TRADE_GATE) * 100}%` }} />
             </div>
           </div>
-          <Link to="/add-trade">
+          <Link to="/add-trade" className="mt-7 inline-flex">
             <Button size="sm" className="gap-1.5 bg-foreground text-background hover:bg-foreground/90 rounded-[24px] font-semibold">
               <Plus className="h-3.5 w-3.5" weight="bold" /> Log a Trade
             </Button>
           </Link>
+          </div>
         </div>
       </AppLayout>
     );
@@ -412,31 +426,34 @@ export default function AIAdvisor() {
   // ─── Main chat ───
   return (
     <AppLayout>
-      <div className="max-w-3xl mx-auto flex flex-col h-[calc(100vh-40px)]">
+      <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-42px)] overflow-hidden p-4 md:p-5" style={ATLAS_PANEL_STYLE}>
 
         {/* Header — only shown when chat has messages */}
-        {messages.length > 0 && (
-          <motion.div
+        <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="flex items-center justify-between pb-3 border-b border-border mb-1"
+          className="flex items-center justify-between border-b border-white/10 pb-4"
           >
             <div className="flex items-center gap-2.5">
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--ef-pos)' }} />
-              <span className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                Atlas
-              </span>
+            <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.035]">
+              <Brain className="h-4 w-4 text-[var(--ef-pos)]" weight="fill" />
             </div>
+            <div>
+              <p className="m-0 text-[15px] font-semibold tracking-[-0.02em] text-foreground">Atlas</p>
+              <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">Performance analyst</p>
+            </div>
+          </div>
+          {messages.length > 0 && (
             <button
               onClick={clearChat}
-              className="flex items-center gap-1.5 transition-colors px-2 py-1 rounded"
+              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.025] px-3 py-1.5 transition-colors hover:bg-white/[0.05]"
               style={{ fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ef-ink-4)' }}
             >
               <Trash className="h-3 w-3" weight="regular" />
               Clear
             </button>
-          </motion.div>
-        )}
+          )}
+        </motion.div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto space-y-5 py-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -468,8 +485,8 @@ export default function AIAdvisor() {
                   transition={{ delay: 0.15, duration: 0.4 }}
                   className="space-y-2"
                 >
-                  <h2 style={{ margin: 0, fontSize: 26, fontWeight: 500, letterSpacing: '-0.03em', lineHeight: 1.2, color: 'var(--ef-ink)' }}>
-                    Atlas
+                  <h2 style={{ margin: 0, fontSize: 34, fontWeight: 600, letterSpacing: '-0.045em', lineHeight: 1.1, color: 'var(--ef-ink)' }}>
+                    Ask Atlas
                   </h2>
                   <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', lineHeight: 1.6, maxWidth: 360, margin: '8px auto 0' }}>
                     Your personal trading analyst. Ask anything about your performance — patterns, risks, and actionable insights from your data.
@@ -490,7 +507,7 @@ export default function AIAdvisor() {
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.3 + i * 0.05 }}
                       onClick={() => send(s)}
-                      className="text-[12px] px-3.5 py-2 rounded-full border border-border text-muted-foreground hover:text-foreground hover:border-foreground/25 hover:bg-muted/50 transition-all"
+                      className="text-[12px] px-3.5 py-2 rounded-full border border-white/10 bg-white/[0.025] text-muted-foreground hover:text-foreground hover:border-foreground/25 hover:bg-white/[0.055] transition-all"
                     >
                       {s}
                     </motion.button>
@@ -510,8 +527,8 @@ export default function AIAdvisor() {
               >
                 {/* Assistant avatar */}
                 {msg.role === 'assistant' && (
-                  <div className="shrink-0 h-8 w-8 rounded-xl bg-muted border border-border flex items-center justify-center mt-0.5">
-                    <Brain className="h-4 w-4 text-muted-foreground/60" weight="regular" />
+                  <div className="shrink-0 h-8 w-8 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center mt-0.5">
+                    <Brain className="h-4 w-4 text-[var(--ef-pos)]" weight="fill" />
                   </div>
                 )}
 
@@ -520,7 +537,7 @@ export default function AIAdvisor() {
                   className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
                     msg.role === 'user'
                       ? 'bg-foreground text-background font-medium'
-                      : 'bg-muted border border-border text-foreground'
+                      : 'bg-black/25 border border-white/10 text-foreground'
                   }`}
                   style={msg.role === 'assistant' ? { borderLeft: '2px solid var(--ef-pos)' } : undefined}
                 >
@@ -534,7 +551,7 @@ export default function AIAdvisor() {
 
                 {/* User avatar */}
                 {msg.role === 'user' && (
-                  <div className="shrink-0 h-8 w-8 rounded-xl bg-muted border border-border flex items-center justify-center mt-0.5">
+                  <div className="shrink-0 h-8 w-8 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center mt-0.5">
                     <UserCircle className="h-4 w-4 text-muted-foreground/60" weight="regular" />
                   </div>
                 )}
@@ -545,7 +562,7 @@ export default function AIAdvisor() {
         </div>
 
         {/* Input */}
-        <div className="pt-3 pb-2">
+        <div className="border-t border-white/10 pt-3 pb-1">
           <form
             onSubmit={e => { e.preventDefault(); send(input); }}
             className="relative flex items-end gap-2"
@@ -556,14 +573,14 @@ export default function AIAdvisor() {
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
                 placeholder="Ask about your trading patterns (not financial advice)"
-                className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-xl pr-4 py-3.5 transition-colors"
+                className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-2xl bg-black/25 border-white/10 pr-4 py-3.5 transition-colors"
                 rows={1}
               />
             </div>
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="shrink-0 h-[48px] w-[48px] rounded-xl bg-foreground hover:bg-foreground/90 text-background flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+              className="shrink-0 h-[48px] w-[48px] rounded-2xl bg-foreground hover:bg-foreground/90 text-background flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <PaperPlaneTilt className="h-4 w-4" weight="fill" />
             </button>

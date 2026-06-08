@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import type { CSSProperties } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
@@ -10,6 +11,16 @@ import { Funnel, DownloadSimple, UploadSimple, FilePdf } from '@phosphor-icons/r
 import { cn } from '@/lib/utils';
 import { exportTradesCSV } from '@/lib/analytics';
 import { motion } from 'framer-motion';
+
+const JOURNAL_PANEL_STYLE: CSSProperties = {
+  borderRadius: 18,
+  border: '1px solid color-mix(in oklab, var(--ef-line) 88%, white 4%)',
+  background: `
+    radial-gradient(circle at 88% 0%, color-mix(in oklab, var(--ef-pos-wash) 16%, transparent) 0, transparent 38%),
+    linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, white 2%) 0%, var(--ef-bg-elev) 100%)
+  `,
+  boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset, 0 22px 60px rgba(0,0,0,0.18)',
+};
 
 const Journal = () => {
   const navigate = useNavigate();
@@ -101,7 +112,7 @@ const Journal = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.35, delay: 0.05, ease: [0.25, 0.46, 0.45, 0.94] }}
-            style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', border: '1px solid var(--ef-line)', borderRadius: 14, overflow: 'hidden', marginBottom: 14 }}
+            style={{ ...JOURNAL_PANEL_STYLE, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', overflow: 'hidden', marginBottom: 16 }}
           >
             {[
               { label: 'Total Trades', color: 'var(--ef-ink)', value: String(stats.total) },
@@ -111,8 +122,8 @@ const Journal = () => {
             ].map((s, i, arr) => (
               <div key={s.label} style={{
                 padding: '16px 20px',
-                background: 'var(--ef-bg-elev)',
-                borderRight: i < arr.length - 1 ? '1px solid var(--ef-line)' : 'none',
+                background: i === 0 ? 'color-mix(in oklab, var(--ef-bg-elev) 92%, var(--ef-pos-wash))' : 'transparent',
+                borderRight: i < arr.length - 1 ? '1px solid color-mix(in oklab, var(--ef-line) 78%, transparent)' : 'none',
               }}>
                 <div className="font-mono" style={{ fontSize: 10, color: 'var(--ef-ink-4)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 6 }}>{s.label}</div>
                 <div className="font-mono" style={{ fontSize: 22, fontWeight: 600, letterSpacing: '-0.02em', color: s.color, lineHeight: 1 }}>{s.value}</div>
