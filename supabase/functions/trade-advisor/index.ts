@@ -2,7 +2,16 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { buildSystemPrompt } from "../_shared/atlas-prompt.ts";
 
-const ALLOWED_ORIGINS = ["https://edgeflow.capital", "https://www.edgeflow.capital", "https://leone.capital", "https://www.leone.capital", "http://localhost:8080", "http://localhost:5173"];
+const ALLOWED_ORIGINS = [
+  "https://edgeflow.capital",
+  "https://www.edgeflow.capital",
+  "https://leone.capital",
+  "https://www.leone.capital",
+  "http://localhost:8080",
+  "http://localhost:5173",
+  "http://127.0.0.1:8080",
+  "http://127.0.0.1:5173",
+];
 
 function getCorsHeaders(req: Request) {
   const origin = req.headers.get("origin") || "";
