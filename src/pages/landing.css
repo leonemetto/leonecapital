@@ -587,31 +587,29 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 /* ============ TESTIMONIALS ============ */
 .testi-section { padding: 120px 0 96px; overflow: hidden; }
 .testi-section .section-title {
-  font-size: clamp(54px, 8vw, 112px);
-  line-height: 0.98;
-  word-spacing: 0.06em;
-  max-width: 980px;
+  max-width: 760px;
   margin-left: auto;
   margin-right: auto;
 }
 .testi-feature {
   position: relative;
-  max-width: 1040px;
-  min-height: 560px;
-  margin: 120px auto 0;
-  padding: 86px 84px 78px;
+  max-width: 860px;
+  min-height: 420px;
+  margin: 92px auto 0;
+  padding: 78px 72px 64px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
   background:
-    radial-gradient(ellipse 80% 95% at 50% 45%, rgba(78,18,70,0.7) 0%, rgba(36,8,34,0.42) 38%, rgba(10,10,12,0.84) 72%, rgba(5,5,7,0.96) 100%),
-    linear-gradient(180deg, #0c0b0e 0%, #070709 100%);
-  border: 1px solid rgba(255,255,255,0.05);
+    radial-gradient(ellipse 84% 90% at 50% 46%, rgba(30,211,134,0.24) 0%, rgba(26,143,90,0.15) 38%, rgba(8,24,17,0.72) 72%, rgba(5,5,7,0.96) 100%),
+    linear-gradient(180deg, #0a100d 0%, #070907 100%);
+  border: 1px solid rgba(30,211,134,0.08);
   box-shadow:
     0 -30px 80px rgba(0,0,0,0.62),
     0 30px 100px rgba(0,0,0,0.55),
+    0 0 70px rgba(30,211,134,0.08),
     inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .testi-feature::before,
@@ -659,12 +657,12 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .testi-feature-quote {
   position: relative;
   z-index: 2;
-  max-width: 900px;
-  margin: 58px auto 0;
-  font-size: clamp(28px, 3vw, 42px);
-  line-height: 1.22;
+  max-width: 720px;
+  margin: 48px auto 0;
+  font-size: clamp(18px, 1.85vw, 25px);
+  line-height: 1.55;
   font-weight: 500;
-  letter-spacing: -0.025em;
+  letter-spacing: -0.01em;
   color: rgba(255,255,255,0.96);
 }
 
@@ -1279,13 +1277,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .vs-cell-label { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
 
   .testi-section { padding: 64px 0 56px; }
-  .testi-section .section-title {
-    font-size: clamp(42px, 14vw, 58px);
-    line-height: 1.02;
-  }
   .testi-feature {
     min-height: 0;
-    margin-top: 92px;
+    margin-top: 80px;
     padding: 68px 22px 36px;
     border-radius: 0;
   }
@@ -1299,9 +1293,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .testi-role { font-size: 13.5px; margin-top: 3px; }
   .testi-feature-quote {
     max-width: 100%;
-    margin-top: 44px;
-    font-size: clamp(17px, 5.1vw, 20px);
-    line-height: 1.45;
+    margin-top: 38px;
+    font-size: 15.5px;
+    line-height: 1.7;
     letter-spacing: -0.005em;
   }
 
