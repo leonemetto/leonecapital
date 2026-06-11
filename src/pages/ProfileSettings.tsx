@@ -97,6 +97,10 @@ export default function ProfileSettings() {
   const [savingTp, setSavingTp] = useState(false);
 
   useEffect(() => {
+    if (profile?.nickname) setNicknameLocal(profile.nickname);
+  }, [profile?.nickname]);
+
+  useEffect(() => {
     if (traderProfile) {
       setTpStyle(traderProfile.tradingStyle);
       setTpInstruments(traderProfile.favoriteInstruments);

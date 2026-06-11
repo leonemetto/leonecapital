@@ -39,6 +39,7 @@ import {
 } from 'recharts';
 import type { Trade } from '@/types/trade';
 import type { TradingAccount } from '@/types/account';
+import { getAccountTargetProgress } from '@/lib/accountProgress';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -565,15 +566,16 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
     ? account.challengeSize
     : account.startingBalance;
   const startDate = account.challengeStartDate ?? account.createdAt?.slice(0, 10);
-  const challengeTrades = useMemo(
-    () => trades.filter(t => t.accountId === account.id && (!startDate || t.date >= startDate)),
-    [trades, account.id, startDate]
+  const progressStats = useMemo(
+    () => getAccountTargetProgress(account, trades),
+    [account, trades]
   );
+  const challengeTrades = progressStats.trades;
   const netPnl = challengeTrades.reduce((sum, trade) => sum + trade.pnl, 0);
   const wins = challengeTrades.filter(trade => trade.outcome === 'win').length;
   const winRate = challengeTrades.length > 0 ? (wins / challengeTrades.length) * 100 : 0;
-  const target = challengeSize * ((account.profitTargetPct ?? 10) / 100);
-  const progress = target > 0 ? Math.min(Math.max((netPnl / target) * 100, 0), 100) : 0;
+  const target = progressStats.target;
+  const progress = progressStats.progress;
   const start = startDate ? new Date(startDate) : new Date();
   const end = new Date(start);
   end.setDate(end.getDate() + 30);
@@ -1237,7 +1239,7 @@ const Dashboard = () => {
           <InstrumentPerformance trades={scaledTrades} />
         </div>
 
-        <ActiveChallenges accounts={accounts} trades={scaledTrades} />
+        <ActiveChallenges accounts={accounts} trades={trades} />
       </div>
       <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />
     </AppLayout>

@@ -25,6 +25,7 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useMemo } from 'react';
 import { Trade } from '@/types/trade';
+import { getAccountBalance, getAccountTargetProgress } from '@/lib/accountProgress';
 
 type BalanceEditState = { id: string; balance: string } | null;
 type NameEditState = { id: string; name: string } | null;
@@ -211,11 +212,6 @@ const Accounts = () => {
     }
   };
 
-  const getAccountBalance = (accountId: string, currentBalance: number, balanceAdjustment: number = 0) => {
-    const totalPnl = trades.filter(t => t.accountId === accountId).reduce((sum, t) => sum + t.pnl, 0);
-    return currentBalance + totalPnl + balanceAdjustment;
-  };
-
   const getAccountTradeCount = (accountId: string) => trades.filter(t => t.accountId === accountId).length;
 
   const currencySymbol = (c: string) => c === 'USD' ? '$' : c === 'EUR' ? '€' : c === 'GBP' ? '£' : '';
@@ -400,17 +396,14 @@ const Accounts = () => {
       ) : (
         <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
           {accounts.map((account, i) => {
-            const currentBalance = getAccountBalance(account.id, account.currentBalance, account.balanceAdjustment);
+            const currentBalance = getAccountBalance(account, trades);
             const pnl = currentBalance - account.startingBalance;
             const pnlPercent = account.startingBalance > 0 ? (pnl / account.startingBalance) * 100 : 0;
             const tradeCount = getAccountTradeCount(account.id);
             const accountTrades = trades.filter(t => t.accountId === account.id);
             const winRate = tradeCount > 0 ? Math.round((accountTrades.filter(t => t.pnl > 0).length / tradeCount) * 100) : null;
             const tone = accountTone(account.type);
-            const profitTarget = account.type === 'prop' && account.challengeSize
-              ? account.challengeSize * ((account.profitTargetPct ?? 10) / 100)
-              : account.startingBalance * 0.1;
-            const progress = profitTarget > 0 ? Math.max(0, Math.min(100, (pnl / profitTarget) * 100)) : 0;
+            const { progress } = getAccountTargetProgress(account, trades);
             const displayBalance = account.type === 'prop' && account.challengeSize ? account.challengeSize : currentBalance;
 
             return (

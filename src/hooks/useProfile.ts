@@ -14,6 +14,7 @@ export interface Profile {
 }
 
 type ProfileRow = Database['public']['Tables']['profiles']['Row'];
+const PROFILE_KEY = ['profile'] as const;
 
 function deriveNickname(user: { email?: string | null; user_metadata?: Record<string, unknown> }): string {
   const meta = user.user_metadata ?? {};
@@ -39,7 +40,7 @@ function rowToProfile(data: ProfileRow): Profile {
 
 export function useProfile() {
   const qc = useQueryClient();
-  const key = ['profile'];
+  const key = PROFILE_KEY;
 
   const { data: profile, isLoading } = useQuery({
     queryKey: key,
@@ -76,13 +77,28 @@ export function useProfile() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw new Error('Not authenticated');
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from('profiles')
-      .upsert({ user_id: user.id, nickname }, { onConflict: 'user_id' });
+      .update({ nickname })
+      .eq('user_id', user.id)
+      .select('*')
+      .maybeSingle();
 
     if (error) throw error;
-    qc.invalidateQueries({ queryKey: key });
-  }, [qc]);
+    if (updated) {
+      qc.setQueryData(key, rowToProfile(updated));
+      return;
+    }
+
+    const { data: created, error: createError } = await supabase
+      .from('profiles')
+      .insert({ user_id: user.id, nickname })
+      .select('*')
+      .single();
+
+    if (createError) throw createError;
+    qc.setQueryData(key, rowToProfile(created));
+  }, [qc, key]);
 
   const updateAvatarUrl = useCallback(async (avatarUrl: string) => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -90,12 +106,12 @@ export function useProfile() {
 
     const { error } = await supabase
       .from('profiles')
-      .update({ avatar_url: avatarUrl } as any)
+      .update({ avatar_url: avatarUrl })
       .eq('user_id', user.id);
 
     if (error) throw error;
     qc.invalidateQueries({ queryKey: key });
-  }, [qc]);
+  }, [qc, key]);
 
   return { profile, isLoading, setNickname, updateAvatarUrl };
 }
