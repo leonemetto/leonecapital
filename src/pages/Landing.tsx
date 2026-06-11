@@ -6,6 +6,7 @@ import { Reveal, Stagger, item, SlidePair } from '@/components/ui/Reveal';
 import './landing.css';
 
 const testimonials = [
+  { quote: 'Before I started journaling my trades, I kept running through accounts and blowing them one by one. Since I started using EdgeFlow, Atlas instantly noticed that I was overtrading and often revenge traded after taking a loss. Once I stopped doing that, I got my first payout the following week and my second payout the week after. EdgeFlow helped me transform as a trader.', name: 'Mark Murachia', role: 'Founder, MMT Trading' },
   { quote: 'Found out my Friday New York session had a negative expectancy of −0.4R. Stopped trading it. My monthly P&L improved immediately.', name: 'James O.', role: 'FX day trader' },
   { quote: 'The leak detection flagged a pattern I had no idea about — I was losing 30% more on trades taken after a gap open. That insight alone was worth it.', name: 'Priya S.', role: 'Futures trader' },
   { quote: 'I failed 3 prop firm challenges before EdgeFlow. It showed me I was overtrading on Thursdays. Passed the 4th challenge with 8% headroom left.', name: 'Tom K.', role: 'FTMO trader' },
