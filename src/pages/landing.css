@@ -594,41 +594,15 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .testi-feature {
   position: relative;
   max-width: 860px;
-  min-height: 420px;
+  min-height: 360px;
   margin: 92px auto 0;
-  padding: 78px 72px 64px;
+  padding: 78px 72px 48px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  background:
-    radial-gradient(ellipse 84% 90% at 50% 46%, rgba(30,211,134,0.24) 0%, rgba(26,143,90,0.15) 38%, rgba(8,24,17,0.72) 72%, rgba(5,5,7,0.96) 100%),
-    linear-gradient(180deg, #0a100d 0%, #070907 100%);
-  border: 1px solid rgba(30,211,134,0.08);
-  box-shadow:
-    0 -30px 80px rgba(0,0,0,0.62),
-    0 30px 100px rgba(0,0,0,0.55),
-    0 0 70px rgba(30,211,134,0.08),
-    inset 0 1px 0 rgba(255,255,255,0.04);
-}
-.testi-feature::before,
-.testi-feature::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 22%;
-  pointer-events: none;
-  z-index: 1;
-}
-.testi-feature::before {
-  left: 0;
-  background: linear-gradient(90deg, #050507 0%, rgba(5,5,7,0.72) 42%, transparent 100%);
-}
-.testi-feature::after {
-  right: 0;
-  background: linear-gradient(270deg, #050507 0%, rgba(5,5,7,0.72) 42%, transparent 100%);
+  background: radial-gradient(ellipse 78% 80% at 50% 52%, rgba(30,211,134,0.18) 0%, rgba(26,143,90,0.10) 36%, rgba(5,5,7,0) 74%);
 }
 .testi-feature-author {
   position: absolute;
