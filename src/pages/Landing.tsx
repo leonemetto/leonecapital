@@ -5,17 +5,11 @@ import { motion } from 'framer-motion';
 import { Reveal, Stagger, item, SlidePair } from '@/components/ui/Reveal';
 import './landing.css';
 
-const testimonials = [
-  { quote: 'Before I started journaling my trades, I kept running through accounts and blowing them one by one. Since I started using EdgeFlow, Atlas instantly noticed that I was overtrading and often revenge traded after taking a loss. Once I stopped doing that, I got my first payout the following week and my second payout the week after. EdgeFlow helped me transform as a trader.', name: 'Mark Murachia', role: 'Founder, MMT Trading' },
-  { quote: 'Found out my Friday New York session had a negative expectancy of −0.4R. Stopped trading it. My monthly P&L improved immediately.', name: 'James O.', role: 'FX day trader' },
-  { quote: 'The leak detection flagged a pattern I had no idea about — I was losing 30% more on trades taken after a gap open. That insight alone was worth it.', name: 'Priya S.', role: 'Futures trader' },
-  { quote: 'I failed 3 prop firm challenges before EdgeFlow. It showed me I was overtrading on Thursdays. Passed the 4th challenge with 8% headroom left.', name: 'Tom K.', role: 'FTMO trader' },
-  { quote: 'I used to keep a spreadsheet with 12 tabs. EdgeFlow does everything in seconds and surfaces things I would never have calculated manually.', name: 'Marcus L.', role: 'Swing trader, US equities' },
-  { quote: 'The Atlas gave me a direct breakdown of my revenge trading pattern. Not motivational fluff — it showed me the actual R-multiple cost.', name: 'Aisha M.', role: 'Crypto trader' },
-  { quote: 'I realised my Asian session win rate was 68% but I was only trading it 12% of the time. EdgeFlow made that obvious. Changed my whole schedule.', name: 'Daniel R.', role: 'FX scalper' },
-  { quote: 'The plan enforcement checklist keeps me accountable. I can actually see what my win rate drops to when I break my own rules.', name: 'Sarah V.', role: 'Options trader' },
-  { quote: 'Every serious trader needs this. I discovered I had a 74% win rate on London open but was cutting positions early and leaving 2R on the table.', name: 'Kwame A.', role: 'Gold and indices trader' },
-];
+const featuredTestimonial = {
+  quote: 'Before I started journaling my trades, I’d just keep running through accounts blowing them one by one. Since I started using EdgeFlow, Atlas instantly noticed that I was over trading and would more often than not revenge trade when I’d take a loss. Once I stopped doing that, I got my first payout the following week and my second payout the week after my first one. EdgeFlow helped me transform as a trader.',
+  name: 'Mark Murachia',
+  role: 'Founder, MMT Trading',
+};
 
 const brokers = [
   { name: 'Exness', cat: 'CFD / FX' }, { name: 'XM', cat: 'CFD / FX' },
@@ -227,8 +221,6 @@ export default function Landing() {
 
   const proPrice = annualBilling ? '$15.83' : '$19';
   const proLabel = annualBilling ? 'per month · $190 billed annually' : 'per month · cancel anytime';
-
-  const allTesti = [...testimonials, ...testimonials];
 
   return (
     <>
@@ -805,27 +797,20 @@ export default function Landing() {
       <section className="testi-section">
         <div className="wrap">
           <div className="section-head">
-            <span className="lg eyebrow">From traders</span>
-            <h2 className="section-title">What traders are saying</h2>
+            <span className="lg eyebrow">Testimonials</span>
+            <h2 className="section-title">What Our Users Are<br />Saying?</h2>
           </div>
-        </div>
-        <div className="testi-marquee-wrap">
-          <div className="testi-marquee-track">
-            {allTesti.map((t, i) => (
-              <div key={i} className="testi-card">
-                <div className="testi-stars">
-                  {[0,1,2,3,4].map(s => <span key={s} className="testi-star">★</span>)}
-                </div>
-                <p className="testi-quote">"{t.quote}"</p>
-                <div className="testi-author">
-                  <div className="testi-avatar">{t.name[0]}</div>
-                  <div>
-                    <div className="testi-name">{t.name}</div>
-                    <div className="testi-role">{t.role}</div>
-                  </div>
-                </div>
+          <div className="testi-feature">
+            <div className="testi-feature-author">
+              <div className="testi-avatar">{featuredTestimonial.name[0]}</div>
+              <div>
+                <div className="testi-name">{featuredTestimonial.name}</div>
+                <div className="testi-role">{featuredTestimonial.role}</div>
               </div>
-            ))}
+            </div>
+            <blockquote className="testi-feature-quote">
+              "{featuredTestimonial.quote}"
+            </blockquote>
           </div>
         </div>
       </section>

@@ -584,37 +584,89 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .vs-icon-bad { color: #f87171; font-size: 12px; flex-shrink: 0; }
 .vs-icon-good { color: #1ed386; font-size: 12px; flex-shrink: 0; }
 
-/* ============ TESTIMONIALS MARQUEE ============ */
-.testi-section { padding: 100px 0 80px; overflow: hidden; }
-.testi-marquee-wrap {
-  margin-top: 48px;
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
-  overflow: hidden;
+/* ============ TESTIMONIALS ============ */
+.testi-section { padding: 120px 0 96px; overflow: hidden; }
+.testi-section .section-title {
+  font-size: clamp(54px, 8vw, 112px);
+  line-height: 0.98;
+  word-spacing: 0.06em;
+  max-width: 980px;
+  margin-left: auto;
+  margin-right: auto;
 }
-.testi-marquee-track {
-  display: flex; gap: 18px; width: max-content;
-  animation: ticker 48s linear infinite;
+.testi-feature {
+  position: relative;
+  max-width: 1040px;
+  min-height: 560px;
+  margin: 120px auto 0;
+  padding: 86px 84px 78px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 80% 95% at 50% 45%, rgba(78,18,70,0.7) 0%, rgba(36,8,34,0.42) 38%, rgba(10,10,12,0.84) 72%, rgba(5,5,7,0.96) 100%),
+    linear-gradient(180deg, #0c0b0e 0%, #070709 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow:
+    0 -30px 80px rgba(0,0,0,0.62),
+    0 30px 100px rgba(0,0,0,0.55),
+    inset 0 1px 0 rgba(255,255,255,0.04);
 }
-@keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
-.testi-card {
-  flex: 0 0 340px;
-  background: linear-gradient(180deg, #0e0e10, #0a0a0c);
-  border: 1px solid var(--line); border-radius: 18px; padding: 28px;
-  display: flex; flex-direction: column; gap: 14px;
+.testi-feature::before,
+.testi-feature::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 22%;
+  pointer-events: none;
+  z-index: 1;
 }
-.testi-stars { display: flex; gap: 3px; }
-.testi-star { color: #1ed386; font-size: 13px; }
-.testi-quote { font-size: 14px; color: rgba(255,255,255,0.85); line-height: 1.65; flex: 1; }
-.testi-author { display: flex; align-items: center; gap: 10px; }
+.testi-feature::before {
+  left: 0;
+  background: linear-gradient(90deg, #050507 0%, rgba(5,5,7,0.72) 42%, transparent 100%);
+}
+.testi-feature::after {
+  right: 0;
+  background: linear-gradient(270deg, #050507 0%, rgba(5,5,7,0.72) 42%, transparent 100%);
+}
+.testi-feature-author {
+  position: absolute;
+  top: -54px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  min-width: 240px;
+}
 .testi-avatar {
-  width: 34px; height: 34px; border-radius: 50%;
-  background: linear-gradient(135deg, #76dfa8, #1ed386);
+  width: 72px; height: 72px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, rgba(255,255,255,0.92), rgba(255,255,255,0.48) 22%, transparent 23%),
+    linear-gradient(135deg, #f2f2f0, #86827f);
+  border: 3px solid rgba(255,255,255,0.88);
   display: flex; align-items: center; justify-content: center;
-  font-size: 14px; font-weight: 600; color: #0a0a0a; flex-shrink: 0;
+  font-size: 25px; font-weight: 650; color: #101010; flex-shrink: 0;
+  box-shadow: 0 16px 36px rgba(0,0,0,0.45);
 }
-.testi-name { font-size: 13.5px; font-weight: 500; }
-.testi-role { font-size: 11.5px; color: var(--muted); }
+.testi-name { font-size: 22px; font-weight: 600; letter-spacing: -0.02em; color: #fff; }
+.testi-role { margin-top: 6px; font-size: 16px; color: rgba(255,255,255,0.48); }
+.testi-feature-quote {
+  position: relative;
+  z-index: 2;
+  max-width: 900px;
+  margin: 58px auto 0;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.22;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: rgba(255,255,255,0.96);
+}
 
 /* ============ BROKERS ============ */
 .brokers-section { padding: 100px 0; }
@@ -966,7 +1018,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   pointer-events: none;
 }
 .testi-section .section-head,
-.testi-section .testi-marquee-wrap { position: relative; z-index: 1; }
+.testi-section .testi-feature { position: relative; z-index: 1; }
 
 .brokers-section {
   position: relative; overflow: hidden;
@@ -1226,7 +1278,32 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   .vs-cell-good::before { content: "EdgeFlow"; display: block; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #1ed386; margin-bottom: 4px; }
   .vs-cell-label { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
 
-  .testi-section { padding: 48px 0; }
+  .testi-section { padding: 64px 0 56px; }
+  .testi-section .section-title {
+    font-size: clamp(42px, 14vw, 58px);
+    line-height: 1.02;
+  }
+  .testi-feature {
+    min-height: 0;
+    margin-top: 92px;
+    padding: 68px 22px 36px;
+    border-radius: 0;
+  }
+  .testi-feature-author { top: -42px; gap: 10px; }
+  .testi-avatar {
+    width: 64px;
+    height: 64px;
+    font-size: 22px;
+  }
+  .testi-name { font-size: 18px; }
+  .testi-role { font-size: 13.5px; margin-top: 3px; }
+  .testi-feature-quote {
+    max-width: 100%;
+    margin-top: 44px;
+    font-size: clamp(17px, 5.1vw, 20px);
+    line-height: 1.45;
+    letter-spacing: -0.005em;
+  }
 
   .brokers-section { padding: 48px 0; }
   .brokers-step { padding: 22px; }
