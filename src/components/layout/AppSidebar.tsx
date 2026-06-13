@@ -69,7 +69,7 @@ export function AppSidebar() {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-50 lg:hidden"
+          className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setMobileOpen(false)}
         />
       )}
@@ -77,7 +77,7 @@ export function AppSidebar() {
       {/* Sidebar */}
       <aside
         className={cn(
-          'fixed top-0 left-0 h-screen z-40 flex flex-col transition-all duration-300 ease-out',
+          'fixed top-0 left-0 h-screen z-50 flex flex-col transition-all duration-300 ease-out',
           'border-r border-border bg-background',
           sidebarWidth,
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0',

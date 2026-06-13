@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { cn } from '@/lib/utils';
+import { cn, todayLocal } from '@/lib/utils';
 import { Trade, TradeFormData, MirroredTradeFormData, SESSIONS, HTF_BIASES } from '@/types/trade';
 import { splitPnlByCopyWeight } from '@/lib/mirroredTrades';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
@@ -56,7 +56,7 @@ function detectSession(): string {
 }
 
 const defaults = {
-  date: new Date().toISOString().slice(0, 10),
+  date: todayLocal(),
   instrument: '',
   direction: 'long' as const,
   strategy: '',

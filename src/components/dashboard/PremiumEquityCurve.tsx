@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import {
   XAxis, YAxis, Tooltip, ResponsiveContainer, Area, AreaChart, ReferenceLine, CartesianGrid,
 } from 'recharts';
-import { cn } from '@/lib/utils';
+import { cn, parseLocalDate } from '@/lib/utils';
 import { Trade } from '@/types/trade';
 import { Link } from 'react-router-dom';
 import { format, startOfWeek, startOfMonth } from 'date-fns';
@@ -209,7 +209,7 @@ export function PremiumEquityCurve({ trades, startingBalance = 0, balanceAdjustm
                 tickLine={false}
                 axisLine={false}
                 tickFormatter={v => {
-                  try { return new Date(v).toLocaleDateString('en', { month: 'short', day: 'numeric' }); }
+                  try { return parseLocalDate(v).toLocaleDateString('en', { month: 'short', day: 'numeric' }); }
                   catch { return v; }
                 }}
                 interval="preserveStartEnd"

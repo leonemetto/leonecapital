@@ -40,6 +40,7 @@ import {
 import type { Trade } from '@/types/trade';
 import type { TradingAccount } from '@/types/account';
 import { getAccountTargetProgress } from '@/lib/accountProgress';
+import { parseLocalDate } from '@/lib/utils';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -375,7 +376,7 @@ function EquityCommandPanel({
                   axisLine={false}
                   interval="preserveStartEnd"
                   tickFormatter={v => {
-                    try { return new Date(v).toLocaleDateString('en', { month: 'short', day: 'numeric' }); }
+                    try { return parseLocalDate(v).toLocaleDateString('en', { month: 'short', day: 'numeric' }); }
                     catch { return v; }
                   }}
                 />

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Trade } from '@/types/trade';
 import { getDailyPnl } from '@/lib/analytics';
-import { cn } from '@/lib/utils';
+import { cn, parseLocalDate } from '@/lib/utils';
 import {
   startOfMonth, endOfMonth, eachDayOfInterval, format, getDay,
   addMonths, subMonths, isSameMonth, startOfWeek,
@@ -187,7 +187,7 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
       {/* Selected day detail */}
       {selectedDate && selectedTrades.length > 0 && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="glass-card p-4 mt-3">
-          <h4 className="text-xs font-semibold mb-2">{format(new Date(selectedDate), 'MMM d, yyyy')}</h4>
+          <h4 className="text-xs font-semibold mb-2">{format(parseLocalDate(selectedDate), 'MMM d, yyyy')}</h4>
           <div className="space-y-1.5">
             {selectedTrades.map(t => (
               <div key={t.id} className="flex items-center gap-2 py-1.5 px-2.5 rounded-lg bg-secondary/50 text-xs">
@@ -211,7 +211,7 @@ export function TradingCalendar({ trades }: TradingCalendarProps) {
 
       {selectedDate && selectedTrades.length === 0 && (
         <div className="glass-card p-4 mt-3 text-center text-xs text-muted-foreground">
-          No trades on {format(new Date(selectedDate), 'MMM d, yyyy')}
+          No trades on {format(parseLocalDate(selectedDate), 'MMM d, yyyy')}
         </div>
       )}
     </motion.div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Trade, TradeFormData } from '@/types/trade';
-import { cn } from '@/lib/utils';
+import { cn, parseLocalDate } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -303,7 +303,7 @@ export function TradeTable({ trades, onUpdate, onDelete, onUpdateGroup, onDelete
                       className="border-b border-white/10 hover:bg-white/[0.025] transition-colors cursor-pointer"
                     >
                       <td className="p-3 text-[13px] font-mono whitespace-nowrap text-muted-foreground">
-                        {new Date(trade.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                        {parseLocalDate(trade.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                       </td>
                       <td className="p-3 text-[13px] font-semibold text-foreground">{trade.instrument}</td>
                       <td className="p-3 hidden md:table-cell">
@@ -547,7 +547,7 @@ function GroupRow({ groupId, legs, isExpanded, onToggle, hasCriteria, accountNam
         className="border-b border-white/10 hover:bg-white/[0.025] transition-colors cursor-pointer bg-[rgba(16,185,129,0.045)]"
       >
         <td className="p-3 text-[13px] font-mono whitespace-nowrap text-muted-foreground">
-          {new Date(head.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          {parseLocalDate(head.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
         </td>
         <td className="p-3 text-[13px] font-semibold text-foreground">
           <div className="flex items-center gap-1.5">
