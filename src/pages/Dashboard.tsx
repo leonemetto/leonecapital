@@ -41,6 +41,7 @@ import type { Trade } from '@/types/trade';
 import type { TradingAccount } from '@/types/account';
 import { getAccountTargetProgress } from '@/lib/accountProgress';
 import { parseLocalDate } from '@/lib/utils';
+import { useSettings } from '@/contexts/SettingsContext';
 
 const getGreeting = () => {
   const hour = new Date().getHours();
@@ -563,6 +564,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
 }
 
 function ChallengeCard({ account, trades }: { account: TradingAccount; trades: Trade[] }) {
+  const { countBreakevenInWinRate } = useSettings();
   const challengeSize = account.challengeSize && account.challengeSize > 0
     ? account.challengeSize
     : account.startingBalance;
@@ -574,7 +576,9 @@ function ChallengeCard({ account, trades }: { account: TradingAccount; trades: T
   const challengeTrades = progressStats.trades;
   const netPnl = challengeTrades.reduce((sum, trade) => sum + trade.pnl, 0);
   const wins = challengeTrades.filter(trade => trade.outcome === 'win').length;
-  const winRate = challengeTrades.length > 0 ? (wins / challengeTrades.length) * 100 : 0;
+  const challengeLosses = challengeTrades.filter(trade => trade.outcome === 'loss').length;
+  const winRateDenom = countBreakevenInWinRate ? challengeTrades.length : wins + challengeLosses;
+  const winRate = winRateDenom > 0 ? (wins / winRateDenom) * 100 : 0;
   const target = progressStats.target;
   const progress = progressStats.progress;
   const start = startDate ? new Date(startDate) : new Date();
@@ -955,6 +959,7 @@ function ExecutionTape({ trades }: { trades: Trade[] }) {
 const Dashboard = () => {
   const { trades, addTrade, isLoading: tradesLoading } = useSharedTrades();
   const { accounts } = useSharedAccounts();
+  const { countBreakevenInWinRate } = useSettings();
   const { profile } = useProfile();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -1021,7 +1026,7 @@ const Dashboard = () => {
     });
   }, [filteredTrades, accountQuantity, accounts]);
 
-  const stats = useMemo(() => calculateAnalytics(scaledTrades), [scaledTrades]);
+  const stats = useMemo(() => calculateAnalytics(scaledTrades, { countBreakevenInWinRate }), [scaledTrades, countBreakevenInWinRate]);
 
   const startingBalance = useMemo(() => {
     const base = (a: typeof accounts[number]) => (a.currentBalance ?? 0) * mirrorQty(a);

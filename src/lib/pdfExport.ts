@@ -42,11 +42,11 @@ function statBlock(doc: jsPDF, label: string, value: string, x: number, y: numbe
   doc.text(value, x + 4, y + 15);
 }
 
-export function exportTradePDF(trades: Trade[], nickname = 'Trader', accountName = 'All Accounts') {
+export function exportTradePDF(trades: Trade[], nickname = 'Trader', accountName = 'All Accounts', countBreakevenInWinRate = true) {
   if (trades.length === 0) return;
 
   const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-  const analytics = calculateAnalytics(trades);
+  const analytics = calculateAnalytics(trades, { countBreakevenInWinRate });
   const sessions = getSessionPerformance(trades);
   const strategies = getStrategyPerformance(trades);
   const now = new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });

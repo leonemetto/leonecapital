@@ -76,6 +76,51 @@ describe('calculateAnalytics', () => {
     expect(a.losses).toBe(2);
   });
 
+  it('counts breakevens in win-rate denominator by default', () => {
+    const trades = [
+      trade({ outcome: 'win', pnl: 100 }),
+      trade({ outcome: 'loss', pnl: -50 }),
+      trade({ outcome: 'breakeven', pnl: 0 }),
+      trade({ outcome: 'breakeven', pnl: 0 }),
+    ];
+    // Default: 1 win / 4 total = 25%
+    expect(calculateAnalytics(trades).winRate).toBe(25);
+    // Toggle on explicitly = same
+    expect(calculateAnalytics(trades, { countBreakevenInWinRate: true }).winRate).toBe(25);
+  });
+
+  it('excludes breakevens from win rate when toggled off', () => {
+    const trades = [
+      trade({ outcome: 'win', pnl: 100 }),
+      trade({ outcome: 'loss', pnl: -50 }),
+      trade({ outcome: 'breakeven', pnl: 0 }),
+      trade({ outcome: 'breakeven', pnl: 0 }),
+    ];
+    // 1 win / (1 win + 1 loss) = 50%
+    expect(calculateAnalytics(trades, { countBreakevenInWinRate: false }).winRate).toBe(50);
+  });
+
+  it('win-rate toggle does not change expectancy', () => {
+    const trades = [
+      trade({ outcome: 'win', pnl: 100 }),
+      trade({ outcome: 'loss', pnl: -50 }),
+      trade({ outcome: 'breakeven', pnl: 0 }),
+    ];
+    const withBE = calculateAnalytics(trades, { countBreakevenInWinRate: true });
+    const withoutBE = calculateAnalytics(trades, { countBreakevenInWinRate: false });
+    expect(withBE.expectancy).toBeCloseTo(withoutBE.expectancy, 10);
+  });
+
+  it('handles all-breakeven trades without NaN when toggled off', () => {
+    const trades = [
+      trade({ outcome: 'breakeven', pnl: 0 }),
+      trade({ outcome: 'breakeven', pnl: 0 }),
+    ];
+    const a = calculateAnalytics(trades, { countBreakevenInWinRate: false });
+    expect(a.winRate).toBe(0);
+    expect(Number.isNaN(a.winRate)).toBe(false);
+  });
+
   it('calculates net P&L correctly', () => {
     const trades = [
       trade({ outcome: 'win', pnl: 300 }),

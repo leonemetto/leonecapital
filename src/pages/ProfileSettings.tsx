@@ -12,9 +12,10 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import { Camera, Key as KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldSlash as ShieldOff, CircleNotch as Loader2, Brain, Trash as Trash2, Flask as FlaskConical } from '@phosphor-icons/react';
+import { Camera, Key as KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldSlash as ShieldOff, CircleNotch as Loader2, Brain, Trash as Trash2, Flask as FlaskConical, Percent } from '@phosphor-icons/react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { SubscriptionPanel } from '@/components/billing/SubscriptionPanel';
 
 function DemoDataSection() {
@@ -61,6 +62,7 @@ export default function ProfileSettings() {
   const { traderProfile, saveProfile: saveTraderProfile } = useTraderProfile();
   
   const { theme, setTheme } = useTheme();
+  const { countBreakevenInWinRate, setCountBreakevenInWinRate } = useSettings();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [nickname, setNicknameLocal] = useState(profile?.nickname || '');
@@ -515,6 +517,24 @@ export default function ProfileSettings() {
               </div>
             </div>
             <Switch checked={theme === 'light'} onCheckedChange={(checked) => setTheme(checked ? 'light' : 'dark')} />
+          </div>
+        </div>
+
+        {/* Win Rate calculation */}
+        <div className="glass-card p-6">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <Percent className="h-4 w-4 text-muted-foreground" />
+              <div>
+                <h2 className="text-sm font-semibold">Break-even trades count toward win rate</h2>
+                <p className="text-xs text-muted-foreground">
+                  {countBreakevenInWinRate
+                    ? 'On: win rate is wins ÷ all trades (break-evens included).'
+                    : 'Off: win rate is wins ÷ (wins + losses). Break-evens are ignored.'}
+                </p>
+              </div>
+            </div>
+            <Switch checked={countBreakevenInWinRate} onCheckedChange={setCountBreakevenInWinRate} />
           </div>
         </div>
 

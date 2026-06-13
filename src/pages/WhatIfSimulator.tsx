@@ -4,6 +4,7 @@ import { AppLayout } from '@/components/layout/AppLayout';
 import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import {
   calculateAnalytics, getExpectancyByField, simulateFilter, SimulationResult,
 } from '@/lib/analytics';
@@ -277,6 +278,7 @@ function StrategyOptimizer({ trades, preField, preKey, preExclude }: {
 export default function WhatIfSimulator() {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
+  const { countBreakevenInWinRate } = useSettings();
   const [searchParams] = useSearchParams();
 
   const preField   = searchParams.get('field')   ?? undefined;
@@ -288,7 +290,7 @@ export default function WhatIfSimulator() {
     [accounts]
   );
 
-  const stats = useMemo(() => calculateAnalytics(trades), [trades]);
+  const stats = useMemo(() => calculateAnalytics(trades, { countBreakevenInWinRate }), [trades, countBreakevenInWinRate]);
   const currentBalance = startingBalance + stats.netPnl;
 
   const preLabel = preField && preKey

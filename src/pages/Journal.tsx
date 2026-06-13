@@ -6,6 +6,7 @@ import { PageHeader, PageBody } from '@/components/layout/PageHeader';
 import { TradeTable } from '@/components/trade/TradeTable';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Funnel, DownloadSimple, UploadSimple, FilePdf } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
@@ -26,6 +27,7 @@ const Journal = () => {
   const navigate = useNavigate();
   const { trades, updateTrade, updateTradeGroup, deleteTrade, deleteTradeGroup, isLoading: tradesLoading } = useSharedTrades();
   const { accounts } = useSharedAccounts();
+  const { countBreakevenInWinRate } = useSettings();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('all');
 
   const filteredTrades = useMemo(
@@ -36,11 +38,13 @@ const Journal = () => {
   const stats = useMemo(() => {
     if (filteredTrades.length === 0) return null;
     const wins = filteredTrades.filter(t => t.outcome === 'win').length;
+    const losses = filteredTrades.filter(t => t.outcome === 'loss').length;
     const netPnl = filteredTrades.reduce((s, t) => s + t.pnl, 0);
-    const winRate = Math.round((wins / filteredTrades.length) * 100);
+    const winRateDenom = countBreakevenInWinRate ? filteredTrades.length : wins + losses;
+    const winRate = winRateDenom > 0 ? Math.round((wins / winRateDenom) * 100) : 0;
     const avgR = filteredTrades.filter(t => t.rMultiple != null).reduce((s, t) => s + (t.rMultiple ?? 0), 0) / (filteredTrades.filter(t => t.rMultiple != null).length || 1);
     return { total: filteredTrades.length, wins, netPnl, winRate, avgR };
-  }, [filteredTrades]);
+  }, [filteredTrades, countBreakevenInWinRate]);
 
   if (tradesLoading) {
     return (
@@ -80,7 +84,7 @@ const Journal = () => {
           { label: 'CSV', icon: DownloadSimple, onClick: () => exportTradesCSV(filteredTrades) },
           { label: 'PDF', icon: FilePdf, onClick: async () => {
             const { exportTradePDF } = await import('@/lib/pdfExport');
-            await exportTradePDF(filteredTrades);
+            await exportTradePDF(filteredTrades, 'Trader', 'All Accounts', countBreakevenInWinRate);
           } },
         ] : []),
       ].map(({ label, icon: Icon, onClick }) => (

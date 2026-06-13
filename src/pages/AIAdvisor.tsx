@@ -3,6 +3,7 @@ import type { CSSProperties } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useAuth } from '@/hooks/useAuth';
 import { useTraderProfile } from '@/hooks/useTraderProfile';
@@ -31,14 +32,14 @@ function trimMessages(msgs: Msg[]): Msg[] {
   return msgs.length > MAX_MESSAGES ? msgs.slice(-MAX_MESSAGES) : msgs;
 }
 
-function buildTradesSummary(rawTrades: any[], accounts: any[]) {
+function buildTradesSummary(rawTrades: any[], accounts: any[], countBreakevenInWinRate = true) {
   if (rawTrades.length === 0) return 'No trades logged yet.';
   // Atlas reasons about decisions, not executions. Collapse mirrored groups so a
   // trader who took 50 EURUSD longs across 3 mirrored accounts is described as
   // "50 trades" — not 150. The Per-Account section below still uses raw legs so
   // per-account P&L stays accurate.
   const trades = dedupeTradesByGroup(rawTrades);
-  const analytics = calculateAnalytics(rawTrades);
+  const analytics = calculateAnalytics(rawTrades, { countBreakevenInWinRate });
   const strategies = getStrategyPerformance(rawTrades);
   const sessions = getSessionPerformance(rawTrades);
   const instrumentMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
@@ -210,6 +211,7 @@ function DataDecoration() {
 export default function AIAdvisor() {
   const { trades } = useSharedTrades();
   const { accounts } = useAccounts();
+  const { countBreakevenInWinRate } = useSettings();
   const { session, loading: authLoading } = useAuth();
   const { traderProfile } = useTraderProfile();
   const { activeCriteria } = useCriteria();
@@ -228,7 +230,7 @@ export default function AIAdvisor() {
   const streamingIdRef = useRef<string | null>(null);
   const hasHandledNavState = useRef(false);
 
-  const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts), [trades, accounts]);
+  const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts, countBreakevenInWinRate), [trades, accounts, countBreakevenInWinRate]);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
   useEffect(() => { try { sessionStorage.setItem('ai-advisor-chat', JSON.stringify(messages)); } catch {} }, [messages]);

@@ -17,6 +17,7 @@ import { TradesProvider } from "@/contexts/TradesContext";
 import { AccountsProvider } from "@/contexts/AccountsContext";
 import { LeaksProvider } from "@/contexts/LeaksContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { useSharedSubscription } from "@/contexts/SubscriptionContext";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageErrorBoundary } from "@/components/PageErrorBoundary";
@@ -254,6 +255,7 @@ const App = () => (
               <AuthGate>
                 <ProfileGate>
                   <SubscriptionProvider>
+                  <SettingsProvider>
                   <AccountsProvider>
                     <TradesProvider>
                       <LeaksProvider>
@@ -277,6 +279,7 @@ const App = () => (
                       </LeaksProvider>
                     </TradesProvider>
                   </AccountsProvider>
+                  </SettingsProvider>
                   </SubscriptionProvider>
                 </ProfileGate>
               </AuthGate>

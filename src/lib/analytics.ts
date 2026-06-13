@@ -20,7 +20,17 @@ export interface Analytics {
   rExpectancy: number;
 }
 
-export function calculateAnalytics(rawTrades: Trade[]): Analytics {
+/**
+ * @param opts.countBreakevenInWinRate When true (default), breakeven trades sit
+ *   in the win-rate denominator (wins / all trades). When false, win rate is
+ *   wins / (wins + losses) — breakevens are ignored. This is a display
+ *   preference only; expectancy always uses the true per-trade win probability.
+ */
+export function calculateAnalytics(
+  rawTrades: Trade[],
+  opts: { countBreakevenInWinRate?: boolean } = {},
+): Analytics {
+  const countBreakevenInWinRate = opts.countBreakevenInWinRate ?? true;
   const empty: Analytics = {
     totalTrades: 0, wins: 0, losses: 0, breakevens: 0, winRate: 0,
     netPnl: 0, avgWin: 0, avgLoss: 0, profitFactor: 0,
@@ -36,14 +46,18 @@ export function calculateAnalytics(rawTrades: Trade[]): Analytics {
   const losses = trades.filter(t => t.outcome === 'loss');
   const breakevens = trades.filter(t => t.outcome === 'breakeven');
   const totalTrades = trades.length;
-  const winRate = (wins.length / totalTrades) * 100;
+  const winRateDenom = countBreakevenInWinRate ? totalTrades : wins.length + losses.length;
+  const winRate = winRateDenom > 0 ? (wins.length / winRateDenom) * 100 : 0;
   const netPnl = trades.reduce((s, t) => s + t.pnl, 0);
   const avgWin = wins.length > 0 ? wins.reduce((s, t) => s + t.pnl, 0) / wins.length : 0;
   const avgLoss = losses.length > 0 ? losses.reduce((s, t) => s + t.pnl, 0) / losses.length : 0;
   const grossProfit = wins.reduce((s, t) => s + t.pnl, 0);
   const grossLoss = Math.abs(losses.reduce((s, t) => s + t.pnl, 0));
   const profitFactor = grossLoss > 0 ? grossProfit / grossLoss : grossProfit > 0 ? Infinity : 0;
-  const expectancy = (winRate / 100) * avgWin + (1 - winRate / 100) * avgLoss;
+  // Expectancy uses the true per-trade win probability (breakevens always in the
+  // denominator) so the win-rate toggle never changes expected value.
+  const pWin = wins.length / totalTrades;
+  const expectancy = pWin * avgWin + (1 - pWin) * avgLoss;
 
   // R-Multiple analytics
   const winsWithR = wins.filter(t => t.rMultiple != null);

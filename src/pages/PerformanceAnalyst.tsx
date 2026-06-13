@@ -6,6 +6,7 @@ import { PageHeader } from '@/components/layout/PageHeader';
 import { OnboardingTour } from '@/components/onboarding/OnboardingTour';
 import { useSharedTrades } from '@/contexts/TradesContext';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
+import { useSettings } from '@/contexts/SettingsContext';
 import {
   calculateAnalytics, getExpectancyByField, getExpectancyByPlanAdherence,
   detectBehavioralPatterns, simulateFilter, getCurrentRiskStatus,
@@ -359,6 +360,7 @@ function RiskIndicator({ trades }: { trades: Trade[] }) {
 const PerformanceAnalyst = () => {
   const { trades } = useSharedTrades();
   const { accounts } = useSharedAccounts();
+  const { countBreakevenInWinRate } = useSettings();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('__all__');
   const [searchParams, setSearchParams] = useSearchParams();
   const [showTour, setShowTour] = useState(false);
@@ -375,7 +377,7 @@ const PerformanceAnalyst = () => {
     [trades, selectedAccountId]
   );
 
-  const stats       = useMemo(() => calculateAnalytics(filteredTrades),                        [filteredTrades]);
+  const stats       = useMemo(() => calculateAnalytics(filteredTrades, { countBreakevenInWinRate }), [filteredTrades, countBreakevenInWinRate]);
   const byPair      = useMemo(() => getExpectancyByField(filteredTrades, 'instrument'),         [filteredTrades]);
   const bySession   = useMemo(() => getExpectancyByField(filteredTrades, 'session'),            [filteredTrades]);
   const byDirection = useMemo(() => getExpectancyByField(filteredTrades, 'direction'),          [filteredTrades]);
