@@ -6,7 +6,7 @@ import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useSharedSubscription } from '@/contexts/SubscriptionContext';
 import { useProfile } from '@/hooks/useProfile';
 import { toast } from 'sonner';
-import { calculateAnalytics, getExpectancyByField, getSessionPerformance, type Analytics } from '@/lib/analytics';
+import { calculateAnalytics, getExpectancyByField, getSessionPerformance, getTrailingDrawdown, type Analytics } from '@/lib/analytics';
 import { useInvalidateSubscription } from '@/hooks/useSubscription';
 import { UpgradeModal } from '@/components/billing/UpgradeModal';
 import {
@@ -455,6 +455,7 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
     ? (planTrades.filter(t => t.followedPlan).length / planTrades.length) * 100
     : null;
   const lastFive = [...trades].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
+  const trailingDd = useMemo(() => getTrailingDrawdown(trades), [trades]);
   const risk = getRiskSignal(stats, todayPnl);
   const riskTone = risk.tone;
 
@@ -500,6 +501,20 @@ function RiskCommandPanel({ trades, stats }: { trades: Trade[]; stats: Analytics
           value={planRate === null ? '—' : `${planRate.toFixed(0)}%`}
           caption="followed"
           tone={planRate === null ? 'neutral' : planRate >= 70 ? 'positive' : 'warning'}
+          compact
+        />
+        <MetricPlate
+          label="Trailing DD"
+          value={trailingDd > 0 ? `-${fmtMoney(trailingDd)}` : fmtMoney(0)}
+          caption={trailingDd > 0 ? 'below equity high' : 'at equity high'}
+          tone={trailingDd > 0 ? 'negative' : 'positive'}
+          compact
+        />
+        <MetricPlate
+          label="Max DD"
+          value={stats.maxDrawdown > 0 ? `-${fmtMoney(stats.maxDrawdown)}` : fmtMoney(0)}
+          caption="worst pullback"
+          tone={stats.maxDrawdown > 0 ? 'warning' : 'neutral'}
           compact
         />
       </div>

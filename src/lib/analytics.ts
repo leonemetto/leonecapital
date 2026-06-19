@@ -500,6 +500,20 @@ export function getCurrentRiskStatus(trades: Trade[]): { status: RiskStatus; dra
   return { status, drawdownR: Number(currentDD.toFixed(2)), message };
 }
 
+// Current (trailing) drawdown: how far below the running equity high the account
+// sits right now, in account currency. 0 means equity is at a fresh high.
+export function getTrailingDrawdown(trades: Trade[]): number {
+  if (trades.length === 0) return 0;
+  const sorted = [...trades].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  let peak = 0, running = 0, currentDD = 0;
+  for (const t of sorted) {
+    running += t.pnl;
+    if (running > peak) peak = running;
+    currentDD = peak - running;
+  }
+  return Number(currentDD.toFixed(2));
+}
+
 // ─── Existing helpers ───
 export function getEquityCurve(trades: Trade[]) {
   const sorted = [...trades].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
