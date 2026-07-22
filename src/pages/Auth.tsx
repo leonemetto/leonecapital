@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -214,7 +214,10 @@ function PasswordInput({
 
 export default function Auth() {
   const navigate = useNavigate();
-  const [isLogin, setIsLogin] = useState(true);
+  const [searchParams] = useSearchParams();
+  // Entry point decides the mode: "Start for Free" links here with ?mode=signup,
+  // "Sign in" with ?mode=signin. Default to sign-in for a bare /auth visit.
+  const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -656,13 +659,13 @@ export default function Auth() {
           <GoogleBtn onClick={handleGoogleSignIn} loading={googleLoading} />
 
           <p style={{ textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.25)', margin: 0 }}>
-            {isLogin ? "No account? " : "Already have one? "}
+            {isLogin ? "No account? " : "Already have an account? "}
             <button
               type="button"
               onClick={() => setIsLogin(!isLogin)}
               style={{ color: G, fontWeight: 600, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12 }}
             >
-              {isLogin ? 'Start Pro trial' : 'Sign in'}
+              {isLogin ? 'Sign up' : 'Sign in'}
             </button>
           </p>
 
