@@ -59,7 +59,7 @@ export const blogPosts: BlogPost[] = [
       { type: 'p', text: 'A useful monthly journal review answers three questions:' },
       { type: 'ol', items: ['Where am I leaking? — Which instrument, session, or strategy is dragging down my overall expectancy?', 'What am I doing right? — Which setup or context produces my best results? Am I trading it enough?', 'What behavioral patterns appeared? — Revenge trading after losses? Overtrading on certain days? Reducing size when I should hold? These cost as much as bad setups.'] },
       { type: 'callout', label: 'Key insight', text: 'The goal is not to trade more setups. It is to trade the setups where your data shows you have edge — and stop trading everything else.' },
-      { type: 'cta', text: 'EdgeFlow automates this entire analysis. It segments your results by session, instrument, strategy, and emotional state — and flags the leaks automatically. Start the 14-day Pro trial, no credit card required.' },
+      { type: 'cta', text: 'EdgeFlow automates this entire analysis. It segments your results by session, instrument, strategy, and emotional state — and flags the leaks automatically. Start your 14-day Pro trial and see your leaks in minutes.' },
     ],
   },
 

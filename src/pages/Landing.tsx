@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { motion } from 'framer-motion';
 import { Reveal, Stagger, item, SlidePair } from '@/components/ui/Reveal';
+import { CARD_REQUIRED, TRIAL_DAYS } from '@/config/billing';
 import './landing.css';
 
 const featuredTestimonial = {
@@ -352,11 +353,11 @@ export default function Landing() {
           <p>EdgeFlow is the professional trading journal built for serious traders. Log trades, detect performance leaks, and get AI-powered analysis of every pattern — all in one place.</p>
           <div className="hero-cta">
             <button className="lg btn-outline" onClick={() => navigate('/auth')}>Get started</button>
-            <button className="lg btn-white" onClick={() => navigate('/auth')}>Start for Free</button>
+            <button className="lg btn-white" onClick={() => navigate('/auth')}>{CARD_REQUIRED ? 'Start free trial' : 'Start for Free'}</button>
           </div>
           <div className="hero-trust">
             <span className="hero-trust-item">Easy setup</span>
-            <span className="hero-trust-item">No credit card needed</span>
+            <span className="hero-trust-item">{CARD_REQUIRED ? `${TRIAL_DAYS}-day free trial` : 'No credit card needed'}</span>
             <span className="hero-trust-item">Set up in 5 minutes</span>
             <span className="hero-trust-item">Works with MT4/MT5</span>
             <span className="hero-trust-item">Import in seconds</span>
@@ -388,7 +389,7 @@ export default function Landing() {
             { num: '20+', label: 'Data points captured per trade' },
             { num: '8+', label: 'Performance breakdowns built in' },
             { num: 'AI', label: 'Powered by Claude (Anthropic)', green: true },
-            { num: '$0', label: 'Free to start — no card needed' },
+            { num: '$0', label: CARD_REQUIRED ? `Free for ${TRIAL_DAYS} days` : 'Free to start — no card needed' },
           ].map(({ num, label, green }) => (
             <motion.div key={num} className="stats-strip-item" variants={item}>
               <div className={`stats-strip-num${green ? ' green' : ''}`}>{num}</div>
@@ -862,7 +863,7 @@ export default function Landing() {
           <div className="section-head">
             <span className="lg eyebrow">Pricing</span>
             <h2 className="section-title">Start your 14-day Pro trial.<br />Upgrade when it earns its place.</h2>
-            <p className="section-sub">No credit card required. Your trade history carries over when you upgrade.</p>
+            <p className="section-sub">{CARD_REQUIRED ? `$0 today — cancel anytime before your ${TRIAL_DAYS}-day trial renews.` : 'No credit card required.'} Your trade history carries over when you upgrade.</p>
             <div className="lg pricing-toggle">
               <button className={!annualBilling ? 'active' : ''} onClick={() => setAnnualBilling(false)}>Monthly</button>
               <button className={annualBilling ? 'active' : ''} onClick={() => setAnnualBilling(true)}>Annual <span className="save-tag">2 months free</span></button>
@@ -894,7 +895,9 @@ export default function Landing() {
             </motion.div>
           </Stagger>
           <Reveal delay={0.2}>
-            <div className="pricing-note">New here? Start the full Pro trial — no credit card required. Upgrade only when EdgeFlow earns its place in your process.</div>
+            <div className="pricing-note">{CARD_REQUIRED
+              ? `New here? Start the full ${TRIAL_DAYS}-day Pro trial — $0 today, then $19/mo. Cancel anytime before it renews.`
+              : 'New here? Start the full Pro trial — no credit card required. Upgrade only when EdgeFlow earns its place in your process.'}</div>
           </Reveal>
         </div>
       </section>
