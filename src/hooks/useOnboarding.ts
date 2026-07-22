@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfile } from '@/hooks/useProfile';
 import { generateDemoTrades } from '@/lib/demoData';
+import { CARD_REQUIRED } from '@/config/billing';
 
 export function useOnboarding() {
   const { profile, isLoading } = useProfile();
@@ -19,7 +20,11 @@ export function useOnboarding() {
       .update({ onboarding_completed: true } as any)
       .eq('user_id', user.id);
     if (error) throw error;
-    await supabase.functions.invoke('start-trial', { body: {} }).catch(() => null);
+    // Card-required model grants the trial via Lemon Squeezy checkout instead,
+    // so skip the no-card auto-grant here.
+    if (!CARD_REQUIRED) {
+      await supabase.functions.invoke('start-trial', { body: {} }).catch(() => null);
+    }
     qc.setQueryData(['profile'], (current: any) => (
       current ? { ...current, onboardingCompleted: true } : current
     ));

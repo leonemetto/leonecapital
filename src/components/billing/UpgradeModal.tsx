@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
+import { CARD_REQUIRED, TRIAL_DAYS } from '@/config/billing';
 import { toast } from 'sonner';
 
 type Plan = 'pro';
@@ -31,7 +32,11 @@ interface UpgradeModalProps {
 
 export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: UpgradeModalProps) {
   const { user } = useAuth();
-  const { isPro, isTrialing } = useSubscription();
+  const { isPro, isTrialing, hasSubscription } = useSubscription();
+
+  // Card-required trial start: user has never had a subscription, so the LS
+  // checkout will capture their card and begin the free trial ($0 today).
+  const isTrialStart = CARD_REQUIRED && !hasSubscription;
 
   const plan: Plan = initialPlan;
   const [cycle, setCycle] = useState<Cycle>('monthly');
@@ -48,7 +53,10 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
   const priceKey = `${plan}_${cycle}` as const;
   const pricing = PRICING[priceKey];
 
-  const consentText = `I have read and agree to the Terms, Privacy Policy, and Refund Policy (versions Terms ${TERMS_VERSION}, Refunds ${REFUNDS_VERSION}, Privacy ${PRIVACY_VERSION}).`;
+  const chargeDisclosure = isTrialStart
+    ? `I understand my card will be charged ${pricing.display} automatically when my ${TRIAL_DAYS}-day free trial ends, and will auto-renew until I cancel. `
+    : `I understand my subscription will auto-renew until I cancel. `;
+  const consentText = `${chargeDisclosure}I have read and agree to the Terms, Privacy Policy, and Refund Policy (versions Terms ${TERMS_VERSION}, Refunds ${REFUNDS_VERSION}, Privacy ${PRIVACY_VERSION}).`;
 
   const canSubmit = consent && (!isPro || isTrialing) && !submitting;
 
@@ -112,7 +120,7 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Upgrade to Pro</DialogTitle>
+          <DialogTitle>{isTrialStart ? `Start your ${TRIAL_DAYS}-day free trial` : 'Upgrade to Pro'}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-5">
@@ -161,12 +169,35 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
 
           {/* Price card */}
           <div className="rounded-[12px] border border-border p-4 bg-muted/30">
-            <div className="text-2xl font-semibold font-mono tabular-nums">{pricing.display}</div>
-            {pricing.perMonth && (
-              <div className="text-xs text-muted-foreground mt-1">
-                {pricing.perMonth} · <span className="text-[#10b981]">{pricing.savings}</span>
-              </div>
+            {isTrialStart ? (
+              <>
+                <div className="text-2xl font-semibold font-mono tabular-nums">$0 <span className="text-sm text-muted-foreground font-normal">due today</span></div>
+                <div className="text-xs text-muted-foreground mt-1">
+                  Then {pricing.display} after your {TRIAL_DAYS}-day trial{pricing.perMonth ? ` · ${pricing.perMonth}` : ''}. Cancel anytime before it renews.
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-2xl font-semibold font-mono tabular-nums">{pricing.display}</div>
+                {pricing.perMonth && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {pricing.perMonth} · <span className="text-[#10b981]">{pricing.savings}</span>
+                  </div>
+                )}
+              </>
             )}
+          </div>
+
+          {/* Trust signals — reassure before the hand-off to Lemon Squeezy */}
+          <div className="flex items-center justify-center gap-3 text-[11px] text-muted-foreground/70">
+            <span className="inline-flex items-center gap-1">
+              <svg viewBox="0 0 16 16" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="7" width="10" height="6" rx="1.5"/><path d="M5 7V5a3 3 0 016 0v2"/></svg>
+              Secure checkout
+            </span>
+            <span className="opacity-40">·</span>
+            <span>Cancel anytime</span>
+            <span className="opacity-40">·</span>
+            <span>Powered by Lemon Squeezy</span>
           </div>
 
           {/* Already-subscribed warning */}
@@ -203,7 +234,10 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
               I have read and agree to the{' '}
               <a href="/terms" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Terms</a>,{' '}
               <a href="/privacy" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Privacy Policy</a>, and{' '}
-              <a href="/refunds" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Refund Policy</a>. I understand my subscription will auto-renew until I cancel.
+              <a href="/refunds" target="_blank" rel="noopener" className="underline hover:text-foreground" onClick={(e) => e.stopPropagation()}>Refund Policy</a>.{' '}
+              {isTrialStart
+                ? `I understand my card will be charged ${pricing.display} automatically when my ${TRIAL_DAYS}-day free trial ends, and will auto-renew until I cancel.`
+                : 'I understand my subscription will auto-renew until I cancel.'}
             </span>
           </button>
 
@@ -212,7 +246,7 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
             disabled={!canSubmit}
             className="w-full rounded-[24px] font-semibold bg-foreground text-background hover:bg-foreground/90"
           >
-            {submitting ? 'Starting checkout…' : `Continue to checkout — ${pricing.display}`}
+            {submitting ? 'Starting checkout…' : isTrialStart ? `Start free trial — $0 today` : `Continue to checkout — ${pricing.display}`}
           </Button>
 
           <p className="text-[10px] text-muted-foreground/70 text-center">

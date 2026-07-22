@@ -23,6 +23,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { PageErrorBoundary } from "@/components/PageErrorBoundary";
 import { AppLayout } from "@/components/layout/AppLayout";
 import { UpgradeModal } from "@/components/billing/UpgradeModal";
+import { CARD_REQUIRED, TRIAL_DAYS } from "@/config/billing";
 import * as Sentry from '@sentry/react';
 import NotFound from "./pages/NotFound";
 
@@ -170,7 +171,7 @@ function ProfileGate({ children }: { children: React.ReactNode }) {
 }
 
 function PremiumRoute({ children }: { children: React.ReactNode }) {
-  const { hasProAccess, isLoading } = useSharedSubscription();
+  const { hasProAccess, hasSubscription, isLoading } = useSharedSubscription();
   const [upgradeOpen, setUpgradeOpen] = useState(false);
 
   if (isLoading) {
@@ -184,28 +185,37 @@ function PremiumRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!hasProAccess) {
+    // Two states: a user who never had a subscription (card-required: needs to
+    // START a trial by adding a card) vs. one whose trial/subscription lapsed
+    // (needs to upgrade — no second free trial). Both open the same checkout.
+    const neverSubscribed = CARD_REQUIRED && !hasSubscription;
     return (
       <AppLayout>
         <div className="max-w-lg mx-auto min-h-[60vh] flex flex-col items-center justify-center text-center gap-5">
           <div className="rounded-[14px] border border-border bg-card px-4 py-3">
             <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground/60 font-semibold">
-              Pro trial ended
+              {neverSubscribed ? `Start your ${TRIAL_DAYS}-day Pro trial` : 'Pro trial ended'}
             </div>
           </div>
           <div>
             <h1 className="text-[22px] font-medium tracking-[-0.02em] text-foreground mb-2">
-              Your Pro trial ended.
+              {neverSubscribed ? `Try EdgeFlow Pro free for ${TRIAL_DAYS} days.` : 'Your Pro trial ended.'}
             </h1>
             <p className="text-sm leading-6 text-muted-foreground">
-              Your data is safe. Upgrade to continue logging trades, importing history,
-              using Atlas, and running advanced analysis.
+              {neverSubscribed ? (
+                <>Add a card to unlock trade logging, imports, Atlas, and advanced analysis.
+                You won't be charged today — $0 for {TRIAL_DAYS} days, then $19/mo. Cancel anytime before it renews.</>
+              ) : (
+                <>Your data is safe. Upgrade to continue logging trades, importing history,
+                using Atlas, and running advanced analysis.</>
+              )}
             </p>
           </div>
           <button
             onClick={() => setUpgradeOpen(true)}
             className="rounded-[24px] bg-foreground text-background px-5 py-2.5 text-sm font-semibold hover:bg-foreground/90"
           >
-            Upgrade to Pro
+            {neverSubscribed ? 'Start free trial' : 'Upgrade to Pro'}
           </button>
         </div>
         <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} />

@@ -2,6 +2,7 @@ import { createContext, useContext, ReactNode, useEffect, useRef, useState } fro
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription, useInvalidateSubscription, UseSubscriptionResult } from '@/hooks/useSubscription';
+import { CARD_REQUIRED } from '@/config/billing';
 
 const SubscriptionContext = createContext<UseSubscriptionResult | null>(null);
 
@@ -12,7 +13,11 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   const [startingTrial, setStartingTrial] = useState(false);
   const [trialAttemptFinishedForUser, setTrialAttemptFinishedForUser] = useState<string | null>(null);
   const attemptedForUser = useRef<string | null>(null);
+  // Card-required model: never auto-grant a no-card trial. New users must add
+  // a card via Lemon Squeezy checkout to start their trial. Existing users
+  // already have a subscription row, so they are grandfathered untouched.
   const needsTrial =
+    !CARD_REQUIRED &&
     !!user?.id &&
     !subscription.isLoading &&
     (!subscription.hasSubscription || subscription.tier === 'free') &&
