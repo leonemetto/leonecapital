@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
             },
           },
           checkout_options: {
-            embed: false,
+            embed: true, // enables the Lemon.js in-page overlay checkout
             media: false,
             logo: true,
           },

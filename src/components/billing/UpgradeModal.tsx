@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription } from '@/hooks/useSubscription';
 import { CARD_REQUIRED, TRIAL_DAYS } from '@/config/billing';
+import { openLemonOverlay } from '@/lib/lemonCheckout';
 import { toast } from 'sonner';
 
 type Plan = 'pro';
@@ -32,6 +34,7 @@ interface UpgradeModalProps {
 
 export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: UpgradeModalProps) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const { isPro, isTrialing, hasSubscription } = useSubscription();
 
   // Card-required trial start: user has never had a subscription, so the LS
@@ -108,7 +111,20 @@ export function UpgradeModal({ open, onOpenChange, initialPlan = 'pro' }: Upgrad
         setSubmitting(false);
         return;
       }
-      window.location.href = url;
+
+      // Open checkout as an overlay on top of our page (Lemon.js). If Lemon.js
+      // can't load (adblock/CSP/offline), fall back to a full-page redirect so
+      // checkout never breaks.
+      const opened = await openLemonOverlay(url, {
+        onSuccess: () => {
+          onOpenChange(false);
+          navigate('/billing/return');
+        },
+        onClose: () => setSubmitting(false),
+      });
+      if (!opened) {
+        window.location.href = url;
+      }
     } catch (e) {
       console.error('upgrade submit failed', e);
       toast.error('Could not start checkout — please try again.');
