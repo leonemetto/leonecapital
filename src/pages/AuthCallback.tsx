@@ -106,11 +106,26 @@ export default function AuthCallback() {
 
       try {
         if (code) {
-          // PKCE flow — used by Google OAuth and modern email links
+          // PKCE flow — used by Google OAuth and modern email links.
+          //
+          // supabase-js defaults to detectSessionInUrl:true, so the SDK already
+          // exchanges ?code= inside _initialize(), which runs at module import —
+          // before this effect ever fires. OAuth codes are single-use, so calling
+          // exchangeCodeForSession() again here ALWAYS failed and showed users
+          // "Link Invalid or Expired" while a perfectly valid session sat in
+          // localStorage. That silently broke 100% of Google sign-ins.
+          //
+          // getSession() awaits initializePromise internally, so this is race-free:
+          // it blocks until the SDK's own exchange has settled. Only fall back to a
+          // manual exchange if the SDK genuinely didn't establish a session.
+          //
           // Do NOT sign out before this: signOut clears the PKCE code_verifier
           // from localStorage, which causes exchangeCodeForSession to fail.
-          const { error } = await supabase.auth.exchangeCodeForSession(code);
-          if (error) throw error;
+          const { data: { session: existingSession } } = await supabase.auth.getSession();
+          if (!existingSession) {
+            const { error } = await supabase.auth.exchangeCodeForSession(code);
+            if (error) throw error;
+          }
         } else if (token_hash && type) {
           const { error } = await supabase.auth.verifyOtp({
             token_hash,

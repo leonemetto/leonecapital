@@ -133,6 +133,19 @@ serve(async (req) => {
       );
     }
 
+    // ── Usage counter — measurement only, never a gate ──────────────────────
+    // profiles.ai_messages_used existed since April but nothing ever incremented
+    // it, so Atlas adoption was unmeasurable (the column read 0 for every user,
+    // which looks identical to "nobody used it"). Access stays governed by the
+    // subscription check and hourly rate limit above; this only counts.
+    // Fire-and-forget so a counter failure can never break a chat response.
+    void supabase
+      .rpc("increment_ai_messages", { p_user_id: userId })
+      .then(({ error }: { error: { message: string } | null }) => {
+        if (error) console.error("increment_ai_messages failed:", error.message);
+      })
+      .catch((e: unknown) => console.error("increment_ai_messages threw:", e));
+
     const body = await req.json();
     validateRequest(body);
 

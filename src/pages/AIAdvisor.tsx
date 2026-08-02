@@ -167,7 +167,14 @@ function buildTradesSummary(rawTrades: any[], accounts: any[], countBreakevenInW
   ].join('\n');
 }
 
-const TRADE_GATE = 10;
+// Atlas unlocks on the first logged trade.
+//
+// This used to be 10. Nobody chose 10 for a reason — it just sounded prudent —
+// and it gated the product's only real differentiator behind a wall that almost
+// no one reached: of every external user who ever logged a trade, exactly one
+// got to 10. Atlas is perfectly useful on a handful of trades; it simply says
+// less. Kept at 1 rather than 0 so it always has something real to talk about.
+const TRADE_GATE = 1;
 
 const ATLAS_PANEL_STYLE: CSSProperties = {
   borderRadius: 22,
@@ -400,25 +407,23 @@ export default function AIAdvisor() {
             <Lock size={34} color="var(--ef-ink-3)" weight="regular" />
           </div>
           <div>
-            <h2 style={{ margin: '0 0 10px', fontSize: 30, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>Atlas needs more decisions</h2>
+            <h2 style={{ margin: '0 0 10px', fontSize: 30, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>Atlas is ready when you are</h2>
             <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ef-ink-3)', margin: '0 auto', maxWidth: 460 }}>
-              Log at least {TRADE_GATE} trades before your AI advisor can give you meaningful insights. Right now there isn't enough data to detect patterns.
+              Log a single trade and Atlas will start reading it. Already have history elsewhere? Import your broker file and get a full breakdown straight away.
             </p>
           </div>
-          <div className="mx-auto mt-7 w-full max-w-sm">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-3)' }}>{trades.length}/{TRADE_GATE} trades logged</span>
-              <span className="font-mono" style={{ fontSize: 11, color: 'var(--ef-ink-4)' }}>{TRADE_GATE - trades.length} remaining</span>
-            </div>
-            <div style={{ height: 10, borderRadius: 99, overflow: 'hidden', background: 'rgba(0,0,0,0.35)', border: '1px solid rgba(255,255,255,0.08)', padding: 3 }}>
-              <div style={{ height: '100%', borderRadius: 99, background: 'linear-gradient(90deg, var(--ef-ink), var(--ef-pos))', transition: 'width 0.3s', width: `${(trades.length / TRADE_GATE) * 100}%` }} />
-            </div>
+          <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
+            <Link to="/add-trade" className="inline-flex">
+              <Button size="sm" className="gap-1.5 bg-foreground text-background hover:bg-foreground/90 rounded-[24px] font-semibold">
+                <Plus className="h-3.5 w-3.5" weight="bold" /> Log a Trade
+              </Button>
+            </Link>
+            <Link to="/import-trades" className="inline-flex">
+              <Button size="sm" variant="outline" className="gap-1.5 rounded-[24px] font-semibold">
+                Import history
+              </Button>
+            </Link>
           </div>
-          <Link to="/add-trade" className="mt-7 inline-flex">
-            <Button size="sm" className="gap-1.5 bg-foreground text-background hover:bg-foreground/90 rounded-[24px] font-semibold">
-              <Plus className="h-3.5 w-3.5" weight="bold" /> Log a Trade
-            </Button>
-          </Link>
           </div>
         </div>
       </AppLayout>
