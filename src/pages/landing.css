@@ -1100,16 +1100,29 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
 .nav-mobile {
   display: none;
   flex-direction: column;
-  padding: 8px 20px 20px;
+  /* Collapsed state must have zero vertical padding — with border-box, padding
+     cannot shrink below its own size, so any padding here leaks menu items
+     out from under max-height: 0 and overlaps the hero. */
+  padding: 0 20px;
   background: rgba(8,8,8,0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--line);
+  border-bottom: 0 solid var(--line);
   max-height: 0;
   overflow: hidden;
-  transition: max-height .25s ease, padding .25s ease;
+  visibility: hidden;
+  pointer-events: none;
+  transition: max-height .25s ease, padding .25s ease, visibility 0s linear .25s;
 }
-.nav-mobile.is-open { max-height: 70vh; padding: 12px 20px 24px; overflow: auto; }
+.nav-mobile.is-open {
+  max-height: 70vh;
+  padding: 12px 20px 24px;
+  border-bottom-width: 1px;
+  overflow: auto;
+  visibility: visible;
+  pointer-events: auto;
+  transition: max-height .25s ease, padding .25s ease, visibility 0s;
+}
 .nav-mobile a {
   display: block;
   padding: 14px 4px;
@@ -1185,7 +1198,7 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   /* Drop expensive decorative blobs entirely on phone — they cost GPU and are barely visible */
   .ambient-blob { display: none; }
 
-  .hero { padding-top: 70px; padding-bottom: 40px; }
+  .hero { padding-top: 88px; padding-bottom: 40px; }
   .hero-kicker { font-size: 11px; padding: 5px 12px; }
   .hero h1 { font-size: clamp(32px, 9vw, 48px); line-height: 1.05; }
   .hero p { font-size: 15px; margin-top: 16px; max-width: 100%; padding: 0 8px; }
