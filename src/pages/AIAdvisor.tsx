@@ -1,602 +1,79 @@
-import { useState, useRef, useEffect, useMemo } from 'react';
-import type { CSSProperties } from 'react';
-import { useLocation, Link } from 'react-router-dom';
+import { useEffect, useRef } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+import { Plus, Trash, UploadSimple } from '@phosphor-icons/react';
 import { AppLayout } from '@/components/layout/AppLayout';
+import { EmptyState, Surface } from '@/components/ef/primitives';
+import { AtlasThread } from '@/components/atlas/AtlasThread';
+import { ATLAS_TRADE_GATE, useAtlas } from '@/components/atlas/AtlasProvider';
 import { useSharedTrades } from '@/contexts/TradesContext';
-import { useSettings } from '@/contexts/SettingsContext';
-import { useAccounts } from '@/hooks/useAccounts';
-import { useAuth } from '@/hooks/useAuth';
-import { useTraderProfile } from '@/hooks/useTraderProfile';
-import { useCriteria } from '@/hooks/useCriteria';
-import { useTradeVerifications } from '@/hooks/useTradeVerifications';
-import { calculateAnalytics, getStrategyPerformance, getSessionPerformance } from '@/lib/analytics';
-import { dedupeTradesByGroup } from '@/lib/mirroredTrades';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  PaperPlaneTilt, Brain, UserCircle, Trash, Lock, Plus,
-} from '@phosphor-icons/react';
-import { AnimatedAssistantMessage } from '@/components/ai/AnimatedAssistantMessage';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useShell } from '@/components/shell/ShellContext';
 
-type Msg = { role: 'user' | 'assistant'; content: string; id: string };
-
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/trade-advisor`;
-const INSIGHT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/extract-insight`;
-const MAX_MESSAGES = 10;
-
-let msgId = Date.now();
-const nextId = () => `msg-${++msgId}`;
-
-function trimMessages(msgs: Msg[]): Msg[] {
-  return msgs.length > MAX_MESSAGES ? msgs.slice(-MAX_MESSAGES) : msgs;
-}
-
-function buildTradesSummary(rawTrades: any[], accounts: any[], countBreakevenInWinRate = true) {
-  if (rawTrades.length === 0) return 'No trades logged yet.';
-  // Atlas reasons about decisions, not executions. Collapse mirrored groups so a
-  // trader who took 50 EURUSD longs across 3 mirrored accounts is described as
-  // "50 trades" — not 150. The Per-Account section below still uses raw legs so
-  // per-account P&L stays accurate.
-  const trades = dedupeTradesByGroup(rawTrades);
-  const analytics = calculateAnalytics(rawTrades, { countBreakevenInWinRate });
-  const strategies = getStrategyPerformance(rawTrades);
-  const sessions = getSessionPerformance(rawTrades);
-  const instrumentMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-  const directionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-  const instrumentDirectionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-  const instrumentSessionMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-  const accountLookup = new Map(accounts.map((a: any) => [a.id, a.name]));
-  const accountMap = new Map<string, { name: string; wins: number; losses: number; breakeven: number; pnl: number; total: number }>();
-  const planMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-  const emotionMap = new Map<number, { wins: number; losses: number; pnl: number; total: number }>();
-  const htfMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-  const monthMap = new Map<string, { wins: number; losses: number; pnl: number; total: number }>();
-
-  for (const t of trades) {
-    const ic = instrumentMap.get(t.instrument) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-    ic.total++; if (t.outcome === 'win') ic.wins++; else if (t.outcome === 'loss') ic.losses++;
-    ic.pnl += t.pnl; instrumentMap.set(t.instrument, ic);
-
-    const dc = directionMap.get(t.direction) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-    dc.total++; if (t.outcome === 'win') dc.wins++; else if (t.outcome === 'loss') dc.losses++;
-    dc.pnl += t.pnl; directionMap.set(t.direction, dc);
-
-    const idKey = `${t.instrument} ${t.direction}`;
-    const idc = instrumentDirectionMap.get(idKey) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-    idc.total++; if (t.outcome === 'win') idc.wins++; else if (t.outcome === 'loss') idc.losses++;
-    idc.pnl += t.pnl; instrumentDirectionMap.set(idKey, idc);
-
-    if (t.session) {
-      const isKey = `${t.instrument} / ${t.session}`;
-      const isc = instrumentSessionMap.get(isKey) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-      isc.total++; if (t.outcome === 'win') isc.wins++; else if (t.outcome === 'loss') isc.losses++;
-      isc.pnl += t.pnl; instrumentSessionMap.set(isKey, isc);
-    }
-
-    // Account map uses raw legs below — skip here. Deduped row has no accountId.
-
-    if (t.followedPlan === true || t.followedPlan === false) {
-      const key = t.followedPlan ? 'On-plan (Followed Plan = YES)' : 'Off-plan (Followed Plan = NO)';
-      const pc = planMap.get(key) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-      pc.total++; if (t.outcome === 'win') pc.wins++; else if (t.outcome === 'loss') pc.losses++;
-      pc.pnl += t.pnl; planMap.set(key, pc);
-    }
-
-    if (typeof t.emotionalState === 'number' && t.emotionalState >= 1 && t.emotionalState <= 5) {
-      const ec = emotionMap.get(t.emotionalState) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-      ec.total++; if (t.outcome === 'win') ec.wins++; else if (t.outcome === 'loss') ec.losses++;
-      ec.pnl += t.pnl; emotionMap.set(t.emotionalState, ec);
-    }
-
-    if (t.htfBias) {
-      const aligned = (t.direction === 'long' && t.htfBias === 'Bullish') || (t.direction === 'short' && t.htfBias === 'Bearish');
-      const key = aligned ? 'HTF-aligned' : (t.htfBias === 'Neutral' ? 'HTF-neutral' : 'HTF-counter');
-      const hc = htfMap.get(key) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-      hc.total++; if (t.outcome === 'win') hc.wins++; else if (t.outcome === 'loss') hc.losses++;
-      hc.pnl += t.pnl; htfMap.set(key, hc);
-    }
-
-    if (t.date) {
-      const ym = String(t.date).slice(0, 7);
-      const mc = monthMap.get(ym) || { wins: 0, losses: 0, pnl: 0, total: 0 };
-      mc.total++; if (t.outcome === 'win') mc.wins++; else if (t.outcome === 'loss') mc.losses++;
-      mc.pnl += t.pnl; monthMap.set(ym, mc);
-    }
-  }
-
-  // Per-account totals are MONETARY — iterate raw legs so each mirrored leg is counted.
-  for (const t of rawTrades) {
-    const acctId = t.accountId || 'unassigned';
-    const acctName = t.accountId ? (accountLookup.get(t.accountId) || 'Unknown') : 'Unassigned';
-    const ac = accountMap.get(acctId) || { name: acctName, wins: 0, losses: 0, breakeven: 0, pnl: 0, total: 0 };
-    ac.total++; if (t.outcome === 'win') ac.wins++; else if (t.outcome === 'loss') ac.losses++; else ac.breakeven++;
-    ac.pnl += t.pnl; accountMap.set(acctId, ac);
-  }
-
-  const earliest = trades.length > 0 ? trades[trades.length - 1].date : '';
-  const latest = trades.length > 0 ? trades[0].date : '';
-  const fmt = (v: { wins: number; losses: number; pnl: number; total: number }) =>
-    `${v.total} trades, ${v.total > 0 ? ((v.wins / v.total) * 100).toFixed(1) : 0}% WR, $${v.pnl.toFixed(2)} P&L`;
-
-  // Surface mirrored grouping so Atlas can talk about decisions vs executions correctly.
-  const mirroredGroups = new Set(rawTrades.filter((t: any) => t.tradeGroupId).map((t: any) => t.tradeGroupId)).size;
-  const mirroredLegs = rawTrades.filter((t: any) => t.tradeGroupId).length;
-
-  return [
-    earliest && latest ? `Trade period: ${earliest} → ${latest}` : '',
-    mirroredGroups > 0
-      ? `Mirrored trades: ${mirroredGroups} groups across ${mirroredLegs} account executions. "Total trades" below counts decisions (deduped), per-account P&L counts each execution.`
-      : '',
-    `Total trades: ${analytics.totalTrades}`, `Win rate: ${analytics.winRate.toFixed(1)}%`,
-    `Net P&L: $${analytics.netPnl.toFixed(2)}`, `Avg win: $${analytics.avgWin.toFixed(2)}, Avg loss: $${analytics.avgLoss.toFixed(2)}`,
-    `Profit factor: ${analytics.profitFactor}`, `Max drawdown: $${analytics.maxDrawdown}`,
-    `Current streak: ${analytics.currentStreak.count} ${analytics.currentStreak.type}`,
-    '', 'BY STRATEGY:', ...strategies.map(s => `  ${s.strategy}: ${s.total} trades, ${s.winRate}% WR, $${s.pnl} P&L`),
-    '', 'BY SESSION:', ...sessions.map(s => `  ${s.session}: ${s.total} trades, ${s.winRate}% WR, $${s.pnl} P&L`),
-    '', 'BY INSTRUMENT:', ...Array.from(instrumentMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
-    '', 'BY DIRECTION:', ...Array.from(directionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
-    '', 'BY INSTRUMENT × DIRECTION:', ...Array.from(instrumentDirectionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
-    '', 'BY INSTRUMENT × SESSION:', ...Array.from(instrumentSessionMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`),
-    '', 'BY PLAN COMPLIANCE (Followed Plan field):',
-    ...(planMap.size > 0
-      ? Array.from(planMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`)
-      : ['  No Followed Plan data logged on trades.']),
-    '', 'BY EMOTIONAL STATE (1=worst, 5=best):',
-    ...(emotionMap.size > 0
-      ? (() => {
-          const low = { wins: 0, losses: 0, pnl: 0, total: 0 };
-          const high = { wins: 0, losses: 0, pnl: 0, total: 0 };
-          for (const [k, v] of emotionMap.entries()) {
-            if (k <= 2) { low.wins += v.wins; low.losses += v.losses; low.pnl += v.pnl; low.total += v.total; }
-            if (k >= 4) { high.wins += v.wins; high.losses += v.losses; high.pnl += v.pnl; high.total += v.total; }
-          }
-          const rows = Array.from(emotionMap.entries()).sort((a, b) => a[0] - b[0]).map(([k, v]) => `  State ${k}: ${fmt(v)}`);
-          if (low.total > 0) rows.push(`  States 1-2 combined: ${fmt(low)}`);
-          if (high.total > 0) rows.push(`  States 4-5 combined: ${fmt(high)}`);
-          return rows;
-        })()
-      : ['  No emotional state logged on trades.']),
-    '', 'BY HTF BIAS ALIGNMENT (direction vs logged HTF bias):',
-    ...(htfMap.size > 0
-      ? Array.from(htfMap.entries()).map(([k, v]) => `  ${k}: ${fmt(v)}`)
-      : ['  No HTF bias logged on trades.']),
-    '', 'BY MONTH:',
-    ...Array.from(monthMap.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([k, v]) => `  ${k}: ${fmt(v)}`),
-    '', 'BY ACCOUNT:', ...Array.from(accountMap.values()).map(a => `  ${a.name}: ${a.total} trades, ${a.wins}W/${a.losses}L/${a.breakeven}BE, ${a.total > 0 ? ((a.wins / a.total) * 100).toFixed(1) : 0}% WR, $${a.pnl.toFixed(2)} P&L`),
-  ].join('\n');
-}
-
-// Atlas unlocks on the first logged trade.
-//
-// This used to be 10. Nobody chose 10 for a reason — it just sounded prudent —
-// and it gated the product's only real differentiator behind a wall that almost
-// no one reached: of every external user who ever logged a trade, exactly one
-// got to 10. Atlas is perfectly useful on a handful of trades; it simply says
-// less. Kept at 1 rather than 0 so it always has something real to talk about.
-const TRADE_GATE = 1;
-
-const ATLAS_PANEL_STYLE: CSSProperties = {
-  borderRadius: 22,
-  border: '1px solid color-mix(in oklab, var(--ef-line) 88%, white 4%)',
-  background: `
-    radial-gradient(circle at 82% 4%, color-mix(in oklab, var(--ef-pos-wash) 18%, transparent) 0, transparent 34%),
-    radial-gradient(circle at 0% 100%, color-mix(in oklab, var(--ef-cool-wash) 26%, transparent) 0, transparent 38%),
-    linear-gradient(180deg, color-mix(in oklab, var(--ef-bg-elev) 94%, white 2%) 0%, var(--ef-bg-elev) 100%)
-  `,
-  boxShadow: '0 1px 0 rgba(255,255,255,0.04) inset, 0 26px 80px rgba(0,0,0,0.24)',
-};
-
-const SUGGESTIONS = [
-  "Which instrument makes me the most money?",
-  "What's my worst session and why?",
-  "Am I more profitable Long or Short?",
-  "What does my best trading day look like?",
-];
-
-// Subtle abstract data-visualization decoration for the idle state
-function DataDecoration() {
-  const bars = [4, 9, 6, 14, 10, 16, 8, 12, 5, 11, 7, 13, 9, 15, 6];
-  return (
-    <svg width="120" height="32" viewBox="0 0 120 32" fill="none" aria-hidden className="text-muted-foreground">
-      {bars.map((h, i) => (
-        <rect
-          key={i}
-          x={i * 8 + 1}
-          y={32 - h}
-          width={5}
-          height={h}
-          rx={1.5}
-          fill="currentColor"
-          opacity={0.15 + (h / 16) * 0.35}
-        />
-      ))}
-    </svg>
-  );
-}
-
+/**
+ * Atlas at full width, for longer sessions. It shares one conversation with
+ * the side panel, so moving between them keeps the thread.
+ */
 export default function AIAdvisor() {
   const { trades } = useSharedTrades();
-  const { accounts } = useAccounts();
-  const { countBreakevenInWinRate } = useSettings();
-  const { session, loading: authLoading } = useAuth();
-  const { traderProfile } = useTraderProfile();
-  const { activeCriteria } = useCriteria();
-  const tradeIds = useMemo(() => trades.map(t => t.id), [trades]);
-  const { data: verificationsMap = {} } = useTradeVerifications(tradeIds);
+  const { messages, send, clear, ready } = useAtlas();
+  const { openLogTrade, atlasOpen, closeAtlas } = useShell();
   const location = useLocation();
-  const [messages, setMessages] = useState<Msg[]>(() => {
-    try {
-      const stored = sessionStorage.getItem('ai-advisor-chat');
-      return stored ? JSON.parse(stored) : [];
-    } catch { return []; }
-  });
-  const [input, setInput] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const streamingIdRef = useRef<string | null>(null);
-  const hasHandledNavState = useRef(false);
+  const handled = useRef(false);
 
-  const tradesSummary = useMemo(() => buildTradesSummary(trades, accounts, countBreakevenInWinRate), [trades, accounts, countBreakevenInWinRate]);
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
-  useEffect(() => { try { sessionStorage.setItem('ai-advisor-chat', JSON.stringify(messages)); } catch {} }, [messages]);
-
+  // The panel and the page would show the same thread twice.
   useEffect(() => {
-    if (authLoading) return; // wait until session is confirmed
+    if (atlasOpen) closeAtlas();
+  }, [atlasOpen, closeAtlas]);
+
+  // Other screens can link here with a question to send on arrival.
+  useEffect(() => {
+    if (!ready || handled.current) return;
     const state = location.state as { prompt?: string; extraContext?: string } | null;
-    if (state?.prompt && !hasHandledNavState.current) {
-      hasHandledNavState.current = true;
+    if (state?.prompt) {
+      handled.current = true;
       window.history.replaceState({}, '');
       send(state.prompt, state.extraContext);
     }
-  }, [location.state, authLoading, session]);
+  }, [location.state, ready, send]);
 
-  const clearChat = () => {
-    setMessages([]);
-    sessionStorage.removeItem('ai-advisor-chat');
-  };
-
-  const send = async (text: string, extraContext?: string) => {
-    const trimmed = text.trim();
-    if (!trimmed || isLoading) return;
-
-    const userMsg: Msg = { role: 'user', content: trimmed, id: nextId() };
-    setMessages(prev => trimMessages([...prev, userMsg]));
-    setInput('');
-    setIsLoading(true);
-
-    let assistantSoFar = '';
-    const assistantId = nextId();
-    streamingIdRef.current = assistantId;
-    const allMessages = [...messages, userMsg];
-
-    const messagesForApi = allMessages.map(m => ({ role: m.role, content: m.content }));
-    if (extraContext) {
-      const lastIdx = messagesForApi.length - 1;
-      messagesForApi[lastIdx] = {
-        ...messagesForApi[lastIdx],
-        content: `[Context]\n${extraContext}\n\n[Question]\n${messagesForApi[lastIdx].content}`,
-      };
-    }
-
-    if (!session?.access_token) {
-      setMessages(prev => trimMessages([...prev, { role: 'assistant', content: '⚠️ Session expired. Please refresh the page and sign in again.', id: assistantId }]));
-      setIsLoading(false);
-      return;
-    }
-
-    try {
-      const resp = await fetch(CHAT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({
-          messages: messagesForApi,
-          tradesSummary,
-          recentTrades: trades.slice(0, 50).map(t => ({
-            date: t.date, instrument: t.instrument, direction: t.direction,
-            strategy: t.strategy, session: t.session, outcome: t.outcome, pnl: t.pnl, notes: t.notes,
-            rMultiple: t.rMultiple ?? null, riskPercent: t.riskPercent ?? null,
-            htfBias: t.htfBias ?? null, emotionalState: t.emotionalState ?? null,
-            confidenceLevel: t.confidenceLevel ?? null, timeInTrade: t.timeInTrade ?? null,
-            followedPlan: t.followedPlan ?? null,
-            accountName: accounts.find(a => a.id === t.accountId)?.name ?? 'Unassigned',
-            checklistChecked: activeCriteria.filter(c => verificationsMap[t.id]?.[c.id]).length,
-            checklistTotal: activeCriteria.length,
-            checklistFollowed: activeCriteria.length > 0
-              ? activeCriteria.every(c => verificationsMap[t.id]?.[c.id])
-              : null,
-          })),
-          criteriaDefinitions: activeCriteria.map(c => ({ label: c.label, category: c.category })),
-          traderProfile: traderProfile ? {
-            trading_style: traderProfile.tradingStyle,
-            favorite_instruments: traderProfile.favoriteInstruments,
-            favorite_sessions: traderProfile.favoriteSessions,
-            account_goals: traderProfile.accountGoals,
-            common_mistakes: traderProfile.commonMistakes,
-            trading_rules: traderProfile.tradingRules,
-            risk_per_trade: traderProfile.riskPerTrade,
-            mental_triggers: traderProfile.mentalTriggers,
-            behavioral_memory: traderProfile.behavioralMemory,
-            notes: traderProfile.notes,
-          } : null,
-        }),
-      });
-
-      if (!resp.ok || !resp.body) {
-        const err = await resp.json().catch(() => ({ error: 'Failed to connect' }));
-        if (err.error === 'upgrade_required') {
-          setMessages(prev => trimMessages([...prev, {
-            role: 'assistant',
-            content: 'Your Pro trial ended. Upgrade to Pro to keep using Atlas with your trading data.',
-            id: assistantId,
-          }]));
-        } else {
-          setMessages(prev => trimMessages([...prev, { role: 'assistant', content: `⚠️ ${err.error || 'Something went wrong.'}`, id: assistantId }]));
-        }
-        setIsLoading(false);
-        return;
-      }
-
-      setMessages(prev => trimMessages([...prev, { role: 'assistant', content: '', id: assistantId }]));
-
-      const reader = resp.body.getReader();
-      const decoder = new TextDecoder();
-      let textBuffer = '';
-      let streamDone = false;
-
-      while (!streamDone) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        textBuffer += decoder.decode(value, { stream: true });
-        let newlineIndex: number;
-        while ((newlineIndex = textBuffer.indexOf('\n')) !== -1) {
-          let line = textBuffer.slice(0, newlineIndex);
-          textBuffer = textBuffer.slice(newlineIndex + 1);
-          if (line.endsWith('\r')) line = line.slice(0, -1);
-          if (line.startsWith(':') || line.trim() === '') continue;
-          if (!line.startsWith('data: ')) continue;
-          const jsonStr = line.slice(6).trim();
-          if (jsonStr === '[DONE]') { streamDone = true; break; }
-          try {
-            const parsed = JSON.parse(jsonStr);
-            const content = parsed.choices?.[0]?.delta?.content as string | undefined;
-            if (content) {
-              assistantSoFar += content;
-              const snapshot = assistantSoFar;
-              setMessages(prev => prev.map(m => m.id === assistantId ? { ...m, content: snapshot } : m));
-            }
-          } catch {
-            textBuffer = line + '\n' + textBuffer;
-            break;
-          }
-        }
-      }
-    } catch (e) {
-      console.error(e);
-      setMessages(prev => trimMessages([...prev, { role: 'assistant', content: '⚠️ Connection error. Please try again.', id: assistantId }]));
-    }
-
-    streamingIdRef.current = null;
-    setIsLoading(false);
-
-    if (assistantSoFar.length > 20 && session?.access_token) {
-      const convoForInsight = [...allMessages, { role: 'assistant', content: assistantSoFar }]
-        .map(m => ({ role: m.role, content: m.content }));
-      fetch(INSIGHT_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
-        },
-        body: JSON.stringify({ conversation: convoForInsight }),
-      }).catch(() => {});
-    }
-  };
-
-  // ─── Gate state ───
-  if (trades.length < TRADE_GATE) {
+  if (trades.length < ATLAS_TRADE_GATE) {
     return (
-      <AppLayout>
-        <div className="mx-auto flex min-h-[64vh] max-w-2xl items-center justify-center">
-          <div className="relative w-full overflow-hidden p-8 text-center" style={ATLAS_PANEL_STYLE}>
-          <div className="mx-auto mb-6 grid h-16 w-16 place-items-center rounded-2xl border border-white/10 bg-white/[0.035]">
-            <Lock size={34} color="var(--ef-ink-3)" weight="regular" />
-          </div>
-          <div>
-            <h2 style={{ margin: '0 0 10px', fontSize: 30, fontWeight: 600, letterSpacing: '-0.045em', color: 'var(--ef-ink)' }}>Atlas is ready when you are</h2>
-            <p style={{ fontSize: 14, lineHeight: 1.7, color: 'var(--ef-ink-3)', margin: '0 auto', maxWidth: 460 }}>
-              Log a single trade and Atlas will start reading it. Already have history elsewhere? Import your broker file and get a full breakdown straight away.
-            </p>
-          </div>
-          <div className="mt-7 flex flex-wrap items-center justify-center gap-2.5">
-            <Link to="/add-trade" className="inline-flex">
-              <Button size="sm" className="gap-1.5 bg-foreground text-background hover:bg-foreground/90 rounded-[24px] font-semibold">
-                <Plus className="h-3.5 w-3.5" weight="bold" /> Log a Trade
-              </Button>
+      <AppLayout width="narrow">
+        <Surface>
+          <EmptyState
+            art="/art/atlas-globe.webp"
+            title="Atlas is ready when you are"
+            body="Log one trade and Atlas starts reading it. If you have history elsewhere, import your broker file and get a full breakdown straight away."
+          >
+            <button type="button" onClick={openLogTrade} className="ef-btn ef-btn-primary">
+              <Plus className="h-3.5 w-3.5" weight="bold" /> Log a trade
+            </button>
+            <Link to="/import-trades" className="ef-btn ef-btn-secondary">
+              <UploadSimple className="h-3.5 w-3.5" /> Import history
             </Link>
-            <Link to="/import-trades" className="inline-flex">
-              <Button size="sm" variant="outline" className="gap-1.5 rounded-[24px] font-semibold">
-                Import history
-              </Button>
-            </Link>
-          </div>
-          </div>
-        </div>
+          </EmptyState>
+        </Surface>
       </AppLayout>
     );
   }
 
-  // ─── Main chat ───
   return (
-    <AppLayout>
-      <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-42px)] overflow-hidden p-4 md:p-5" style={ATLAS_PANEL_STYLE}>
-
-        {/* Header — only shown when chat has messages */}
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          className="flex items-center justify-between border-b border-white/10 pb-4"
-          >
-            <div className="flex items-center gap-2.5">
-            <div className="grid h-9 w-9 place-items-center rounded-xl border border-white/10 bg-white/[0.035]">
-              <Brain className="h-4 w-4 text-[var(--ef-pos)]" weight="fill" />
-            </div>
-            <div>
-              <p className="m-0 text-[15px] font-semibold tracking-[-0.02em] text-foreground">Atlas</p>
-              <p className="m-0 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted-foreground/50">Performance analyst</p>
-            </div>
+    <AppLayout width="narrow">
+      <Surface className="flex h-[calc(100dvh-52px-56px)] min-h-[440px] flex-col overflow-hidden lg:h-[calc(100dvh-52px-76px)]">
+        <header className="flex h-[52px] shrink-0 items-center justify-between border-b border-ef-line px-5">
+          <div className="flex items-baseline gap-2">
+            <h1 className="m-0 text-[15px] font-medium tracking-[-0.01em] text-ef-ink">Atlas</h1>
+            <span className="ef-label">Performance analyst</span>
           </div>
           {messages.length > 0 && (
-            <button
-              onClick={clearChat}
-              className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.025] px-3 py-1.5 transition-colors hover:bg-white/[0.05]"
-              style={{ fontSize: 10, letterSpacing: '0.08em', textTransform: 'uppercase', color: 'var(--ef-ink-4)' }}
-            >
-              <Trash className="h-3 w-3" weight="regular" />
-              Clear
+            <button type="button" onClick={clear} className="ef-btn ef-btn-ghost ef-btn-sm">
+              <Trash className="h-3.5 w-3.5" /> Clear
             </button>
           )}
-        </motion.div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-5 py-5 px-1 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <AnimatePresence initial={false}>
-
-            {/* Idle / empty state */}
-            {messages.length === 0 && (
-              <motion.div
-                key="empty"
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                transition={{ duration: 0.4, ease: 'easeOut' }}
-                className="flex flex-col items-center justify-center h-full text-center gap-7"
-              >
-                {/* Abstract data decoration */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.1, duration: 0.6 }}
-                >
-                  <DataDecoration />
-                </motion.div>
-
-                {/* Title */}
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.15, duration: 0.4 }}
-                  className="space-y-2"
-                >
-                  <h2 style={{ margin: 0, fontSize: 34, fontWeight: 600, letterSpacing: '-0.045em', lineHeight: 1.1, color: 'var(--ef-ink)' }}>
-                    Ask Atlas
-                  </h2>
-                  <p style={{ fontSize: 13, color: 'var(--ef-ink-3)', lineHeight: 1.6, maxWidth: 360, margin: '8px auto 0' }}>
-                    Your personal trading analyst. Ask anything about your performance — patterns, risks, and actionable insights from your data.
-                  </p>
-                </motion.div>
-
-                {/* Suggestion pills */}
-                <motion.div
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.25, duration: 0.4 }}
-                  className="flex flex-wrap gap-2 justify-center"
-                >
-                  {SUGGESTIONS.map((s, i) => (
-                    <motion.button
-                      key={s}
-                      initial={{ opacity: 0, scale: 0.96 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ delay: 0.3 + i * 0.05 }}
-                      onClick={() => send(s)}
-                      className="text-[12px] px-3.5 py-2 rounded-full border border-white/10 bg-white/[0.025] text-muted-foreground hover:text-foreground hover:border-foreground/25 hover:bg-white/[0.055] transition-all"
-                    >
-                      {s}
-                    </motion.button>
-                  ))}
-                </motion.div>
-              </motion.div>
-            )}
-
-            {/* Messages */}
-            {messages.map((msg) => (
-              <motion.div
-                key={msg.id}
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, ease: [0.25, 0.46, 0.45, 0.94] }}
-                className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : ''}`}
-              >
-                {/* Assistant avatar */}
-                {msg.role === 'assistant' && (
-                  <div className="shrink-0 h-8 w-8 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center mt-0.5">
-                    <Brain className="h-4 w-4 text-[var(--ef-pos)]" weight="fill" />
-                  </div>
-                )}
-
-                {/* Bubble */}
-                <div
-                  className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
-                    msg.role === 'user'
-                      ? 'bg-foreground text-background font-medium'
-                      : 'bg-black/25 border border-white/10 text-foreground'
-                  }`}
-                  style={msg.role === 'assistant' ? { borderLeft: '2px solid var(--ef-pos)' } : undefined}
-                >
-                  {msg.role === 'assistant' ? (
-                    <AnimatedAssistantMessage
-                      content={msg.content}
-                      isStreaming={streamingIdRef.current === msg.id}
-                    />
-                  ) : msg.content}
-                </div>
-
-                {/* User avatar */}
-                {msg.role === 'user' && (
-                  <div className="shrink-0 h-8 w-8 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center mt-0.5">
-                    <UserCircle className="h-4 w-4 text-muted-foreground/60" weight="regular" />
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </AnimatePresence>
-          <div ref={bottomRef} />
+        </header>
+        <div className="flex min-h-0 flex-1 flex-col px-4">
+          <AtlasThread variant="page" autoFocus />
         </div>
-
-        {/* Input */}
-        <div className="border-t border-white/10 pt-3 pb-1">
-          <form
-            onSubmit={e => { e.preventDefault(); send(input); }}
-            className="relative flex items-end gap-2"
-          >
-            <div className="flex-1">
-              <Textarea
-                value={input}
-                onChange={e => setInput(e.target.value)}
-                onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input); } }}
-                placeholder="Ask about your trading patterns (not financial advice)"
-                className="min-h-[48px] max-h-[120px] resize-none text-sm rounded-2xl bg-black/25 border-white/10 pr-4 py-3.5 transition-colors"
-                rows={1}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className="shrink-0 h-[48px] w-[48px] rounded-2xl bg-foreground hover:bg-foreground/90 text-background flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <PaperPlaneTilt className="h-4 w-4" weight="fill" />
-            </button>
-          </form>
-          <p className="text-[10px] text-center mt-2 text-muted-foreground/40">
-            Atlas analyses your historical trade data only. Not financial advice — you remain the decision-maker.
-          </p>
-        </div>
-      </div>
+      </Surface>
     </AppLayout>
   );
 }

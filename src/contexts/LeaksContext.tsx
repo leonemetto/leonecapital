@@ -1,10 +1,9 @@
 import { createContext, useContext, useMemo, ReactNode } from 'react';
 import { useSharedTrades } from '@/contexts/TradesContext';
-import { computeLeaks } from '@/components/dashboard/DashboardLeakDetection';
-import type { DashboardLeak } from '@/components/dashboard/DashboardLeakDetection';
+import { computeLeaks, LEAK_MIN_TRADES, type Leak } from '@/lib/leaks';
 
 interface LeaksContextType {
-  leaks: DashboardLeak[];
+  leaks: Leak[];
   newLeakCount: number;
 }
 
@@ -16,7 +15,7 @@ export function LeaksProvider({ children }: { children: ReactNode }) {
   const leaks = useMemo(() => computeLeaks(trades), [trades]);
 
   const newLeakCount = useMemo(() => {
-    if (trades.length < 15) return 0;
+    if (trades.length < LEAK_MIN_TRADES) return 0;
     const seen = parseInt(localStorage.getItem('leaks_last_seen_count') ?? '0', 10);
     return Math.max(0, leaks.length - seen);
   }, [leaks.length, trades.length]);

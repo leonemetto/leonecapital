@@ -189,6 +189,10 @@
     --ef-warn: oklch(0.62 0.16 65);
     --ef-warn-high: oklch(0.60 0.17 55);
     --ef-warn-wash: oklch(0.96 0.04 75);
+    --ef-hover: color-mix(in oklab, var(--ef-ink) 5%, transparent);
+    --ef-line-strong: color-mix(in oklab, var(--ef-ink) 16%, var(--ef-line));
+    --ef-shadow-pop: 0 1px 0 rgba(255, 255, 255, 0.7) inset, 0 16px 40px -12px rgba(40, 34, 18, 0.18);
+    --ef-scrim: rgba(24, 22, 16, 0.28);
 
     --glass-bg: 0 0% 100% / 0.55;
     --glass-border: 0 0% 100% / 0.6;
@@ -252,6 +256,10 @@
     --ef-warn: oklch(0.72 0.16 65);
     --ef-warn-high: oklch(0.72 0.17 55);
     --ef-warn-wash: oklch(0.26 0.07 75);
+    --ef-hover: color-mix(in oklab, var(--ef-ink) 7%, transparent);
+    --ef-line-strong: color-mix(in oklab, var(--ef-ink) 22%, var(--ef-line));
+    --ef-shadow-pop: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 24px 60px -16px rgba(0, 0, 0, 0.8);
+    --ef-scrim: rgba(0, 0, 0, 0.6);
 
     --glass-bg: 0 0% 100% / 0.02;
     --glass-border: 0 0% 100% / 0.07;
@@ -464,41 +472,6 @@
   }
 }
 
-/* ─── Responsive utility grids ─── */
-.optimizer-filter-grid {
-  display: grid;
-  gap: 14px;
-  grid-template-columns: repeat(2, 1fr);
-}
-@media (min-width: 640px) {
-  .optimizer-filter-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-.optimizer-stat-grid {
-  display: grid;
-  gap: 10px;
-  grid-template-columns: repeat(2, 1fr);
-}
-@media (min-width: 560px) {
-  .optimizer-stat-grid {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-/* ─── Leak Detection responsive grid ─── */
-.leak-grid {
-  display: grid;
-  gap: 20px;
-  align-items: start;
-  grid-template-columns: minmax(0, 1fr);
-}
-@media (min-width: 720px) {
-  .leak-grid {
-    grid-template-columns: minmax(0, 1fr) 300px;
-  }
-}
-
 /* ─── metric-number: outside @layer so it wins the cascade unconditionally ─── */
 .metric-number {
   font-family: var(--ff-mono);
@@ -506,4 +479,244 @@
   letter-spacing: -0.055em;
   font-variant-numeric: tabular-nums lining-nums;
   font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on, 'zero' on;
+}
+
+/* ─── EdgeFlow app primitives (redesign) ───
+   Shared building blocks for the logged-in app. Every colour comes from the
+   --ef-* tokens so both themes stay in step. */
+@layer components {
+  .ef-label {
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    line-height: 1.2;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ef-ink-4);
+  }
+
+  .ef-surface {
+    background: var(--ef-bg-elev);
+    border: 1px solid var(--ef-line);
+    border-radius: 14px;
+  }
+
+  .ef-num {
+    font-family: var(--ff-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on, 'zero' on;
+  }
+
+  .ef-focus {
+    outline: none;
+  }
+  .ef-focus:focus-visible {
+    box-shadow: 0 0 0 2px var(--ef-bg), 0 0 0 4px var(--ef-ink-3);
+  }
+
+  .ef-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    outline: none;
+    transition: background-color 150ms, border-color 150ms, color 150ms, transform 80ms;
+  }
+  .ef-btn:active:not(:disabled) {
+    transform: translateY(1px);
+  }
+  .ef-btn:focus-visible {
+    box-shadow: 0 0 0 2px var(--ef-bg), 0 0 0 4px var(--ef-ink-3);
+  }
+  .ef-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  .ef-btn-sm {
+    height: 28px;
+    padding: 0 9px;
+    font-size: 12px;
+    border-radius: 8px;
+  }
+  .ef-btn-primary {
+    background: var(--ef-ink);
+    color: var(--ef-bg);
+    font-weight: 600;
+  }
+  .ef-btn-primary:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--ef-ink) 88%, var(--ef-bg));
+  }
+  .ef-btn-secondary {
+    background: var(--ef-bg-elev);
+    border-color: var(--ef-line);
+    color: var(--ef-ink-2);
+  }
+  .ef-btn-secondary:hover:not(:disabled) {
+    border-color: var(--ef-line-strong);
+    color: var(--ef-ink);
+  }
+  .ef-btn-ghost {
+    background: transparent;
+    color: var(--ef-ink-3);
+  }
+  .ef-btn-ghost:hover:not(:disabled) {
+    background: var(--ef-hover);
+    color: var(--ef-ink);
+  }
+
+  .ef-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 4px;
+    border-radius: 5px;
+    border: 1px solid var(--ef-line);
+    background: var(--ef-bg);
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    line-height: 1;
+    color: var(--ef-ink-3);
+  }
+
+  .ef-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 8px;
+    border: 1px solid var(--ef-line);
+    background: transparent;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ef-ink-3);
+    white-space: nowrap;
+    outline: none;
+    transition: background-color 150ms, border-color 150ms, color 150ms;
+  }
+  .ef-chip:hover {
+    border-color: var(--ef-line-strong);
+    color: var(--ef-ink);
+  }
+  .ef-chip:focus-visible {
+    box-shadow: 0 0 0 2px var(--ef-bg), 0 0 0 4px var(--ef-ink-3);
+  }
+  .ef-chip[data-active='true'] {
+    background: var(--ef-bg-elev);
+    border-color: var(--ef-line-strong);
+    color: var(--ef-ink);
+  }
+
+  /* Monochrome artwork drawn white-on-black. Blending drops the ground so one
+     file serves both themes. */
+  .ef-art {
+    mix-blend-mode: multiply;
+    filter: invert(1);
+    pointer-events: none;
+    user-select: none;
+  }
+  .dark .ef-art {
+    mix-blend-mode: screen;
+    filter: none;
+  }
+
+  .ef-scroll-quiet {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .ef-scroll-quiet::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Table used across Trades and Insights */
+  .ef-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+  }
+  .ef-table thead th {
+    position: sticky;
+    top: var(--ef-table-top, 0px);
+    z-index: 1;
+    height: 34px;
+    padding: 0 12px;
+    background: var(--ef-bg-elev);
+    border-bottom: 1px solid var(--ef-line);
+    text-align: left;
+    white-space: nowrap;
+    font-family: var(--ff-mono);
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ef-ink-4);
+  }
+  .ef-table tbody td {
+    padding: 0 12px;
+    border-bottom: 1px solid var(--ef-line);
+    white-space: nowrap;
+  }
+  .ef-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .ef-table tbody tr:last-child td:first-child {
+    border-bottom-left-radius: 13px;
+  }
+  .ef-table tbody tr:last-child td:last-child {
+    border-bottom-right-radius: 13px;
+  }
+  .ef-table tbody tr[data-clickable='true'] {
+    cursor: pointer;
+  }
+  .ef-table tbody tr[data-clickable='true']:hover td {
+    background: var(--ef-hover);
+  }
+  .ef-table tbody tr[data-selected='true'] td {
+    background: var(--ef-bg-sunken);
+  }
+  .ef-table .num {
+    text-align: right;
+    font-family: var(--ff-mono);
+    font-variant-numeric: tabular-nums lining-nums;
+    font-feature-settings: 'tnum' on, 'lnum' on, 'ss01' on, 'zero' on;
+  }
+}
+
+@layer components {
+  /* Quiet checkbox for table selection */
+  .ef-check {
+    appearance: none;
+    display: block;
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    border: 1px solid var(--ef-line-strong);
+    background: transparent;
+    cursor: pointer;
+    transition: background-color 120ms, border-color 120ms;
+  }
+  .ef-check:hover {
+    border-color: var(--ef-ink-3);
+  }
+  .ef-check:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--ef-bg), 0 0 0 4px var(--ef-ink-3);
+  }
+  .ef-check:checked {
+    border-color: var(--ef-ink);
+    background: var(--ef-ink)
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14' fill='none' stroke='%23808080' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3.5 7.4l2.3 2.3 4.7-5'/%3E%3C/svg%3E")
+      center / 12px no-repeat;
+  }
 }

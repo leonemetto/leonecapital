@@ -1,39 +1,34 @@
-import { AppSidebar } from './AppSidebar';
-import { SandboxBanner } from '@/components/onboarding/SandboxBanner';
-import { useSharedAccounts } from '@/contexts/AccountsContext';
+import type { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface AppLayoutProps {
-  children: React.ReactNode;
-  rail?: React.ReactNode;
+  children: ReactNode;
+  /** Optional column pinned to the right of the page on wide screens. */
+  rail?: ReactNode;
+  /** Narrower measure for forms and settings. */
+  width?: 'wide' | 'narrow';
 }
 
-export function AppLayout({ children, rail }: AppLayoutProps) {
-  const { accounts, selectedAccountId } = useSharedAccounts();
-  const selectedAccount = accounts.find(a => a.id === selectedAccountId);
-  const isDemoSelected = selectedAccount?.type === 'demo';
-
+/**
+ * Page container. The sidebar, top bar and panels live in AppShell, which
+ * wraps the routes once; this only sets the page's measure and padding.
+ */
+export function AppLayout({ children, rail, width = 'wide' }: AppLayoutProps) {
   return (
-    <div
-      className="relative min-h-screen flex bg-background [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-      style={{
-        background:
-          'radial-gradient(circle at 78% -12%, color-mix(in oklab, var(--ef-bg-elev) 55%, transparent), transparent 34%), var(--ef-bg)',
-      }}
-    >
-      <AppSidebar />
-      <div className="relative z-10 flex-1 min-w-0 flex">
-        <div className="flex-1 min-w-0">
-          {isDemoSelected && <SandboxBanner />}
-          <main className="max-w-[1560px] mx-auto p-5 md:p-6 lg:p-7 pt-16 lg:pt-7">
-            {children}
-          </main>
-        </div>
-        {rail && (
-          <aside className="hidden xl:block w-[300px] shrink-0 border-l border-border sticky top-0 h-screen overflow-y-auto bg-background">
-            {rail}
-          </aside>
+    <div className="flex min-w-0">
+      <div
+        className={cn(
+          'mx-auto w-full min-w-0 px-4 pb-28 pt-6 md:px-6 lg:pb-12 lg:pt-7',
+          width === 'narrow' ? 'max-w-[1040px]' : 'max-w-[1440px]',
         )}
+      >
+        {children}
       </div>
+      {rail && (
+        <aside className="sticky top-[52px] hidden h-[calc(100dvh-52px)] w-[300px] shrink-0 overflow-y-auto border-l border-ef-line xl:block">
+          {rail}
+        </aside>
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { createPortal } from 'react-dom';
-import { Check, CaretDown as ChevronDown, Plus } from '@phosphor-icons/react';
+import { useState } from 'react';
+import { Check, CaretDown, Plus } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 
 interface CreatableSelectProps {
   value: string;
@@ -11,8 +12,14 @@ interface CreatableSelectProps {
   placeholder?: string;
   label?: string;
   uppercase?: boolean;
+  id?: string;
+  className?: string;
 }
 
+/**
+ * A select the user can add to. Built on Popover so it works inside dialogs:
+ * the list stays inside the dialog's focus scope and keeps arrow-key support.
+ */
 export function CreatableSelect({
   value,
   onChange,
@@ -20,159 +27,97 @@ export function CreatableSelect({
   onAddOption,
   placeholder = 'Select or type...',
   uppercase = false,
+  id,
+  className,
 }: CreatableSelectProps) {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
   const [adding, setAdding] = useState(false);
-  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
 
-  const filtered = query
-    ? options.filter(o => o.toLowerCase().includes(query.toLowerCase()))
-    : options;
+  const trimmed = query.trim();
+  const candidate = uppercase ? trimmed.toUpperCase() : trimmed;
+  const showAdd = trimmed.length > 0 && !options.some(o => o.toLowerCase() === trimmed.toLowerCase());
 
-  const showAddOption =
-    query.trim().length > 0 &&
-    !options.some(o => o.toLowerCase() === query.trim().toLowerCase());
-
-  const updatePosition = useCallback(() => {
-    if (triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      setPosition({
-        top: rect.bottom + 4,
-        left: rect.left,
-        width: rect.width,
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!open) return;
-    updatePosition();
-    window.addEventListener('scroll', updatePosition, true);
-    window.addEventListener('resize', updatePosition);
-    return () => {
-      window.removeEventListener('scroll', updatePosition, true);
-      window.removeEventListener('resize', updatePosition);
-    };
-  }, [open, updatePosition]);
-
-  useEffect(() => {
-    if (!open) return;
-    function handleClickOutside(e: MouseEvent) {
-      const target = e.target as Node;
-      if (
-        triggerRef.current && !triggerRef.current.contains(target) &&
-        dropdownRef.current && !dropdownRef.current.contains(target)
-      ) {
-        setOpen(false);
-        setQuery('');
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [open]);
-
-  function handleSelect(option: string) {
-    onChange(option);
+  const close = () => {
     setOpen(false);
     setQuery('');
-  }
+  };
 
-  async function handleAdd() {
-    const trimmed = query.trim();
-    if (!trimmed) return;
+  const handleSelect = (option: string) => {
+    onChange(option);
+    close();
+  };
+
+  const handleAdd = async () => {
+    if (!trimmed || adding) return;
     setAdding(true);
     try {
       await onAddOption(trimmed);
-      onChange(uppercase ? trimmed.toUpperCase() : trimmed);
+      onChange(candidate);
     } catch (error) {
       console.error('Error adding option:', error);
     } finally {
-      setOpen(false);
-      setQuery('');
       setAdding(false);
+      close();
     }
-  }
+  };
 
   return (
-    <div className="relative">
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={() => {
-          setOpen(o => !o);
-          setTimeout(() => inputRef.current?.focus(), 50);
-        }}
-        className="w-full flex items-center justify-between mt-1 bg-secondary border border-border h-9 rounded-md px-3 text-sm text-left"
-      >
-        <span className={value ? 'text-foreground' : 'text-muted-foreground'}>
-          {value || placeholder}
-        </span>
-        <ChevronDown className={cn('h-3.5 w-3.5 text-muted-foreground transition-transform', open && 'rotate-180')} />
-      </button>
-
-      {open && createPortal(
-        <div
-          ref={dropdownRef}
-          style={{
-            position: 'fixed',
-            top: position.top,
-            left: position.left,
-            width: position.width,
-            zIndex: 9999,
-          }}
-          className="bg-popover border border-border rounded-md shadow-lg overflow-hidden"
+    <Popover open={open} onOpenChange={o => (o ? setOpen(true) : close())}>
+      <PopoverTrigger asChild>
+        <button
+          id={id}
+          type="button"
+          role="combobox"
+          aria-expanded={open}
+          className={cn(
+            'flex h-9 w-full items-center justify-between gap-2 rounded-control border border-ef-line bg-ef-bg px-3 text-left text-[13px] outline-none transition-colors hover:border-ef-line-strong focus-visible:border-ef-ink-3',
+            className,
+          )}
         >
-          <div className="p-1.5 border-b border-border">
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  if (showAddOption) handleAdd();
-                  else if (filtered.length > 0) handleSelect(filtered[0]);
-                }
-                if (e.key === 'Escape') { setOpen(false); setQuery(''); }
-              }}
-              placeholder="Search or add new..."
-              className="w-full bg-transparent text-sm outline-none px-1 py-0.5 text-foreground placeholder:text-muted-foreground"
-            />
-          </div>
-          <div className="max-h-48 overflow-y-auto">
-            {filtered.map(option => (
-              <button
+          <span className={cn('truncate', value ? 'text-ef-ink' : 'text-ef-ink-4')}>{value || placeholder}</span>
+          <CaretDown className={cn('h-3.5 w-3.5 shrink-0 text-ef-ink-4 transition-transform', open && 'rotate-180')} />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="w-[var(--radix-popover-trigger-width)] min-w-[200px] rounded-control border-ef-line bg-ef-elev p-0 backdrop-blur-none"
+        style={{ boxShadow: 'var(--ef-shadow-pop)' }}
+      >
+        <Command className="rounded-control bg-transparent">
+          <CommandInput
+            value={query}
+            onValueChange={setQuery}
+            placeholder="Search or add new"
+            className="h-9 text-[13px] text-ef-ink placeholder:text-ef-ink-4"
+          />
+          <CommandList className="max-h-52 p-1">
+            <CommandEmpty className="px-2.5 py-2 text-[12.5px] text-ef-ink-3">No results</CommandEmpty>
+            {options.map(option => (
+              <CommandItem
                 key={option}
-                type="button"
-                onClick={() => handleSelect(option)}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent text-left transition-colors"
+                value={option}
+                onSelect={() => handleSelect(option)}
+                className="flex cursor-pointer items-center gap-2 rounded-[7px] px-2.5 py-1.5 text-[13px] text-ef-ink-2 data-[selected=true]:bg-ef-hover data-[selected=true]:text-ef-ink"
               >
-                <Check className={cn('h-3.5 w-3.5 shrink-0', value === option ? 'text-primary' : 'opacity-0')} />
+                <Check className={cn('h-3.5 w-3.5 shrink-0', value === option ? 'text-ef-ink' : 'opacity-0')} weight="bold" />
                 {option}
-              </button>
+              </CommandItem>
             ))}
-            {showAddOption && (
-              <button
-                type="button"
-                onClick={handleAdd}
+            {showAdd && (
+              <CommandItem
+                value={`add ${trimmed}`}
+                onSelect={handleAdd}
                 disabled={adding}
-                className="w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-accent text-primary font-medium transition-colors border-t border-border"
+                className="mt-1 flex cursor-pointer items-center gap-2 rounded-[7px] border-t border-ef-line px-2.5 py-1.5 text-[13px] font-medium text-ef-ink data-[selected=true]:bg-ef-hover"
               >
-                <Plus className="h-3.5 w-3.5 shrink-0" />
-                {adding ? 'Adding...' : `Add "${uppercase ? query.trim().toUpperCase() : query.trim()}"`}
-              </button>
+                <Plus className="h-3.5 w-3.5 shrink-0" weight="bold" />
+                {adding ? 'Adding…' : `Add "${candidate}"`}
+              </CommandItem>
             )}
-            {filtered.length === 0 && !showAddOption && (
-              <p className="px-3 py-2 text-sm text-muted-foreground">No results</p>
-            )}
-          </div>
-        </div>,
-        document.body
-      )}
-    </div>
+          </CommandList>
+        </Command>
+      </PopoverContent>
+    </Popover>
   );
 }

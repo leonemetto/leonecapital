@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { takePendingImportFile } from '@/lib/pendingImport';
 import { useNavigate } from 'react-router-dom';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { useSharedTrades } from '@/contexts/TradesContext';
@@ -595,6 +596,13 @@ export default function ImportTrades() {
     };
     reader.readAsText(file);
   }
+
+  // A statement dropped on the Today screen arrives here ready to preview.
+  useEffect(() => {
+    const dropped = takePendingImportFile();
+    if (dropped) handleFile(dropped);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   function handleTemplateChange(t: keyof typeof TEMPLATES) {
     setTemplate(t);

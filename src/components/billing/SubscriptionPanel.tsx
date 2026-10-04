@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useSubscription, useInvalidateSubscription } from '@/hooks/useSubscription';
@@ -31,13 +30,13 @@ function formatDate(iso: string | null): string {
 
 function statusBadge(status: string | null): { label: string; color: string } {
   switch (status) {
-    case 'active': return { label: 'Active', color: 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]/30' };
-    case 'past_due': return { label: 'Payment failed — retrying', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
-    case 'cancelling': return { label: 'Cancelling at period end', color: 'text-amber-400 bg-amber-500/10 border-amber-500/30' };
-    case 'cancelled': return { label: 'Cancelled', color: 'text-muted-foreground bg-muted border-border' };
-    case 'expired': return { label: 'Expired (payment failed)', color: 'text-red-400 bg-red-500/10 border-red-500/30' };
-    case 'trialing': return { label: 'Trial', color: 'text-blue-400 bg-blue-500/10 border-blue-500/30' };
-    default: return { label: 'Free', color: 'text-muted-foreground bg-muted border-border' };
+    case 'active': return { label: 'Active', color: 'text-ef-pos bg-ef-pos-wash' };
+    case 'past_due': return { label: 'Payment failed, retrying', color: 'text-ef-warn bg-ef-warn-wash' };
+    case 'cancelling': return { label: 'Cancelling at period end', color: 'text-ef-warn bg-ef-warn-wash' };
+    case 'cancelled': return { label: 'Cancelled', color: 'text-ef-ink-3 bg-ef-sunken' };
+    case 'expired': return { label: 'Expired (payment failed)', color: 'text-ef-neg bg-ef-neg-wash' };
+    case 'trialing': return { label: 'Trial', color: 'text-ef-ink-2 bg-ef-cool-wash' };
+    default: return { label: 'Free', color: 'text-ef-ink-3 bg-ef-sunken' };
   }
 }
 
@@ -103,7 +102,7 @@ export function SubscriptionPanel() {
   }
 
   if (isLoading) {
-    return <div className="text-sm text-muted-foreground">Loading subscription…</div>;
+    return <div className="h-16 animate-pulse rounded-control bg-ef-sunken" aria-busy="true" aria-label="Loading subscription" />;
   }
 
   const badge = statusBadge(status);
@@ -115,28 +114,28 @@ export function SubscriptionPanel() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <div className="text-xs uppercase tracking-wide text-muted-foreground/60 font-semibold">Plan</div>
-          <div className="text-lg font-semibold mt-1">
+          <div className="ef-label">Plan</div>
+          <div className="mt-1.5 text-[18px] font-medium tracking-[-0.02em] text-ef-ink">
             {isTrialing ? 'Pro Trial' : tier === 'free' ? 'No active plan' : tier === 'elite' ? 'Elite' : 'Pro'}
           </div>
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${badge.color}`}>
+        <span className={`ef-num inline-flex h-6 items-center rounded-chip px-2 text-[11px] font-medium ${badge.color}`}>
           {badge.label}
         </span>
       </div>
 
       {row && isPro && (
-        <div className="rounded-[12px] border border-border bg-muted/20 p-4 space-y-2 text-sm">
+        <div className="space-y-2 rounded-control border border-ef-line bg-ef-bg p-4 text-[13px] text-ef-ink">
           {!isTrialing && (
             <>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Billing</span>
+                <span className="text-ef-ink-3">Billing</span>
                 <span className="font-mono tabular-nums">
                   {formatMoney(row.amount, row.currency)} / {row.billing_cycle === 'annual' ? 'year' : 'month'}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Method</span>
+                <span className="text-ef-ink-3">Method</span>
                 <span>
                   {row.channel === 'mpesa' ? 'M-Pesa' : row.channel === 'card' ? 'Card' : row.channel ?? '—'}
                 </span>
@@ -144,7 +143,7 @@ export function SubscriptionPanel() {
             </>
           )}
           <div className="flex justify-between">
-            <span className="text-muted-foreground">
+            <span className="text-ef-ink-3">
               {isTrialing ? 'Trial ends' : showReactivateNotice ? 'Access until' : 'Next billing'}
             </span>
             <span className="font-mono tabular-nums">
@@ -155,7 +154,7 @@ export function SubscriptionPanel() {
       )}
 
       {showReactivateNotice && (
-        <div className="rounded-[10px] border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+        <div className="rounded-control bg-ef-warn-wash p-3 text-[12.5px] leading-relaxed text-ef-ink">
           Your subscription is cancelling. Access continues until {formatDate(row?.cancel_at ?? row?.current_period_end ?? null)}.
           To keep it going, contact{' '}
           <a href="mailto:support@edgeflow.capital" className="underline">support@edgeflow.capital</a>{' '}
@@ -165,55 +164,57 @@ export function SubscriptionPanel() {
 
       <div className="flex flex-wrap gap-2 pt-1">
         {showUpgrade && (
-          <Button
+          <button
+            type="button"
             onClick={() => setUpgradeOpen(true)}
-            className="rounded-[24px] bg-foreground text-background font-semibold hover:bg-foreground/90"
+            className="ef-btn ef-btn-primary h-9 px-4"
           >
             {isTrialExpired ? 'Upgrade to Pro' : isTrialing ? 'Upgrade now' : tier === 'free' ? 'Upgrade to Pro' : 'Resubscribe'}
-          </Button>
+          </button>
         )}
 
         {showCancel && !confirmCancel && (
-          <Button
-            variant="outline"
+          <button
+            type="button"
             onClick={() => setConfirmCancel(true)}
-            className="rounded-[24px]"
+            className="ef-btn ef-btn-secondary h-9"
           >
             Cancel subscription
-          </Button>
+          </button>
         )}
 
         {confirmCancel && (
-          <div className="w-full rounded-[12px] border border-border bg-muted/30 p-4 space-y-3">
-            <div className="text-sm">
+          <div className="w-full space-y-3 rounded-control border border-ef-line bg-ef-bg p-4">
+            <div className="text-[13px] leading-relaxed text-ef-ink-2">
               You'll keep Pro access until{' '}
               <span className="font-semibold">{formatDate(row?.current_period_end ?? null)}</span>.
               Your trade data stays on your account either way.
             </div>
             <div className="flex gap-2">
-              <Button
+              <button
+            type="button"
                 onClick={handleCancel}
                 disabled={cancelling}
-                className="rounded-[24px] bg-foreground text-background"
+                className="ef-btn ef-btn-primary h-9"
               >
                 {cancelling ? 'Cancelling…' : 'Yes, cancel'}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setConfirmCancel(false)}
+              </button>
+              <button
+            type="button"
+                    onClick={() => setConfirmCancel(false)}
                 disabled={cancelling}
-                className="rounded-[24px]"
+                className="ef-btn ef-btn-secondary h-9"
               >
                 Keep subscription
-              </Button>
+              </button>
             </div>
           </div>
         )}
       </div>
 
-      <p className="text-[11px] text-muted-foreground/70 pt-1">
-        Refund policy: <a href="/refunds" className="underline hover:text-foreground">edgeflow.capital/refunds</a>.
-        Questions: <a href="mailto:support@edgeflow.capital" className="underline hover:text-foreground">support@edgeflow.capital</a>.
+      <p className="pt-1 text-[11.5px] leading-relaxed text-ef-ink-4">
+        Refund policy: <a href="/refunds" className="underline underline-offset-2 hover:text-ef-ink">edgeflow.capital/refunds</a>.
+        Questions: <a href="mailto:support@edgeflow.capital" className="underline underline-offset-2 hover:text-ef-ink">support@edgeflow.capital</a>.
       </p>
 
       <UpgradeModal open={upgradeOpen} onOpenChange={setUpgradeOpen} initialPlan="pro" />

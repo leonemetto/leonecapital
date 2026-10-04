@@ -5,14 +5,14 @@ import { useAuth } from '@/hooks/useAuth';
 import { useTraderProfile } from '@/hooks/useTraderProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Textarea } from '@/components/ui/textarea';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { Pill, Segmented, Surface } from '@/components/ef/primitives';
+import { FIELD, FIELD_LABEL } from '@/components/ef/field';
+import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useTheme } from 'next-themes';
-import { Camera, Key as KeyRound, Shield, User, Sun, Moon, ShieldCheck, ShieldSlash as ShieldOff, CircleNotch as Loader2, Brain, Trash as Trash2, Flask as FlaskConical, Percent } from '@phosphor-icons/react';
+import { Camera, Sun, Moon, ShieldCheck, ShieldSlash as ShieldOff, Trash as Trash2 } from '@phosphor-icons/react';
 import { useOnboarding } from '@/hooks/useOnboarding';
 import { useSharedAccounts } from '@/contexts/AccountsContext';
 import { useSettings } from '@/contexts/SettingsContext';
@@ -22,39 +22,74 @@ function DemoDataSection() {
   const { deleteDemoAccount } = useOnboarding();
   const { accounts } = useSharedAccounts();
   const [deleting, setDeleting] = useState(false);
+  const [confirming, setConfirming] = useState(false);
   const hasDemoAccount = accounts.some(a => a.type === 'demo');
 
   if (!hasDemoAccount) return null;
 
   const handleDelete = async () => {
-    if (!confirm('Delete demo account and all its trades? This cannot be undone.')) return;
     setDeleting(true);
     try {
       await deleteDemoAccount();
       toast.success('Demo account deleted');
     } catch {
-      toast.error('Failed to delete demo account');
+      toast.error('Could not delete the demo account');
     } finally {
       setDeleting(false);
+      setConfirming(false);
     }
   };
 
   return (
-    <div className="glass-card p-6 space-y-3">
-      <div className="flex items-center gap-2 mb-1">
-        <FlaskConical className="h-4 w-4 text-muted-foreground" />
-        <div>
-          <h2 className="text-sm font-semibold">Demo Data</h2>
-          <p className="text-xs text-muted-foreground">Manage your demo account and sample trades</p>
+    <Section id="data" title="Data" description="The demo account and its sample trades.">
+      {confirming ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="mr-auto text-[13px] text-ef-ink-2">Delete the demo account and all its trades? This cannot be undone.</span>
+          <button type="button" onClick={() => setConfirming(false)} className="ef-btn ef-btn-ghost">Cancel</button>
+          <button type="button" onClick={handleDelete} disabled={deleting} className="ef-btn bg-ef-neg font-semibold text-white hover:opacity-90">
+            {deleting ? 'Deleting…' : 'Delete'}
+          </button>
         </div>
+      ) : (
+        <button type="button" onClick={() => setConfirming(true)} className="ef-btn ef-btn-secondary hover:text-ef-neg">
+          <Trash2 className="h-3.5 w-3.5" /> Delete demo account
+        </button>
+      )}
+    </Section>
+  );
+}
+
+function Section({ id, title, description, children }: { id: string; title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <Surface id={id} className="scroll-mt-20">
+      <div className="border-b border-ef-line px-5 py-4">
+        <h2 className="m-0 text-[15px] font-medium tracking-[-0.01em] text-ef-ink">{title}</h2>
+        {description && <p className="m-0 mt-1 max-w-[62ch] text-[12.5px] leading-relaxed text-ef-ink-3">{description}</p>}
       </div>
-      <Button variant="destructive" size="sm" onClick={handleDelete} disabled={deleting} className="gap-1.5">
-        <Trash2 className="h-3.5 w-3.5" />
-        {deleting ? 'Deleting...' : 'Delete Demo Account'}
-      </Button>
+      <div className="px-5 py-5">{children}</div>
+    </Surface>
+  );
+}
+
+function Row({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center justify-between gap-6 border-t border-ef-line py-4 first:border-t-0 first:pt-0 last:pb-0">
+      <div className="min-w-0">
+        <p className="m-0 text-[13px] font-medium text-ef-ink">{title}</p>
+        {description && <p className="m-0 mt-0.5 text-[12.5px] leading-relaxed text-ef-ink-3">{description}</p>}
+      </div>
+      <div className="shrink-0">{children}</div>
     </div>
   );
 }
+
+const NAV = [
+  { id: 'profile', label: 'Profile' },
+  { id: 'trading-profile', label: 'Trading profile' },
+  { id: 'security', label: 'Security' },
+  { id: 'billing', label: 'Billing' },
+  { id: 'preferences', label: 'Preferences' },
+];
 
 export default function ProfileSettings() {
   const { profile, setNickname, updateAvatarUrl } = useProfile();
@@ -310,234 +345,250 @@ export default function ProfileSettings() {
   };
 
   const initials = (profile?.nickname || 'U').slice(0, 2).toUpperCase();
+  const memory = (traderProfile?.behavioralMemory ?? []).slice(-8).reverse();
+  const tpField = cn(FIELD);
+  const tpArea = cn(FIELD, 'h-auto min-h-[76px] resize-y py-2.5 leading-relaxed');
 
   return (
-    <AppLayout>
-      <div className="max-w-lg mx-auto" style={{ paddingBottom: 40 }}>
-        <div className="border-b border-border" style={{ paddingBottom: 12, marginBottom: 24 }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 500, letterSpacing: '-0.02em', color: 'var(--ef-ink)' }}>Settings</h1>
-          <div className="font-mono" style={{ fontSize: 12.5, color: 'var(--ef-ink-3)', marginTop: 2 }}>Profile, security, and preferences</div>
-        </div>
+    <AppLayout width="narrow">
+      <PageHeader title="Settings" subtitle="Profile, security, billing and preferences." />
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <div className="grid items-start gap-x-8 gap-y-4 lg:grid-cols-[168px_minmax(0,1fr)]">
+        <nav aria-label="Settings sections" className="ef-scroll-quiet -mx-1 flex gap-0.5 overflow-x-auto px-1 lg:sticky lg:top-[76px] lg:mx-0 lg:flex-col lg:px-0">
+          {NAV.map(n => (
+            <a
+              key={n.id}
+              href={`#${n.id}`}
+              onClick={e => {
+                e.preventDefault();
+                document.getElementById(n.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="ef-focus shrink-0 rounded-[8px] px-2.5 py-1.5 text-[13px] text-ef-ink-3 transition-colors hover:bg-ef-hover hover:text-ef-ink"
+            >
+              {n.label}
+            </a>
+          ))}
+        </nav>
 
-        {/* Avatar */}
-        <div className="glass-card p-6">
-          <div className="flex items-center gap-4">
-            <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={profile?.avatarUrl || undefined} />
-                <AvatarFallback className="bg-primary/10 text-primary text-lg font-bold">{initials}</AvatarFallback>
-              </Avatar>
-              <div className="absolute inset-0 rounded-full bg-background/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="h-5 w-5 text-foreground" />
-              </div>
-              <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
-            </div>
-            <div>
-              <p className="font-semibold">{profile?.nickname || 'User'}</p>
-              <p className="text-xs text-muted-foreground">{user?.email}</p>
-              <Button variant="ghost" size="sm" className="mt-1 h-7 text-xs gap-1" onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar}>
-                <Camera className="h-3 w-3" />
-                {uploadingAvatar ? 'Uploading...' : 'Change Photo'}
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Nickname */}
-        <div className="glass-card p-6 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <User className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">Nickname</h2>
-          </div>
-          <Input value={nickname} onChange={e => setNicknameLocal(e.target.value)} maxLength={30} className="bg-secondary border-border h-9" />
-          <Button size="sm" onClick={handleNicknameSave} disabled={savingNickname || !nickname.trim()}>
-            {savingNickname ? 'Saving...' : 'Save Nickname'}
-          </Button>
-        </div>
-
-        {/* Password */}
-        <div className="glass-card p-6 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <KeyRound className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">Change Password</h2>
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">New Password</Label>
-            <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="••••••••" minLength={8} className="mt-1 bg-secondary border-border h-9" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Confirm Password</Label>
-            <Input type="password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="••••••••" className="mt-1 bg-secondary border-border h-9" />
-          </div>
-          <Button size="sm" onClick={handlePasswordChange} disabled={savingPassword || !newPassword}>
-            {savingPassword ? 'Updating...' : 'Update Password'}
-          </Button>
-        </div>
-
-        {/* Subscription */}
-        <div className="glass-card p-6 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">Subscription</h2>
-          </div>
-          <SubscriptionPanel />
-        </div>
-
-        {/* 2FA */}
-        <div className="glass-card p-6 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Shield className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold">Two-Factor Authentication</h2>
-            {hasMfa && <ShieldCheck className="h-4 w-4 text-profit" />}
-          </div>
-
-          {mfaLoading ? (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <Loader2 className="h-3 w-3 animate-spin" /> Loading...
-            </div>
-          ) : hasMfa ? (
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
-                <ShieldCheck className="h-3.5 w-3.5 text-profit" />
-                2FA is enabled. Your account is protected with TOTP.
-              </p>
-              <Button variant="destructive" size="sm" onClick={() => handleUnenrollMfa(verifiedFactors[0].id)} disabled={unenrolling}>
-                <ShieldOff className="h-3.5 w-3.5 mr-1" />
-                {unenrolling ? 'Disabling...' : 'Disable 2FA'}
-              </Button>
-            </div>
-          ) : qrCode ? (
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                Scan this QR code with your authenticator app (Google Authenticator, Authy, etc.):
-              </p>
-              <div className="flex justify-center p-4 bg-secondary rounded-lg">
-                <img src={qrCode} alt="TOTP QR Code" className="w-48 h-48" />
-              </div>
-              {totpSecret && (
-                <div>
-                  <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Manual Entry Key</Label>
-                  <code className="block mt-1 text-xs bg-secondary p-2 rounded font-mono break-all select-all">{totpSecret}</code>
+        <div className="flex min-w-0 flex-col gap-3">
+          {/* Profile */}
+          <Section id="profile" title="Profile">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
+              <div className="flex items-center gap-4">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  aria-label="Change profile photo"
+                  className="ef-focus group relative shrink-0 rounded-surface"
+                >
+                  <Avatar className="h-16 w-16 rounded-surface">
+                    <AvatarImage src={profile?.avatarUrl || undefined} className="rounded-surface" />
+                    <AvatarFallback className="rounded-surface bg-ef-sunken text-lg font-semibold text-ef-ink">{initials}</AvatarFallback>
+                  </Avatar>
+                  <span className="absolute inset-0 grid place-items-center rounded-surface bg-ef-bg/70 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+                    <Camera className="h-5 w-5 text-ef-ink" />
+                  </span>
+                </button>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
+                <div className="min-w-0 sm:hidden">
+                  <p className="m-0 truncate text-[14px] font-medium text-ef-ink">{profile?.nickname || 'Trader'}</p>
+                  <p className="m-0 truncate text-[12.5px] text-ef-ink-3">{user?.email}</p>
                 </div>
-              )}
-              <div>
-                <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Verification Code</Label>
-                <Input
-                  value={verifyCode}
-                  onChange={e => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                  placeholder="Enter 6-digit code"
-                  maxLength={6}
-                  className="mt-1 bg-secondary border-border h-9 font-mono tracking-widest"
-                />
               </div>
-              <div className="flex gap-2">
-                <Button size="sm" onClick={handleVerifyMfa} disabled={verifying || verifyCode.length !== 6}>
-                  {verifying ? 'Verifying...' : 'Verify & Enable'}
-                </Button>
-                <Button variant="ghost" size="sm" onClick={() => { setQrCode(null); setTotpSecret(null); setFactorId(null); setVerifyCode(''); }}>
-                  Cancel
-                </Button>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">
-                Add an extra layer of security by enabling TOTP-based two-factor authentication.
-              </p>
-              <Button size="sm" onClick={handleEnrollMfa} disabled={enrolling}>
-                <Shield className="h-3.5 w-3.5 mr-1" />
-                {enrolling ? 'Setting up...' : 'Enable 2FA'}
-              </Button>
-            </div>
-          )}
-        </div>
-
-        {/* AI Trading Profile */}
-        <div className="glass-card p-6 space-y-3">
-          <div className="flex items-center gap-2 mb-1">
-            <Brain className="h-4 w-4 text-muted-foreground" />
-            <div>
-              <h2 className="text-sm font-semibold">AI Trading Profile</h2>
-              <p className="text-xs text-muted-foreground">Help your AI advisor give hyper-personalized advice</p>
-            </div>
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Trading Style</Label>
-            <Input value={tpStyle} onChange={e => setTpStyle(e.target.value)} placeholder="e.g. ICT scalper, swing trader..." className="mt-1 bg-secondary border-border h-9" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Favorite Instruments</Label>
-            <Input value={tpInstruments} onChange={e => setTpInstruments(e.target.value)} placeholder="e.g. XAUUSD, NAS100" className="mt-1 bg-secondary border-border h-9" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Preferred Sessions</Label>
-            <Input value={tpSessions} onChange={e => setTpSessions(e.target.value)} placeholder="e.g. London, NY" className="mt-1 bg-secondary border-border h-9" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Account Goals</Label>
-            <Textarea value={tpGoals} onChange={e => setTpGoals(e.target.value)} placeholder="e.g. Grow $500 to $5000..." className="mt-1 bg-secondary border-border min-h-[60px]" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Common Mistakes</Label>
-            <Textarea value={tpMistakes} onChange={e => setTpMistakes(e.target.value)} placeholder="e.g. Revenge trading after losses..." className="mt-1 bg-secondary border-border min-h-[60px]" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Personal Trading Rules</Label>
-            <Textarea value={tpRules} onChange={e => setTpRules(e.target.value)} placeholder="e.g. Max 3 trades/day..." className="mt-1 bg-secondary border-border min-h-[60px]" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Mental / Emotional Triggers</Label>
-            <Textarea value={tpTriggers} onChange={e => setTpTriggers(e.target.value)} placeholder="e.g. FOMO when missing a move..." className="mt-1 bg-secondary border-border min-h-[60px]" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Risk Per Trade</Label>
-            <Input value={tpRisk} onChange={e => setTpRisk(e.target.value)} placeholder="e.g. 1% of account, max $50" className="mt-1 bg-secondary border-border h-9" />
-          </div>
-          <div>
-            <Label className="text-[10px] text-muted-foreground uppercase tracking-wider">Additional Notes</Label>
-            <Textarea value={tpNotes} onChange={e => setTpNotes(e.target.value)} placeholder="Anything else the AI should know..." className="mt-1 bg-secondary border-border min-h-[60px]" />
-          </div>
-          <Button size="sm" onClick={handleSaveTraderProfile} disabled={savingTp}>
-            {savingTp ? 'Saving...' : 'Save Trading Profile'}
-          </Button>
-        </div>
-
-        {/* Demo Data Management */}
-        <DemoDataSection />
-
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {theme === 'dark' ? <Moon className="h-4 w-4 text-muted-foreground" /> : <Sun className="h-4 w-4 text-muted-foreground" />}
-              <div>
-                <h2 className="text-sm font-semibold">Appearance</h2>
-                <p className="text-xs text-muted-foreground">{theme === 'dark' ? 'Dark mode' : 'Light mode'}</p>
-              </div>
-            </div>
-            <Switch checked={theme === 'light'} onCheckedChange={(checked) => setTheme(checked ? 'light' : 'dark')} />
-          </div>
-        </div>
-
-        {/* Win Rate calculation */}
-        <div className="glass-card p-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <Percent className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <h2 className="text-sm font-semibold">Break-even trades count toward win rate</h2>
-                <p className="text-xs text-muted-foreground">
-                  {countBreakevenInWinRate
-                    ? 'On: win rate is wins ÷ all trades (break-evens included).'
-                    : 'Off: win rate is wins ÷ (wins + losses). Break-evens are ignored.'}
+              <div className="min-w-0 flex-1">
+                <label htmlFor="settings-nickname" className={FIELD_LABEL}>Nickname</label>
+                <div className="flex gap-2">
+                  <input id="settings-nickname" value={nickname} onChange={e => setNicknameLocal(e.target.value)} maxLength={30} className={cn(FIELD, 'max-w-[280px]')} />
+                  <button type="button" onClick={handleNicknameSave} disabled={savingNickname || !nickname.trim() || nickname === profile?.nickname} className="ef-btn ef-btn-secondary h-9">
+                    {savingNickname ? 'Saving…' : 'Save'}
+                  </button>
+                </div>
+                <p className="m-0 mt-3 text-[12.5px] text-ef-ink-3">
+                  Signed in as <span className="text-ef-ink-2">{user?.email}</span>
+                  {uploadingAvatar && ' · uploading photo…'}
                 </p>
               </div>
             </div>
-            <Switch checked={countBreakevenInWinRate} onCheckedChange={setCountBreakevenInWinRate} />
-          </div>
-        </div>
+          </Section>
 
+          {/* Trading profile */}
+          <Section
+            id="trading-profile"
+            title="Trading profile"
+            description="Atlas reads this before it answers. The more specific it is, the less generic the advice."
+          >
+            <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="tp-style" className={FIELD_LABEL}>Trading style</label>
+                <input id="tp-style" value={tpStyle} onChange={e => setTpStyle(e.target.value)} placeholder="Intraday trend follower" className={tpField} />
+              </div>
+              <div>
+                <label htmlFor="tp-risk" className={FIELD_LABEL}>Risk per trade</label>
+                <input id="tp-risk" value={tpRisk} onChange={e => setTpRisk(e.target.value)} placeholder="1% of the account, $50 at most" className={tpField} />
+              </div>
+              <div>
+                <label htmlFor="tp-instruments" className={FIELD_LABEL}>Instruments</label>
+                <input id="tp-instruments" value={tpInstruments} onChange={e => setTpInstruments(e.target.value)} placeholder="XAUUSD, NAS100" className={tpField} />
+              </div>
+              <div>
+                <label htmlFor="tp-sessions" className={FIELD_LABEL}>Sessions</label>
+                <input id="tp-sessions" value={tpSessions} onChange={e => setTpSessions(e.target.value)} placeholder="London, New York" className={tpField} />
+              </div>
+              <div>
+                <label htmlFor="tp-goals" className={FIELD_LABEL}>Account goals</label>
+                <textarea id="tp-goals" value={tpGoals} onChange={e => setTpGoals(e.target.value)} placeholder="Pass the 50k challenge by December" className={tpArea} />
+              </div>
+              <div>
+                <label htmlFor="tp-rules" className={FIELD_LABEL}>Personal rules</label>
+                <textarea id="tp-rules" value={tpRules} onChange={e => setTpRules(e.target.value)} placeholder="Three trades a day at most" className={tpArea} />
+              </div>
+              <div>
+                <label htmlFor="tp-mistakes" className={FIELD_LABEL}>Common mistakes</label>
+                <textarea id="tp-mistakes" value={tpMistakes} onChange={e => setTpMistakes(e.target.value)} placeholder="Revenge trades after a loss" className={tpArea} />
+              </div>
+              <div>
+                <label htmlFor="tp-triggers" className={FIELD_LABEL}>Emotional triggers</label>
+                <textarea id="tp-triggers" value={tpTriggers} onChange={e => setTpTriggers(e.target.value)} placeholder="Fear of missing a move" className={tpArea} />
+              </div>
+              <div className="sm:col-span-2">
+                <label htmlFor="tp-notes" className={FIELD_LABEL}>Anything else Atlas should know</label>
+                <textarea id="tp-notes" value={tpNotes} onChange={e => setTpNotes(e.target.value)} className={tpArea} />
+              </div>
+            </div>
+            <button type="button" onClick={handleSaveTraderProfile} disabled={savingTp} className="ef-btn ef-btn-primary mt-5">
+              {savingTp ? 'Saving…' : 'Save trading profile'}
+            </button>
+
+            {memory.length > 0 && (
+              <div className="mt-6 border-t border-ef-line pt-5">
+                <p className="ef-label m-0">What Atlas has noticed</p>
+                <p className="m-0 mt-2 max-w-[62ch] text-[12.5px] leading-relaxed text-ef-ink-3">
+                  Short notes Atlas keeps from your conversations and uses in later answers.
+                </p>
+                <ul className="m-0 mt-3 list-none p-0">
+                  {memory.map((item, i) => (
+                    <li key={i} className="border-t border-ef-line py-2 text-[13px] text-ef-ink-2 first:border-t-0">
+                      {typeof item === 'string' ? item : item?.insight ?? item?.text ?? JSON.stringify(item)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </Section>
+
+          {/* Security */}
+          <Section id="security" title="Security">
+            <div className="grid gap-x-4 gap-y-4 sm:grid-cols-2">
+              <div>
+                <label htmlFor="settings-password" className={FIELD_LABEL}>New password</label>
+                <input id="settings-password" type="password" autoComplete="new-password" value={newPassword} onChange={e => setNewPassword(e.target.value)} minLength={8} placeholder="At least 8 characters" className={FIELD} />
+              </div>
+              <div>
+                <label htmlFor="settings-password-confirm" className={FIELD_LABEL}>Confirm password</label>
+                <input id="settings-password-confirm" type="password" autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} className={FIELD} />
+              </div>
+            </div>
+            <button type="button" onClick={handlePasswordChange} disabled={savingPassword || !newPassword} className="ef-btn ef-btn-secondary mt-4">
+              {savingPassword ? 'Updating…' : 'Update password'}
+            </button>
+
+            <div className="mt-6 border-t border-ef-line pt-5">
+              <div className="flex items-center gap-2">
+                <p className="m-0 text-[13px] font-medium text-ef-ink">Two-factor authentication</p>
+                {hasMfa && <Pill tone="pos">On</Pill>}
+              </div>
+
+              {mfaLoading ? (
+                <div className="mt-3 h-9 w-40 animate-pulse rounded-control bg-ef-sunken" aria-busy="true" aria-label="Loading two-factor status" />
+              ) : hasMfa ? (
+                <>
+                  <p className="m-0 mt-1 max-w-[62ch] text-[12.5px] leading-relaxed text-ef-ink-3">
+                    Sign-in asks for a code from your authenticator app.
+                  </p>
+                  <button type="button" onClick={() => handleUnenrollMfa(verifiedFactors[0].id)} disabled={unenrolling} className="ef-btn ef-btn-secondary mt-3 hover:text-ef-neg">
+                    <ShieldOff className="h-3.5 w-3.5" /> {unenrolling ? 'Turning off…' : 'Turn off two-factor'}
+                  </button>
+                </>
+              ) : qrCode ? (
+                <div className="mt-3 flex flex-col gap-4 sm:flex-row">
+                  <div className="shrink-0 self-start rounded-control bg-white p-3">
+                    <img src={qrCode} alt="QR code to scan with an authenticator app" className="h-40 w-40" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="m-0 text-[12.5px] leading-relaxed text-ef-ink-3">
+                      Scan the code with an authenticator app, then enter the six-digit code it shows.
+                    </p>
+                    {totpSecret && (
+                      <div className="mt-3">
+                        <span className={FIELD_LABEL}>Or enter this key by hand</span>
+                        <code className="ef-num block select-all break-all rounded-control bg-ef-sunken px-3 py-2 text-[12px] text-ef-ink-2">{totpSecret}</code>
+                      </div>
+                    )}
+                    <div className="mt-3">
+                      <label htmlFor="settings-totp" className={FIELD_LABEL}>Verification code</label>
+                      <input
+                        id="settings-totp"
+                        value={verifyCode}
+                        onChange={e => setVerifyCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        placeholder="000000"
+                        maxLength={6}
+                        className={cn(FIELD, 'ef-num max-w-[160px] tracking-[0.3em]')}
+                      />
+                    </div>
+                    <div className="mt-4 flex gap-2">
+                      <button type="button" onClick={handleVerifyMfa} disabled={verifying || verifyCode.length !== 6} className="ef-btn ef-btn-primary">
+                        {verifying ? 'Verifying…' : 'Verify and turn on'}
+                      </button>
+                      <button type="button" onClick={() => { setQrCode(null); setTotpSecret(null); setFactorId(null); setVerifyCode(''); }} className="ef-btn ef-btn-ghost">
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p className="m-0 mt-1 max-w-[62ch] text-[12.5px] leading-relaxed text-ef-ink-3">
+                    Adds a code from an authenticator app to every sign-in.
+                  </p>
+                  <button type="button" onClick={handleEnrollMfa} disabled={enrolling} className="ef-btn ef-btn-secondary mt-3">
+                    <ShieldCheck className="h-3.5 w-3.5" /> {enrolling ? 'Setting up…' : 'Set up two-factor'}
+                  </button>
+                </>
+              )}
+            </div>
+          </Section>
+
+          {/* Billing */}
+          <Section id="billing" title="Billing">
+            <SubscriptionPanel />
+          </Section>
+
+          {/* Preferences */}
+          <Section id="preferences" title="Preferences">
+            <Row title="Theme" description={theme === 'dark' ? 'Dark' : 'Light'}>
+              <Segmented<'dark' | 'light'>
+                ariaLabel="Theme"
+                value={theme === 'light' ? 'light' : 'dark'}
+                onChange={setTheme}
+                options={[
+                  { value: 'dark', label: <span className="flex items-center gap-1.5"><Moon className="h-3.5 w-3.5" /> Dark</span> },
+                  { value: 'light', label: <span className="flex items-center gap-1.5"><Sun className="h-3.5 w-3.5" /> Light</span> },
+                ]}
+              />
+            </Row>
+            <Row
+              title="Count breakeven trades in win rate"
+              description={countBreakevenInWinRate
+                ? 'On: win rate is wins divided by all trades.'
+                : 'Off: win rate is wins divided by wins plus losses.'}
+            >
+              <Switch checked={countBreakevenInWinRate} onCheckedChange={setCountBreakevenInWinRate} aria-label="Count breakeven trades in win rate" className="data-[state=checked]:bg-ef-ink data-[state=unchecked]:bg-ef-line-strong" />
+            </Row>
+          </Section>
+
+          <DemoDataSection />
         </div>
       </div>
     </AppLayout>

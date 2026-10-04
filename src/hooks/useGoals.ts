@@ -25,11 +25,13 @@ export function useGoals() {
         .eq('user_id', user.id)
         .maybeSingle();
       if (!data) return null;
+      // trader_goals is not in the generated types yet.
+      const row = data as any;
       return {
-        dailyTarget: data.daily_target ?? null,
-        weeklyTarget: data.weekly_target ?? null,
-        monthlyTarget: data.monthly_target ?? null,
-        maxDailyLoss: data.max_daily_loss ?? null,
+        dailyTarget: row.daily_target ?? null,
+        weeklyTarget: row.weekly_target ?? null,
+        monthlyTarget: row.monthly_target ?? null,
+        maxDailyLoss: row.max_daily_loss ?? null,
       } as TraderGoals;
     },
   });

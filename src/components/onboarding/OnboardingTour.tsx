@@ -3,30 +3,32 @@ import { Button } from '@/components/ui/button';
 import { X, ArrowRight, Lightning as Zap, Warning as AlertTriangle, ChartBar as BarChart3 } from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 
-const STEPS = [
+type TourPosition = 'bottom' | 'left' | 'top';
+
+const STEPS: { selector: string; fallbackSelector: string; title: string; description: string; icon: typeof AlertTriangle; position: TourPosition }[] = [
   {
     selector: '[data-tour="leak-badge"]',
-    fallbackSelector: '.bg-loss\\/5',
-    title: 'Leak Detection',
-    description: 'Rows highlighted in red with the "LEAK" badge have negative expectancy. These are segments bleeding your account.',
+    fallbackSelector: '.ef-table tbody tr',
+    title: 'Leaks',
+    description: 'Rows tagged Leak have negative expectancy. These segments are costing you money.',
     icon: AlertTriangle,
-    position: 'bottom' as const,
+    position: 'bottom',
   },
   {
     selector: '[data-tour="simulate-btn"]',
-    fallbackSelector: 'button[title*="Simulate"]',
-    title: 'Run Simulation',
-    description: 'Click the ⚡ icon on any row to instantly load those filters into the Strategy Optimizer below.',
+    fallbackSelector: '.ef-table tbody tr button',
+    title: 'Test a change',
+    description: 'Use Test without on any row to see your results with that segment removed.',
     icon: Zap,
-    position: 'left' as const,
+    position: 'left',
   },
   {
     selector: '[data-tour="simulator"]',
-    fallbackSelector: '.glass-card:last-child',
-    title: 'Strategy Optimizer',
-    description: 'Use "What-If" filters to simulate removing leaky setups. See how your equity curve and expectancy would change.',
+    fallbackSelector: '[role="tablist"]',
+    title: 'What-if',
+    description: 'Build your own filter here and compare your equity curve with and without it.',
     icon: BarChart3,
-    position: 'top' as const,
+    position: 'bottom',
   },
 ];
 
