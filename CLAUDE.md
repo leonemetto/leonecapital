@@ -84,13 +84,29 @@ The app uses a token-based design system with light + dark variants. Always use 
 ### Fonts
 - Sans: Geist (variable, loaded from /fonts/Geist-Variable.woff2)
 - Mono: Geist Mono (variable, loaded from /fonts/GeistMono-Variable.woff2)
-- All numeric values: `font-mono tabular-nums` class
+- All numeric values: `ef-num` (or `font-mono tabular-nums`) class
+- NOTE: src/index.css currently puts trial cuts of Neue Haas Grotesk and Suisse Intl Mono ahead of
+  Geist in `--ff-display`, `--ff-body` and `--ff-mono`. Always use those three variables so the
+  typeface can be changed in one place. The licence decision (buy Neue Haas, or return to Geist) is open.
 
 ### Buttons
-- Primary: `bg-foreground text-background` rounded-[24px] font-semibold
-- Secondary: transparent, border border-border, rounded-[24px]
-- Log Trade submit ONLY: `bg-[#10b981] text-black` rounded-[24px]
+- App (logged-in screens): use the `ef-btn` classes from src/index.css with a 10px radius
+  - Primary: `ef-btn ef-btn-primary` (ink on background)
+  - Secondary: `ef-btn ef-btn-secondary` (elevated, hairline border)
+  - Ghost: `ef-btn ef-btn-ghost`; small size: add `ef-btn-sm`
+- Landing and other public pages keep the pill buttons: `bg-foreground text-background rounded-[24px]`
+- Log Trade submit ONLY: `bg-[#10b981] text-black`
 - NEVER use green on any button except Log Trade submit
+
+### App primitives (src/components/ef/, src/index.css)
+- `Surface`, `Stat`, `Meter` (tick bar), `Segmented`, `CountTabs`, `Pill`, `EmptyState`, `Kbd` in primitives.tsx
+- `FilterChip` (popover filter), `SidePanel` (right slide-over), `TradeTape` (one tick per trade)
+- Form fields: `FIELD`, `FIELD_LABEL`, `toggleClass()` from src/components/ef/field.ts
+- Tables: `ef-table` class (sticky header, right-aligned `.num` cells)
+- Tailwind token classes: `bg-ef-elev`, `text-ef-ink-3`, `border-ef-line`, `text-ef-pos`, `bg-ef-neg-wash` etc.
+- Radius scale: `rounded-surface` 14px, `rounded-control` 10px, `rounded-chip` 6px
+- Colour rules: green/red only on P&L values and their washes; amber only for limits and warnings
+- Artwork (Higgsfield, white-on-black, in public/art/): render with the `ef-art` class so it adapts to both themes
 
 ### Cards (dark mode)
 - Use `var(--ef-bg-elev)` background, `1px solid var(--ef-line)` border
@@ -101,13 +117,14 @@ The app uses a token-based design system with light + dark variants. Always use 
 - `.section-label` utility: text-[9px] uppercase tracking-[0.2em] text-muted-foreground/40 font-bold
 - `.label-text` utility: text-[10px] uppercase tracking-[0.12em] text-muted-foreground/60 font-semibold
 
-### Sidebar
-- Active item: bg-foreground text-background rounded-[8px]
-- Inactive items: text-muted-foreground hover:text-foreground hover:bg-muted
+### Sidebar (src/components/shell/Sidebar.tsx)
+- Account switcher at the top (one account scope for every screen), then Log trade, then four destinations
+- Active item: `bg-ef-sunken text-ef-ink` with a 2px ink marker; inactive: `text-ef-ink-3`
 - No green anywhere in sidebar
 - Collapsed: icon (17px) + 8px label, no Radix Tooltip
-- Log Trade button: bg-foreground text-background pill at top of nav, always visible
-- Settings removed from nav — accessible via clicking profile name at bottom
+- Log trade button: solid ink, opens the log dialog (shortcut L)
+- Ask Atlas toggles the side panel; the profile row opens a menu (Settings, Accounts, Import, Help, theme, sign out)
+- Phones: the sidebar is a slide-over and a bottom dock (MobileDock) carries the four destinations plus Log
 
 ### Typography
 - Page titles: ~22px, font-weight: 500, letter-spacing: -0.02em
@@ -116,18 +133,17 @@ The app uses a token-based design system with light + dark variants. Always use 
 - Numbers: font-mono class (Geist Mono), tabular-nums
 
 ## Pages & Status
-- /dashboard        — Analytics dashboard ✅ fully redesigned
-- /analyst          — Performance Analytic ✅ (renamed from Analyst)
-- /journal          — Trades DB ✅ summary stats + 50-per-page pagination
-- /accounts         — Trading Accounts ✅ (sparkline fixed)
-- /add-trade        — Log Trade ✅ collapsible advanced fields, double-submit guard
-- /ai               — Atlas, gated behind 10 trades ✅
-- /profile          — Settings ✅ (accessible from sidebar bottom profile section)
+- /dashboard        — Today ✅ hero P&L, equity, needs attention, session, calendar, movers (src/pages/Today.tsx)
+- /journal          — Trades ✅ count tabs, filter chips, saved views, bulk actions, detail drawer (src/pages/Trades.tsx)
+- /insights         — Insights ✅ tabs: Breakdown (/insights), Leaks (/insights/leaks), What-if (/insights/what-if)
+- /trading-plan     — Plan ✅ plan adherence, limits and targets, entry rules (src/pages/Plan.tsx)
+- /ai               — Atlas full page ✅ (the same conversation also lives in the side panel)
+- /accounts         — Trading Accounts ✅ (opened from the account switcher; content styling not yet redesigned)
+- /profile          — Settings ✅ sections: Profile, Trading profile, Security, Billing, Preferences, Data
+- /import-trades    — CSV/broker import ✅ (content styling not yet redesigned)
 - /guide            — Platform Guide ✅
-- /import-trades    — CSV/broker import ✅ (EdgeFlow, MT4/MT5, generic formats)
-- /leak-detection   — Leak Detection ✅ sidebar badge for new leaks
-- /what-if          — Strategy Optimizer ✅ what-if simulation with equity curve
-- /trading-plan     — Trading Plan / Entry Checklist ✅
+- Redirects: /add-trade → opens the log dialog over Today; /analyst → /insights;
+  /leak-detection → /insights/leaks; /what-if → /insights/what-if (query strings carry over)
 - /auth             — Login/Signup ✅
 - /auth/callback    — Email confirmation + OAuth redirect ✅
 - /reset-password   — Password reset ✅
@@ -136,16 +152,13 @@ The app uses a token-based design system with light + dark variants. Always use 
 - /blog             — Blog index ✅ (SEO content hub)
 - /blog/:slug       — Blog post pages ✅ (5 posts live: trading journal, forex journal, prop firm, leaks, revenge trading)
 
-## Sidebar Nav Labels (current)
-- Dashboard → /dashboard
-- Analytic → /analyst
-- Trades DB → /journal
-- Accounts → /accounts
-- Atlas → /ai
-- Trading Plan → /trading-plan (criteria/checklist management)
-- Leak Detection → /leak-detection (badge shows new leaks since last visit)
-- Optimizer → /what-if
-- Profile/Settings → bottom of sidebar (click avatar/name to navigate to /profile)
+## Navigation (current)
+- Today → /dashboard
+- Trades → /journal
+- Insights → /insights (badge shows new leaks since last visit)
+- Plan → /trading-plan
+- Always available: account switcher, Log trade (L), Atlas panel (Cmd/Ctrl+J), search and commands (Cmd/Ctrl+K)
+- Keyboard: G then D/T/I/P jumps to Today/Trades/Insights/Plan; in the trade drawer J/K step, E edits
 
 ## Features Complete
 - ✅ Auth (signup, signin, reset password, Google OAuth)
@@ -192,67 +205,57 @@ The app uses a token-based design system with light + dark variants. Always use 
 - ✅ 21 analytics unit tests — calculateAnalytics, getExpectancyByField, simulateFilter, getDailyPnl
 
 ## Trade Form — All Fields
-### Always Visible (required)
-- Date (calendar picker)
-- Instrument (creatable select — user can add custom)
-- Direction (long/short toggle)
-- Outcome (win/loss/breakeven)
-- P&L (auto-signed based on outcome)
-- Account (select, required if >1 account)
+Opens as a dialog from any screen (LogTradeDialog; button, L key, command palette). The trade drawer
+uses the same form to edit. It remembers the last instrument, setup and account.
 
-### Advanced (collapsible)
-- Strategy (creatable select)
-- Session (London, New York, Asian, Overlap, Off-hours)
-- R-Multiple
-- Risk %
+### Always Visible
+- Account (select, shown if >1 account; mirrored mode across accounts)
+- Instrument (creatable select — user can add custom) and P&L (auto-signed based on outcome): required
+- Direction (long/short toggle), Result (win/loss/breakeven)
+- Date, Session, Setup
+- R multiple, Risk %, Followed plan
+- Chart screenshot (drop or choose) and Note, in a right-hand column
+
+### Context (collapsible)
 - HTF Bias (Bullish/Bearish/Neutral)
-- Emotional State (1-5 slider)
-- Confidence Level (1-5 slider)
+- Emotional State (1-5)
+- Confidence Level (1-5)
 - Time In Trade (minutes)
-- Followed Plan (yes/no)
-- Notes (textarea)
-- Screenshot (file upload with preview + clear)
 
 ### Checklist (shown when criteria exist)
 - All active criteria as checkboxes
 - Auto-checks all if "Followed Plan: Yes"
 - Saves to trade_verifications table
 
-## Dashboard Widgets
-1. Greeting header — time-based (morning/afternoon/evening) + nickname
-2. Account filter — switch between all accounts or specific account
-3. Entry Checklist button — opens sheet with active criteria, link to customize
-4. Daily Review button — navigates to AI with today's trade context pre-injected
-5. Log Trade button — quick entry
-6. StatBar — Win rate, Net P&L, Profit Factor, Avg R, Max Drawdown (with 7-day sparklines)
-7. Equity Curve — area chart, daily/weekly/monthly toggle
-8. Heat Map Calendar — P&L by day, month navigation, monthly stats
-9. Session Performance — win rate bars per session, best session highlighted
-10. Recent Trades — latest trades table with P&L color coding
-11. Daily Journal — mood (1-5 emoji), notes, key lesson, save, 14-day history
+## Today — Layout (src/pages/Today.tsx)
+1. Header — greeting, date, account; range control (7d / 30d / 90d / YTD / All); Review today
+2. Hero — net P&L for the range, change against the previous period, four stats, the trade tape, balance curve
+3. Needs attention — loss-limit state, trades waiting for a plan tag, new leaks, missing session note, drawdown
+4. Session — today's P&L, daily loss limit and daily target meters (from trader_goals)
+5. Calendar — P&L per day; a day opens the day review (DayReviewSheet, saves to daily_journals)
+6. What moved the result, latest trades, prop challenges
+- First run (no trades): a statement drop zone that hands the file to /import-trades
+- "To review" everywhere means `followedPlan` is undefined; tagging a trade on or off plan is the review step
 
-## Performance Analytic Page — Sections
-1. Expectancy tables (sortable, color-coded) by:
-   - Instrument, Direction, Strategy, Session, HTF Bias, Plan Adherence
-   - Columns: name, trade count, win %, avg R, expectancy, net P&L
-   - Lightning button → simulate "what if I removed this filter?"
-2. Behavioral alerts panel:
-   - Revenge trading detection (multiple trades after loss same day)
-   - Overtrading (days with 2x+ average daily volume)
-   - Loss clustering (consecutive losing trades/days)
-   - Emotional correlation (emotional state vs win rate)
-   - Plan violation impact (win rate when followed vs violated)
-3. Risk status — current drawdown, streak, daily P&L trend
-4. Account selector — focus analysis on one account
-5. Leak diagnostic — human-readable explanation for negative-expectancy segments
+## Insights — Tabs (src/pages/Insights.tsx, src/components/insights/)
+1. Breakdown — risk state and key metrics, a dimension picker (instrument, session, side, setup, bias,
+   emotion, confidence, plan), one chart and one sortable table; "Test without" opens What-if
+2. Leaks — ranked by money lost (src/lib/leaks.ts); detail shows the note, the trades behind it,
+   and actions: test removing it, ask Atlas, add a rule
+3. What-if — filters on the left, live result on the right (simulateFilter), "Add as a rule to Plan"
+- Behaviour patterns (detectBehavioralPatterns) sit under Breakdown and need 20 trades
+- Leaks and What-if need 15 trades (LEAK_MIN_TRADES)
 
 ## Atlas — How It Works
-- Gate: requires 10+ trades (shows X/10 progress bar)
+- Gate: requires 1 logged trade (ATLAS_TRADE_GATE in src/components/atlas/AtlasProvider.tsx)
+- UI: a side panel on every screen (AtlasPanel, Cmd/Ctrl+J) and a full page at /ai; both render AtlasThread
+  and share one conversation through AtlasProvider. Screens can open the panel with context
+  (`openAtlas({ hint, prompt })` from useShell)
 - Edge function: supabase/functions/trade-advisor/index.ts
 - System prompt: supabase/functions/_shared/atlas-prompt.ts (shared with eval harness — change in one place)
 - Model: Claude Haiku (claude-haiku-4-5-20251001) via Anthropic API
 - Personality: senior risk manager / performance coach, direct, data-driven, no fluff
-- Context sent per message (ANALYTICS SUMMARY block, pre-computed by buildTradesSummary in src/pages/AIAdvisor.tsx):
+- Context sent per message (ANALYTICS SUMMARY block, pre-computed by buildTradesSummary in src/lib/atlasSummary.ts):
   - Core stats: win rate, profit factor, avg win, avg loss, net P&L, max drawdown
   - BY INSTRUMENT, BY SESSION, BY STRATEGY, BY DIRECTION
   - BY INSTRUMENT × DIRECTION, BY INSTRUMENT × SESSION (cross-tabs)
@@ -266,7 +269,7 @@ The app uses a token-based design system with light + dark variants. Always use 
 - Chat stored in sessionStorage (cleared on browser close)
 - Max 10 messages per session (auto-trims)
 - Suggestion pills: quick prompts for common questions
-- Daily Review: Dashboard button pre-injects today's trade context
+- Day review: "Review with Atlas" in the day review sheet sends that day's trades as context
 
 ## Atlas Eval Harness
 - Location: scripts/atlas-evals/ (run.ts, prompts.json, fixture.json)
@@ -338,6 +341,10 @@ The app uses a token-based design system with light + dark variants. Always use 
 - MFA enrollment: Settings → Set Up 2FA → QR code → verify code → active
 - MFA login: after password → TOTP screen → verify → dashboard
 
+## Dev preview (no account needed)
+- `npm run dev`, then open `/dashboard?preview` (add `&empty` for the first-run state, `&full` to go back)
+- src/dev/PreviewGate.tsx seeds the query cache with sample data; it is stripped from production builds
+
 ## Profile Settings Page
 - Nickname edit + save
 - Avatar upload (Supabase storage)
@@ -350,7 +357,12 @@ The app uses a token-based design system with light + dark variants. Always use 
 - Demo data deletion
 
 ## State Architecture
-- TanStack Query handles all server state (trades, accounts, criteria, profile, goals)
+- AppShell (src/components/shell/AppShell.tsx) wraps the signed-in routes once: sidebar, top bar with the
+  session strip, Atlas panel, command palette, log dialog, trade drawer, day review. Pages only render
+  `<AppLayout>` as a content container
+- ShellContext (useShell) — open/close state for the log dialog, Atlas, palette, trade drawer, day review
+- ViewContext (useView) — the selected account's trades (`accountTrades`, `scaledTrades`) and Today's range
+- TanStack Query handles all server state (trades, accounts, criteria, profile, goals, daily journals)
 - QueryClient configured with staleTime: 5min — no refetch on every window focus
 - React Context lifts query results app-wide (no prop drilling, no duplicate fetches):
   - TradesContext — wraps useTrades(), all pages call useSharedTrades()
